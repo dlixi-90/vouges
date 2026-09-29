@@ -10,7 +10,11 @@ import CheckoutAddressForm from "../components/checkout/CheckoutAddressForm";
 import { useAppContext } from "../context/AppContext";
 import { assets } from "../assets/data";
 import { formatThousandsVnd } from "../utils/money";
-import { getCartItemKey, changeSizeSelection, getAvailableCartItems } from "../utils/cartSelection";
+import {
+  getCartItemKey,
+  changeSizeSelection,
+  getAvailableCartItems,
+} from "../utils/cartSelection";
 import { getSizeQuantity } from "../utils/productStock";
 import { initialCheckoutAddress } from "../utils/checkoutAddress";
 import { getOrderedCartItems } from "../utils/cartOrder";
@@ -92,7 +96,10 @@ const Cart = () => {
     [cartData, products],
   );
   const availableItemKeys = useMemo(
-    () => new Set(availableCartData.map((item) => getCartItemKey(item._id, item.size))),
+    () =>
+      new Set(
+        availableCartData.map((item) => getCartItemKey(item._id, item.size)),
+      ),
     [availableCartData],
   );
 
@@ -120,9 +127,11 @@ const Cart = () => {
     [availableCartData, deselectedItemKeys],
   );
   const allItemsSelected =
-    availableCartData.length > 0 && selectedItemKeys.size === availableCartData.length;
+    availableCartData.length > 0 &&
+    selectedItemKeys.size === availableCartData.length;
   const someItemsSelected =
-    selectedItemKeys.size > 0 && selectedItemKeys.size < availableCartData.length;
+    selectedItemKeys.size > 0 &&
+    selectedItemKeys.size < availableCartData.length;
 
   useEffect(() => {
     for (const ref of [selectAllRef, footerSelectAllRef]) {
@@ -147,9 +156,7 @@ const Cart = () => {
 
   const toggleAllItems = () => {
     setDeselectedItemKeys(
-      allItemsSelected
-        ? new Set(availableItemKeys)
-        : new Set(),
+      allItemsSelected ? new Set(availableItemKeys) : new Set(),
     );
   };
 
@@ -362,8 +369,11 @@ const Cart = () => {
                           <div className="min-w-0">
                             <h5 className="h5 line-clamp-2">{product.title}</h5>
                             {isUnavailable && (
-                              <p className="mt-2 text-sm font-medium text-secondary" role="status">
-                                Out of stock — remove from cart
+                              <p
+                                className="mt-2 text-sm font-medium text-secondary"
+                                role="status"
+                              >
+                                Out of stock - remove from cart
                               </p>
                             )}
                           </div>
@@ -401,7 +411,9 @@ const Cart = () => {
                             type="button"
                             aria-label={`Decrease quantity of ${product.title}, size ${item.size}`}
                             onClick={() => decrement(item._id, item.size)}
-                            disabled={isUpdatingCart || isUnavailable || quantity <= 1}
+                            disabled={
+                              isUpdatingCart || isUnavailable || quantity <= 1
+                            }
                             className="cursor-pointer rounded-full bg-secondary p-2 text-white shadow-md disabled:cursor-not-allowed disabled:opacity-40"
                           >
                             <img
@@ -468,7 +480,9 @@ const Cart = () => {
                   <div className="flex items-center gap-1">
                     <CartCheckbox
                       inputRef={footerSelectAllRef}
-                      disabled={isUpdatingCart || availableCartData.length === 0}
+                      disabled={
+                        isUpdatingCart || availableCartData.length === 0
+                      }
                       checked={allItemsSelected}
                       onChange={toggleAllItems}
                       indeterminate={someItemsSelected}
