@@ -609,9 +609,6 @@ const ProductForm = () => {
                     className="admin-input bg-[#f8faf8]"
                     aria-label="Category"
                   />
-                  <span className="mt-1 block text-xs text-[#839099]">
-                    Automatically set by the selected product type.
-                  </span>
                 </Field>
               </div>
 
@@ -708,13 +705,6 @@ const ProductForm = () => {
                     ))
                   )}
                 </div>
-                {sizePrices.length > 0 && (
-                  <p className="mt-3 text-xs text-[#71808a]">
-                    Save confirms each size edit.{" "}
-                    {isEditMode ? "Save changes" : "Add product"} saves the
-                    product.
-                  </p>
-                )}
               </div>
             </div>
           </section>
