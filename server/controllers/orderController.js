@@ -78,6 +78,7 @@ const validateUserAddress = async (addressId, userId, session) => {
   const addressQuery = Address.findOne({
     _id: addressId,
     userId,
+    deletedAt: null,
   });
   const address = session
     ? await addressQuery.session(session)

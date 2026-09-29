@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
 import { getCartItemKey, removePurchasedItems } from "../../utils/cartSelection";
 import { validateDeliveryPhone } from "../../utils/deliveryPhone";
-import { resolveCheckoutAddress } from "../../utils/checkoutAddress";
+import { resolveCheckoutAddress, removeSavedAddress, replaceSavedAddress } from "../../utils/checkoutAddress";
 import DeliveryAddressFields from "./DeliveryAddressFields";
 import AddressBookDialog from "./AddressBookDialog";
 
@@ -73,14 +73,17 @@ const CheckoutAddressForm = ({
     return () => controller.abort();
   }, [axios, getToken, user, setAddress, loadAttempt]);
 
-  const saveAddress = async (draft, defaultRequested) => {
+  const saveAddress = async (draft, defaultRequested, saveToAddressBook = true) => {
     const phone = validateDeliveryPhone(draft.phone);
     if (!phone.valid) throw new Error(phone.error);
     const { data } = await axios.post("/api/addresses/add", {
-      address: { ...draft, phone: phone.normalized }, makeDefault: defaultRequested,
+      address: { ...draft, phone: phone.normalized },
+      makeDefault: saveToAddressBook && defaultRequested,
+      saveToAddressBook,
     }, { headers: { Authorization: `Bearer ${await getToken()}` } });
     if (!data.success || !data.address?._id) throw new Error(data.message || "Unable to save address");
     const saved = data.address;
+    if (!saveToAddressBook) return saved;
     setAddresses((current) => [
       saved,
       ...current.filter((entry) => entry._id !== saved._id)
@@ -97,6 +100,32 @@ const CheckoutAddressForm = ({
     if (!data.success) throw new Error(data.message || "Unable to update default address");
     setAddresses((current) => current.map((entry) => ({ ...entry, isDefault: entry._id === addressId })));
     setAddress((current) => ({ ...current, isDefault: current._id === addressId }));
+  };
+
+  const updateSavedAddress = async (addressId, draft, makeDefault) => {
+    const phone = validateDeliveryPhone(draft.phone);
+    if (!phone.valid) throw new Error(phone.error);
+    const { data } = await axios.patch(`/api/addresses/${addressId}`, {
+      address: { ...draft, phone: phone.normalized }, makeDefault,
+    }, { headers: { Authorization: `Bearer ${await getToken()}` } });
+    if (!data.success || !data.address?._id) throw new Error(data.message || "Unable to update address");
+    const updated = data.address;
+    setAddresses((current) => replaceSavedAddress(current, addressId, updated));
+    setAddress((current) => current._id === addressId
+      ? updated
+      : updated.isDefault ? { ...current, isDefault: false } : current);
+    return updated;
+  };
+
+  const deleteSavedAddress = async (addressId) => {
+    const { data } = await axios.delete(`/api/addresses/${addressId}`, {
+      headers: { Authorization: `Bearer ${await getToken()}` },
+    });
+    if (!data.success) throw new Error(data.message || "Unable to delete address");
+    const remaining = removeSavedAddress(addresses, addressId);
+    setAddresses(remaining);
+    setAddress((current) => resolveCheckoutAddress(current, remaining, user));
+    return remaining;
   };
 
   const saveInlineAddress = async (event) => {
@@ -138,7 +167,7 @@ const CheckoutAddressForm = ({
       submitRef.current = true;
       setIsSubmitting(true);
 
-      const addressId = address._id || (await saveAddress({ ...address, phone: phone.normalized }, makeDefault))._id;
+      const addressId = address._id || (await saveAddress({ ...address, phone: phone.normalized }, false, false))._id;
 
       // Use the chosen saved address for either payment method.
       const endpoint = method === "QR" ? "/api/orders/qr" : "/api/orders/cod";
@@ -217,7 +246,7 @@ const CheckoutAddressForm = ({
         <>
           <DeliveryAddressFields address={address} setAddress={setAddress} disabled={isSubmitting} />
           <label className="mt-5 flex cursor-pointer items-center gap-2 text-sm"><input type="checkbox" checked={makeDefault} onChange={(event) => setMakeDefault(event.target.checked)} disabled={isSubmitting} className="h-4 w-4 accent-secondary" />Save as default address</label>
-          <p className="mt-3 !text-xs">This address will be saved for your next order.</p>
+          <p className="mt-3 !text-xs">Click Save Address to keep it for future orders. Otherwise, it is used for this order only.</p>
           <button type="button" disabled={isSubmitting} onClick={saveInlineAddress} className="btn-dark mt-5 !rounded-md disabled:opacity-40">{isSubmitting ? "Saving..." : "Save Address"}</button>
           {addresses.length > 0 && <button type="button" disabled={isSubmitting} onClick={() => setIsAddressBookOpen(true)} className="btn-outline mt-5 !rounded-md">Choose Saved Address</button>}
         </>
@@ -229,7 +258,9 @@ const CheckoutAddressForm = ({
           selectedId={address._id}
           user={user}
           onSave={saveAddress}
+          onUpdate={updateSavedAddress}
           onMakeDefault={makeAddressDefault}
+          onDelete={deleteSavedAddress}
           onClose={() => setIsAddressBookOpen(false)}
           onSelect={(selected) => { setAddress(selected); setIsAddressBookOpen(false); }}
         />

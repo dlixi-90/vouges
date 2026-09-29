@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 
 const addressSchema = new mongoose.Schema(
   {
+    savedAt: { type: Date, default: null },
+    deletedAt: { type: Date, default: null },
     userId: {
       type: String,
       required: true,

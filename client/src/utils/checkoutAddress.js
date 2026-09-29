@@ -23,3 +23,14 @@ export const resolveCheckoutAddress = (current, saved, user) => {
     email: current.email || user?.primaryEmailAddress?.emailAddress || "",
   };
 };
+
+export const removeSavedAddress = (addresses, addressId) => {
+  const remaining = addresses.filter((entry) => entry._id !== addressId);
+  const defaultId = remaining.find((entry) => entry.isDefault)?._id || remaining[0]?._id;
+  return remaining.map((entry) => ({ ...entry, isDefault: entry._id === defaultId }));
+};
+
+export const replaceSavedAddress = (addresses, addressId, updated) => addresses.map((entry) => {
+  if (entry._id === addressId) return updated;
+  return updated.isDefault ? { ...entry, isDefault: false } : entry;
+});
