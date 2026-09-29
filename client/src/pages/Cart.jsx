@@ -4,6 +4,8 @@ import { Check } from "lucide-react";
 import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
 import CartSteps from "../components/CartSteps";
+import CartSizePicker from "../components/CartSizePicker";
+import { getShippingCharge } from "../utils/orderPricing";
 import QrPaymentStatus from "../components/QrPaymentStatus";
 import CheckoutAddressForm from "../components/checkout/CheckoutAddressForm";
 import { useAppContext } from "../context/AppContext";
@@ -57,6 +59,7 @@ const Cart = () => {
     user,
     products,
     currency,
+    delivery_charges,
     cartItems,
     updateQuantity,
     changeCartSize,
@@ -77,6 +80,7 @@ const Cart = () => {
     () => new Set(),
   );
   const selectAllRef = useRef(null);
+  const footerSelectAllRef = useRef(null);
 
   const cartData = useMemo(() => {
     if (products.length === 0) return [];
@@ -112,10 +116,10 @@ const Cart = () => {
     selectedItemKeys.size > 0 && selectedItemKeys.size < cartData.length;
 
   useEffect(() => {
-    if (selectAllRef.current) {
-      selectAllRef.current.indeterminate = someItemsSelected;
+    for (const ref of [selectAllRef, footerSelectAllRef]) {
+      if (ref.current) ref.current.indeterminate = someItemsSelected;
     }
-  }, [someItemsSelected]);
+  }, [someItemsSelected, currentStep]);
 
   const toggleItemSelection = (itemKey) => {
     setDeselectedItemKeys((currentKeys) => {
@@ -174,7 +178,7 @@ const Cart = () => {
     cartUpdateRef.current = true;
     setIsUpdatingCart(true);
     try {
-      await update();
+      return await update();
     } finally {
       cartUpdateRef.current = false;
       setIsUpdatingCart(false);
@@ -184,11 +188,12 @@ const Cart = () => {
   const handleSizeChange = (productId, fromSize, toSize) => runCartUpdate(async () => {
     const targetExists = Number(cartItems[productId]?.[toSize] ?? 0) > 0;
     const result = await changeCartSize(productId, fromSize, toSize);
-    if (!result.success) return;
+    if (!result.success) return result;
     setDeselectedItemKeys((current) =>
       changeSizeSelection(current, productId, fromSize, toSize, targetExists),
     );
     toast.success(targetExists ? "Size updated and quantities merged. Please check your selection." : "Size updated");
+    return result;
   });
 
   const increment = (productId, size) => {
@@ -204,6 +209,25 @@ const Cart = () => {
       runCartUpdate(() => updateQuantity(productId, size, quantity - 1));
     }
   };
+
+  const selectedItems = cartData.filter((item) =>
+    selectedItemKeys.has(getCartItemKey(item._id, item.size)),
+  );
+  const selectedCount = selectedItems.reduce(
+    (total, item) => total + Number(cartItems[item._id]?.[item.size] ?? 0), 0,
+  );
+  const subtotal = selectedItems.reduce((total, item) => {
+    const product = products.find((entry) => entry._id === item._id);
+    return total + Number(product?.price?.[item.size] ?? 0) * Number(cartItems[item._id]?.[item.size] ?? 0);
+  }, 0);
+  const shipping = subtotal > 0 ? getShippingCharge(subtotal, delivery_charges) : 0;
+
+  const removeSelectedItems = () => runCartUpdate(async () => {
+    for (const item of selectedItems) {
+      const result = await updateQuantity(item._id, item.size, 0);
+      if (!result.success) break;
+    }
+  });
 
   const handleCheckout = () => {
     if (cartUpdateRef.current) return;
@@ -261,189 +285,127 @@ const Cart = () => {
 
       {/* STEP 1 */}
       {currentStep === 1 && (
-        <div className="flex flex-col gap-10 xl:flex-row xl:items-start xl:gap-12">
-          {/* Cart items bên trái */}
-          <section className="flex min-w-0 flex-[2] flex-col gap-3 text-[95%]">
-            <Title title1="Cart" title2="Overview" title1Styles="pb-5" />
+        <section className="min-w-0 text-[95%]">
+          <Title title1="Cart" title2="Overview" title1Styles="pb-5" />
+          {cartData.length > 0 ? (
+            <>
+              <div className="hidden grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] items-center gap-3 rounded-xl bg-white px-4 py-3 lg:grid">
+                <CartCheckbox inputRef={selectAllRef} disabled={isUpdatingCart} checked={allItemsSelected} onChange={toggleAllItems} indeterminate={someItemsSelected} label="Select all products" />
+                <h5 className="h5">Product</h5>
+                <h5 className="h5 text-center">Unit Price</h5>
+                <h5 className="h5 text-center">Quantity</h5>
+                <h5 className="h5 text-center">Subtotal</h5>
+                <h5 className="h5 text-center">Action</h5>
+              </div>
 
-            {cartData.length > 0 ? (
-              <>
-                <div className="grid grid-cols-[60px_minmax(0,6fr)_2fr_1fr] items-center rounded-xl bg-white p-3 font-medium sm:grid-cols-[72px_minmax(0,6fr)_2fr_1fr]">
-                  <div className="flex justify-center">
-                    <CartCheckbox
-                      inputRef={selectAllRef}
-                      disabled={isUpdatingCart}
-                      checked={allItemsSelected}
-                      onChange={toggleAllItems}
-                      indeterminate={someItemsSelected}
-                      label="Select all products"
-                    />
-                  </div>
-
-                  <h5 className="h5 text-left">Product Details</h5>
-
-                  <h5 className="h5 text-center">Subtotal</h5>
-
-                  <h5 className="h5 text-center">Action</h5>
-                </div>
-
+              <div className="mt-3 space-y-3">
                 {cartData.map((item) => {
-                  const product = products.find(
-                    (productItem) => productItem._id === item._id,
-                  );
-
+                  const product = products.find((entry) => entry._id === item._id);
                   if (!product) return null;
-
-                  const quantity = Number(
-                    cartItems[item._id]?.[item.size] ?? 0,
-                  );
+                  const quantity = Number(cartItems[item._id]?.[item.size] ?? 0);
                   const itemKey = getCartItemKey(item._id, item.size);
                   const isSelected = selectedItemKeys.has(itemKey);
-
                   if (quantity <= 0) return null;
 
                   return (
                     <div
-                      key={`${item._id}-${item.size}`}
-                      className={`grid grid-cols-[60px_minmax(0,6fr)_2fr_1fr] items-center rounded-xl p-3 transition sm:grid-cols-[72px_minmax(0,6fr)_2fr_1fr] ${
-                        isSelected ? "bg-white" : "bg-white/60"
-                      }`}
+                      key={itemKey}
+                      className={`grid grid-cols-[32px_minmax(0,1fr)_40px] items-center gap-x-2 gap-y-4 rounded-xl px-3 py-5 transition sm:gap-x-3 sm:px-4 lg:grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] lg:py-6 ${isSelected ? "bg-white" : "bg-white/60"}`}
                     >
-                      <div className="flex justify-center">
-                        <CartCheckbox
-                          disabled={isUpdatingCart}
-                          checked={isSelected}
-                          onChange={() => toggleItemSelection(itemKey)}
-                          label={`Select ${product.title}, size ${item.size}`}
-                        />
+                      <div className="col-start-1 row-start-1">
+                        <CartCheckbox disabled={isUpdatingCart} checked={isSelected} onChange={() => toggleItemSelection(itemKey)} label={`Select ${product.title}, size ${item.size}`} />
                       </div>
-
-                      <div className="flex min-w-0 items-center gap-3 md:gap-6">
-                        <div className="flex rounded-xl bg-primary">
-                          <img
-                            src={product.images[0]}
-                            alt={product.title}
-                            className="h-20 w-20 rounded-xl object-cover"
-                          />
+                      <div className="col-start-2 row-start-1 flex min-w-0 flex-wrap items-center gap-3 xl:flex-nowrap xl:gap-5">
+                        <div className="flex min-w-0 flex-1 items-center gap-3">
+                          <img src={product.images[0]} alt={product.title} className="h-20 w-16 shrink-0 rounded-xl bg-primary object-cover sm:h-24 sm:w-20" />
+                          <h5 className="h5 min-w-0 line-clamp-2">{product.title}</h5>
                         </div>
-
-                        <div className="min-w-0">
-                          <h5 className="h5 line-clamp-1">{product.title}</h5>
-
-                          <label className="mb-2 flex flex-wrap items-center gap-2 text-sm">
-                            <span>Size:</span>
-                            <select
-                              aria-label={`Size for ${product.title}, currently ${item.size}`}
-                              value={item.size}
-                              disabled={isUpdatingCart}
-                              onChange={(event) => handleSizeChange(item._id, item.size, event.target.value)}
-                              className="min-w-0 max-w-full rounded-md border border-gray-300 bg-white px-2 py-1 disabled:opacity-50"
-                            >
-                              {!product.sizes.includes(item.size) && (
-                                <option value={item.size}>{item.size} (unavailable)</option>
-                              )}
-                              {product.sizes.map((size) => {
-                                const required = quantity + (size === item.size ? 0 : Number(cartItems[item._id]?.[size] ?? 0));
-                                const available = isSizeAvailable(product, size);
-                                const enoughStock = required <= getSizeQuantity(product, size);
-                                return (
-                                  <option key={size} value={size} disabled={size !== item.size && (!available || !enoughStock)}>
-                                    {size}
-                                    {!available ? " (out of stock)" : !enoughStock ? " (insufficient stock)" : ""}
-                                  </option>
-                                );
-                              })}
-                            </select>
-                          </label>
-
-                          <div className="inline-flex items-center overflow-hidden rounded-full bg-primary ring-1 ring-slate-900/15">
-                            <button
-                              type="button"
-                              onClick={() => decrement(item._id, item.size)}
-                              disabled={isUpdatingCart}
-                              className="cursor-pointer rounded-full bg-secondary p-1.5 text-white shadow-md"
-                            >
-                              <img
-                                src={assets.minus}
-                                alt="Decrease"
-                                width={11}
-                                className="invert"
-                              />
-                            </button>
-
-                            <p className="px-3">{quantity}</p>
-
-                            <button
-                              type="button"
-                              onClick={() => increment(item._id, item.size)}
-                              disabled={isUpdatingCart}
-                              className="cursor-pointer rounded-full bg-secondary p-1.5 text-white shadow-md"
-                            >
-                              <img
-                                src={assets.plus}
-                                alt="Increase"
-                                width={11}
-                                className="invert"
-                              />
-                            </button>
-                          </div>
+                        <div className="w-full pl-[76px] sm:pl-[92px] xl:w-32 xl:shrink-0 xl:pl-0">
+                          <CartSizePicker product={product} size={item.size} quantity={quantity} quantities={cartItems[item._id]} disabled={isUpdatingCart} onConfirm={(size) => handleSizeChange(item._id, item.size, size)} />
                         </div>
                       </div>
-
-                      <div className="text-center bold-16">
-                        {formatThousandsVnd(
-                          product.price[item.size] * quantity,
-                          currency,
-                        )}
+                      <div className="col-start-2 row-start-2 flex items-center justify-between gap-2 text-sm lg:col-start-3 lg:row-start-1 lg:block lg:text-center">
+                        <span className="text-gray-500 lg:hidden">Unit Price</span>
+                        <span className="whitespace-nowrap">{formatThousandsVnd(product.price[item.size], currency)}</span>
                       </div>
-
+                      <div className="col-start-2 row-start-3 flex items-center justify-between gap-2 lg:col-start-4 lg:row-start-1 lg:justify-center">
+                        <span className="text-sm text-gray-500 lg:hidden">Quantity</span>
+                        <div className="inline-flex items-center overflow-hidden rounded-full bg-primary ring-1 ring-slate-900/15">
+                          <button
+                            type="button"
+                            aria-label={`Decrease quantity of ${product.title}, size ${item.size}`}
+                            onClick={() => decrement(item._id, item.size)}
+                            disabled={isUpdatingCart || quantity <= 1}
+                            className="cursor-pointer rounded-full bg-secondary p-2 text-white shadow-md disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            <img src={assets.minus} alt="" width={11} className="invert" />
+                          </button>
+                          <span className="min-w-10 px-2 text-center text-sm">{quantity}</span>
+                          <button
+                            type="button"
+                            aria-label={`Increase quantity of ${product.title}, size ${item.size}`}
+                            onClick={() => increment(item._id, item.size)}
+                            disabled={isUpdatingCart || !isSizeAvailable(product, item.size) || quantity >= getSizeQuantity(product, item.size)}
+                            className="cursor-pointer rounded-full bg-secondary p-2 text-white shadow-md disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            <img src={assets.plus} alt="" width={11} className="invert" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="col-start-2 row-start-4 flex items-center justify-between gap-2 lg:col-start-5 lg:row-start-1 lg:block lg:text-center">
+                        <span className="text-sm text-gray-500 lg:hidden">Subtotal</span>
+                        <span className="whitespace-nowrap bold-16 text-secondary">{formatThousandsVnd(product.price[item.size] * quantity, currency)}</span>
+                      </div>
                       <button
                         type="button"
+                        aria-label={`Remove ${product.title}, size ${item.size}`}
                         onClick={() => runCartUpdate(() => updateQuantity(item._id, item.size, 0))}
                         disabled={isUpdatingCart}
-                        className="mx-auto cursor-pointer"
+                        className="col-start-3 row-start-1 mx-auto cursor-pointer rounded-md p-2 transition hover:bg-primary disabled:opacity-40 lg:col-start-6"
                       >
-                        <img
-                          src={assets.cartRemove}
-                          alt="Remove product"
-                          width={22}
-                        />
+                        <img src={assets.cartRemove} alt="" width={22} />
                       </button>
                     </div>
                   );
                 })}
-              </>
-            ) : (
-              <div className="rounded-xl bg-white px-6 py-16 text-center">
-                <h2 className="text-xl font-semibold">Your cart is empty</h2>
-
-                <p className="mt-2 text-gray-500">
-                  Add some products before checking out.
-                </p>
-
-                <button
-                  type="button"
-                  onClick={() => navigate("/collection")}
-                  className="btn-dark mt-6 !rounded-md"
-                >
-                  Continue Shopping
-                </button>
               </div>
-            )}
-          </section>
 
-          {/* CartTotal luôn bên phải */}
-          <aside className="w-full xl:w-[379px] xl:flex-none">
-            <div className="w-full rounded-xl bg-white p-5 py-10 xl:sticky xl:top-28">
-              <CartTotal
-                currentStep={1}
-                isSubmitting={isUpdatingCart}
-                onCheckout={handleCheckout}
-                selectedItemKeys={selectedItemKeys}
-              />
+              <div className="sticky bottom-0 z-20 mt-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-xl border border-secondary/10 bg-white p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] sm:p-5">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+                  <div className="flex items-center gap-1">
+                    <CartCheckbox inputRef={footerSelectAllRef} disabled={isUpdatingCart} checked={allItemsSelected} onChange={toggleAllItems} indeterminate={someItemsSelected} label="Select all products" />
+                    <span className="text-sm">Select All ({cartData.length})</span>
+                  </div>
+                  <button type="button" onClick={removeSelectedItems} disabled={isUpdatingCart || selectedItemKeys.size === 0} className="cursor-pointer rounded-md px-2 py-2 text-sm text-gray-500 transition hover:bg-primary hover:text-secondary disabled:cursor-not-allowed disabled:opacity-40">
+                    Remove
+                  </button>
+                </div>
+                <div className="flex w-full flex-wrap items-center justify-between gap-4 lg:w-auto lg:justify-end lg:gap-6">
+                  <div>
+                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      <span className="text-sm">Total ({selectedCount} items):</span>
+                      <span className="text-xl font-bold text-secondary">{formatThousandsVnd(subtotal + shipping, currency)}</span>
+                    </div>
+                    <p className="mt-1 !text-xs">
+                      Subtotal: {formatThousandsVnd(subtotal, currency)} · Shipping: {subtotal > 0 && shipping === 0 ? "Free" : formatThousandsVnd(shipping, currency)}
+                    </p>
+                  </div>
+                  <button type="button" onClick={handleCheckout} disabled={selectedItemKeys.size === 0 || isUpdatingCart} className="btn-dark w-full !rounded-md disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-48">
+                    Proceed to Checkout
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="rounded-xl bg-white px-6 py-16 text-center">
+              <h2 className="text-xl font-semibold">Your cart is empty</h2>
+              <p className="mt-2 text-gray-500">Add some products before checking out.</p>
+              <button type="button" onClick={() => navigate("/collection")} className="btn-dark mt-6 !rounded-md">
+                Continue Shopping
+              </button>
             </div>
-          </aside>
-        </div>
+          )}
+        </section>
       )}
 
       {/* STEP 2 */}
