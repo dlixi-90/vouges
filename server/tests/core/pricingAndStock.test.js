@@ -30,11 +30,11 @@ test("master stock follows whether at least one stocked size is enabled", () => 
   assert.equal(hasAnyEnabledSize(product), false);
 });
 
-const setupStockToggle = (t, inStockBySize) => {
+const setupStockToggle = (t, inStockBySize, stockBySize = { S: 2, M: 3, L: 0 }) => {
   const product = new Product({
     _id: "507f1f77bcf86cd799439011",
     sizes: ["S", "M", "L"],
-    stockBySize: { S: 2, M: 3, L: 0 },
+    stockBySize,
     inStock: true,
     inStockBySize,
   });
@@ -85,11 +85,27 @@ test("after master is off, enabling one stocked size restores only that size and
   assert.equal(saved().inStock, false);
 });
 
-test("master cannot reactivate with every size off and empty sizes cannot be enabled", async (t) => {
+test("master can reactivate all stocked sizes after every size is switched off", async (t) => {
   const { toggle, saved } = setupStockToggle(t, { S: true, M: true });
   await toggle(false);
-  assert.equal((await toggle(true)).statusCode, 400);
+  const res = await toggle(true);
+  assert.equal(res.body.success, true);
+  assert.equal(saved().inStock, true);
+  assert.deepEqual(saved().inStockBySize, { S: true, M: true, L: false });
+  assert.deepEqual(saved().stockBySize, { S: 2, M: 3, L: 0 });
   assert.equal((await toggle(true, "L")).statusCode, 400);
+});
+
+test("master enables previously disabled stocked sizes and leaves empty sizes off", async (t) => {
+  const { toggle, saved } = setupStockToggle(t, { S: true, M: false, L: true });
+  assert.equal((await toggle(true)).body.success, true);
+  assert.deepEqual(saved().inStockBySize, { S: true, M: true, L: false });
+});
+
+test("master cannot activate when all sizes have zero quantity", async (t) => {
+  const { toggle, saved } = setupStockToggle(t, {}, { S: 0, M: 0, L: 0 });
+  await toggle(false);
+  assert.equal((await toggle(true)).statusCode, 400);
   assert.equal(saved().inStock, false);
   assert.deepEqual(saved().inStockBySize, { S: false, M: false, L: false });
 });

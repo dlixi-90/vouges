@@ -14,7 +14,7 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
-import { hasAnyEnabledSize } from "../../utils/productStock";
+import { getSizeQuantity, hasAnyEnabledSize } from "../../utils/productStock";
 import { formatThousandsVnd } from "../../utils/money";
 
 const PAGE_SIZE = 10;
@@ -113,11 +113,12 @@ const ListProduct = () => {
           ...(previousProduct.inStockBySize || {}),
           [size]: inStock,
         }
-      : inStock
-        ? previousProduct.inStockBySize
-        : Object.fromEntries(
-            (previousProduct.sizes || []).map((productSize) => [productSize, false]),
-          );
+      : Object.fromEntries(
+          (previousProduct.sizes || []).map((productSize) => [
+            productSize,
+            inStock && getSizeQuantity(previousProduct, productSize) > 0,
+          ]),
+        );
     const hasEnabledSize = hasAnyEnabledSize({
       ...previousProduct,
       inStockBySize: nextSizeStatuses,
@@ -287,6 +288,9 @@ const ListProduct = () => {
                 {visibleProducts.length ? (
                   visibleProducts.flatMap((product) => {
                     const hasEnabledSize = hasAnyEnabledSize(product);
+                    const hasStock = (product.sizes || []).some(
+                      (size) => getSizeQuantity(product, size) > 0,
+                    );
 
                     const productInStock =
                       Boolean(product.inStock) && hasEnabledSize;
@@ -427,16 +431,16 @@ const ListProduct = () => {
                             >
                               <label
                                 className={`relative inline-flex items-center ${
-                                  !hasEnabledSize ||
+                                  !hasStock ||
                                   isProductUpdating ||
                                   deletingProductId === product._id
                                     ? "cursor-not-allowed opacity-60"
                                     : "cursor-pointer"
                                 }`}
                                 title={
-                                  hasEnabledSize
+                                  hasStock
                                     ? "Toggle product availability"
-                                    : "Enable at least one size first"
+                                    : "This product has no stock"
                                 }
                               >
                                 <input
@@ -444,7 +448,7 @@ const ListProduct = () => {
                                   className="peer sr-only"
                                   checked={productInStock}
                                   disabled={
-                                    !hasEnabledSize ||
+                                    !hasStock ||
                                     isProductUpdating ||
                                     deletingProductId === product._id
                                   }

@@ -10,6 +10,7 @@ import { getPopularProducts } from "../services/popularProducts.js";
 import {
   getSizeQuantity,
   hasAnyEnabledSize,
+  hasAnyQuantity,
 } from "../utils/productStock.js";
 
 class ProductRequestError extends Error {
@@ -281,23 +282,22 @@ export const toggleStock = async (req, res) => {
 
     // Không truyền size: cập nhật switch tổng
     if (!size) {
-      const hasEnabledSize = hasAnyEnabledSize(product);
-
-      if (inStock && !hasEnabledSize) {
+      if (inStock && !hasAnyQuantity(product)) {
         return res.status(400).json({
           success: false,
-          message: "Enable at least one size before enabling the product",
+          message: "Cannot enable a product with no stock",
         });
       }
 
       product.inStock = inStock;
 
-      if (!inStock) {
-        product.inStockBySize = Object.fromEntries(
-          product.sizes.map((productSize) => [productSize, false]),
-        );
-        product.markModified("inStockBySize");
-      }
+      product.inStockBySize = Object.fromEntries(
+        product.sizes.map((productSize) => [
+          productSize,
+          inStock && getSizeQuantity(product, productSize) > 0,
+        ]),
+      );
+      product.markModified("inStockBySize");
 
       await product.save();
 
