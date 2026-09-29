@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
 import SearchInput from "../components/SearchInput";
@@ -16,6 +16,11 @@ const getDisplayedPrice = (product) => {
 };
 
 const Collection = () => {
+  useLayoutEffect(() => {
+    // Reset when the lazy-loaded page mounts, before its first paint.
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
+
   const { products, searchQuery, categories } = useAppContext();
   const allCategories = [...new Set([
     ...categories.map((item) => item.name),
