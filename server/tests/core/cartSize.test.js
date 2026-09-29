@@ -2,7 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import Product from "../../models/Product.js";
 import User from "../../models/User.js";
-import { changeCartSize } from "../../controllers/cartController.js";
+import { addToCart, changeCartSize, updateCart } from "../../controllers/cartController.js";
+import { getUserProfile } from "../../controllers/userController.js";
+import { getCartAddedAt } from "../../utils/cartOrder.js";
+import { getOrderedCartItems, moveCartSize, setCartLineAddedAt } from "../../../client/src/utils/cartOrder.js";
 import cartRouter from "../../routes/cartRoute.js";
 import authUser from "../../middleware/authMiddleware.js";
 import { changeSizeSelection, getCartItemKey } from "../../../client/src/utils/cartSelection.js";
@@ -10,6 +13,7 @@ import { changeSizeSelection, getCartItemKey } from "../../../client/src/utils/c
 const id = "507f1f77bcf86cd799439011";
 const request = (overrides = {}) => ({
   auth: () => ({ userId: "current_user" }),
+  user: { cartData: { [id]: { S: 2, M: 3 } }, cartAddedAt: { [id]: { S: 100, M: 200 } } },
   body: { itemId: id, fromSize: "S", toSize: "M", fromQuantity: 2, toQuantity: 0, ...overrides },
 });
 const response = () => ({
@@ -38,8 +42,10 @@ test("changing size moves all units, merging at the stock limit in one authentic
     assert.equal(filter[`cartData.${id}.M`], 3);
     assert.equal(update.$unset[`cartData.${id}.S`], "");
     assert.equal(update.$set[`cartData.${id}.M`], 5);
-    assert.equal(Object.keys(update.$set).length, 1);
-    assert.equal(Object.keys(update.$unset).length, 1);
+    assert.equal(update.$set[`cartAddedAt.${id}.M`], 100);
+    assert.equal(update.$unset[`cartAddedAt.${id}.S`], "");
+    assert.equal(Object.keys(update.$set).length, 2);
+    assert.equal(Object.keys(update.$unset).length, 2);
     return { cartData: { [id]: { M: 5 } } };
   });
   const res = response();
@@ -139,4 +145,112 @@ test("size changes preserve selection, without selecting unselected units during
       }
     }
   }
+});
+
+const secondId = "507f1f77bcf86cd799439012";
+const thirdId = "507f1f77bcf86cd799439013";
+const lineKeys = (cart, timestamps) => getOrderedCartItems(cart, timestamps)
+  .map((item) => `${item._id}:${item.size}`);
+
+const mockCartStorage = (t, initial = {}) => {
+  const user = { cartData: {}, cartAddedAt: {}, ...structuredClone(initial) };
+  const applyUpdate = async (_filter, update) => {
+    for (const operator of ["$inc", "$set", "$unset"]) {
+      for (const [path, value] of Object.entries(update[operator] || {})) {
+        const [field, productId, size] = path.split(".");
+        user[field] ||= {};
+        user[field][productId] ||= {};
+        if (operator === "$unset") delete user[field][productId][size];
+        else if (operator === "$inc") user[field][productId][size] = (user[field][productId][size] || 0) + value;
+        else user[field][productId][size] = value;
+      }
+    }
+    return structuredClone(user);
+  };
+  t.mock.method(User, "findById", async () => structuredClone(user));
+  t.mock.method(User, "findOneAndUpdate", applyUpdate);
+  t.mock.method(User, "updateOne", applyUpdate);
+  t.mock.method(Product, "findOne", async () => ({
+    sizes: ["S", "M", "L"], inStock: true,
+    stockBySize: { S: 20, M: 20, L: 20 },
+  }));
+  const call = async (handler, body) => {
+    const res = response();
+    await handler({ auth: () => ({ userId: "current_user" }), user: structuredClone(user), body }, res);
+    assert.equal(res.body.success, true, res.body.message);
+    return res.body;
+  };
+  return { user, call };
+};
+
+test("new cart lines sort newest first across products and sizes, even within one millisecond", async (t) => {
+  t.mock.method(Date, "now", () => 1000000);
+  const { user, call } = mockCartStorage(t);
+  await call(addToCart, { itemId: id, size: "S" });
+  await call(addToCart, { itemId: secondId, size: "M" });
+  await call(addToCart, { itemId: id, size: "L" });
+  assert.deepEqual(lineKeys(user.cartData, user.cartAddedAt), [`${id}:L`, `${secondId}:M`, `${id}:S`]);
+  const profile = await call(getUserProfile);
+  const restored = JSON.parse(JSON.stringify(profile));
+  assert.deepEqual(lineKeys(restored.cartData, restored.cartAddedAt), [`${id}:L`, `${secondId}:M`, `${id}:S`]);
+});
+
+test("changing size preserves the middle row locally and after a profile reload", async (t) => {
+  const { user, call } = mockCartStorage(t);
+  await call(addToCart, { itemId: id, size: "S" });
+  await call(addToCart, { itemId: secondId, size: "S" });
+  await call(addToCart, { itemId: thirdId, size: "S" });
+  const before = structuredClone(user);
+  const result = await call(changeCartSize, { itemId: secondId, fromSize: "S", toSize: "M", fromQuantity: 1, toQuantity: 0 });
+  const local = moveCartSize(before.cartData, secondId, "S", "M", result.quantity);
+  const timestamps = setCartLineAddedAt(before.cartAddedAt, secondId, "M", result.addedAt);
+  const expected = [`${thirdId}:S`, `${secondId}:M`, `${id}:S`];
+  assert.deepEqual(Object.keys(local), Object.keys(before.cartData));
+  assert.deepEqual(lineKeys(local, timestamps), expected);
+  const profile = await call(getUserProfile);
+  assert.deepEqual(lineKeys(profile.cartData, profile.cartAddedAt), expected);
+  assert.equal(result.addedAt, before.cartAddedAt[secondId].S);
+});
+
+test("quantity edits and adding more of an existing line keep its original position", async (t) => {
+  const { user, call } = mockCartStorage(t);
+  await call(addToCart, { itemId: id, size: "S" });
+  await call(addToCart, { itemId: secondId, size: "M" });
+  const timestamp = user.cartAddedAt[id].S;
+  await call(updateCart, { itemId: id, size: "S", quantity: 2 });
+  await call(addToCart, { itemId: id, size: "S", quantity: 1 });
+  assert.equal(user.cartAddedAt[id].S, timestamp);
+  assert.deepEqual(lineKeys(user.cartData, user.cartAddedAt), [`${secondId}:M`, `${id}:S`]);
+});
+
+test("removing then re-adding a line gives it a new position at the top", async (t) => {
+  const { user, call } = mockCartStorage(t);
+  await call(addToCart, { itemId: id, size: "S" });
+  await call(addToCart, { itemId: secondId, size: "M" });
+  await call(updateCart, { itemId: id, size: "S", quantity: 0 });
+  assert.equal(user.cartAddedAt[id]?.S, undefined);
+  await call(addToCart, { itemId: id, size: "S" });
+  assert.deepEqual(lineKeys(user.cartData, user.cartAddedAt), [`${id}:S`, `${secondId}:M`]);
+});
+
+test("merging into another size retains the position of the edited line", async (t) => {
+  const { user, call } = mockCartStorage(t);
+  await call(addToCart, { itemId: id, size: "S" });
+  await call(addToCart, { itemId: secondId, size: "S" });
+  await call(addToCart, { itemId: id, size: "M" });
+  const sourceTimestamp = user.cartAddedAt[id].S;
+  await call(changeCartSize, { itemId: id, fromSize: "S", toSize: "M", fromQuantity: 1, toQuantity: 1 });
+  assert.equal(user.cartData[id].M, 2);
+  assert.equal(user.cartAddedAt[id].M, sourceTimestamp);
+  assert.deepEqual(lineKeys(user.cartData, user.cartAddedAt), [`${secondId}:S`, `${id}:M`]);
+});
+
+test("legacy carts preserve their baseline through size edits and later new additions", async (t) => {
+  const { user, call } = mockCartStorage(t, { cartData: { [id]: { S: 1, M: 1 }, [secondId]: { S: 1 } } });
+  const initialTimestamps = getCartAddedAt(user.cartData);
+  await call(changeCartSize, { itemId: id, fromSize: "S", toSize: "L", fromQuantity: 1, toQuantity: 0 });
+  assert.equal(user.cartAddedAt[id].L, initialTimestamps[id].S);
+  assert.deepEqual(lineKeys(user.cartData, user.cartAddedAt), [`${secondId}:S`, `${id}:M`, `${id}:L`]);
+  await call(addToCart, { itemId: thirdId, size: "S" });
+  assert.deepEqual(lineKeys(user.cartData, user.cartAddedAt), [`${thirdId}:S`, `${secondId}:S`, `${id}:M`, `${id}:L`]);
 });

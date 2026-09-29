@@ -14,6 +14,7 @@ import { formatThousandsVnd } from "../utils/money";
 import { getCartItemKey, changeSizeSelection } from "../utils/cartSelection";
 import { getSizeQuantity, isSizeAvailable } from "../utils/productStock";
 import { initialCheckoutAddress } from "../utils/checkoutAddress";
+import { getOrderedCartItems } from "../utils/cartOrder";
 
 const CartCheckbox = ({
   checked,
@@ -61,6 +62,7 @@ const Cart = () => {
     currency,
     delivery_charges,
     cartItems,
+    cartAddedAt,
     updateQuantity,
     changeCartSize,
     axios,
@@ -85,21 +87,8 @@ const Cart = () => {
   const cartData = useMemo(() => {
     if (products.length === 0) return [];
 
-    const result = [];
-
-    for (const productId in cartItems) {
-      for (const size in cartItems[productId] || {}) {
-        if (Number(cartItems[productId]?.[size]) > 0) {
-          result.push({
-            _id: productId,
-            size,
-          });
-        }
-      }
-    }
-
-    return result;
-  }, [products, cartItems]);
+    return getOrderedCartItems(cartItems, cartAddedAt);
+  }, [products, cartItems, cartAddedAt]);
 
   const selectedItemKeys = useMemo(
     () =>

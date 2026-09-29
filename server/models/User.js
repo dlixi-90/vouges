@@ -7,6 +7,8 @@ const userSchema = new mongoose.Schema({
     image: {type:String, required: true},
     role: {type:String, enum: ["user", "owner"], default: "user"},
     cartData: {type:Object, default:{}},
+    cartAddedAt: {type:Object, default:{}},
+    defaultAddressId: {type: mongoose.Schema.Types.ObjectId, ref: "Address", default: null},
 }, {timestamps:true, minimize: false})
 
 const User = mongoose.model("User", userSchema)

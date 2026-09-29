@@ -7,6 +7,8 @@ import Address from "../models/Address.js";
 import mongoose, { isObjectIdOrHexString } from "mongoose";
 import { getSizeQuantity, isSizeAvailable } from "../utils/productStock.js";
 import { getOrderTotal } from "../utils/orderPricing.js";
+import { getCartAddedAt } from "../utils/cartOrder.js";
+import { validateDeliveryPhone } from "../utils/deliveryPhone.js";
 import { buildOrderConfirmationEmail } from "../emails/orderConfirmation.js";
 
 // Global variables for payment
@@ -84,6 +86,9 @@ const validateUserAddress = async (addressId, userId, session) => {
   if (!address) {
     throw new OrderRequestError("Delivery address not found", 404);
   }
+
+  const phone = validateDeliveryPhone(address.phone);
+  if (!phone.valid) throw new OrderRequestError(phone.error);
 
   return address;
 };
@@ -302,6 +307,7 @@ const removeOrderItemsFromCart = async (userId, items, session) => {
   }
 
   const cartData = { ...(user.cartData || {}) };
+  const cartAddedAt = getCartAddedAt(cartData, user.cartAddedAt);
 
   for (const item of items) {
     const productId = String(item.product);
@@ -323,7 +329,9 @@ const removeOrderItemsFromCart = async (userId, items, session) => {
   }
 
   user.cartData = cartData;
+  user.cartAddedAt = getCartAddedAt(cartData, cartAddedAt);
   user.markModified("cartData");
+  user.markModified("cartAddedAt");
   await user.save({ session });
 };
 

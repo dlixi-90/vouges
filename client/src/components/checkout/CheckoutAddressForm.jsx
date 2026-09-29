@@ -1,94 +1,24 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { MapPin } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
-import {
-  getCartItemKey,
-  removePurchasedItems,
-} from "../../utils/cartSelection";
-
-const COUNTRIES_NOW_API = "https://countriesnow.space/api/v0.1";
-const VIETNAM_PROVINCES_API = "https://provinces.open-api.vn/api/v2/?depth=2";
-
-const contactFields = [
-  {
-    name: "firstName",
-    label: "First name",
-  },
-  {
-    name: "lastName",
-    label: "Last name",
-  },
-  {
-    name: "email",
-    label: "Email",
-    type: "email",
-  },
-  {
-    name: "phone",
-    label: "Phone",
-    type: "tel",
-  },
-  {
-    name: "street",
-    label: "Street address",
-    fullWidth: true,
-  },
-];
-
-const inputClass =
-  "w-full rounded-md border border-gray-200 bg-white px-4 py-3 outline-none transition focus:border-secondary focus:ring-1 focus:ring-secondary";
-
-const normalizeLocationName = (value) =>
-  String(value || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/thanh pho|tinh|province|city/g, "")
-    .replace(/[^a-z0-9]/g, "");
-
-const getUniqueLocationNames = (values, locale) => {
-  const locationsByKey = new Map();
-
-  for (const value of values || []) {
-    const name = String(value || "").trim();
-    const key = normalizeLocationName(name);
-
-    if (name && key && !locationsByKey.has(key)) {
-      locationsByKey.set(key, name);
-    }
-  }
-
-  return [...locationsByKey.values()].sort((a, b) =>
-    a.localeCompare(b, locale),
-  );
-};
+import { getCartItemKey, removePurchasedItems } from "../../utils/cartSelection";
+import { validateDeliveryPhone } from "../../utils/deliveryPhone";
+import { resolveCheckoutAddress } from "../../utils/checkoutAddress";
+import DeliveryAddressFields from "./DeliveryAddressFields";
+import AddressBookDialog from "./AddressBookDialog";
 
 const CheckoutAddressForm = ({
-  onOrderCreated,
-  isSubmitting,
-  setIsSubmitting,
-  selectedItemKeys,
-  address,
-  setAddress,
+  onOrderCreated, isSubmitting, setIsSubmitting, selectedItemKeys, address, setAddress,
 }) => {
-  const {
-    user,
-    products,
-    cartItems,
-    method,
-    axios,
-    getToken,
-    setCartItems,
-    fetchProducts,
-  } = useAppContext();
-
-  const [countries, setCountries] = useState([]);
-  const [cities, setCities] = useState([]);
-  const [vietnamProvinces, setVietnamProvinces] = useState([]);
-  const [isLoadingCountries, setIsLoadingCountries] = useState(true);
-  const [isLoadingCities, setIsLoadingCities] = useState(false);
-  const [countriesApiFailed, setCountriesApiFailed] = useState(false);
-  const [citiesApiFailed, setCitiesApiFailed] = useState(false);
+  const { user, products, cartItems, method, axios, getToken, setCartItems, fetchProducts } = useAppContext();
+  const [addresses, setAddresses] = useState([]);
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
+  const [addressLoadError, setAddressLoadError] = useState("");
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [isAddressBookOpen, setIsAddressBookOpen] = useState(false);
+  const [makeDefault, setMakeDefault] = useState(true);
+  const submitRef = useRef(false);
 
   const items = useMemo(() => {
     const result = [];
@@ -116,177 +46,82 @@ const CheckoutAddressForm = ({
     return result;
   }, [products, cartItems, selectedItemKeys]);
 
-  useEffect(() => {
-    if (!user) return;
-
-    // Clerk may finish loading after this form mounts, so sync empty fields once.
-    setAddress((current) => ({
-      ...current,
-      firstName: current.firstName || user.firstName || "",
-      lastName: current.lastName || user.lastName || "",
-      email: current.email || user.primaryEmailAddress?.emailAddress || "",
-    }));
-  }, [setAddress, user]);
 
   useEffect(() => {
+    if (!user) return undefined;
     const controller = new AbortController();
-
-    const loadCountries = async () => {
+    const loadAddresses = async () => {
+      setIsLoadingAddresses(true);
+      setAddressLoadError("");
       try {
-        setIsLoadingCountries(true);
-
-        const { data } = await axios.get(`${COUNTRIES_NOW_API}/countries/iso`, {
+        const { data } = await axios.get("/api/addresses", {
+          headers: { Authorization: `Bearer ${await getToken()}` },
           signal: controller.signal,
         });
-        const countryNames = Array.isArray(data?.data)
-          ? getUniqueLocationNames(
-              data.data.map((country) => country.name),
-              "en",
-            )
-          : [];
-
-        setCountries(countryNames);
-        setCountriesApiFailed(countryNames.length === 0);
+        if (!data.success) throw new Error(data.message || "Unable to load addresses");
+        if (controller.signal.aborted) return;
+        const saved = data.addresses || [];
+        setAddresses(saved);
+        setAddress((current) => resolveCheckoutAddress(current, saved, user));
       } catch (error) {
-        if (error.code !== "ERR_CANCELED") {
-          setCountriesApiFailed(true);
-        }
+        if (!controller.signal.aborted) setAddressLoadError(error.response?.data?.message || error.message || "Unable to load addresses");
       } finally {
-        if (!controller.signal.aborted) {
-          setIsLoadingCountries(false);
-        }
+        if (!controller.signal.aborted) setIsLoadingAddresses(false);
       }
     };
-
-    loadCountries();
-
+    loadAddresses();
     return () => controller.abort();
-  }, [axios]);
+  }, [axios, getToken, user, setAddress, loadAttempt]);
 
-  useEffect(() => {
-    if (!address.country) return undefined;
-
-    const controller = new AbortController();
-
-    const loadCities = async () => {
-      try {
-        setIsLoadingCities(true);
-
-        let cityNames = [];
-
-        if (address.country === "Vietnam") {
-          const { data } = await axios.get(VIETNAM_PROVINCES_API, {
-            signal: controller.signal,
-          });
-          const provinces = Array.isArray(data) ? data : [];
-
-          setVietnamProvinces(provinces);
-          cityNames = getUniqueLocationNames(
-            provinces.map((province) => province.name),
-            "vi",
-          );
-        } else {
-          const { data } = await axios.post(
-            `${COUNTRIES_NOW_API}/countries/cities`,
-            { country: address.country },
-            { signal: controller.signal },
-          );
-
-          cityNames = Array.isArray(data?.data)
-            ? getUniqueLocationNames(data.data, "en")
-            : [];
-        }
-
-        setCities(cityNames);
-        setCitiesApiFailed(cityNames.length === 0);
-      } catch (error) {
-        if (error.code !== "ERR_CANCELED") {
-          setCitiesApiFailed(true);
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setIsLoadingCities(false);
-        }
-      }
-    };
-
-    loadCities();
-
-    return () => controller.abort();
-  }, [address.country, axios]);
-
-  const wards = useMemo(() => {
-    if (address.country !== "Vietnam" || !address.city) return [];
-
-    const selectedProvince = vietnamProvinces.find(
-      (province) => province.name === address.city,
-    );
-
-    return getUniqueLocationNames(
-      (selectedProvince?.wards || []).map((ward) => ward.name),
-      "vi",
-    );
-  }, [address.city, address.country, vietnamProvinces]);
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    setAddress((current) => ({
-      ...current,
-      [name]: value,
-    }));
+  const saveAddress = async (draft, defaultRequested) => {
+    const phone = validateDeliveryPhone(draft.phone);
+    if (!phone.valid) throw new Error(phone.error);
+    const { data } = await axios.post("/api/addresses/add", {
+      address: { ...draft, phone: phone.normalized }, makeDefault: defaultRequested,
+    }, { headers: { Authorization: `Bearer ${await getToken()}` } });
+    if (!data.success || !data.address?._id) throw new Error(data.message || "Unable to save address");
+    const saved = data.address;
+    setAddresses((current) => [
+      saved,
+      ...current.filter((entry) => entry._id !== saved._id)
+        .map((entry) => saved.isDefault ? { ...entry, isDefault: false } : entry),
+    ]);
+    setAddress(saved);
+    return saved;
   };
 
-  const handleCountryChange = (event) => {
-    const country = event.target.value;
-
-    setAddress((current) => ({
-      ...current,
-      country,
-      city: "",
-      state: "",
-    }));
-    setCities([]);
-    setVietnamProvinces([]);
-    setCitiesApiFailed(false);
+  const makeAddressDefault = async (addressId) => {
+    const { data } = await axios.patch(`/api/addresses/${addressId}/default`, {}, {
+      headers: { Authorization: `Bearer ${await getToken()}` },
+    });
+    if (!data.success) throw new Error(data.message || "Unable to update default address");
+    setAddresses((current) => current.map((entry) => ({ ...entry, isDefault: entry._id === addressId })));
+    setAddress((current) => ({ ...current, isDefault: current._id === addressId }));
   };
 
-  const handleCityChange = (event) => {
-    const city = event.target.value;
-
-    setAddress((current) => ({
-      ...current,
-      city,
-      state: "",
-    }));
-  };
-
-  const createAddress = async () => {
-    const { data } = await axios.post(
-      "/api/addresses/add",
-      { address },
-      {
-        headers: {
-          Authorization: `Bearer ${await getToken()}`,
-        },
-      },
-    );
-
-    if (!data.success) {
-      throw new Error(data.message);
+  const saveInlineAddress = async (event) => {
+    if (submitRef.current || isSubmitting || !event.currentTarget.form.reportValidity()) return;
+    const phone = validateDeliveryPhone(address.phone);
+    if (!phone.valid) return toast.error(phone.error);
+    submitRef.current = true;
+    setIsSubmitting(true);
+    try {
+      await saveAddress(address, makeDefault);
+      toast.success("Address saved");
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message || "Unable to save address");
+    } finally {
+      submitRef.current = false;
+      setIsSubmitting(false);
     }
-
-    if (!data.address?._id) {
-      throw new Error("Server did not return created address");
-    }
-
-    return data.address._id;
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (isSubmitting) return;
+    if (isSubmitting || submitRef.current) return;
+    if (isLoadingAddresses || addressLoadError) return toast.error("Please load your saved addresses before checkout.");
+    if (isAddressBookOpen) return;
 
     if (!user) {
       return toast.error("Please login before placing an order");
@@ -296,13 +131,16 @@ const CheckoutAddressForm = ({
       return toast.error("Your cart is empty");
     }
 
+    const phone = validateDeliveryPhone(address.phone);
+    if (!phone.valid) return toast.error(phone.error);
+
     try {
+      submitRef.current = true;
       setIsSubmitting(true);
 
-      // Tạo address trước
-      const addressId = await createAddress();
+      const addressId = address._id || (await saveAddress({ ...address, phone: phone.normalized }, makeDefault))._id;
 
-      // Sau đó tạo order
+      // Use the chosen saved address for either payment method.
       const endpoint = method === "QR" ? "/api/orders/qr" : "/api/orders/cod";
 
       const { data } = await axios.post(
@@ -343,177 +181,59 @@ const CheckoutAddressForm = ({
           "Could not place order",
       );
     } finally {
+      submitRef.current = false;
       setIsSubmitting(false);
     }
   };
 
   return (
-    <form
-      id="checkout-address-form"
-      onSubmit={handleSubmit}
-      className="rounded-xl bg-white p-6 md:p-8"
-    >
+    <form id="checkout-address-form" onSubmit={handleSubmit} className="rounded-xl bg-white p-6 md:p-8">
       <p className="text-sm uppercase tracking-wider text-gray-400">Checkout</p>
-
       <h2 className="mt-1 text-2xl font-semibold">Delivery Information</h2>
 
-      <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
-        {contactFields.map((field) => (
-          <label
-            key={field.name}
-            className={field.fullWidth ? "sm:col-span-2" : ""}
-          >
-            <span className="mb-2 block text-sm font-medium">
-              {field.label} <span className="text-red-500" aria-hidden="true">*</span>
-            </span>
+      {isLoadingAddresses ? (
+        <p className="mt-8" role="status">Loading your addresses...</p>
+      ) : addressLoadError ? (
+        <div className="mt-6 rounded-md bg-primary p-4" role="alert">
+          <p>{addressLoadError}</p>
+          <button type="button" onClick={() => setLoadAttempt((current) => current + 1)} className="mt-3 cursor-pointer text-sm font-semibold text-secondary underline">Try again</button>
+        </div>
+      ) : address._id ? (
+        <div className="mt-6 rounded-xl border border-gray-200 bg-primary/50 p-5">
+          <div className="flex items-start gap-3">
+            <MapPin size={21} className="mt-0.5 shrink-0 text-secondary" />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="font-semibold">{address.firstName} {address.lastName}</span>
+                <span className="text-sm font-medium">{validateDeliveryPhone(address.phone).normalized || address.phone}</span>
+              </div>
+              <p className="mt-2 break-words !leading-relaxed">{[address.street, address.state, address.city, address.country].filter(Boolean).join(", ")}</p>
+              {address.isDefault && <span className="mt-3 inline-block rounded border border-secondary/25 bg-secondary/5 px-2 py-0.5 text-xs text-secondary">Default</span>}
+            </div>
+          </div>
+          <button type="button" disabled={isSubmitting} onClick={() => setIsAddressBookOpen(true)} className="btn-outline mt-5 !rounded-md disabled:opacity-40">Change Address</button>
+        </div>
+      ) : (
+        <>
+          <DeliveryAddressFields address={address} setAddress={setAddress} disabled={isSubmitting} />
+          <label className="mt-5 flex cursor-pointer items-center gap-2 text-sm"><input type="checkbox" checked={makeDefault} onChange={(event) => setMakeDefault(event.target.checked)} disabled={isSubmitting} className="h-4 w-4 accent-secondary" />Save as default address</label>
+          <p className="mt-3 !text-xs">This address will be saved for your next order.</p>
+          <button type="button" disabled={isSubmitting} onClick={saveInlineAddress} className="btn-dark mt-5 !rounded-md disabled:opacity-40">{isSubmitting ? "Saving..." : "Save Address"}</button>
+          {addresses.length > 0 && <button type="button" disabled={isSubmitting} onClick={() => setIsAddressBookOpen(true)} className="btn-outline mt-5 !rounded-md">Choose Saved Address</button>}
+        </>
+      )}
 
-            <input
-              required
-              type={field.type || "text"}
-              name={field.name}
-              value={address[field.name]}
-              onChange={handleChange}
-              autoComplete={field.name}
-              className={inputClass}
-            />
-          </label>
-        ))}
-
-        <label>
-          <span className="mb-2 block text-sm font-medium">
-            Country <span className="text-red-500" aria-hidden="true">*</span>
-          </span>
-
-          {countriesApiFailed ? (
-            <input
-              required
-              type="text"
-              name="country"
-              value={address.country}
-              onChange={handleCountryChange}
-              autoComplete="country-name"
-              className={inputClass}
-            />
-          ) : (
-            <select
-              required
-              name="country"
-              value={address.country}
-              onChange={handleCountryChange}
-              disabled={isLoadingCountries}
-              autoComplete="country-name"
-              className={`${inputClass} disabled:cursor-wait`}
-            >
-              <option value="">
-                {isLoadingCountries ? "Loading countries..." : "Select country"}
-              </option>
-              {address.country && !countries.includes(address.country) && (
-                <option value={address.country}>{address.country}</option>
-              )}
-              {countries.map((country) => (
-                <option key={country} value={country}>
-                  {country}
-                </option>
-              ))}
-            </select>
-          )}
-        </label>
-
-        <label>
-          <span className="mb-2 block text-sm font-medium">
-            City <span className="text-red-500" aria-hidden="true">*</span>
-          </span>
-
-          {citiesApiFailed ? (
-            <input
-              required
-              type="text"
-              name="city"
-              value={address.city}
-              onChange={handleCityChange}
-              autoComplete="address-level1"
-              className={inputClass}
-            />
-          ) : (
-            <select
-              required
-              name="city"
-              value={address.city}
-              onChange={handleCityChange}
-              disabled={
-                !address.country || isLoadingCities || cities.length === 0
-              }
-              autoComplete="address-level1"
-              className={`${inputClass} disabled:cursor-not-allowed`}
-            >
-              <option value="">
-                {isLoadingCities
-                  ? "Loading cities..."
-                  : address.country === "Vietnam"
-                    ? "Select city"
-                    : "Select city"}
-              </option>
-              {cities.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
-          )}
-        </label>
-
-        <label>
-          <span className="mb-2 block text-sm font-medium">
-            {address.country === "Vietnam"
-              ? "Ward/ Commune"
-              : "State/ Province"}{" "}
-            <span className="text-red-500" aria-hidden="true">*</span>
-          </span>
-
-          {address.country === "Vietnam" && !citiesApiFailed ? (
-            <select
-              required
-              name="state"
-              value={address.state}
-              onChange={handleChange}
-              disabled={!address.city || isLoadingCities || wards.length === 0}
-              autoComplete="address-level2"
-              className={`${inputClass} disabled:cursor-not-allowed`}
-            >
-              <option value="">Select ward/ commune</option>
-              {wards.map((ward) => (
-                <option key={ward} value={ward}>
-                  {ward}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              required
-              type="text"
-              name="state"
-              value={address.state}
-              onChange={handleChange}
-              autoComplete="address-level2"
-              className={inputClass}
-            />
-          )}
-        </label>
-
-        <label>
-          <span className="mb-2 block text-sm font-medium">
-            ZIP code (optional)
-          </span>
-          <input
-            type="text"
-            name="zipcode"
-            value={address.zipcode}
-            onChange={handleChange}
-            autoComplete="postal-code"
-            className={inputClass}
-          />
-        </label>
-      </div>
+      {isAddressBookOpen && (
+        <AddressBookDialog
+          addresses={addresses}
+          selectedId={address._id}
+          user={user}
+          onSave={saveAddress}
+          onMakeDefault={makeAddressDefault}
+          onClose={() => setIsAddressBookOpen(false)}
+          onSelect={(selected) => { setAddress(selected); setIsAddressBookOpen(false); }}
+        />
+      )}
     </form>
   );
 };

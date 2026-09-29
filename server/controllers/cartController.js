@@ -2,6 +2,7 @@ import { isObjectIdOrHexString } from "mongoose";
 import User from "../models/User.js";
 import Product from "../models/Product.js";
 import { getSizeQuantity, isSizeAvailable } from "../utils/productStock.js";
+import { getCartAddedAt, getMissingCartAddedAtUpdates, getNextCartAddedAt } from "../utils/cartOrder.js";
 
 const MAX_ADD_QUANTITY = 10;
 const isSafePathSegment = (value) =>
@@ -101,6 +102,10 @@ export const addToCart = async (req, res) => {
     }
 
     const cartItemPath = `cartData.${itemId}.${size}`;
+    const timestamps = getCartAddedAt(userData.cartData, userData.cartAddedAt);
+    const addedAt = Number(userData.cartData?.[itemId]?.[size] ?? 0) > 0
+      ? timestamps[itemId][size]
+      : getNextCartAddedAt(timestamps);
     const updatedUser = await User.findOneAndUpdate(
       {
         _id: userId,
@@ -109,7 +114,13 @@ export const addToCart = async (req, res) => {
           { [cartItemPath]: { $lte: stockQuantity - quantity } },
         ],
       },
-      { $inc: { [cartItemPath]: quantity } },
+      {
+        $inc: { [cartItemPath]: quantity },
+        $set: {
+          ...getMissingCartAddedAtUpdates(userData.cartData, userData.cartAddedAt),
+          [`cartAddedAt.${itemId}.${size}`]: addedAt,
+        },
+      },
       { new: true },
     );
 
@@ -127,6 +138,7 @@ export const addToCart = async (req, res) => {
       message: "Added to Cart",
       addedQuantity: quantity,
       quantity: nextQuantity,
+      addedAt,
     });
   } catch (error) {
     console.log(error.message);
@@ -170,6 +182,14 @@ export const changeCartSize = async (req, res) => {
 
     const fromPath = `cartData.${itemId}.${fromSize}`;
     const toPath = `cartData.${itemId}.${toSize}`;
+    const userData = req.user;
+    const timestamps = getCartAddedAt(userData.cartData, userData.cartAddedAt);
+    const addedAt = timestamps[itemId]?.[fromSize];
+    if (!addedAt) {
+      return res.status(409).json({ success: false, message: "Your cart changed. Please reload it." });
+    }
+    const timestampUpdates = getMissingCartAddedAtUpdates(userData.cartData, userData.cartAddedAt);
+    delete timestampUpdates[`cartAddedAt.${itemId}.${fromSize}`];
     const updatedUser = await User.findOneAndUpdate(
       {
         _id: userId,
@@ -178,7 +198,10 @@ export const changeCartSize = async (req, res) => {
           ? { $or: [{ [toPath]: { $exists: false } }, { [toPath]: 0 }] }
           : { [toPath]: toQuantity }),
       },
-      { $unset: { [fromPath]: "" }, $set: { [toPath]: quantity } },
+      {
+        $unset: { [fromPath]: "", [`cartAddedAt.${itemId}.${fromSize}`]: "" },
+        $set: { ...timestampUpdates, [toPath]: quantity, [`cartAddedAt.${itemId}.${toSize}`]: addedAt },
+      },
       { new: true },
     );
     if (!updatedUser) {
@@ -187,7 +210,7 @@ export const changeCartSize = async (req, res) => {
         message: "Your cart changed. Please try again with the updated cart.",
       });
     }
-    return res.json({ success: true, quantity, message: "Size updated" });
+    return res.json({ success: true, quantity, addedAt, message: "Size updated" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "Unable to change size" });
@@ -235,9 +258,14 @@ export const updateCart = async (req, res) => {
 
     // Removing an item must remain possible even if the product is no longer sold.
     if (quantity === 0) {
+      const timestampUpdates = getMissingCartAddedAtUpdates(userData.cartData, userData.cartAddedAt);
+      delete timestampUpdates[`cartAddedAt.${itemId}.${size}`];
       await User.updateOne(
         { _id: userId },
-        { $unset: { [cartItemPath]: "" } },
+        {
+          $unset: { [cartItemPath]: "", [`cartAddedAt.${itemId}.${size}`]: "" },
+          ...(Object.keys(timestampUpdates).length ? { $set: timestampUpdates } : {}),
+        },
       );
 
       return res.json({
@@ -274,15 +302,22 @@ export const updateCart = async (req, res) => {
       });
     }
 
+    const timestamps = getCartAddedAt(userData.cartData, userData.cartAddedAt);
+    const addedAt = timestamps[itemId]?.[size] ?? getNextCartAddedAt(timestamps);
     await User.updateOne(
       { _id: userId },
-      { $set: { [cartItemPath]: quantity } },
+      { $set: {
+        ...getMissingCartAddedAtUpdates(userData.cartData, userData.cartAddedAt),
+        [cartItemPath]: quantity,
+        [`cartAddedAt.${itemId}.${size}`]: addedAt,
+      } },
     );
 
     return res.json({
       success: true,
       message: "Cart Updated",
       quantity,
+      addedAt,
     });
   } catch (error) {
     console.log(error.message);

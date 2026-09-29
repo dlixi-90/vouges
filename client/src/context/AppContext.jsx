@@ -10,6 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { getOrderedCartItems, moveCartSize, setCartLineAddedAt } from "../utils/cartOrder";
 import {
   getSizeQuantity,
   isSizeAvailable,
@@ -69,6 +70,7 @@ export const AppContextProvider = ({ children }) => {
   const [categoriesError, setCategoriesError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [cartItems, setCartItems] = useState({});
+  const [cartAddedAt, setCartAddedAt] = useState({});
   const cartWritesRef = useRef(0);
   const changingSizeRef = useRef(false);
   const [method, setMethod] = useState("COD");
@@ -93,6 +95,7 @@ export const AppContextProvider = ({ children }) => {
       if (data.success) {
         setIsOwner(data.role === "owner");
         setCartItems(data.cartData || {});
+        setCartAddedAt(data.cartAddedAt || {});
       } else {
         setIsOwner(false);
         toast.error(data.message);
@@ -232,6 +235,10 @@ export const AppContextProvider = ({ children }) => {
     setCartItems((currentCart) =>
       setCartItemQuantity(currentCart, itemId, size, nextQuantity),
     );
+    const addedAt = currentQuantity > 0
+      ? cartAddedAt[itemId]?.[size]
+      : Math.max(Date.now(), ...Object.values(cartAddedAt).flatMap((sizes) => Object.values(sizes).map((value) => Number(value) + 1)));
+    setCartAddedAt((current) => setCartLineAddedAt(current, itemId, size, addedAt));
     onOptimisticSuccess?.();
 
     if (!user) {
@@ -250,6 +257,9 @@ export const AppContextProvider = ({ children }) => {
 
       if (!data.success) {
         throw new Error(data.message || "Unable to add item to cart");
+      }
+      if (data.addedAt) {
+        setCartAddedAt((current) => setCartLineAddedAt(current, itemId, size, data.addedAt));
       }
 
       setCartItems((currentCart) =>
@@ -362,6 +372,9 @@ export const AppContextProvider = ({ children }) => {
       if (!data.success) {
         throw new Error(data.message || "Unable to update cart");
       }
+      if (data.addedAt) {
+        setCartAddedAt((current) => setCartLineAddedAt(current, itemId, size, data.addedAt));
+      }
 
       setCartItems((currentCart) =>
         setCartItemQuantity(
@@ -414,6 +427,8 @@ export const AppContextProvider = ({ children }) => {
         throw new Error("This product size is unavailable");
       }
       let quantity = fromQuantity + toQuantity;
+      let addedAt = getOrderedCartItems(cartItems, cartAddedAt)
+        .find((item) => item._id === itemId && item.size === fromSize)?.addedAt;
       if (fromQuantity < 1 || !Number.isSafeInteger(quantity)) {
         throw new Error("Invalid cart quantity");
       }
@@ -428,10 +443,14 @@ export const AppContextProvider = ({ children }) => {
         );
         if (!data.success) throw new Error(data.message || "Unable to change size");
         quantity = data.quantity;
+        addedAt = data.addedAt ?? addedAt;
       }
-      setCartItems((current) => setCartItemQuantity(
-        setCartItemQuantity(current, itemId, fromSize, 0), itemId, toSize, quantity,
-      ));
+      setCartItems((current) => moveCartSize(current, itemId, fromSize, toSize, quantity));
+      setCartAddedAt((current) => {
+        const next = setCartLineAddedAt(current, itemId, toSize, addedAt);
+        delete next[itemId][fromSize];
+        return next;
+      });
       return { success: true };
     } catch (error) {
       if (error.response?.status === 409) await getUser();
@@ -462,6 +481,7 @@ export const AppContextProvider = ({ children }) => {
       queueMicrotask(() => {
         setIsOwner(false);
         setCartItems({});
+        setCartAddedAt({});
         setProductDrafts({});
       });
       return undefined;
@@ -508,6 +528,7 @@ export const AppContextProvider = ({ children }) => {
     searchQuery,
     setSearchQuery,
     cartItems,
+    cartAddedAt,
     setCartItems,
     method,
     setMethod,
