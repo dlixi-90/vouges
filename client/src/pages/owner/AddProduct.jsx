@@ -3,7 +3,10 @@ import toast from "react-hot-toast";
 import { Check, ImagePlus, PackagePlus, Plus, X } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import { useLocation, useParams } from "react-router-dom";
-import { restoreProductDraft, getProductTypeSelection } from "../../utils/productDraft";
+import {
+  restoreProductDraft,
+  getProductTypeSelection,
+} from "../../utils/productDraft";
 import { saveVariantEdit } from "../../utils/productVariantEdit";
 import ProductVariantRow from "../../components/owner/ProductVariantRow";
 
@@ -53,48 +56,93 @@ const ProductForm = () => {
 
   const isEditMode = Boolean(productId);
   const draftKey = `${user?.id}:${productId || "new"}`;
-  const [restoredDraft] = useState(() => restoreProductDraft(
-    productDrafts[draftKey], categories, navigationState?.categorySelection,
-  ));
+  const [restoredDraft] = useState(() =>
+    restoreProductDraft(
+      productDrafts[draftKey],
+      categories,
+      navigationState?.categorySelection,
+    ),
+  );
 
-  const [images, setImages] = useState(() => restoredDraft?.images || createEmptyImages());
-  const [inputs, setInputs] = useState(() => restoredDraft?.inputs || createEmptyInputs());
+  const [images, setImages] = useState(
+    () => restoredDraft?.images || createEmptyImages(),
+  );
+  const [inputs, setInputs] = useState(
+    () => restoredDraft?.inputs || createEmptyInputs(),
+  );
   const selection = getProductTypeSelection(categories, inputs);
   const selectedCategory = selection?.category;
   const selectedType = selection?.type;
 
-  const [sizePrices, setSizePrices] = useState(() => restoredDraft?.sizePrices || []);
+  const [sizePrices, setSizePrices] = useState(
+    () => restoredDraft?.sizePrices || [],
+  );
   const [variantEdits, setVariantEdits] = useState(() => {
     const edits = restoredDraft?.variantEdits || {};
-    const target = restoredDraft?.sizePrices?.find((item) => item.originalSize === navigationState?.editSize);
-    return target && navigationState?.editSize ? { ...edits, [target.id]: edits[target.id] || { ...target } } : edits;
+    const target = restoredDraft?.sizePrices?.find(
+      (item) => item.originalSize === navigationState?.editSize,
+    );
+    return target && navigationState?.editSize
+      ? { ...edits, [target.id]: edits[target.id] || { ...target } }
+      : edits;
   });
   const hasVariantEdits = Object.keys(variantEdits).length > 0;
   const [newSize, setNewSize] = useState(() => restoredDraft?.newSize || "");
   const [newPrice, setNewPrice] = useState(() => restoredDraft?.newPrice || "");
-  const [newQuantity, setNewQuantity] = useState(() => restoredDraft?.newQuantity || "");
+  const [newQuantity, setNewQuantity] = useState(
+    () => restoredDraft?.newQuantity || "",
+  );
 
   const [loading, setLoading] = useState(false);
   const [imageInputVersion, setImageInputVersion] = useState(0);
 
-  const [loadedProductId, setLoadedProductId] = useState(() => restoredDraft?.loadedProductId || null);
-  const [loadedUpdatedAt, setLoadedUpdatedAt] = useState(() => restoredDraft?.loadedUpdatedAt || null);
+  const [loadedProductId, setLoadedProductId] = useState(
+    () => restoredDraft?.loadedProductId || null,
+  );
+  const [loadedUpdatedAt, setLoadedUpdatedAt] = useState(
+    () => restoredDraft?.loadedUpdatedAt || null,
+  );
 
   useEffect(() => {
     if (isEditMode && loadedProductId !== productId) return;
     saveProductDraft(draftKey, {
-      inputs, images, sizePrices, variantEdits, newSize, newPrice, newQuantity,
-      loadedProductId, loadedUpdatedAt,
+      inputs,
+      images,
+      sizePrices,
+      variantEdits,
+      newSize,
+      newPrice,
+      newQuantity,
+      loadedProductId,
+      loadedUpdatedAt,
       categoryId: selectedCategory?._id,
       typeId: selectedType?._id,
     });
-  }, [categories, draftKey, images, inputs, isEditMode, loadedProductId, loadedUpdatedAt,
-    newPrice, newQuantity, newSize, productId, saveProductDraft, sizePrices, selectedCategory, selectedType, variantEdits]);
+  }, [
+    categories,
+    draftKey,
+    images,
+    inputs,
+    isEditMode,
+    loadedProductId,
+    loadedUpdatedAt,
+    newPrice,
+    newQuantity,
+    newSize,
+    productId,
+    saveProductDraft,
+    sizePrices,
+    selectedCategory,
+    selectedType,
+    variantEdits,
+  ]);
 
   const manageCategoryTypes = () => {
     navigate("/owner/add-category", {
       state: {
-        returnTo: isEditMode ? `/owner/edit-product/${productId}` : "/owner/add-product",
+        returnTo: isEditMode
+          ? `/owner/edit-product/${productId}`
+          : "/owner/add-product",
         categoryId: selectedCategory?._id,
       },
     });
@@ -123,14 +171,16 @@ const ProductForm = () => {
     });
 
     const variants = (product.sizes || []).map((size) => ({
-        id: `existing:${size}`,
-        originalSize: size,
-        size,
-        price: Number(product.price?.[size] ?? 0),
-        quantity: Number(product.stockBySize?.[size] ?? 0),
-      }));
+      id: `existing:${size}`,
+      originalSize: size,
+      size,
+      price: Number(product.price?.[size] ?? 0),
+      quantity: Number(product.stockBySize?.[size] ?? 0),
+    }));
     setSizePrices(variants);
-    const target = variants.find((item) => item.originalSize === navigationState?.editSize);
+    const target = variants.find(
+      (item) => item.originalSize === navigationState?.editSize,
+    );
     if (target) setVariantEdits({ [target.id]: { ...target } });
 
     const loadedImages = createEmptyImages();
@@ -142,7 +192,13 @@ const ProductForm = () => {
     setImages(loadedImages);
     setLoadedProductId(productId);
     setLoadedUpdatedAt(product.updatedAt);
-  }, [isEditMode, loadedProductId, productId, products, navigationState?.editSize]);
+  }, [
+    isEditMode,
+    loadedProductId,
+    productId,
+    products,
+    navigationState?.editSize,
+  ]);
 
   const updateInput = (field, value) => {
     setInputs((currentInputs) => ({
@@ -273,11 +329,7 @@ const ProductForm = () => {
       return;
     }
 
-    if (
-      !inputs.title.trim() ||
-      !inputs.description.trim() ||
-      !selectedType
-    ) {
+    if (!inputs.title.trim() || !inputs.description.trim() || !selectedType) {
       toast.error("Please fill all required fields");
       return;
     }
@@ -307,10 +359,20 @@ const ProductForm = () => {
     }
 
     const normalizedSizes = sizePrices.map(({ size }) => size.trim());
-    if (normalizedSizes.some((size) => size.length > 50 || size.includes(".") ||
-        size.startsWith("$") || ["__proto__", "constructor", "prototype"].includes(size)) ||
-        new Set(normalizedSizes.map((size) => size.toLowerCase())).size !== normalizedSizes.length) {
-      toast.error("Size names must be unique, at most 50 characters, without dots or a leading $.");
+    if (
+      normalizedSizes.some(
+        (size) =>
+          size.length > 50 ||
+          size.includes(".") ||
+          size.startsWith("$") ||
+          ["__proto__", "constructor", "prototype"].includes(size),
+      ) ||
+      new Set(normalizedSizes.map((size) => size.toLowerCase())).size !==
+        normalizedSizes.length
+    ) {
+      toast.error(
+        "Size names must be unique, at most 50 characters, without dots or a leading $.",
+      );
       return;
     }
 
@@ -353,7 +415,10 @@ const ProductForm = () => {
           existingImages,
           expectedUpdatedAt: loadedUpdatedAt,
           sizeRenames: sizePrices
-            .filter((item) => item.originalSize && item.originalSize !== item.size.trim())
+            .filter(
+              (item) =>
+                item.originalSize && item.originalSize !== item.size.trim(),
+            )
             .map((item) => ({ from: item.originalSize, to: item.size.trim() })),
         }),
       };
@@ -480,7 +545,9 @@ const ProductForm = () => {
                   <select
                     value={selectedType?._id || ""}
                     onChange={(event) => {
-                      const next = getProductTypeSelection(categories, { typeId: event.target.value });
+                      const next = getProductTypeSelection(categories, {
+                        typeId: event.target.value,
+                      });
                       setInputs((current) => ({
                         ...current,
                         typeId: next?.type._id || "",
@@ -490,18 +557,22 @@ const ProductForm = () => {
                     }}
                     className="admin-input"
                     required
-                    disabled={categoriesLoading || Boolean(categoriesError) || loading}
+                    disabled={
+                      categoriesLoading || Boolean(categoriesError) || loading
+                    }
                   >
                     <option value="">Select product type</option>
-                    {categories.filter((category) => category.types?.length).map((category) => (
-                      <optgroup key={category._id} label={category.name}>
-                        {category.types.map((type) => (
-                          <option key={type._id} value={type._id}>
-                            {type.name}
-                          </option>
-                        ))}
-                      </optgroup>
-                    ))}
+                    {categories
+                      .filter((category) => category.types?.length)
+                      .map((category) => (
+                        <optgroup key={category._id} label={category.name}>
+                          {category.types.map((type) => (
+                            <option key={type._id} value={type._id}>
+                              {type.name}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
                   </select>
                   {categoriesLoading && (
                     <span className="mt-1 block text-xs text-[#839099]">
@@ -618,10 +689,18 @@ const ProductForm = () => {
                         item={item}
                         draft={variantEdits[item.id]}
                         loading={loading}
-                        onEdit={() => setVariantEdits((current) => ({ ...current, [item.id]: { ...item } }))}
-                        onChange={(field, value) => setVariantEdits((current) => ({
-                          ...current, [item.id]: { ...current[item.id], [field]: value },
-                        }))}
+                        onEdit={() =>
+                          setVariantEdits((current) => ({
+                            ...current,
+                            [item.id]: { ...item },
+                          }))
+                        }
+                        onChange={(field, value) =>
+                          setVariantEdits((current) => ({
+                            ...current,
+                            [item.id]: { ...current[item.id], [field]: value },
+                          }))
+                        }
                         onSave={() => commitVariantEdit(item.id)}
                         onCancel={() => cancelVariantEdit(item.id)}
                         onRemove={() => removeSizePrice(item.id)}
@@ -631,7 +710,9 @@ const ProductForm = () => {
                 </div>
                 {sizePrices.length > 0 && (
                   <p className="mt-3 text-xs text-[#71808a]">
-                    Save confirms each size edit. {isEditMode ? "Save changes" : "Add product"} saves the product.
+                    Save confirms each size edit.{" "}
+                    {isEditMode ? "Save changes" : "Add product"} saves the
+                    product.
                   </p>
                 )}
               </div>
@@ -663,19 +744,6 @@ const ProductForm = () => {
               <h2 className="text-base font-semibold text-[#263b4a]">
                 Publishing
               </h2>
-
-              <p className="mt-4 text-sm text-[#71808a]">
-                Popular Products is ranked automatically by units sold.
-              </p>
-
-              <div className="my-5 flex items-center gap-2 border-y border-[#edf0ee] py-4 text-xs text-[#71808a]">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#edf6ee] text-[#557b5e]">
-                  <Check size={14} />
-                </span>
-                {isEditMode
-                  ? "Changes will be applied after saving the product."
-                  : "Product will be available after it is added."}
-              </div>
 
               <button
                 type="submit"
