@@ -186,6 +186,7 @@ const CheckoutAddressForm = ({
       );
 
       if (!data.success) {
+        await fetchProducts();
         return toast.error(data.message);
       }
 
@@ -209,6 +210,7 @@ const CheckoutAddressForm = ({
           error.message ||
           "Could not place order",
       );
+      await fetchProducts();
     } finally {
       submitRef.current = false;
       setIsSubmitting(false);

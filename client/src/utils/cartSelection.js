@@ -1,4 +1,15 @@
+import { isSizeAvailable } from "./productStock.js";
+
 export const getCartItemKey = (productId, size) => `${productId}::${size}`;
+
+export const getAvailableCartItems = (items, products) => {
+  const productsById = new Map(products.map((product) => [product._id, product]));
+  return items.filter((item) => {
+    const product = productsById.get(item._id);
+    return !product?.isDeleted && product?.sizes?.includes(item.size) &&
+      isSizeAvailable(product, item.size);
+  });
+};
 
 export const changeSizeSelection = (deselected, productId, fromSize, toSize, targetExists) => {
   const sourceKey = getCartItemKey(productId, fromSize);

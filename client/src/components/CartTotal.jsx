@@ -205,7 +205,7 @@ const CartTotal = ({
           <button
             type="submit"
             form="checkout-address-form"
-            disabled={isSubmitting}
+            disabled={isSubmitting || selectedCount === 0}
             className="btn-dark w-full !rounded-md disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting

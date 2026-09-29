@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../context/AppContext";
 import { removePurchasedItems } from "../utils/cartSelection";
@@ -20,7 +20,6 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
     navigate,
     setCartItems,
     fetchProducts,
-    setIsQrPaymentActive,
     fetchPopularProducts,
   } = useAppContext();
 
@@ -35,11 +34,6 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
   const cancelRequestRef = useRef(false);
   const qrHistoryEntryRef = useRef(false);
   const isAwaitingPayment = order.status === "Awaiting Payment" && !order.isPaid;
-
-  useLayoutEffect(() => {
-    setIsQrPaymentActive(isAwaitingPayment);
-    return () => setIsQrPaymentActive(false);
-  }, [isAwaitingPayment, setIsQrPaymentActive]);
 
   const checkPayment = useCallback(
     async (showError = false) => {

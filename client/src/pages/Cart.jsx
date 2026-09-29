@@ -5,14 +5,13 @@ import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
 import CartSteps from "../components/CartSteps";
 import CartSizePicker from "../components/CartSizePicker";
-import { getShippingCharge } from "../utils/orderPricing";
 import QrPaymentStatus from "../components/QrPaymentStatus";
 import CheckoutAddressForm from "../components/checkout/CheckoutAddressForm";
 import { useAppContext } from "../context/AppContext";
 import { assets } from "../assets/data";
 import { formatThousandsVnd } from "../utils/money";
-import { getCartItemKey, changeSizeSelection } from "../utils/cartSelection";
-import { getSizeQuantity, isSizeAvailable } from "../utils/productStock";
+import { getCartItemKey, changeSizeSelection, getAvailableCartItems } from "../utils/cartSelection";
+import { getSizeQuantity } from "../utils/productStock";
 import { initialCheckoutAddress } from "../utils/checkoutAddress";
 import { getOrderedCartItems } from "../utils/cartOrder";
 
@@ -25,7 +24,7 @@ const CartCheckbox = ({
   disabled = false,
 }) => (
   <label
-    className="group flex cursor-pointer items-center justify-center rounded-md p-2"
+    className={`group flex items-center justify-center rounded-md p-2 ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
     title={label}
   >
     <input
@@ -60,13 +59,13 @@ const Cart = () => {
     user,
     products,
     currency,
-    delivery_charges,
     cartItems,
     cartAddedAt,
     updateQuantity,
     changeCartSize,
     axios,
     getToken,
+    fetchProducts,
   } = useAppContext();
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -88,19 +87,42 @@ const Cart = () => {
     return getOrderedCartItems(cartItems, cartAddedAt);
   }, [products, cartItems, cartAddedAt]);
 
+  const availableCartData = useMemo(
+    () => getAvailableCartItems(cartData, products),
+    [cartData, products],
+  );
+  const availableItemKeys = useMemo(
+    () => new Set(availableCartData.map((item) => getCartItemKey(item._id, item.size))),
+    [availableCartData],
+  );
+
+  useEffect(() => {
+    if (createdOrder) return undefined;
+    const refreshStock = () => {
+      if (document.visibilityState === "visible") fetchProducts();
+    };
+    refreshStock();
+    window.addEventListener("focus", refreshStock);
+    const intervalId = window.setInterval(refreshStock, 30000);
+    return () => {
+      window.removeEventListener("focus", refreshStock);
+      window.clearInterval(intervalId);
+    };
+  }, [createdOrder, fetchProducts]);
+
   const selectedItemKeys = useMemo(
     () =>
       new Set(
-        cartData
+        availableCartData
           .map((item) => getCartItemKey(item._id, item.size))
           .filter((itemKey) => !deselectedItemKeys.has(itemKey)),
       ),
-    [cartData, deselectedItemKeys],
+    [availableCartData, deselectedItemKeys],
   );
   const allItemsSelected =
-    cartData.length > 0 && selectedItemKeys.size === cartData.length;
+    availableCartData.length > 0 && selectedItemKeys.size === availableCartData.length;
   const someItemsSelected =
-    selectedItemKeys.size > 0 && selectedItemKeys.size < cartData.length;
+    selectedItemKeys.size > 0 && selectedItemKeys.size < availableCartData.length;
 
   useEffect(() => {
     for (const ref of [selectAllRef, footerSelectAllRef]) {
@@ -109,6 +131,7 @@ const Cart = () => {
   }, [someItemsSelected, currentStep]);
 
   const toggleItemSelection = (itemKey) => {
+    if (!availableItemKeys.has(itemKey)) return;
     setDeselectedItemKeys((currentKeys) => {
       const nextKeys = new Set(currentKeys);
 
@@ -125,7 +148,7 @@ const Cart = () => {
   const toggleAllItems = () => {
     setDeselectedItemKeys(
       allItemsSelected
-        ? new Set(cartData.map((item) => getCartItemKey(item._id, item.size)))
+        ? new Set(availableItemKeys)
         : new Set(),
     );
   };
@@ -215,9 +238,6 @@ const Cart = () => {
         Number(cartItems[item._id]?.[item.size] ?? 0)
     );
   }, 0);
-  const shipping =
-    subtotal > 0 ? getShippingCharge(subtotal, delivery_charges) : 0;
-
   const removeSelectedItems = () =>
     runCartUpdate(async () => {
       for (const item of selectedItems) {
@@ -266,6 +286,9 @@ const Cart = () => {
     if (cartUpdateRef.current) return;
     if (createdOrder) return;
     if (step > highestStep) return;
+    if (step === 2 && selectedItemKeys.size === 0) {
+      return toast.error("Please select at least one available product");
+    }
 
     setCurrentStep(step);
     window.scrollTo(0, 0);
@@ -289,7 +312,7 @@ const Cart = () => {
               <div className="hidden grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] items-center gap-3 rounded-xl bg-white px-4 py-3 lg:grid">
                 <CartCheckbox
                   inputRef={selectAllRef}
-                  disabled={isUpdatingCart}
+                  disabled={isUpdatingCart || availableCartData.length === 0}
                   checked={allItemsSelected}
                   onChange={toggleAllItems}
                   indeterminate={someItemsSelected}
@@ -313,16 +336,17 @@ const Cart = () => {
                   );
                   const itemKey = getCartItemKey(item._id, item.size);
                   const isSelected = selectedItemKeys.has(itemKey);
+                  const isUnavailable = !availableItemKeys.has(itemKey);
                   if (quantity <= 0) return null;
 
                   return (
                     <div
                       key={itemKey}
-                      className={`grid grid-cols-[32px_minmax(0,1fr)_40px] items-center gap-x-2 gap-y-4 rounded-xl px-3 py-5 transition sm:gap-x-3 sm:px-4 lg:grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] lg:py-6 ${isSelected ? "bg-white" : "bg-white/60"}`}
+                      className={`grid grid-cols-[32px_minmax(0,1fr)_40px] items-center gap-x-2 gap-y-4 rounded-xl px-3 py-5 transition sm:gap-x-3 sm:px-4 lg:grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] lg:py-6 ${isUnavailable ? "bg-white/40 [&>div]:opacity-50" : isSelected ? "bg-white" : "bg-white/60"}`}
                     >
                       <div className="col-start-1 row-start-1">
                         <CartCheckbox
-                          disabled={isUpdatingCart}
+                          disabled={isUpdatingCart || isUnavailable}
                           checked={isSelected}
                           onChange={() => toggleItemSelection(itemKey)}
                           label={`Select ${product.title}, size ${item.size}`}
@@ -335,9 +359,14 @@ const Cart = () => {
                             alt={product.title}
                             className="h-20 w-16 shrink-0 rounded-xl bg-primary object-cover sm:h-24 sm:w-20"
                           />
-                          <h5 className="h5 min-w-0 line-clamp-2">
-                            {product.title}
-                          </h5>
+                          <div className="min-w-0">
+                            <h5 className="h5 line-clamp-2">{product.title}</h5>
+                            {isUnavailable && (
+                              <p className="mt-2 text-sm font-medium text-secondary" role="status">
+                                Out of stock — remove from cart
+                              </p>
+                            )}
+                          </div>
                         </div>
                         <div className="w-full pl-[76px] sm:pl-[92px] xl:w-32 xl:shrink-0 xl:pl-0">
                           <CartSizePicker
@@ -345,7 +374,7 @@ const Cart = () => {
                             size={item.size}
                             quantity={quantity}
                             quantities={cartItems[item._id]}
-                            disabled={isUpdatingCart}
+                            disabled={isUpdatingCart || isUnavailable}
                             onConfirm={(size) =>
                               handleSizeChange(item._id, item.size, size)
                             }
@@ -372,7 +401,7 @@ const Cart = () => {
                             type="button"
                             aria-label={`Decrease quantity of ${product.title}, size ${item.size}`}
                             onClick={() => decrement(item._id, item.size)}
-                            disabled={isUpdatingCart || quantity <= 1}
+                            disabled={isUpdatingCart || isUnavailable || quantity <= 1}
                             className="cursor-pointer rounded-full bg-secondary p-2 text-white shadow-md disabled:cursor-not-allowed disabled:opacity-40"
                           >
                             <img
@@ -391,7 +420,7 @@ const Cart = () => {
                             onClick={() => increment(item._id, item.size)}
                             disabled={
                               isUpdatingCart ||
-                              !isSizeAvailable(product, item.size) ||
+                              isUnavailable ||
                               quantity >= getSizeQuantity(product, item.size)
                             }
                             className="cursor-pointer rounded-full bg-secondary p-2 text-white shadow-md disabled:cursor-not-allowed disabled:opacity-40"
@@ -439,14 +468,14 @@ const Cart = () => {
                   <div className="flex items-center gap-1">
                     <CartCheckbox
                       inputRef={footerSelectAllRef}
-                      disabled={isUpdatingCart}
+                      disabled={isUpdatingCart || availableCartData.length === 0}
                       checked={allItemsSelected}
                       onChange={toggleAllItems}
                       indeterminate={someItemsSelected}
                       label="Select all products"
                     />
                     <span className="text-sm">
-                      Select All ({cartData.length})
+                      Select All ({availableCartData.length})
                     </span>
                   </div>
                   <button

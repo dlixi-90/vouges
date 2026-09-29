@@ -52,7 +52,6 @@ export const AppContextProvider = ({ children }) => {
   const [popularProductsLoading, setPopularProductsLoading] = useState(true);
   const [popularProductsError, setPopularProductsError] = useState("");
   const popularRequestRef = useRef(null);
-  const [isQrPaymentActive, setIsQrPaymentActive] = useState(false);
   const [categories, setCategories] = useState([]);
   // Preserve File objects as well as text while navigating between admin forms.
   const [productDrafts, setProductDrafts] = useState({});
@@ -519,8 +518,6 @@ export const AppContextProvider = ({ children }) => {
     popularProductsLoading,
     popularProductsError,
     fetchPopularProducts,
-    isQrPaymentActive,
-    setIsQrPaymentActive,
     navigate,
     user,
     products,

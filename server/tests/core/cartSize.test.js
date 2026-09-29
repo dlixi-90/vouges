@@ -8,7 +8,36 @@ import { getCartAddedAt } from "../../utils/cartOrder.js";
 import { getOrderedCartItems, moveCartSize, setCartLineAddedAt } from "../../../client/src/utils/cartOrder.js";
 import cartRouter from "../../routes/cartRoute.js";
 import authUser from "../../middleware/authMiddleware.js";
-import { changeSizeSelection, getCartItemKey } from "../../../client/src/utils/cartSelection.js";
+import { changeSizeSelection, getCartItemKey, getAvailableCartItems } from "../../../client/src/utils/cartSelection.js";
+
+test("cart checkout excludes unavailable lines without removing or reordering the saved cart", () => {
+  const items = ["S", "M", "L", "XL"].map((size) => ({ _id: "product", size }));
+  items.push({ _id: "missing", size: "S" });
+  const before = structuredClone(items);
+  const product = {
+    _id: "product", inStock: true, sizes: ["S", "M", "L"],
+    stockBySize: { S: 2, M: 0, L: 4, XL: 3 },
+    inStockBySize: { S: true, M: true, L: false, XL: true },
+  };
+  assert.deepEqual(getAvailableCartItems(items, [product]), [items[0]]);
+  assert.deepEqual(items, before);
+  assert.deepEqual(getAvailableCartItems(items, [{ ...product, inStock: false }]), []);
+  assert.deepEqual(getAvailableCartItems(items, [{ ...product, isDeleted: true }]), []);
+  assert.deepEqual(getAvailableCartItems(items, []), []);
+});
+
+test("refreshed stock removes a previously selected size from checkout while keeping other sizes", () => {
+  const items = [{ _id: "product", size: "S" }, { _id: "product", size: "M" }];
+  const product = {
+    _id: "product", inStock: true, sizes: ["S", "M"],
+    stockBySize: { S: 2, M: 3 }, inStockBySize: { S: true, M: true },
+  };
+  assert.deepEqual(getAvailableCartItems(items, [product]), items);
+  product.stockBySize.S = 0;
+  assert.deepEqual(getAvailableCartItems(items, [product]), [items[1]]);
+  product.stockBySize.S = 2;
+  assert.deepEqual(getAvailableCartItems(items, [product]), items);
+});
 
 const id = "507f1f77bcf86cd799439011";
 const request = (overrides = {}) => ({
@@ -32,6 +61,21 @@ test("size changes require authentication", () => {
   const route = cartRouter.stack.find((layer) => layer.route?.path === "/change-size").route;
   assert.equal(route.stack[0].handle, authUser);
   assert.equal(route.stack[1].handle, changeCartSize);
+});
+
+test("an unavailable cart line can still be deleted without requiring available stock", async (t) => {
+  const req = request({ size: "S", quantity: 0 });
+  t.mock.method(User, "findById", async () => req.user);
+  t.mock.method(Product, "findOne", async () => { throw new Error("Deletion must not require product stock"); });
+  const write = t.mock.method(User, "updateOne", async (filter, update) => {
+    assert.equal(filter._id, "current_user");
+    assert.equal(update.$unset[`cartData.${id}.S`], "");
+    return { modifiedCount: 1 };
+  });
+  const res = response();
+  await updateCart(req, res);
+  assert.equal(res.body.success, true);
+  assert.equal(write.mock.callCount(), 1);
 });
 
 test("changing size moves all units, merging at the stock limit in one authenticated write", async (t) => {
