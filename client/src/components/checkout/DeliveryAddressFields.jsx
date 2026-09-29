@@ -247,7 +247,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
             />
             {field.name === "phone" && (
               <span id={phoneHelpId} className={`mt-2 block text-xs ${phoneError ? "text-red-600" : "text-gray-500"}`} aria-live="polite">
-                {phoneError || "0xxxxxxxxx (10 digits) or (+84) xxx xxx xxx (9 digits)."}
+                {phoneError}
               </span>
             )}
           </label>
