@@ -465,7 +465,7 @@ const Cart = () => {
                         Total ({selectedCount} items):
                       </span>
                       <span className="text-xl font-bold text-secondary">
-                        {formatThousandsVnd(subtotal + shipping, currency)}
+                        {formatThousandsVnd(subtotal, currency)}
                       </span>
                     </div>
                   </div>
