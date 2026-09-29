@@ -1,4 +1,4 @@
-import { useAuth, useUser } from "@clerk/react";
+import { useAuth, useClerk, useUser } from "@clerk/react";
 import {
   createContext,
   useCallback,
@@ -82,6 +82,19 @@ export const AppContextProvider = ({ children }) => {
   // Clerk
   const { user, isLoaded } = useUser();
   const { getToken } = useAuth();
+  const { openSignIn } = useClerk();
+
+  const requireCartLogin = useCallback(() => {
+    if (user) return true;
+    openSignIn();
+    return false;
+  }, [user, openSignIn]);
+
+  const openCart = () => {
+    if (!requireCartLogin()) return false;
+    navigate("/cart");
+    return true;
+  };
 
   // Get the user Profile
   const getUser = useCallback(async () => {
@@ -186,6 +199,7 @@ export const AppContextProvider = ({ children }) => {
     quantity = 1,
     onOptimisticSuccess,
   ) => {
+    if (!requireCartLogin()) return { success: false, requiresLogin: true };
     if (changingSizeRef.current) {
       toast.error("Please wait for the size change to finish");
       return { success: false };
@@ -240,10 +254,6 @@ export const AppContextProvider = ({ children }) => {
       : Math.max(Date.now(), ...Object.values(cartAddedAt).flatMap((sizes) => Object.values(sizes).map((value) => Number(value) + 1)));
     setCartAddedAt((current) => setCartLineAddedAt(current, itemId, size, addedAt));
     onOptimisticSuccess?.();
-
-    if (!user) {
-      return { success: true, quantity: nextQuantity };
-    }
 
     cartWritesRef.current += 1;
     try {
@@ -313,6 +323,7 @@ export const AppContextProvider = ({ children }) => {
 
   // Update Cart Quantity
   const updateQuantity = async (itemId, size, quantity) => {
+    if (!requireCartLogin()) return { success: false, requiresLogin: true };
     if (changingSizeRef.current) {
       toast.error("Please wait for the size change to finish");
       return { success: false };
@@ -354,10 +365,6 @@ export const AppContextProvider = ({ children }) => {
     setCartItems((currentCart) =>
       setCartItemQuantity(currentCart, itemId, size, nextQuantity),
     );
-
-    if (!user) {
-      return { success: true, quantity: nextQuantity };
-    }
 
     cartWritesRef.current += 1;
     try {
@@ -413,6 +420,7 @@ export const AppContextProvider = ({ children }) => {
   };
 
   const changeCartSize = async (itemId, fromSize, toSize) => {
+    if (!requireCartLogin()) return { success: false, requiresLogin: true };
     if (changingSizeRef.current || cartWritesRef.current > 0) {
       toast.error("Please wait for the cart update to finish");
       return { success: false };
@@ -534,6 +542,8 @@ export const AppContextProvider = ({ children }) => {
     setMethod,
     delivery_charges,
     addToCart,
+    openCart,
+    requireCartLogin,
     getCartCount,
     updateQuantity,
     changeCartSize,

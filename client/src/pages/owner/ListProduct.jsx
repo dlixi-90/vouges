@@ -113,7 +113,11 @@ const ListProduct = () => {
           ...(previousProduct.inStockBySize || {}),
           [size]: inStock,
         }
-      : previousProduct.inStockBySize;
+      : inStock
+        ? previousProduct.inStockBySize
+        : Object.fromEntries(
+            (previousProduct.sizes || []).map((productSize) => [productSize, false]),
+          );
     const hasEnabledSize = hasAnyEnabledSize({
       ...previousProduct,
       inStockBySize: nextSizeStatuses,
@@ -127,6 +131,7 @@ const ListProduct = () => {
         }
       : {
           ...previousProduct,
+          inStockBySize: nextSizeStatuses,
           inStock,
         };
 

@@ -19,7 +19,7 @@ import { flyProductToCart } from "../utils/cartAnimation";
 const MAX_QUANTITY_PER_ADD = 10;
 
 const ProductDetail = () => {
-  const { products, currency, addToCart } = useAppContext();
+  const { products, currency, addToCart, requireCartLogin } = useAppContext();
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -53,6 +53,7 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = async () => {
+    if (!requireCartLogin()) return;
     if (addStatus === "adding") return;
 
     setAddStatus("adding");

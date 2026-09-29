@@ -155,7 +155,7 @@ const formatProductPrice = (priceRange) => {
 
 const AIChatPanel = ({ isOpen, onClose }) => {
   const { openSignIn } = useClerk();
-  const { addToCart, getToken, updateQuantity, user } = useAppContext();
+  const { addToCart, getToken, updateQuantity, user, openCart, requireCartLogin } = useAppContext();
   const {
     messages,
     isSending,
@@ -227,6 +227,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
   };
 
   const handleConfirmCartAction = async (action) => {
+    if (!requireCartLogin()) return;
     if (!action?.id || !CART_ACTION_PRESENTATIONS[action.type]) return;
     if (cartActionsInFlightRef.current.has(action.id)) return;
 
@@ -684,7 +685,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                                   </div>
                                   <Link
                                     to="/cart"
-                                    onClick={onClose}
+                                    onClick={(event) => { event.preventDefault(); if (openCart()) onClose(); }}
                                     className="rounded-full bg-slate-900 px-3 py-2 text-[10px] font-semibold text-white transition hover:bg-slate-700"
                                   >
                                     Mở giỏ hàng
@@ -801,7 +802,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                                     </span>
                                     <Link
                                       to="/cart"
-                                      onClick={onClose}
+                                      onClick={(event) => { event.preventDefault(); if (openCart()) onClose(); }}
                                       className="rounded-full bg-slate-900 px-3 py-2 text-[10px] font-semibold text-white transition hover:bg-slate-700"
                                     >
                                       Xem giỏ hàng

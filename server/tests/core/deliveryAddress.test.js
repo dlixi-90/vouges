@@ -41,8 +41,8 @@ test("checkout automatically chooses default and preserves an explicit choice or
   assert.equal(resolveCheckoutAddress({ _id: "deleted" }, [])._id, undefined);
 });
 
-test("phone normalization accepts both formats, ignores whitespace and matches in client and server", () => {
-  for (const value of ["0949622581", " 0 949 622 581 ", "(+84)949622581", "(+84) 949 622 581", " ( + 84 ) 949 622 581 ", "0\t949\n622\u00a0581"]) {
+test("phone normalization accepts all three formats, ignores whitespace and matches in client and server", () => {
+  for (const value of ["0949622581", " 0 949 622 581 ", "(+84)949622581", "(+84) 949 622 581", " ( + 84 ) 949 622 581 ", "0\t949\n622\u00a0581", "+84949622581", " +84 949 622 581 ", "+84\t949\u00a0622 581"]) {
     const expected = { valid: true, normalized: "(+84) 949 622 581", error: "" };
     assert.deepEqual(validateDeliveryPhone(value), expected);
     assert.deepEqual(validateClientPhone(value), expected);
@@ -53,7 +53,7 @@ test("phone normalization accepts both formats, ignores whitespace and matches i
 });
 
 test("phone validation rejects wrong lengths, 00/01, malformed prefixes and non-digit content", () => {
-  for (const value of ["", "   ", "094962258", "09496225811", "0094622581", "0194622581", "0 1 94622581", "(+84)094962258", "(+84)194962258", "(+84)94962258", "(+84)9496225811", "949622581", "(+85)949622581", "0949-622-581", "0949.622.581", "094962258a", "(+84)94962258x", "(+84)949622581 ext 1", "(+84))949622581"]) {
+  for (const value of ["", "   ", "094962258", "09496225811", "0094622581", "0194622581", "0 1 94622581", "(+84)094962258", "(+84)194962258", "(+84)94962258", "(+84)9496225811", "949622581", "(+85)949622581", "0949-622-581", "0949.622.581", "094962258a", "(+84)94962258x", "(+84)949622581 ext 1", "(+84))949622581", "+8494962258", "+849496225811", "+840949622581", "+84094622581", "+84194622581", "+85949622581", "++84949622581", "+84)949622581", "(+84949622581", "+84949abc581"]) {
     const result = validateDeliveryPhone(value);
     assert.equal(result.valid, false, value);
     assert.ok(result.error);

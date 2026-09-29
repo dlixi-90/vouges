@@ -33,7 +33,7 @@ const Header = () => {
 
   const { openSignIn } = useClerk();
 
-  const { navigate, user, getCartCount, isOwner } = useAppContext();
+  const { navigate, openCart, user, getCartCount, isOwner } = useAppContext();
 
   const toggleMenu = () => {
     setMenuOpened((prev) => !prev);
@@ -110,7 +110,7 @@ const Header = () => {
             {/* Cart */}
             <button
               type="button"
-              onClick={() => navigate("/cart")}
+              onClick={openCart}
               data-cart-target
               aria-label={`Shopping cart with ${getCartCount()} items`}
               className="relative cursor-pointer"

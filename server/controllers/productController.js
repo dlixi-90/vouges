@@ -292,6 +292,13 @@ export const toggleStock = async (req, res) => {
 
       product.inStock = inStock;
 
+      if (!inStock) {
+        product.inStockBySize = Object.fromEntries(
+          product.sizes.map((productSize) => [productSize, false]),
+        );
+        product.markModified("inStockBySize");
+      }
+
       await product.save();
 
       return res.json({

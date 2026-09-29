@@ -176,7 +176,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
 
     if (name === "phone") {
       if (!/^[\d\s()+]*$/.test(value)) {
-        const message = "Only digits, spaces and the (+84) prefix are accepted.";
+        const message = "Only digits, spaces and the +84 or (+84) prefix are accepted.";
         setPhoneError(message);
         event.target.setCustomValidity(message);
         return;
