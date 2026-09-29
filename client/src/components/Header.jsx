@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Link } from "react-router-dom";
 import { assets } from "../assets/data";
 import Navbar from "./Navbar";
 import { useClerk, UserButton } from "@clerk/react";
 import { useAppContext } from "../context/AppContext";
 import { Sparkles } from "lucide-react";
-import AIChatPanel from "./ai/AIChatPanel";
+const AIChatPanel = lazy(() => import("./ai/AIChatPanel"));
 
 const OrdersIcon = () => (
   <svg
@@ -30,6 +30,7 @@ const OrdersIcon = () => (
 const Header = () => {
   const [menuOpened, setMenuOpened] = useState(false);
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
+  const [hasOpenedAIChat, setHasOpenedAIChat] = useState(false);
 
   const { openSignIn } = useClerk();
 
@@ -40,6 +41,7 @@ const Header = () => {
   };
 
   const toggleAIChat = () => {
+    setHasOpenedAIChat(true);
     setMenuOpened(false);
     setIsAIChatOpen((isOpen) => !isOpen);
   };
@@ -155,10 +157,14 @@ const Header = () => {
         </div>
       </header>
 
-      <AIChatPanel
-        isOpen={isAIChatOpen}
-        onClose={() => setIsAIChatOpen(false)}
-      />
+      {hasOpenedAIChat && (
+        <Suspense fallback={isAIChatOpen ? <div role="status" className="fixed bottom-6 right-6 z-50 rounded-xl bg-white p-5 shadow-lg">Loading chat...</div> : null}>
+          <AIChatPanel
+            isOpen={isAIChatOpen}
+            onClose={() => setIsAIChatOpen(false)}
+          />
+        </Suspense>
+      )}
     </>
   );
 };

@@ -8,6 +8,8 @@ const Features = () => {
         <div>
           <img
             src={assets.features1}
+            loading="lazy"
+            decoding="async"
             alt=""
             height={77}
             width={222}
@@ -17,6 +19,8 @@ const Features = () => {
         <div>
           <img
             src={assets.features2}
+            loading="lazy"
+            decoding="async"
             alt=""
             height={77}
             width={222}

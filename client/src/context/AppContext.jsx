@@ -52,6 +52,7 @@ export const AppContextProvider = ({ children }) => {
   const [popularProductsLoading, setPopularProductsLoading] = useState(true);
   const [popularProductsError, setPopularProductsError] = useState("");
   const popularRequestRef = useRef(null);
+  const productsRequestRef = useRef(null);
   const [categories, setCategories] = useState([]);
   // Preserve File objects as well as text while navigating between admin forms.
   const [productDrafts, setProductDrafts] = useState({});
@@ -119,17 +120,23 @@ export const AppContextProvider = ({ children }) => {
   }, [getToken]);
 
   // Fetch all products
-  const fetchProducts = useCallback(async () => {
-    try {
-      const { data } = await axios.get("/api/products");
-      if (data.success) {
-        setProducts(data.products);
-      } else {
-        toast.error(data.message);
+  const fetchProducts = useCallback(() => {
+    if (productsRequestRef.current) return productsRequestRef.current;
+    productsRequestRef.current = (async () => {
+      try {
+        const { data } = await axios.get("/api/products");
+        if (data.success) {
+          setProducts(data.products);
+        } else {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        toast.error(error.message);
+      } finally {
+        productsRequestRef.current = null;
       }
-    } catch (error) {
-      toast.error(error.message);
-    }
+    })();
+    return productsRequestRef.current;
   }, []);
 
   const fetchPopularProducts = useCallback(() => {

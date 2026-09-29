@@ -5,6 +5,7 @@ import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
 import CartSteps from "../components/CartSteps";
 import CartSizePicker from "../components/CartSizePicker";
+import ProductImage from "../components/ProductImage";
 import QrPaymentStatus from "../components/QrPaymentStatus";
 import CheckoutAddressForm from "../components/checkout/CheckoutAddressForm";
 import { useAppContext } from "../context/AppContext";
@@ -361,8 +362,9 @@ const Cart = () => {
                       </div>
                       <div className="col-start-2 row-start-1 flex min-w-0 flex-wrap items-center gap-3 xl:flex-nowrap xl:gap-5">
                         <div className="flex min-w-0 flex-1 items-center gap-3">
-                          <img
+                          <ProductImage
                             src={product.images[0]}
+                            imageWidth={200}
                             alt={product.title}
                             className="h-20 w-16 shrink-0 rounded-xl bg-primary object-cover sm:h-24 sm:w-20"
                           />

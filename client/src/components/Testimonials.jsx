@@ -34,6 +34,8 @@ const Testimonial = () => {
         <img
           className="size-11 rounded-full"
           src={card.image}
+          loading="lazy"
+          decoding="async"
           alt="User Image"
         />
         <div className="flex flex-col">

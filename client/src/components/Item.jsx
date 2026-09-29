@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { getAvailableSizes } from "../utils/productStock";
 import { formatThousandsVnd } from "../utils/money";
+import ProductImage from "./ProductImage";
 
 const Item = ({ product, collectionLayout = false }) => {
   const { navigate, currency } = useAppContext();
@@ -33,7 +34,7 @@ const Item = ({ product, collectionLayout = false }) => {
         }`}
         style={collectionLayout ? undefined : { backgroundColor: bgcolor }}
       >
-        <img
+        <ProductImage
           src={
             product.images.length > 1 && hovered
               ? product.images[1]

@@ -181,7 +181,7 @@ export const listProduct = async (req, res) => {
       },
     }).sort({
       createdAt: -1,
-    });
+    }).lean();
     res.json({ success: true, products });
   } catch (error) {
     if (!error.statusCode) console.log(error);

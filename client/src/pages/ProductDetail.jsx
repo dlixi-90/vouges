@@ -15,6 +15,7 @@ import {
 import { FREE_SHIPPING_THRESHOLD } from "../utils/orderPricing";
 import { formatThousandsVnd } from "../utils/money";
 import { flyProductToCart } from "../utils/cartAnimation";
+import ProductImage from "../components/ProductImage";
 
 const MAX_QUANTITY_PER_ADD = 10;
 
@@ -109,8 +110,9 @@ const ProductDetail = () => {
                       : "opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <img
+                  <ProductImage
                     src={item}
+                    imageWidth={160}
                     alt=""
                     className="h-full w-full object-contain"
                   />
@@ -119,9 +121,12 @@ const ProductDetail = () => {
             </div>
 
             <div className="flex min-h-[320px] flex-1 items-center justify-center overflow-hidden rounded-2xl bg-[#f5f5f0] p-8 sm:min-h-[420px] sm:p-12 lg:min-h-[480px] lg:max-h-[520px]">
-              <img
+              <ProductImage
                 ref={productImageRef}
                 src={image}
+                imageWidth={960}
+                loading="eager"
+                fetchPriority="high"
                 alt={product.title}
                 className="h-auto max-h-[470px] w-auto max-w-[82%] object-contain"
               />

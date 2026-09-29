@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import { assets } from "../assets/data";
+import background from "../assets/bg.webp";
 
 const Hero = () => {
   return (
     <section className="max-padd-container">
-      <div className="bg-[url('./assets/bg.png')] bg-cover bg-center bg-no-repeat h-[89vh] w-full mt-18 rounded-2xl relative">
-        <div className="mx-auto max-w-[1440px] px-4 pt-1 sm:pt-8 flex flex-col justify-between h-full">
+      <div className="h-[89vh] w-full mt-18 rounded-2xl relative overflow-hidden">
+        <img src={background} alt="" fetchPriority="high" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="relative mx-auto max-w-[1440px] px-4 pt-1 sm:pt-8 flex flex-col justify-between h-full">
           <div className="max-w-3xl">
             <h1 className="h1 !font-[400] capitalize">
               Enhance Your

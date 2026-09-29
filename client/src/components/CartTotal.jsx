@@ -3,6 +3,7 @@ import { useAppContext } from "../context/AppContext";
 import { getShippingCharge } from "../utils/orderPricing";
 import { formatThousandsVnd } from "../utils/money";
 import { getCartItemKey } from "../utils/cartSelection";
+import ProductImage from "./ProductImage";
 
 const CartTotal = ({
   currentStep,
@@ -84,8 +85,9 @@ const CartTotal = ({
                 key={`${item.product._id}-${item.size}`}
                 className="flex gap-3"
               >
-                <img
+                <ProductImage
                   src={item.product.images[0]}
+                  imageWidth={160}
                   alt={item.product.title}
                   className="h-20 w-16 rounded-md bg-primary object-cover"
                 />

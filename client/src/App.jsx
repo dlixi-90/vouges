@@ -4,7 +4,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import Footer from "./components/Footer";
 import { Toaster } from "react-hot-toast";
 
-const Home = lazy(() => import("./pages/Home"));
+import Home from "./pages/Home";
 const Collection = lazy(() => import("./pages/Collection"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const Blog = lazy(() => import("./pages/Blog"));

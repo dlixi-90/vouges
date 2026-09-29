@@ -8,7 +8,6 @@ import userRouter from "./routes/userRoute.js";
 import connectCloudinary from "./config/cloudinary.js";
 import productRouter from "./routes/productRoute.js";
 import categoryRouter from "./routes/categoryRoute.js";
-import { initializeCategories } from "./services/categoryService.js";
 import addressRouter from "./routes/addressRoute.js";
 import cartRouter from "./routes/cartRoute.js";
 import orderRouter from "./routes/orderRoute.js";
@@ -16,7 +15,6 @@ import aiRouter from "./routes/aiRoute.js";
 import multer from "multer";
 
 await connectDB(); // Establish connection to the database
-await initializeCategories();
 await connectCloudinary(); //Setup cloudinary for image storage
 
 const app = express(); // Initialize Express Application
