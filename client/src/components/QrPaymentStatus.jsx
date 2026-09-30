@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../context/AppContext";
 import { removePurchasedItems } from "../utils/cartSelection";
+import { useBlocker } from "react-router-dom";
+import { createQrCancellation, shouldCancelQrNavigation } from "../utils/qrNavigation";
 
 const getRemainingSeconds = (expiresAt) =>
   Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 1000));
@@ -35,9 +37,10 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
   const hasSyncedCartRef = useRef(false);
   const cancelRequestRef = useRef(false);
   const checkRequestRef = useRef(null);
-  const qrHistoryEntryRef = useRef(false);
-  const isAwaitingPayment =
-    order.status === "Awaiting Payment" && !order.isPaid;
+  const [cancellation] = useState(createQrCancellation);
+  const blocker = useBlocker(useCallback((transition) => shouldCancelQrNavigation(order, transition), [order]));
+  const blockerRef = useRef(blocker);
+  useEffect(() => { blockerRef.current = blocker; }, [blocker]);
 
   useEffect(() => () => checkRequestRef.current?.abort(), []);
 
@@ -170,9 +173,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
   };
 
   const cancelPayment = useCallback(
-    async (fromBrowserBack = false) => {
-      if (cancelRequestRef.current) return;
-
+    () => cancellation.run(async () => {
       try {
         cancelRequestRef.current = true;
         setIsCancelling(true);
@@ -195,33 +196,22 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
         }
 
         applyStockUpdates(data.stockUpdates);
-        window.history.replaceState(
-          { ...window.history.state, qrPayment: null, cartStep: 2 },
-          "",
-          window.location.href,
-        );
-        onCancelled();
         void fetchProducts();
+        return true;
       } catch (error) {
         toast.error(
           error.response?.data?.message ||
             error.message ||
             "Could not cancel QR payment",
         );
-        if (fromBrowserBack && qrHistoryEntryRef.current) {
-          window.history.pushState(
-            { ...window.history.state, qrPayment: initialOrder._id },
-            "",
-            window.location.href,
-          );
-        }
         cancelRequestRef.current = false;
         void checkPayment(false);
+        return false;
       } finally {
         cancelRequestRef.current = false;
         setIsCancelling(false);
       }
-    },
+    }),
     [
       axios,
       applyStockUpdates,
@@ -229,29 +219,25 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
       fetchProducts,
       getToken,
       initialOrder._id,
-      onCancelled,
+      cancellation,
     ],
   );
 
   useEffect(() => {
-    if (!isAwaitingPayment) return undefined;
-    if (!qrHistoryEntryRef.current) {
-      window.history.pushState(
-        { ...window.history.state, qrPayment: initialOrder._id },
-        "",
-        window.location.href,
-      );
-      qrHistoryEntryRef.current = true;
-    }
+    if (blocker.state !== "blocked") return undefined;
+    let active = true;
+    void cancelPayment().then((success) => {
+      if (!active) return;
+      if (success) blocker.proceed();
+      else blocker.reset();
+    });
+    return () => { active = false; };
+  }, [blocker, cancelPayment]);
 
-    const handleBrowserBack = () => {
-      cancelPayment(true);
-    };
-
-    window.addEventListener("popstate", handleBrowserBack);
-
-    return () => window.removeEventListener("popstate", handleBrowserBack);
-  }, [cancelPayment, initialOrder._id, isAwaitingPayment, onCancelled]);
+  const backToPaymentMethod = async () => {
+    const success = await cancelPayment();
+    if (success && blockerRef.current.state !== "blocked") onCancelled();
+  };
 
   if (order.status === "Payment Review") {
     return (
@@ -387,7 +373,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
 
           <button
             type="button"
-            onClick={() => cancelPayment(false)}
+            onClick={backToPaymentMethod}
             disabled={isCancelling}
             className="btn-outline mt-3 w-full !rounded-md disabled:cursor-not-allowed disabled:opacity-50"
           >
