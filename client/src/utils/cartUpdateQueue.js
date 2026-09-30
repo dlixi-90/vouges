@@ -1,6 +1,6 @@
 // Coalesce rapid clicks and serialize writes per cart line. Different lines can
 // save independently; an older response must never replace a newer intention.
-export const createCartUpdateQueue = ({ onPendingChange = () => {}, delay = 180 } = {}) => {
+export const createCartUpdateQueue = ({ onPendingChange = () => {}, delay = 0 } = {}) => {
   const entries = new Map();
   const publish = () => onPendingChange([...entries.keys()]);
   const finish = (entry, result) => {

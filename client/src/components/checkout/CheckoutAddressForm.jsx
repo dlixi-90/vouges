@@ -33,6 +33,7 @@ const CheckoutAddressForm = ({
     hasPendingCartUpdates,
     setCartItems,
     fetchProducts,
+    dashboardCache,
   } = useAppContext();
   const [addresses, setAddresses] = useState([]);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
@@ -274,6 +275,7 @@ const CheckoutAddressForm = ({
       }
 
       if (method === "COD") {
+        dashboardCache.invalidate();
         setCartItems((currentCart) => removePurchasedItems(currentCart, items));
       }
 

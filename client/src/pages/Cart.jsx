@@ -215,11 +215,12 @@ const Cart = () => {
   const handleSizeChange = (productId, fromSize, toSize) =>
     runCartUpdate(async () => {
       const targetExists = Number(cartItems[productId]?.[toSize] ?? 0) > 0;
-      const result = await changeCartSize(productId, fromSize, toSize);
-      if (!result.success) return result;
+      const previousSelection = deselectedItemKeys;
       setDeselectedItemKeys((current) =>
         changeSizeSelection(current, productId, fromSize, toSize, targetExists),
       );
+      const result = await changeCartSize(productId, fromSize, toSize);
+      if (!result.success) setDeselectedItemKeys(previousSelection);
       return result;
     });
 
@@ -521,7 +522,7 @@ const Cart = () => {
                     disabled={selectedItemKeys.size === 0 || isUpdatingCart}
                     className="btn-dark w-full !rounded-md disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-48"
                   >
-                    {pendingCartKeys.length > 0 ? "Saving changes..." : "Proceed to Checkout"}
+                    {isUpdatingCart ? "Saving changes..." : "Proceed to Checkout"}
                   </button>
                 </div>
               </div>

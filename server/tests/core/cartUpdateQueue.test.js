@@ -31,7 +31,7 @@ test("rapid clicks update immediately but send only the final quantity", async (
   assert.deepEqual(changes.map(([, quantity]) => quantity), [2, 3, 4]);
   assert.equal(queue.hasPending(), true);
   assert.equal(sent.length, 0);
-  t.mock.timers.tick(180);
+  t.mock.timers.tick(0);
   assert.deepEqual((await Promise.all(results)).map((result) => result.quantity), [4, 4, 4]);
   assert.deepEqual(sent, [4]);
   assert.equal(queue.hasPending(), false);
@@ -45,7 +45,7 @@ test("old responses cannot overwrite newer clicks; writes for one line are seria
   const sent = [];
   const send = (quantity) => { sent.push(quantity); return sent.length === 1 ? first.promise : second.promise; };
   const one = enqueue(2, send);
-  t.mock.timers.tick(180);
+  t.mock.timers.tick(0);
   const two = enqueue(5, send);
   assert.deepEqual(sent, [2]);
   first.resolve({ quantity: 2 });
@@ -64,7 +64,7 @@ test("deleting during an in-flight update cannot resurrect the cart line", async
   const sent = [];
   const send = (quantity) => { sent.push(quantity); return quantity === 0 ? Promise.resolve({ quantity: 0 }) : first.promise; };
   const updated = enqueue(2, send);
-  t.mock.timers.tick(180);
+  t.mock.timers.tick(0);
   const removed = enqueue(0, send);
   assert.equal(changes.at(-1)[1], 0);
   first.resolve({ quantity: 2 });
@@ -81,7 +81,7 @@ test("a failed last update rolls back to the last server-confirmed quantity", as
   const first = deferred();
   const send = (quantity) => quantity === 2 ? first.promise : Promise.reject(new Error("Out of stock"));
   const one = enqueue(2, send);
-  t.mock.timers.tick(180);
+  t.mock.timers.tick(0);
   const two = enqueue(3, send);
   first.resolve({ quantity: 2 });
   await settle();
@@ -98,7 +98,7 @@ test("a failed superseded request does not discard a newer valid quantity", asyn
   const first = deferred();
   const send = (quantity) => quantity === 5 ? first.promise : Promise.resolve({ quantity });
   const one = enqueue(5, send);
-  t.mock.timers.tick(180);
+  t.mock.timers.tick(0);
   const two = enqueue(2, send);
   first.reject(new Error("Only two remaining"));
   await settle();
@@ -114,7 +114,7 @@ test("different cart lines save independently without a whole-cart lock", async 
   const slow = deferred();
   const one = enqueue(2, () => slow.promise, "slow::S");
   const two = enqueue(3, async (quantity) => ({ quantity }), "fast::M");
-  t.mock.timers.tick(180);
+  t.mock.timers.tick(0);
   assert.equal((await two).success, true);
   assert.deepEqual(pending.at(-1), ["slow::S"]);
   slow.resolve({ quantity: 2 });
@@ -127,7 +127,7 @@ test("sign-out cancels queued writes and suppresses late responses", async (t) =
   const first = deferred();
   let signal;
   const one = enqueue(2, (_quantity, requestSignal) => { signal = requestSignal; return first.promise; });
-  t.mock.timers.tick(180);
+  t.mock.timers.tick(0);
   const two = enqueue(3, async () => { throw new Error("Must not send"); }, "other::M");
   queue.cancelAll();
   assert.equal((await one).cancelled, true);

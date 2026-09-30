@@ -12,30 +12,34 @@ const DASHBOARD_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const ORDER_STATUSES = ["Order Placed", "Packing", "Shipping", "Delivery"];
 
 const Dashboard = () => {
-  const { user, currency, axios, getToken } = useAppContext();
+  const { authenticatedUserId: userId, currency, axios, getToken, dashboardCache } = useAppContext();
   const {
     popularProducts,
     popularProductsLoading,
     popularProductsError,
     fetchPopularProducts,
   } = usePopularProducts();
-  const [dashboardData, setDashboardData] = useState({
+  const [page, setPage] = useState(1);
+  const cacheKey = `${userId}:${DASHBOARD_TIMEZONE}:${page}`;
+  const [dashboardData, setDashboardData] = useState(() => dashboardCache.peek(cacheKey) || {
     orders: [],
     totalOrders: null,
     totalRevenue: null,
     monthlyData: [],
     totalPages: 1,
   });
-  const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => !dashboardCache.peek(cacheKey));
   const [loadError, setLoadError] = useState("");
   const requestIdRef = useRef(0);
   const [updatingOrderIds, setUpdatingOrderIds] = useState([]);
 
-  const requestDashboardData = useCallback(async () => {
+  const requestDashboardData = useCallback(async (signal) => {
+    const token = await getToken();
+    signal.throwIfAborted();
     const { data } = await axios.get("/api/orders/dashboard", {
       params: { page, pageSize: 10, timezone: DASHBOARD_TIMEZONE },
-      headers: { Authorization: `Bearer ${await getToken()}` },
+      headers: { Authorization: `Bearer ${token}` },
+      signal,
       timeout: 15000,
     });
 
@@ -46,21 +50,23 @@ const Dashboard = () => {
     return data.dashboardData;
   }, [axios, getToken, page]);
 
-  const getDashboardData = useCallback(async ({ background = false } = {}) => {
+  const getDashboardData = useCallback(async ({ background = false, force = false } = {}) => {
     const requestId = ++requestIdRef.current;
-    if (!background) setIsLoading(true);
+    const cached = dashboardCache.peek(cacheKey);
+    if (cached) setDashboardData(cached);
+    if (!background) setIsLoading(!cached);
     setLoadError("");
     try {
-      const data = await requestDashboardData();
+      const data = await dashboardCache.load(cacheKey, requestDashboardData, { force });
       if (requestId === requestIdRef.current) setDashboardData(data);
     } catch (error) {
-      if (requestId === requestIdRef.current) {
+      if (requestId === requestIdRef.current && error.name !== "AbortError" && error.code !== "ERR_CANCELED") {
         setLoadError(error.response?.data?.message || error.message);
       }
     } finally {
       if (requestId === requestIdRef.current) setIsLoading(false);
     }
-  }, [requestDashboardData]);
+  }, [requestDashboardData, dashboardCache, cacheKey]);
 
   const statusHandler = async (event, orderId) => {
     const status = event.target.value;
@@ -83,6 +89,7 @@ const Dashboard = () => {
       );
 
       if (data.success) {
+        dashboardCache.updateOrder({ ...data.order, _id: orderId });
         setDashboardData((current) => ({
           ...current,
           orders: current.orders.map((item) => item._id === orderId
@@ -91,7 +98,7 @@ const Dashboard = () => {
         }));
         toast.success(data.message);
         // Keep the confirmed order visible while updating revenue and sales.
-        void getDashboardData({ background: true });
+        void getDashboardData({ background: true, force: true });
         void fetchPopularProducts();
       } else {
         toast.error(data.message);
@@ -99,20 +106,27 @@ const Dashboard = () => {
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || error.message);
-      if (error.response?.status === 409) await getDashboardData();
+      if (error.response?.status === 409) await getDashboardData({ background: true, force: true });
     } finally {
       setUpdatingOrderIds((current) => current.filter((id) => id !== orderId));
     }
   };
 
   useEffect(() => {
-    if (!user) return undefined;
+    if (!userId) return undefined;
     const timer = window.setTimeout(getDashboardData, 0);
+    const refresh = () => {
+      if (document.visibilityState === "visible") void getDashboardData({ background: true });
+    };
+    const interval = window.setInterval(refresh, 30000);
+    window.addEventListener("focus", refresh);
     return () => {
       window.clearTimeout(timer);
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
       requestIdRef.current += 1;
     };
-  }, [getDashboardData, user]);
+  }, [getDashboardData, userId]);
 
   const orders = dashboardData.orders || [];
 
@@ -212,7 +226,7 @@ const Dashboard = () => {
           <div className="space-y-4">
             {loadError && (
               <p role="alert" className="text-sm text-red-600">
-                {loadError} <button type="button" onClick={getDashboardData} className="underline">Retry</button>
+                {loadError} <button type="button" onClick={() => getDashboardData({ force: true })} className="underline">Retry</button>
               </p>
             )}
             {isLoading && <p role="status" className="py-8 text-center text-sm text-[#8b949c]">Loading orders...</p>}

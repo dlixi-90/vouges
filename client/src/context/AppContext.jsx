@@ -12,8 +12,10 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { createCartUpdateQueue } from "../utils/cartUpdateQueue";
 import { createUserProfileLoader } from "../utils/userProfileLoader";
+import { createDashboardCache } from "../utils/dashboardCache";
+import { persistCartSizeChange } from "../utils/cartSizeUpdate";
 import { getCartItemKey } from "../utils/cartSelection";
-import { getOrderedCartItems, moveCartSize, setCartLineAddedAt } from "../utils/cartOrder";
+import { getOrderedCartItems, setCartLineAddedAt } from "../utils/cartOrder";
 import {
   getSizeQuantity,
   isSizeAvailable,
@@ -51,6 +53,7 @@ const getRequestErrorMessage = (error, fallbackMessage) => {
 
 export const AppContextProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
+  const [dashboardCache] = useState(() => createDashboardCache());
   const [popularProducts, setPopularProducts] = useState([]);
   const [popularProductsLoading, setPopularProductsLoading] = useState(true);
   const [popularProductsError, setPopularProductsError] = useState("");
@@ -78,6 +81,7 @@ export const AppContextProvider = ({ children }) => {
   const [quantityQueue] = useState(() => createCartUpdateQueue({ onPendingChange: setPendingCartKeys }));
   const cartWritesRef = useRef(0);
   const changingSizeRef = useRef(false);
+  const sizeRequestRef = useRef(null);
   const [method, setMethod] = useState("COD");
   const [profileResult, setProfileResult] = useState({ userId: null, role: null, error: "" });
   const navigate = useNavigate();
@@ -94,7 +98,14 @@ export const AppContextProvider = ({ children }) => {
   const profileError = profileResult.userId === authUserId ? profileResult.error : "";
   const { openSignIn } = useClerk();
 
+  useEffect(() => () => dashboardCache.clear(), [dashboardCache, authUserId, isOwner]);
+
   useEffect(() => () => quantityQueue.cancelAll(), [quantityQueue, user?.id]);
+  useEffect(() => () => {
+    sizeRequestRef.current?.abort();
+    sizeRequestRef.current = null;
+    changingSizeRef.current = false;
+  }, [authUserId]);
 
   const requireCartLogin = useCallback(() => {
     if (user) return true;
@@ -426,12 +437,14 @@ export const AppContextProvider = ({ children }) => {
     const product = products.find((item) => item._id === itemId);
     if (fromSize === toSize) return { success: true };
     changingSizeRef.current = true;
+    const controller = new AbortController();
+    sizeRequestRef.current = controller;
     try {
       if (!product?.sizes?.includes(toSize) || !isSizeAvailable(product, toSize)) {
         throw new Error("This product size is unavailable");
       }
-      let quantity = fromQuantity + toQuantity;
-      let addedAt = getOrderedCartItems(cartItems, cartAddedAt)
+      const quantity = fromQuantity + toQuantity;
+      const addedAt = getOrderedCartItems(cartItems, cartAddedAt)
         .find((item) => item._id === itemId && item.size === fromSize)?.addedAt;
       if (fromQuantity < 1 || !Number.isSafeInteger(quantity)) {
         throw new Error("Invalid cart quantity");
@@ -439,29 +452,36 @@ export const AppContextProvider = ({ children }) => {
       if (quantity > getSizeQuantity(product, toSize)) {
         throw new Error(`Only ${getSizeQuantity(product, toSize)} items are available for size ${toSize}`);
       }
-      if (user) {
-        const { data } = await axios.post(
-          "/api/cart/change-size",
-          { itemId, fromSize, toSize, fromQuantity, toQuantity },
-          { headers: { Authorization: `Bearer ${await getToken()}` } },
-        );
-        if (!data.success) throw new Error(data.message || "Unable to change size");
-        quantity = data.quantity;
-        addedAt = data.addedAt ?? addedAt;
-      }
-      setCartItems((current) => moveCartSize(current, itemId, fromSize, toSize, quantity));
-      setCartAddedAt((current) => {
-        const next = setCartLineAddedAt(current, itemId, toSize, addedAt);
-        delete next[itemId][fromSize];
-        return next;
+      await persistCartSizeChange({
+        itemId, fromSize, toSize, cartItems, cartAddedAt, addedAt,
+        signal: controller.signal,
+        apply: ({ sizes, timestamps }) => {
+          setCartItems((current) => ({ ...current, [itemId]: sizes }));
+          setCartAddedAt((current) => ({ ...current, [itemId]: timestamps }));
+        },
+        send: async () => {
+          const token = await getToken();
+          controller.signal.throwIfAborted();
+          const { data } = await axios.post(
+            "/api/cart/change-size",
+            { itemId, fromSize, toSize, fromQuantity, toQuantity },
+            { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal, timeout: 15000 },
+          );
+          if (!data.success) throw new Error(data.message || "Unable to change size");
+          return data;
+        },
       });
       return { success: true };
     } catch (error) {
+      if (controller.signal.aborted) return { success: false, cancelled: true };
       if (error.response?.status === 409) await getUser();
       toast.error(getRequestErrorMessage(error, "Unable to change size"));
       return { success: false };
     } finally {
-      changingSizeRef.current = false;
+      if (sizeRequestRef.current === controller) {
+        sizeRequestRef.current = null;
+        changingSizeRef.current = false;
+      }
     }
   };
 
@@ -513,6 +533,8 @@ export const AppContextProvider = ({ children }) => {
   }, [fetchCategories, needsCatalog]);
 
   const value = {
+    dashboardCache,
+    authenticatedUserId: authUserId,
     productDrafts,
     saveProductDraft,
     clearProductDraft,

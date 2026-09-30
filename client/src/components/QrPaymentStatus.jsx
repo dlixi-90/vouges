@@ -22,6 +22,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
     fetchProducts,
     fetchPopularProducts,
     applyStockUpdates,
+    dashboardCache,
   } = useAppContext();
 
   const [order, setOrder] = useState(initialOrder);
@@ -72,6 +73,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
           }
         } else if (data.order.isPaid) {
           if (!hasSyncedCartRef.current) {
+            dashboardCache.invalidate();
             setCartItems((currentCart) =>
               removePurchasedItems(currentCart, initialOrder.items),
             );
@@ -116,6 +118,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
       initialOrder.items,
       setCartItems,
       hasShownSuccess,
+      dashboardCache,
     ],
   );
 
