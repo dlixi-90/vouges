@@ -36,7 +36,8 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
   const cancelRequestRef = useRef(false);
   const checkRequestRef = useRef(null);
   const qrHistoryEntryRef = useRef(false);
-  const isAwaitingPayment = order.status === "Awaiting Payment" && !order.isPaid;
+  const isAwaitingPayment =
+    order.status === "Awaiting Payment" && !order.isPaid;
 
   useEffect(() => () => checkRequestRef.current?.abort(), []);
 
@@ -146,9 +147,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
     if (order.status !== "Awaiting Payment" || order.isPaid) return undefined;
 
     const intervalId = window.setInterval(() => {
-      const nextRemainingSeconds = getRemainingSeconds(
-        order.paymentExpiresAt,
-      );
+      const nextRemainingSeconds = getRemainingSeconds(order.paymentExpiresAt);
 
       setRemainingSeconds(nextRemainingSeconds);
 
@@ -170,66 +169,69 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
     }
   };
 
-  const cancelPayment = useCallback(async (fromBrowserBack = false) => {
-    if (cancelRequestRef.current) return;
+  const cancelPayment = useCallback(
+    async (fromBrowserBack = false) => {
+      if (cancelRequestRef.current) return;
 
-    try {
-      cancelRequestRef.current = true;
-      setIsCancelling(true);
-      checkRequestRef.current?.abort();
-      checkRequestRef.current = null;
-      setIsChecking(false);
-      const { data } = await axios.post(
-        `/api/orders/${initialOrder._id}/cancel`,
-        {},
-        {
-          timeout: 15000,
-          headers: {
-            Authorization: `Bearer ${await getToken()}`,
+      try {
+        cancelRequestRef.current = true;
+        setIsCancelling(true);
+        checkRequestRef.current?.abort();
+        checkRequestRef.current = null;
+        setIsChecking(false);
+        const { data } = await axios.post(
+          `/api/orders/${initialOrder._id}/cancel`,
+          {},
+          {
+            timeout: 15000,
+            headers: {
+              Authorization: `Bearer ${await getToken()}`,
+            },
           },
-        },
-      );
+        );
 
-      if (!data.success) {
-        throw new Error(data.message || "Could not cancel QR payment");
-      }
+        if (!data.success) {
+          throw new Error(data.message || "Could not cancel QR payment");
+        }
 
-      applyStockUpdates(data.stockUpdates);
-      window.history.replaceState(
-        { ...window.history.state, qrPayment: null, cartStep: 2 },
-        "",
-        window.location.href,
-      );
-      onCancelled();
-      void fetchProducts();
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Could not cancel QR payment",
-      );
-      if (fromBrowserBack && qrHistoryEntryRef.current) {
-        window.history.pushState(
-          { ...window.history.state, qrPayment: initialOrder._id },
+        applyStockUpdates(data.stockUpdates);
+        window.history.replaceState(
+          { ...window.history.state, qrPayment: null, cartStep: 2 },
           "",
           window.location.href,
         );
+        onCancelled();
+        void fetchProducts();
+      } catch (error) {
+        toast.error(
+          error.response?.data?.message ||
+            error.message ||
+            "Could not cancel QR payment",
+        );
+        if (fromBrowserBack && qrHistoryEntryRef.current) {
+          window.history.pushState(
+            { ...window.history.state, qrPayment: initialOrder._id },
+            "",
+            window.location.href,
+          );
+        }
+        cancelRequestRef.current = false;
+        void checkPayment(false);
+      } finally {
+        cancelRequestRef.current = false;
+        setIsCancelling(false);
       }
-      cancelRequestRef.current = false;
-      void checkPayment(false);
-    } finally {
-      cancelRequestRef.current = false;
-      setIsCancelling(false);
-    }
-  }, [
-    axios,
-    applyStockUpdates,
-    checkPayment,
-    fetchProducts,
-    getToken,
-    initialOrder._id,
-    onCancelled,
-  ]);
+    },
+    [
+      axios,
+      applyStockUpdates,
+      checkPayment,
+      fetchProducts,
+      getToken,
+      initialOrder._id,
+      onCancelled,
+    ],
+  );
 
   useEffect(() => {
     if (!isAwaitingPayment) return undefined;
@@ -257,8 +259,8 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
         <h2 className="text-2xl font-semibold">Payment received</h2>
 
         <p className="mt-3 text-gray-500">
-          Your payment arrived after the stock reservation expired. The order
-          is awaiting manual confirmation.
+          Your payment arrived after the stock reservation expired. The order is
+          awaiting manual confirmation.
         </p>
 
         <button
@@ -359,10 +361,6 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
                 Copy
               </button>
             </div>
-
-            <p className="mt-3 text-xs text-red-500">
-              Please enter the exact amount and transfer content shown above.
-            </p>
           </div>
 
           <div className="mt-5 flex items-center gap-3 rounded-xl bg-yellow-50 p-4">
