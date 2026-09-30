@@ -61,6 +61,8 @@ orderSchema.index({
   paymentExpiresAt: 1,
 });
 
+orderSchema.index({ createdAt: -1, _id: -1 });
+
 const Order = mongoose.model("Order", orderSchema);
 
 export default Order;

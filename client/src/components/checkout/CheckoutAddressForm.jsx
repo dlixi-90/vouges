@@ -30,6 +30,7 @@ const CheckoutAddressForm = ({
     method,
     axios,
     getToken,
+    hasPendingCartUpdates,
     setCartItems,
     fetchProducts,
   } = useAppContext();
@@ -218,6 +219,8 @@ const CheckoutAddressForm = ({
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (hasPendingCartUpdates()) return toast.error("Please wait for cart changes to finish saving");
 
     if (isSubmitting || submitRef.current) return;
     if (isLoadingAddresses || addressLoadError)

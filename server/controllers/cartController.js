@@ -16,7 +16,7 @@ const findAvailableProduct = async (itemId) => {
   return Product.findOne({
     _id: itemId,
     isDeleted: { $ne: true },
-  });
+  }, "sizes stockBySize inStockBySize inStock");
 };
 
 const validateProductSize = (product, size) => {
@@ -65,7 +65,7 @@ export const addToCart = async (req, res) => {
     }
 
     const [userData, product] = await Promise.all([
-      User.findById(userId),
+      req.user ?? User.findById(userId),
       findAvailableProduct(itemId),
     ]);
 
@@ -245,7 +245,7 @@ export const updateCart = async (req, res) => {
       });
     }
 
-    const userData = await User.findById(userId);
+    const userData = req.user ?? await User.findById(userId);
 
     if (!userData) {
       return res.status(404).json({

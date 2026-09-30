@@ -11,12 +11,14 @@ import {
   sepayWebhook,
 } from "../controllers/orderController.js";
 import authUser, { requireOwner } from "../middleware/authMiddleware.js";
+import { dashboard } from "../controllers/dashboardController.js";
 
 const orderRouter = express.Router();
 
 // For Admin
 orderRouter.post("/sepay-webhook", sepayWebhook);
 orderRouter.get("/", authUser, requireOwner, allOrders);
+orderRouter.get("/dashboard", authUser, requireOwner, dashboard);
 orderRouter.post("/status", authUser, requireOwner, updateStatus);
 
 // For Payment

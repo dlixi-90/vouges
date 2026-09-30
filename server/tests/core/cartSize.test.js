@@ -227,6 +227,17 @@ const mockCartStorage = (t, initial = {}) => {
   return { user, call };
 };
 
+test("cart writes reuse the authenticated user instead of reading that account a second time", async (t) => {
+  const { user, call } = mockCartStorage(t);
+  const duplicateRead = t.mock.method(User, "findById", async () => { throw new Error("Redundant user read"); });
+  await call(addToCart, { itemId: id, size: "S", quantity: 1 });
+  await call(updateCart, { itemId: id, size: "S", quantity: 3 });
+  assert.equal(user.cartData[id].S, 3);
+  await call(updateCart, { itemId: id, size: "S", quantity: 0 });
+  assert.equal(user.cartData[id].S, undefined);
+  assert.equal(duplicateRead.mock.callCount(), 0);
+});
+
 test("new cart lines sort newest first across products and sizes, even within one millisecond", async (t) => {
   t.mock.method(Date, "now", () => 1000000);
   const { user, call } = mockCartStorage(t);

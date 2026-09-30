@@ -10,6 +10,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { createCartUpdateQueue } from "../utils/cartUpdateQueue";
+import { getCartItemKey } from "../utils/cartSelection";
 import { getOrderedCartItems, moveCartSize, setCartLineAddedAt } from "../utils/cartOrder";
 import {
   getSizeQuantity,
@@ -71,6 +73,8 @@ export const AppContextProvider = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [cartItems, setCartItems] = useState({});
   const [cartAddedAt, setCartAddedAt] = useState({});
+  const [pendingCartKeys, setPendingCartKeys] = useState([]);
+  const [quantityQueue] = useState(() => createCartUpdateQueue({ onPendingChange: setPendingCartKeys }));
   const cartWritesRef = useRef(0);
   const changingSizeRef = useRef(false);
   const [method, setMethod] = useState("COD");
@@ -83,6 +87,8 @@ export const AppContextProvider = ({ children }) => {
   const { user, isLoaded } = useUser();
   const { getToken } = useAuth();
   const { openSignIn } = useClerk();
+
+  useEffect(() => () => quantityQueue.cancelAll(), [quantityQueue, user?.id]);
 
   const requireCartLogin = useCallback(() => {
     if (user) return true;
@@ -206,8 +212,8 @@ export const AppContextProvider = ({ children }) => {
     onOptimisticSuccess,
   ) => {
     if (!requireCartLogin()) return { success: false, requiresLogin: true };
-    if (changingSizeRef.current) {
-      toast.error("Please wait for the size change to finish");
+    if (changingSizeRef.current || quantityQueue.hasPending()) {
+      toast.error("Please wait for the cart update to finish");
       return { success: false };
     }
     const addedQuantity = Number(quantity);
@@ -368,66 +374,36 @@ export const AppContextProvider = ({ children }) => {
       }
     }
 
-    setCartItems((currentCart) =>
-      setCartItemQuantity(currentCart, itemId, size, nextQuantity),
-    );
-
-    cartWritesRef.current += 1;
-    try {
-      const { data } = await axios.post(
-        "/api/cart/update",
-        { itemId, size, quantity: nextQuantity },
-        {
-          headers: { Authorization: `Bearer ${await getToken()}` },
-        },
-      );
-
-      if (!data.success) {
-        throw new Error(data.message || "Unable to update cart");
-      }
-      if (data.addedAt) {
-        setCartAddedAt((current) => setCartLineAddedAt(current, itemId, size, data.addedAt));
-      }
-
-      setCartItems((currentCart) =>
-        setCartItemQuantity(
-          currentCart,
-          itemId,
-          size,
-          Number(data.quantity ?? nextQuantity),
-        ),
-      );
-      return {
-        success: true,
-        quantity: Number(data.quantity ?? nextQuantity),
-      };
-    } catch (error) {
-      setCartItems((currentCart) => {
-        const savedQuantity = Number(currentCart[itemId]?.[size] ?? 0);
-
-        if (savedQuantity !== nextQuantity) {
-          return currentCart;
-        }
-
-        return setCartItemQuantity(
-          currentCart,
-          itemId,
-          size,
-          currentQuantity,
-        );
-      });
-
-      const message = getRequestErrorMessage(error, "Unable to update cart");
-      toast.error(message);
-      return { success: false, message };
-    } finally {
-      cartWritesRef.current -= 1;
+    if (cartWritesRef.current > 0) {
+      return { success: false, message: "Please wait for the cart update to finish" };
     }
+
+    return quantityQueue.enqueue({
+      key: getCartItemKey(itemId, size),
+      quantity: nextQuantity,
+      initialQuantity: currentQuantity,
+      onChange: (savedQuantity) => setCartItems((current) => setCartItemQuantity(current, itemId, size, savedQuantity)),
+      onAcknowledged: (data) => {
+        if (data.addedAt) setCartAddedAt((current) => setCartLineAddedAt(current, itemId, size, data.addedAt));
+      },
+      onError: (error) => toast.error(getRequestErrorMessage(error, "Unable to update cart")),
+      send: async (savedQuantity, signal) => {
+        const token = await getToken();
+        signal.throwIfAborted();
+        const { data } = await axios.post(
+          "/api/cart/update",
+          { itemId, size, quantity: savedQuantity },
+          { headers: { Authorization: `Bearer ${token}` }, signal, timeout: 15000 },
+        );
+        if (!data.success) throw new Error(data.message || "Unable to update cart");
+        return data;
+      },
+    });
   };
 
   const changeCartSize = async (itemId, fromSize, toSize) => {
     if (!requireCartLogin()) return { success: false, requiresLogin: true };
-    if (changingSizeRef.current || cartWritesRef.current > 0) {
+    if (changingSizeRef.current || cartWritesRef.current > 0 || quantityQueue.hasPending()) {
       toast.error("Please wait for the cart update to finish");
       return { success: false };
     }
@@ -550,6 +526,8 @@ export const AppContextProvider = ({ children }) => {
     requireCartLogin,
     getCartCount,
     updateQuantity,
+    pendingCartKeys,
+    hasPendingCartUpdates: () => quantityQueue.hasPending() || cartWritesRef.current > 0 || changingSizeRef.current,
     changeCartSize,
     getCartAmount,
     isOwner,

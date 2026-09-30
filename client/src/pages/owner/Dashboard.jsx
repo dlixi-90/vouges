@@ -1,70 +1,15 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Package } from "lucide-react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
 import { formatThousandsVnd } from "../../utils/money";
 import { usePopularProducts } from "../../hooks/usePopularProducts";
+import ProductImage from "../../components/ProductImage";
+
+const RevenueChart = lazy(() => import("../../components/owner/RevenueChart"));
+const DASHBOARD_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 const ORDER_STATUSES = ["Order Placed", "Packing", "Shipping", "Delivery"];
-
-const buildMonthlyData = (orders) => {
-  const latestOrderTimestamp = orders.reduce((latestTimestamp, order) => {
-    const orderTimestamp = new Date(order.createdAt).getTime();
-
-    return Number.isNaN(orderTimestamp)
-      ? latestTimestamp
-      : Math.max(latestTimestamp, orderTimestamp);
-  }, 0);
-  const anchorDate = latestOrderTimestamp
-    ? new Date(latestOrderTimestamp)
-    : new Date();
-  const months = Array.from({ length: 6 }, (_, index) => {
-    const date = new Date(
-      anchorDate.getFullYear(),
-      anchorDate.getMonth() - 5 + index,
-      1,
-    );
-
-    return {
-      key: `${date.getFullYear()}-${date.getMonth()}`,
-      month: date.toLocaleDateString("en-US", { month: "short" }),
-      total: 0,
-      successful: 0,
-    };
-  });
-  const monthsByKey = new Map(months.map((month) => [month.key, month]));
-
-  orders.forEach((order) => {
-    const createdAt = new Date(order.createdAt);
-
-    if (Number.isNaN(createdAt.getTime())) return;
-
-    const month = monthsByKey.get(
-      `${createdAt.getFullYear()}-${createdAt.getMonth()}`,
-    );
-
-    if (!month) return;
-
-    const amount = Number(order.amount) || 0;
-    month.total += amount;
-
-    if (order.isPaid) {
-      month.successful += amount;
-    }
-  });
-
-  return months;
-};
 
 const Dashboard = () => {
   const { user, currency, axios, getToken } = useAppContext();
@@ -76,13 +21,20 @@ const Dashboard = () => {
   } = usePopularProducts();
   const [dashboardData, setDashboardData] = useState({
     orders: [],
-    totalOrders: 0,
-    totalRevenue: 0,
+    totalOrders: null,
+    totalRevenue: null,
+    monthlyData: [],
+    totalPages: 1,
   });
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const requestIdRef = useRef(0);
   const [updatingOrderIds, setUpdatingOrderIds] = useState([]);
 
   const requestDashboardData = useCallback(async () => {
-    const { data } = await axios.get("/api/orders/", {
+    const { data } = await axios.get("/api/orders/dashboard", {
+      params: { page, pageSize: 10, timezone: DASHBOARD_TIMEZONE },
       headers: { Authorization: `Bearer ${await getToken()}` },
     });
 
@@ -91,15 +43,23 @@ const Dashboard = () => {
     }
 
     return data.dashboardData;
-  }, [axios, getToken]);
+  }, [axios, getToken, page]);
 
-  const getDashboardData = async () => {
+  const getDashboardData = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
+    setIsLoading(true);
+    setLoadError("");
     try {
-      setDashboardData(await requestDashboardData());
+      const data = await requestDashboardData();
+      if (requestId === requestIdRef.current) setDashboardData(data);
     } catch (error) {
-      toast.error(error.message);
+      if (requestId === requestIdRef.current) {
+        setLoadError(error.response?.data?.message || error.message);
+      }
+    } finally {
+      if (requestId === requestIdRef.current) setIsLoading(false);
     }
-  };
+  }, [requestDashboardData]);
 
   const statusHandler = async (event, orderId) => {
     const status = event.target.value;
@@ -144,31 +104,14 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!user) return undefined;
-
-    let isActive = true;
-
-    requestDashboardData()
-      .then((nextDashboardData) => {
-        if (isActive) {
-          setDashboardData(nextDashboardData);
-        }
-      })
-      .catch((error) => {
-        if (isActive) {
-          toast.error(error.message);
-        }
-      });
-
+    const timer = window.setTimeout(getDashboardData, 0);
     return () => {
-      isActive = false;
+      window.clearTimeout(timer);
+      requestIdRef.current += 1;
     };
-  }, [requestDashboardData, user]);
+  }, [getDashboardData, user]);
 
-  const orders = useMemo(
-    () => dashboardData.orders || [],
-    [dashboardData.orders],
-  );
-  const monthlyData = useMemo(() => buildMonthlyData(orders), [orders]);
+  const orders = dashboardData.orders || [];
 
   return (
     <main className="m-1 h-[97vh] overflow-y-auto rounded-xl bg-primary px-3 py-6 shadow sm:m-3 sm:px-5 md:px-8 lg:w-11/12 xl:py-8">
@@ -192,43 +135,13 @@ const Dashboard = () => {
               </h2>
 
               <p className="text-xl font-medium text-black">
-                {formatThousandsVnd(dashboardData.totalRevenue || 0, currency)}
+                {dashboardData.totalRevenue === null ? "—" : formatThousandsVnd(dashboardData.totalRevenue, currency)}
               </p>
             </div>
             <div className="mt-4 h-[360px] min-h-[360px] min-w-0 w-full">
-              <ResponsiveContainer width="100%" height={360} minWidth={0}>
-                <BarChart data={monthlyData}>
-                  <CartesianGrid vertical={false} stroke="#e9edef" />
-                  <XAxis
-                    dataKey="month"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: "#7d8792", fontSize: 12 }}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: "#7d8792", fontSize: 12 }}
-                  />
-                  <Tooltip
-                    formatter={(value) => formatThousandsVnd(value, currency)}
-                    cursor={{ fill: "#f4f6f5" }}
-                  />
-                  <Legend />
-                  <Bar
-                    dataKey="total"
-                    name="Total"
-                    fill="#9fc4a9"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="successful"
-                    name="Paid"
-                    fill="#263b4a"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              <Suspense fallback={<EmptyState text="Loading chart..." />}>
+                <RevenueChart data={dashboardData.monthlyData} currency={currency} />
+              </Suspense>
             </div>
           </DashboardCard>
 
@@ -252,8 +165,9 @@ const Dashboard = () => {
                   <div className="flex min-w-0 items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-[#f2f5f3]">
                       {product.images?.[0] ? (
-                        <img
+                        <ProductImage
                           src={product.images[0]}
+                          imageWidth={100}
                           alt={product.title}
                           className="h-full w-full object-contain"
                         />
@@ -288,12 +202,18 @@ const Dashboard = () => {
               </h2>
             </div>
             <span className="rounded-full bg-[#edf5ef] px-3 py-1 text-xs font-medium text-[#50745a]">
-              {dashboardData.totalOrders || 0} total
+              {dashboardData.totalOrders ?? "—"} total
             </span>
           </div>
 
           <div className="space-y-4">
-            {orders.map((order) => (
+            {loadError && (
+              <p role="alert" className="text-sm text-red-600">
+                {loadError} <button type="button" onClick={getDashboardData} className="underline">Retry</button>
+              </p>
+            )}
+            {isLoading && <p role="status" className="py-8 text-center text-sm text-[#8b949c]">Loading orders...</p>}
+            {!isLoading && !loadError && orders.map((order) => (
               <OrderCard
                 key={order._id}
                 order={order}
@@ -302,8 +222,15 @@ const Dashboard = () => {
                 updating={updatingOrderIds.includes(order._id)}
               />
             ))}
-            {!orders.length && <EmptyState text="No orders found" />}
+            {!isLoading && !loadError && !orders.length && <EmptyState text="No orders found" />}
           </div>
+          {dashboardData.totalPages > 1 && (
+            <div className="mt-5 flex items-center justify-center gap-4 text-sm">
+              <button type="button" disabled={isLoading || updatingOrderIds.length > 0 || page <= 1} onClick={() => setPage((current) => current - 1)} className="btn-light !px-4 !py-2 disabled:opacity-40">Previous</button>
+              <span>Page {page} / {dashboardData.totalPages}</span>
+              <button type="button" disabled={isLoading || updatingOrderIds.length > 0 || page >= dashboardData.totalPages} onClick={() => setPage((current) => current + 1)} className="btn-secondary !px-4 !py-2 disabled:opacity-40">Next</button>
+            </div>
+          )}
         </section>
       </div>
     </main>
@@ -406,8 +333,9 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
                   <div className="flex min-w-0 flex-1 items-center gap-3">
                     <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-[#edf0f2] bg-[#f7f9f8] p-1">
                       {productImage ? (
-                        <img
+                        <ProductImage
                           src={productImage}
+                          imageWidth={160}
                           alt={productTitle}
                           className="h-full w-full object-contain"
                         />

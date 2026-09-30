@@ -1,0 +1,8 @@
+.git
+.vercel
+**/.vercel
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+**/*.log

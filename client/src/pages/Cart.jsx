@@ -1,13 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Check } from "lucide-react";
 import Title from "../components/Title";
-import CartTotal from "../components/CartTotal";
 import CartSteps from "../components/CartSteps";
 import CartSizePicker from "../components/CartSizePicker";
 import ProductImage from "../components/ProductImage";
-import QrPaymentStatus from "../components/QrPaymentStatus";
-import CheckoutAddressForm from "../components/checkout/CheckoutAddressForm";
 import { useAppContext } from "../context/AppContext";
 import { assets } from "../assets/data";
 import { formatThousandsVnd } from "../utils/money";
@@ -19,6 +16,10 @@ import {
 import { getSizeQuantity } from "../utils/productStock";
 import { initialCheckoutAddress } from "../utils/checkoutAddress";
 import { getOrderedCartItems } from "../utils/cartOrder";
+
+const CartTotal = lazy(() => import("../components/CartTotal"));
+const QrPaymentStatus = lazy(() => import("../components/QrPaymentStatus"));
+const CheckoutAddressForm = lazy(() => import("../components/checkout/CheckoutAddressForm"));
 
 const CartCheckbox = ({
   checked,
@@ -67,6 +68,8 @@ const Cart = () => {
     cartItems,
     cartAddedAt,
     updateQuantity,
+    pendingCartKeys,
+    hasPendingCartUpdates,
     changeCartSize,
     axios,
     getToken,
@@ -77,7 +80,8 @@ const Cart = () => {
   const [highestStep, setHighestStep] = useState(1);
   const [createdOrder, setCreatedOrder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUpdatingCart, setIsUpdatingCart] = useState(false);
+  const [isChangingSize, setIsChangingSize] = useState(false);
+  const isUpdatingCart = isChangingSize || pendingCartKeys.length > 0;
   const cartUpdateRef = useRef(false);
   const [checkoutAddress, setCheckoutAddress] = useState(
     initialCheckoutAddress,
@@ -190,14 +194,14 @@ const Cart = () => {
   }, [axios, getToken, user]);
 
   const runCartUpdate = async (update) => {
-    if (cartUpdateRef.current) return;
+    if (cartUpdateRef.current || hasPendingCartUpdates()) return { success: false };
     cartUpdateRef.current = true;
-    setIsUpdatingCart(true);
+    setIsChangingSize(true);
     try {
       return await update();
     } finally {
       cartUpdateRef.current = false;
-      setIsUpdatingCart(false);
+      setIsChangingSize(false);
     }
   };
 
@@ -220,14 +224,14 @@ const Cart = () => {
   const increment = (productId, size) => {
     const quantity = cartItems[productId]?.[size] || 0;
 
-    runCartUpdate(() => updateQuantity(productId, size, quantity + 1));
+    updateQuantity(productId, size, quantity + 1);
   };
 
   const decrement = (productId, size) => {
     const quantity = cartItems[productId]?.[size] || 0;
 
     if (quantity > 1) {
-      runCartUpdate(() => updateQuantity(productId, size, quantity - 1));
+      updateQuantity(productId, size, quantity - 1);
     }
   };
 
@@ -246,16 +250,13 @@ const Cart = () => {
         Number(cartItems[item._id]?.[item.size] ?? 0)
     );
   }, 0);
-  const removeSelectedItems = () =>
-    runCartUpdate(async () => {
-      for (const item of selectedItems) {
-        const result = await updateQuantity(item._id, item.size, 0);
-        if (!result.success) break;
-      }
-    });
+  const removeSelectedItems = () => {
+    if (cartUpdateRef.current) return;
+    return Promise.all(selectedItems.map((item) => updateQuantity(item._id, item.size, 0)));
+  };
 
   const handleCheckout = () => {
-    if (cartUpdateRef.current) return;
+    if (cartUpdateRef.current || hasPendingCartUpdates()) return;
     if (selectedItemKeys.size === 0) {
       return toast.error("Please select at least one product");
     }
@@ -291,7 +292,7 @@ const Cart = () => {
   }, []);
 
   const handleStepChange = (step) => {
-    if (cartUpdateRef.current) return;
+    if (cartUpdateRef.current || hasPendingCartUpdates()) return;
     if (createdOrder) return;
     if (step > highestStep) return;
     if (step === 2 && selectedItemKeys.size === 0) {
@@ -320,7 +321,7 @@ const Cart = () => {
               <div className="hidden grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] items-center gap-3 rounded-xl bg-white px-4 py-3 lg:grid">
                 <CartCheckbox
                   inputRef={selectAllRef}
-                  disabled={isUpdatingCart || availableCartData.length === 0}
+                  disabled={isChangingSize || availableCartData.length === 0}
                   checked={allItemsSelected}
                   onChange={toggleAllItems}
                   indeterminate={someItemsSelected}
@@ -354,7 +355,7 @@ const Cart = () => {
                     >
                       <div className="col-start-1 row-start-1">
                         <CartCheckbox
-                          disabled={isUpdatingCart || isUnavailable}
+                          disabled={isChangingSize || isUnavailable}
                           checked={isSelected}
                           onChange={() => toggleItemSelection(itemKey)}
                           label={`Select ${product.title}, size ${item.size}`}
@@ -414,7 +415,7 @@ const Cart = () => {
                             aria-label={`Decrease quantity of ${product.title}, size ${item.size}`}
                             onClick={() => decrement(item._id, item.size)}
                             disabled={
-                              isUpdatingCart || isUnavailable || quantity <= 1
+                              isChangingSize || isUnavailable || quantity <= 1
                             }
                             className="cursor-pointer rounded-full bg-secondary p-2 text-white shadow-md disabled:cursor-not-allowed disabled:opacity-40"
                           >
@@ -433,7 +434,7 @@ const Cart = () => {
                             aria-label={`Increase quantity of ${product.title}, size ${item.size}`}
                             onClick={() => increment(item._id, item.size)}
                             disabled={
-                              isUpdatingCart ||
+                              isChangingSize ||
                               isUnavailable ||
                               quantity >= getSizeQuantity(product, item.size)
                             }
@@ -463,11 +464,9 @@ const Cart = () => {
                         type="button"
                         aria-label={`Remove ${product.title}, size ${item.size}`}
                         onClick={() =>
-                          runCartUpdate(() =>
-                            updateQuantity(item._id, item.size, 0),
-                          )
+                          updateQuantity(item._id, item.size, 0)
                         }
-                        disabled={isUpdatingCart}
+                        disabled={isChangingSize}
                         className="col-start-3 row-start-1 mx-auto cursor-pointer rounded-md p-2 transition hover:bg-primary disabled:opacity-40 lg:col-start-6"
                       >
                         <img src={assets.cartRemove} alt="" width={22} />
@@ -483,7 +482,7 @@ const Cart = () => {
                     <CartCheckbox
                       inputRef={footerSelectAllRef}
                       disabled={
-                        isUpdatingCart || availableCartData.length === 0
+                        isChangingSize || availableCartData.length === 0
                       }
                       checked={allItemsSelected}
                       onChange={toggleAllItems}
@@ -520,7 +519,7 @@ const Cart = () => {
                     disabled={selectedItemKeys.size === 0 || isUpdatingCart}
                     className="btn-dark w-full !rounded-md disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-48"
                   >
-                    Proceed to Checkout
+                    {pendingCartKeys.length > 0 ? "Saving changes..." : "Proceed to Checkout"}
                   </button>
                 </div>
               </div>
@@ -545,6 +544,7 @@ const Cart = () => {
 
       {/* STEP 2 */}
       {currentStep === 2 && (
+        <Suspense fallback={<p role="status" className="py-12 text-center">Loading checkout...</p>}>
         <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_379px] xl:items-start">
           {/* Address Form bên trái */}
           <CheckoutAddressForm
@@ -561,7 +561,7 @@ const Cart = () => {
             <div className="w-full rounded-xl bg-white p-5 py-8 xl:sticky xl:top-28">
               <CartTotal
                 currentStep={2}
-                isSubmitting={isSubmitting}
+                isSubmitting={isSubmitting || isUpdatingCart}
                 selectedItemKeys={selectedItemKeys}
                 onBack={() => {
                   setCurrentStep(1);
@@ -571,15 +571,18 @@ const Cart = () => {
             </div>
           </aside>
         </div>
+        </Suspense>
       )}
 
       {/* STEP 3 QR */}
       {currentStep === 3 && createdOrder?.paymentMethod === "QR" && (
+        <Suspense fallback={<p role="status" className="py-12 text-center">Loading payment...</p>}>
         <QrPaymentStatus
           initialOrder={createdOrder}
           onExpired={handleQrExpired}
           onCancelled={handleQrCancelled}
         />
+        </Suspense>
       )}
 
       {/* STEP 3 COD */}
