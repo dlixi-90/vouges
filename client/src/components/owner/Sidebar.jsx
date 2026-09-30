@@ -4,7 +4,7 @@ import { Link, NavLink, Outlet, Navigate } from "react-router-dom";
 import { UserButton } from "@clerk/react";
 
 const Sidebar = () => {
-  const { isOwner, user } = useAppContext();
+  const { isOwner, user, profileError, retryUserProfile } = useAppContext();
 
   const navItems = [
     {
@@ -32,7 +32,12 @@ const Sidebar = () => {
   if (isOwner === null) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-gray-300 border-t-black rounded-full animate-spin" />
+        {profileError ? (
+          <div role="alert" className="text-center">
+            <p>{profileError}</p>
+            <button type="button" onClick={retryUserProfile} className="btn-outline mt-4">Retry</button>
+          </div>
+        ) : <div role="status" aria-label="Verifying account" className="w-8 h-8 border-4 border-gray-300 border-t-black rounded-full animate-spin" />}
       </div>
     );
   }

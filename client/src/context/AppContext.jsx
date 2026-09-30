@@ -7,10 +7,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { createCartUpdateQueue } from "../utils/cartUpdateQueue";
+import { createUserProfileLoader } from "../utils/userProfileLoader";
 import { getCartItemKey } from "../utils/cartSelection";
 import { getOrderedCartItems, moveCartSize, setCartLineAddedAt } from "../utils/cartOrder";
 import {
@@ -78,14 +79,19 @@ export const AppContextProvider = ({ children }) => {
   const cartWritesRef = useRef(0);
   const changingSizeRef = useRef(false);
   const [method, setMethod] = useState("COD");
-  const [isOwner, setIsOwner] = useState(null);
+  const [profileResult, setProfileResult] = useState({ userId: null, role: null, error: "" });
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const needsCatalog = pathname.replace(/\/+$/, "") !== "/owner";
   const currency = import.meta.env.VITE_CURRENCY;
   const delivery_charges = 30;
 
   // Clerk
-  const { user, isLoaded } = useUser();
-  const { getToken } = useAuth();
+  const { user } = useUser();
+  const { getToken, userId: authUserId, isLoaded } = useAuth();
+  const isOwner = !isLoaded ? null : !authUserId ? false
+    : profileResult.userId === authUserId ? profileResult.role : null;
+  const profileError = profileResult.userId === authUserId ? profileResult.error : "";
   const { openSignIn } = useClerk();
 
   useEffect(() => () => quantityQueue.cancelAll(), [quantityQueue, user?.id]);
@@ -102,28 +108,30 @@ export const AppContextProvider = ({ children }) => {
     return true;
   };
 
-  // Get the user Profile
-  const getUser = useCallback(async () => {
-    try {
+  const [profileLoader] = useState(() => createUserProfileLoader({
+    request: async (_userId, signal, readToken) => {
+      const token = await readToken();
+      signal.throwIfAborted();
       const { data } = await axios.get("/api/users", {
-        headers: {
-          Authorization: `Bearer ${await getToken()}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
+        signal,
+        timeout: 15000,
       });
-
-      if (data.success) {
-        setIsOwner(data.role === "owner");
-        setCartItems(data.cartData || {});
-        setCartAddedAt(data.cartAddedAt || {});
-      } else {
-        setIsOwner(false);
-        toast.error(data.message);
-      }
-    } catch (error) {
-      setIsOwner(false);
-      toast.error(error.message);
-    }
-  }, [getToken]);
+      if (!data.success) throw new Error(data.message || "Unable to load user profile");
+      return data;
+    },
+    onSuccess: (userId, data) => {
+      setProfileResult({ userId, role: data.role === "owner", error: "" });
+      setCartItems(data.cartData || {});
+      setCartAddedAt(data.cartAddedAt || {});
+    },
+    onError: (userId, error) => {
+      const message = getRequestErrorMessage(error, "Unable to verify account");
+      setProfileResult({ userId, role: null, error: message });
+      toast.error(message);
+    },
+  }));
+  const getUser = useCallback(() => profileLoader.load(authUserId, getToken), [profileLoader, authUserId, getToken]);
 
   // Fetch all products
   const fetchProducts = useCallback(() => {
@@ -203,6 +211,12 @@ export const AppContextProvider = ({ children }) => {
       ),
     );
   };
+
+  const applyStockUpdates = useCallback((updates = []) => {
+    const byId = new Map(updates.map((item) => [item._id, item]));
+    setProducts((current) => current.map((product) => byId.has(product._id)
+      ? { ...product, ...byId.get(product._id) } : product));
+  }, []);
 
   // Add Product to the cart
   const addToCart = async (
@@ -467,9 +481,9 @@ export const AppContextProvider = ({ children }) => {
   useEffect(() => {
     if (!isLoaded) return;
 
-    if (!user) {
+    if (!authUserId) {
       queueMicrotask(() => {
-        setIsOwner(false);
+        setProfileResult({ userId: null, role: null, error: "" });
         setCartItems({});
         setCartAddedAt({});
         setProductDrafts({});
@@ -479,19 +493,24 @@ export const AppContextProvider = ({ children }) => {
 
     const timeoutId = window.setTimeout(getUser, 0);
 
-    return () => window.clearTimeout(timeoutId);
-  }, [getUser, isLoaded, user]);
+    return () => {
+      window.clearTimeout(timeoutId);
+      profileLoader.cancel();
+    };
+  }, [getUser, isLoaded, authUserId, profileLoader]);
 
   useEffect(() => {
+    if (!needsCatalog) return undefined;
     const timeoutId = window.setTimeout(fetchProducts, 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, [fetchProducts]);
+  }, [fetchProducts, needsCatalog]);
 
   useEffect(() => {
+    if (!needsCatalog) return undefined;
     const timeoutId = window.setTimeout(fetchCategories, 0);
     return () => window.clearTimeout(timeoutId);
-  }, [fetchCategories]);
+  }, [fetchCategories, needsCatalog]);
 
   const value = {
     productDrafts,
@@ -512,6 +531,7 @@ export const AppContextProvider = ({ children }) => {
     removeCategory,
     fetchProducts,
     replaceProduct,
+    applyStockUpdates,
     currency,
     searchQuery,
     setSearchQuery,
@@ -531,7 +551,8 @@ export const AppContextProvider = ({ children }) => {
     changeCartSize,
     getCartAmount,
     isOwner,
-    setIsOwner,
+    profileError,
+    retryUserProfile: getUser,
     axios,
     getToken,
   };

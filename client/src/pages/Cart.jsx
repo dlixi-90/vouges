@@ -75,6 +75,7 @@ const Cart = () => {
     getToken,
     fetchProducts,
   } = useAppContext();
+  const userId = user?.id;
 
   const [currentStep, setCurrentStep] = useState(1);
   const [highestStep, setHighestStep] = useState(1);
@@ -166,14 +167,19 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    if (!user) return undefined;
+    if (!userId) return undefined;
 
     let isActive = true;
+    const controller = new AbortController();
 
     const restorePendingPayment = async () => {
       try {
+        const token = await getToken();
+        controller.signal.throwIfAborted();
         const { data } = await axios.get("/api/orders/pending-payment", {
-          headers: { Authorization: `Bearer ${await getToken()}` },
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
+          timeout: 15000,
         });
 
         if (isActive && data.success && data.order) {
@@ -190,8 +196,9 @@ const Cart = () => {
 
     return () => {
       isActive = false;
+      controller.abort();
     };
-  }, [axios, getToken, user]);
+  }, [axios, getToken, userId]);
 
   const runCartUpdate = async (update) => {
     if (cartUpdateRef.current || hasPendingCartUpdates()) return { success: false };
@@ -212,11 +219,6 @@ const Cart = () => {
       if (!result.success) return result;
       setDeselectedItemKeys((current) =>
         changeSizeSelection(current, productId, fromSize, toSize, targetExists),
-      );
-      toast.success(
-        targetExists
-          ? "Size updated and quantities merged. Please check your selection."
-          : "Size updated",
       );
       return result;
     });

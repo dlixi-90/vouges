@@ -18,7 +18,9 @@ await connectDB(); // Establish connection to the database
 await connectCloudinary(); //Setup cloudinary for image storage
 
 const app = express(); // Initialize Express Application
-app.use(cors()); // Enable Cross-Origin Resource sharing
+// Reuse browser preflight permission for repeated authenticated API calls.
+// This does not cache cart data, orders, or authentication results.
+app.use(cors({ maxAge: 600 }));
 
 // Middleware Setup
 app.use(

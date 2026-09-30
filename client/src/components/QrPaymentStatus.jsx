@@ -21,6 +21,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
     setCartItems,
     fetchProducts,
     fetchPopularProducts,
+    applyStockUpdates,
   } = useAppContext();
 
   const [order, setOrder] = useState(initialOrder);
@@ -32,19 +33,27 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
   );
   const hasSyncedCartRef = useRef(false);
   const cancelRequestRef = useRef(false);
+  const checkRequestRef = useRef(null);
   const qrHistoryEntryRef = useRef(false);
   const isAwaitingPayment = order.status === "Awaiting Payment" && !order.isPaid;
 
+  useEffect(() => () => checkRequestRef.current?.abort(), []);
+
   const checkPayment = useCallback(
     async (showError = false) => {
+      if (checkRequestRef.current || cancelRequestRef.current) return;
+      const controller = new AbortController();
+      checkRequestRef.current = controller;
       try {
         setIsChecking(true);
-
+        const token = await getToken();
+        controller.signal.throwIfAborted();
         const { data } = await axios.get(`/api/orders/${initialOrder._id}`, {
-          headers: {
-            Authorization: `Bearer ${await getToken()}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
+          timeout: 15000,
         });
+        if (controller.signal.aborted) return;
 
         if (!data.success) {
           if (showError) toast.error(data.message);
@@ -75,7 +84,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
             setHasShownSuccess(true);
           }
         } else if (data.order.status === "Payment Expired") {
-          await fetchProducts();
+          void fetchProducts();
 
           if (showError) {
             toast.error("Payment time expired. Reserved stock was restored.");
@@ -84,7 +93,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
           toast("Payment has not been received yet!");
         }
       } catch (error) {
-        if (showError) {
+        if (showError && !controller.signal.aborted) {
           toast.error(
             error.response?.data?.message ||
               error.message ||
@@ -92,7 +101,10 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
           );
         }
       } finally {
-        setIsChecking(false);
+        if (checkRequestRef.current === controller) {
+          checkRequestRef.current = null;
+          setIsChecking(false);
+        }
       }
     },
     [
@@ -111,7 +123,9 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
     if (
       order.isPaid ||
       order.status === "Payment Expired" ||
-      order.status === "Payment Review"
+      order.status === "Payment Review" ||
+      order.status === "Payment Cancelled" ||
+      isCancelling
     ) {
       return undefined;
     }
@@ -123,7 +137,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [checkPayment, order.isPaid, order.status]);
+  }, [checkPayment, order.isPaid, order.status, isCancelling]);
 
   useEffect(() => {
     if (order.status !== "Awaiting Payment" || order.isPaid) return undefined;
@@ -159,10 +173,14 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
     try {
       cancelRequestRef.current = true;
       setIsCancelling(true);
+      checkRequestRef.current?.abort();
+      checkRequestRef.current = null;
+      setIsChecking(false);
       const { data } = await axios.post(
         `/api/orders/${initialOrder._id}/cancel`,
         {},
         {
+          timeout: 15000,
           headers: {
             Authorization: `Bearer ${await getToken()}`,
           },
@@ -173,21 +191,20 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
         throw new Error(data.message || "Could not cancel QR payment");
       }
 
-      await fetchProducts();
+      applyStockUpdates(data.stockUpdates);
       window.history.replaceState(
         { ...window.history.state, qrPayment: null, cartStep: 2 },
         "",
         window.location.href,
       );
       onCancelled();
+      void fetchProducts();
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
           error.message ||
           "Could not cancel QR payment",
       );
-      await checkPayment(false);
-
       if (fromBrowserBack && qrHistoryEntryRef.current) {
         window.history.pushState(
           { ...window.history.state, qrPayment: initialOrder._id },
@@ -195,12 +212,15 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
           window.location.href,
         );
       }
+      cancelRequestRef.current = false;
+      void checkPayment(false);
     } finally {
       cancelRequestRef.current = false;
       setIsCancelling(false);
     }
   }, [
     axios,
+    applyStockUpdates,
     checkPayment,
     fetchProducts,
     getToken,
@@ -367,7 +387,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
           <button
             type="button"
             onClick={() => cancelPayment(false)}
-            disabled={isChecking || isCancelling}
+            disabled={isCancelling}
             className="btn-outline mt-3 w-full !rounded-md disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isCancelling ? "Cancelling..." : "Back to payment method"}

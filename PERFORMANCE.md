@@ -59,3 +59,21 @@ Observed request totals after deployment: the first product request took 1.72 se
 - Checkout/address and QR components load when their step is needed. The Cart route chunk decreased from about 47.5 kB to 18.04 kB uncompressed in the local build.
 - Build, targeted lint and all 152 tests passed, including rapid-click coalescing, stale responses, update/delete races, rollback, independent lines, cancellation and avoiding duplicate account reads. No authenticated production cart was changed for testing, and end-to-end authenticated mutation latency was not measured.
 - Production backend: `dpl_GPJRDbjGP2bDNwFpj99v2HqMYxsX`. Production frontend: `dpl_BfdEbEkZfEJRssompHWRcvEnJvzU`. Both reported READY and were aliased to the existing domains. Anonymous cart updates correctly return HTTP 401.
+
+## Cart and Dashboard follow-up review, 2026-09-30
+
+- Removed both size-change success toasts in Cart. The size picker still explains quantity merging before confirmation, and failed changes still show their error.
+- Opening `/owner` no longer starts the full catalog and category requests. They load when entering a screen that needs them, including Cart and List Product.
+- Confirmed order-status changes stay visible while Dashboard statistics refresh in the background. The status control no longer waits for the popular-products request. Dashboard reads time out after 15 seconds and expose the existing retry action.
+- CORS preflight permissions can be reused by the browser for 600 seconds, reducing repeated OPTIONS round trips for authenticated requests. This does not cache user data or bypass authentication.
+- Build, targeted ESLint, and all 152 tests passed. Cart queue, size changes, stock validation, dashboard pagination and authorization were included. Authenticated browser load times have not been measured for this revision.
+- Deployed backend `dpl_4LS1GNY9wjbtB2PzwhfyVLAa9BgH` and frontend `dpl_Fzc85jankhEDmv8ZV2nfzYzqdkyF`; both READY on their existing production domains. Production Cart HTML returned 200, unauthenticated Dashboard API returned 401, and cart preflight returned 204 with `Access-Control-Max-Age: 600`.
+
+## Authentication and QR Back follow-up, 2026-09-30
+
+- Profile loading starts from Clerk's authenticated user ID and no longer depends on the full mutable user object. Concurrent profile consumers share one request; account changes abort it and discard late responses. Owner access still requires a successful server profile response. Profile HTTP requests time out after 15 seconds; Dashboard offers retry instead of treating a network error as a non-owner login.
+- HTML includes connection hints for the configured backend and Clerk frontend API, derived only from public client configuration.
+- QR Back can run during status polling. It aborts the redundant read, suspends polling during cancellation, and navigates after the server confirms cancellation without waiting for a full catalog fetch. The transaction response includes restored stock fields for immediate local reconciliation; the catalog then refreshes in the background.
+- Repeated cancellation after a lost response is idempotent and cannot restore stock twice. Paid orders and other users' orders remain protected. QR polling is limited to one active read, with cancellation on unmount and HTTP timeouts.
+- Build, targeted lint and all 157 tests passed, including profile deduplication/account changes/sign-out/retry, stock response, repeated cancellation and paid/foreign-order rejection. No real payment/order was changed for verification. Authenticated browser timings were not measured.
+- Backend `dpl_JAkxPh75GvZQuxmwW3wVtXccs9D5` and frontend `dpl_BCSQSaCdJCksLP6n9EWiAXnq7yoF` are READY on the existing production domains. Cart HTML returns 200; profile reads and QR cancellation without authentication both return 401.

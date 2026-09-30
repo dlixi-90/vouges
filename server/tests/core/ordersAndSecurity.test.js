@@ -255,10 +255,45 @@ test("cancelling an awaiting QR order restores stock", async () => {
     assert.equal(product.stockBySize.M, 5);
     assert.equal(orderSaved, true);
     assert.equal(productSaved, true);
+    assert.deepEqual(state.payload.stockUpdates, [{
+      _id: productId, stockBySize: { M: 5 }, inStockBySize: { M: true }, inStock: true,
+    }]);
+    // A lost response may cause Back to be retried; never restore stock twice.
+    productSaved = false;
+    orderSaved = false;
+    const retried = createResponse();
+    await cancelQrOrder({ auth: () => ({ userId: "user_test" }), params: { orderId: ORDER_ID } }, retried.response);
+    assert.equal(retried.state.payload.success, true);
+    assert.equal(product.stockBySize.M, 5);
+    assert.equal(productSaved, false);
+    assert.equal(orderSaved, false);
   } finally {
     mongoose.startSession = originalStartSession;
     Order.findOne = originalOrderFindOne;
     Product.find = originalProductFind;
+  }
+});
+
+test("QR cancellation cannot undo confirmed payments or another customer's order", async (t) => {
+  t.mock.method(mongoose, "startSession", async () => ({
+    withTransaction: async (fn) => fn(), endSession: async () => {},
+  }));
+  t.mock.method(Product, "find", () => { throw new Error("Stock must not change"); });
+  let currentOrder;
+  t.mock.method(Order, "findOne", (filter) => {
+    assert.equal(filter.userId, "current-user");
+    return { session: async () => currentOrder };
+  });
+  for (const [order, expected] of [
+    [{ paymentMethod: "QR", isPaid: true, status: "Order Placed" }, 409],
+    [{ paymentMethod: "QR", isPaid: false, status: "Payment Review" }, 409],
+    [null, 404],
+  ]) {
+    currentOrder = order;
+    const { state, response } = createResponse();
+    await cancelQrOrder({ auth: () => ({ userId: "current-user" }), params: { orderId: ORDER_ID } }, response);
+    assert.equal(state.statusCode, expected);
+    assert.equal(state.payload.success, false);
   }
 });
 

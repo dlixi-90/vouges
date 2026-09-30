@@ -36,6 +36,7 @@ const Dashboard = () => {
     const { data } = await axios.get("/api/orders/dashboard", {
       params: { page, pageSize: 10, timezone: DASHBOARD_TIMEZONE },
       headers: { Authorization: `Bearer ${await getToken()}` },
+      timeout: 15000,
     });
 
     if (!data.success) {
@@ -45,9 +46,9 @@ const Dashboard = () => {
     return data.dashboardData;
   }, [axios, getToken, page]);
 
-  const getDashboardData = useCallback(async () => {
+  const getDashboardData = useCallback(async ({ background = false } = {}) => {
     const requestId = ++requestIdRef.current;
-    setIsLoading(true);
+    if (!background) setIsLoading(true);
     setLoadError("");
     try {
       const data = await requestDashboardData();
@@ -88,8 +89,10 @@ const Dashboard = () => {
             ? { ...item, status: data.order.status, isPaid: data.order.isPaid, paidAt: data.order.paidAt }
             : item),
         }));
-        await Promise.all([getDashboardData(), fetchPopularProducts()]);
         toast.success(data.message);
+        // Keep the confirmed order visible while updating revenue and sales.
+        void getDashboardData({ background: true });
+        void fetchPopularProducts();
       } else {
         toast.error(data.message);
       }
@@ -213,7 +216,7 @@ const Dashboard = () => {
               </p>
             )}
             {isLoading && <p role="status" className="py-8 text-center text-sm text-[#8b949c]">Loading orders...</p>}
-            {!isLoading && !loadError && orders.map((order) => (
+            {!isLoading && dashboardData.page === page && orders.map((order) => (
               <OrderCard
                 key={order._id}
                 order={order}

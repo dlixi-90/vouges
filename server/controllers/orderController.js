@@ -298,6 +298,12 @@ const restoreOrderStock = async (order, session) => {
     syncProductStockStatus(product, restoredSizes);
     await product.save({ session });
   }
+  return products.map((product) => ({
+    _id: String(product._id),
+    stockBySize: product.stockBySize,
+    inStockBySize: product.inStockBySize,
+    inStock: product.inStock,
+  }));
 };
 
 const removeOrderItemsFromCart = async (userId, items, session) => {
@@ -663,6 +669,11 @@ export const cancelQrOrder = async (req, res) => {
         throw new OrderRequestError("Order not found", 404);
       }
 
+      if (order.paymentMethod === "QR" && !order.isPaid &&
+          ["Payment Cancelled", "Payment Expired"].includes(order.status)) {
+        return { cancelled: true, status: order.status, stockUpdates: [] };
+      }
+
       if (
         order.paymentMethod !== "QR" ||
         order.isPaid ||
@@ -671,12 +682,12 @@ export const cancelQrOrder = async (req, res) => {
         return { cancelled: false, status: order.status };
       }
 
-      await restoreOrderStock(order, session);
+      const stockUpdates = await restoreOrderStock(order, session);
       order.status = "Payment Cancelled";
       order.paymentExpiresAt = new Date();
       await order.save({ session });
 
-      return { cancelled: true, status: order.status };
+      return { cancelled: true, status: order.status, stockUpdates };
     });
 
     if (!result.cancelled) {
@@ -692,6 +703,7 @@ export const cancelQrOrder = async (req, res) => {
     return res.json({
       success: true,
       message: "QR payment cancelled",
+      stockUpdates: result.stockUpdates,
     });
   } catch (error) {
     return sendOrderError(res, error);
