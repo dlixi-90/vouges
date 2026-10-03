@@ -62,7 +62,8 @@ export const buildOrderConfirmationEmail = (
     0,
   );
   const total = Number(order.amount);
-  const shipping = Math.max(0, total - subtotal);
+  const discount = Number(order.discount || 0);
+  const shipping = Number(order.shipping ?? Math.max(0, total - subtotal + discount));
   const quantity = items.reduce((sum, item) => sum + item.quantity, 0);
   const paymentMethod =
     order.paymentMethod === "COD"
@@ -155,7 +156,8 @@ export const buildOrderConfirmationEmail = (
         <tr><td class="content-pad" style="padding:22px 36px 28px;">
           <table role="presentation" width="100%">
             <tr><td style="padding:0 0 12px;font-size:13px;color:#78847e;">Tạm tính</td><td align="right" style="padding:0 0 12px;font-size:13px;">${escapeHtml(money(subtotal))}</td></tr>
-            <tr><td style="padding:0 0 18px;font-size:13px;color:#78847e;">Phí vận chuyển</td><td align="right" style="padding:0 0 18px;font-size:13px;${shipping === 0 ? "color:#557b5e;" : ""}">${shipping === 0 ? "Miễn phí" : escapeHtml(money(shipping))}</td></tr>
+            ${discount > 0 ? `<tr><td style="padding:0 0 12px;font-size:13px;color:#78847e;">Voucher ${escapeHtml(order.voucherCode)}</td><td align="right" style="padding:0 0 12px;font-size:13px;">−${escapeHtml(money(discount))}</td></tr>` : ""}
+            <tr><td style="padding:0 0 18px;font-size:13px;color:#78847e;">Phí vận chuyển${order.shippingMethod === "express" ? " (giao nhanh)" : ""}</td><td align="right" style="padding:0 0 18px;font-size:13px;${shipping === 0 ? "color:#557b5e;" : ""}">${shipping === 0 ? "Miễn phí" : escapeHtml(money(shipping))}</td></tr>
             <tr><td style="border-top:1px solid #e8ece7;padding-top:18px;font-size:14px;font-weight:600;">${totalLabel}</td><td align="right" style="border-top:1px solid #e8ece7;padding-top:18px;font-size:24px;font-weight:700;color:#41334e;white-space:nowrap;">${escapeHtml(money(total))}</td></tr>
           </table>
         </td></tr>
@@ -202,6 +204,7 @@ export const buildOrderConfirmationEmail = (
     ),
     "",
     `Tạm tính: ${money(subtotal)}`,
+    ...(discount > 0 ? [`Voucher ${order.voucherCode}: -${money(discount)}`] : []),
     `Phí vận chuyển: ${shipping === 0 ? "Miễn phí" : money(shipping)}`,
     `${totalLabel}: ${money(total)}`,
     `${paymentMethod} — ${paymentStatus}`,

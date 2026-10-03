@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { getShippingCharge } from "../utils/orderPricing";
 import { formatThousandsVnd } from "../utils/money";
@@ -6,12 +7,14 @@ import { getCartItemKey } from "../utils/cartSelection";
 import ProductImage from "./ProductImage";
 
 const CartTotal = ({
+  checkout,
   currentStep,
   onCheckout,
   onBack,
   isSubmitting = false,
   selectedItemKeys,
 }) => {
+  const [voucherDraft, setVoucherDraft] = useState("");
   const {
     products,
     cartItems,
@@ -56,9 +59,10 @@ const CartTotal = ({
       total + Number(item.product.price[item.size]) * item.quantity,
     0,
   );
-  const shipping =
-    subtotal > 0 ? getShippingCharge(subtotal, delivery_charges) : 0;
-  const total = subtotal + shipping;
+  const shipping = checkout.pricing?.shipping ??
+    (subtotal > 0 ? getShippingCharge(subtotal, delivery_charges) : 0);
+  const discount = checkout.pricing?.discount || 0;
+  const total = checkout.pricing?.amount ?? subtotal + shipping;
 
   const formatPrice = (value) => formatThousandsVnd(value, currency);
 
@@ -122,24 +126,56 @@ const CartTotal = ({
         <div className="flex justify-between gap-4">
           <p className="text-gray-500">Subtotal</p>
 
-          <p className="font-semibold">{formatPrice(subtotal)}</p>
+          <p className="font-semibold">{formatPrice(checkout.pricing?.subtotal ?? subtotal)}</p>
         </div>
 
         <div className="flex justify-between gap-4">
           <p className="text-gray-500">Shipping</p>
 
           <p className="font-semibold">
-            {subtotal > 0 && shipping === 0 ? "Free" : formatPrice(shipping)}
+            {checkout.ready ? shipping === 0 ? "Free" : formatPrice(shipping) : "—"}
           </p>
         </div>
 
         <hr className="border-gray-200" />
 
+        {discount > 0 && <div className="flex justify-between gap-4 text-green-700">
+          <p>Voucher ({checkout.pricing.voucherCode})</p><p>−{formatPrice(discount)}</p>
+        </div>}
         <div className="flex justify-between gap-4 text-lg">
           <p className="font-semibold">Total</p>
 
-          <p className="font-bold text-secondary">{formatPrice(total)}</p>
+          <p className="font-bold text-secondary">{checkout.ready ? formatPrice(total) : "—"}</p>
         </div>
+      </div>
+
+      <fieldset disabled={isSubmitting} className="mt-6 space-y-3">
+        <legend className="mb-3 font-semibold">Phương thức giao hàng</legend>
+        {(checkout.shippingMethods || [
+          { id: "standard", label: "Giao tiêu chuẩn", description: "Dự kiến 3–5 ngày", fee: 30 },
+          { id: "express", label: "Giao nhanh", description: "Dự kiến 1–2 ngày", fee: 50 },
+        ]).map((option) => <label key={option.id} className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 p-3 text-sm">
+          <input type="radio" name="shippingMethod" checked={checkout.shippingMethod === option.id}
+            onChange={() => checkout.setShippingMethod(option.id)} className="mt-1" />
+          <span>{option.label} · {formatPrice(option.fee)}<span className="block text-xs text-gray-500">{option.description}
+            {option.id === "standard" && " · Miễn phí từ 500.000đ trước giảm giá"}</span></span>
+        </label>)}
+      </fieldset>
+      <div className="mt-5">
+        <label htmlFor="voucher-code" className="text-sm font-semibold">Mã giảm giá</label>
+        <div className="mt-2 flex gap-2">
+          <input id="voucher-code" value={voucherDraft} maxLength={40} disabled={isSubmitting}
+            onChange={(event) => setVoucherDraft(event.target.value.toUpperCase())}
+            placeholder="Nhập mã voucher" className="min-w-0 flex-1 rounded-md border p-2 text-sm" />
+          <button type="button" disabled={isSubmitting || !voucherDraft.trim()} className="btn-outline !rounded-md !px-3"
+            onClick={() => { checkout.setVoucherCode(voucherDraft.trim()); checkout.refresh(); }}>Áp dụng</button>
+        </div>
+        {checkout.voucherCode && <p className="mt-2 break-all text-xs">{checkout.voucherCode}
+          <button type="button" disabled={isSubmitting} onClick={() => { checkout.setVoucherCode(""); setVoucherDraft(""); }} className="ml-2 underline">Bỏ mã</button></p>}
+        <Link to="/membership" className="mt-2 inline-block text-xs text-secondary underline">Xem voucher của tôi</Link>
+        {checkout.loading && <p role="status" className="mt-2 text-sm">Đang tính tổng tiền…</p>}
+        {checkout.error && <div role="alert" className="mt-2 text-sm text-red-600">{checkout.error}
+          <button type="button" onClick={checkout.refresh} className="ml-2 underline">Thử lại</button></div>}
       </div>
 
       {/* Payment method chỉ hiện ở Step 2 */}
@@ -179,12 +215,14 @@ const CartTotal = ({
                 type="radio"
                 name="paymentMethod"
                 value="QR"
+                disabled={checkout.pricing?.amount === 0}
                 checked={method === "QR"}
                 onChange={() => setMethod("QR")}
                 className="mr-2"
               />
               QR Code
             </label>
+            {checkout.pricing?.amount === 0 && <p className="text-sm text-gray-500">Đơn 0đ không cần chuyển khoản. Chọn COD để đặt đơn.</p>}
           </div>
         </>
       )}
@@ -207,7 +245,7 @@ const CartTotal = ({
           <button
             type="submit"
             form="checkout-address-form"
-            disabled={isSubmitting || selectedCount === 0}
+            disabled={isSubmitting || selectedCount === 0 || !checkout.ready}
             className="btn-dark w-full !rounded-md disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting

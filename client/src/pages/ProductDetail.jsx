@@ -16,6 +16,7 @@ import { FREE_SHIPPING_THRESHOLD } from "../utils/orderPricing";
 import { formatThousandsVnd } from "../utils/money";
 import { flyProductToCart } from "../utils/cartAnimation";
 import ProductImage from "../components/ProductImage";
+import ProductReviews from "../components/ProductReviews";
 
 const MAX_QUANTITY_PER_ADD = 10;
 
@@ -259,6 +260,7 @@ const ProductDetail = () => {
       </div>
 
       <ProductFeatures />
+      <ProductReviews key={productId} productId={productId} />
       <RelatedProducts product={product} productId={productId} />
     </div>
   );

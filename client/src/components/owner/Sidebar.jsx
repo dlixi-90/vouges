@@ -7,6 +7,7 @@ const Sidebar = () => {
   const { isOwner, user, profileError, retryUserProfile } = useAppContext();
 
   const navItems = [
+    { path: "/owner/vouchers", label: "Vouchers", icon: assets.list },
     {
       path: "/owner",
       label: "Dashboard",

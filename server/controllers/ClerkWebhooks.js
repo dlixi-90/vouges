@@ -1,5 +1,6 @@
 import User from "../models/User.js"
 import { Webhook } from "svix"
+import { mapClerkProfile } from "../utils/clerkProfile.js"
 
 const clerkWebhooks = async (req, res)=>{
     try {
@@ -24,24 +25,11 @@ const clerkWebhooks = async (req, res)=>{
 
         // Switch Cases for diferent Events
         switch (type) {
-            case "user.created":{
-                const userData = {
-                    _id: data.id,
-                    email: data.email_addresses[0].email_address,
-                    username: data.first_name + " " + data.last_name, 
-                    image: data.image_url,
-                }
-                await User.create(userData)
-                break;
-            }
+            case "user.created":
             case "user.updated":{
-                const userData = {
-                    _id: data.id,
-                    email: data.email_addresses[0].email_address,
-                    username: data.first_name + " " + data.last_name, 
-                    image: data.image_url,
-                }
-                await User.findByIdAndUpdate(data.id, userData)
+                await User.findByIdAndUpdate(data.id, { $set: mapClerkProfile(data) }, {
+                    upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true,
+                })
                 break;
             }
             case "user.deleted":{

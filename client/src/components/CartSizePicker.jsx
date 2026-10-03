@@ -62,6 +62,7 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
   };
 
   const confirmSize = async () => {
+    if (disabled || !canConfirm) return;
     if (draftSize === size) return closePopup();
     const result = await onConfirm(draftSize);
     if (result?.success) closePopup();
@@ -107,7 +108,6 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
                 const required = quantity + (option === size ? 0 : Number(quantities?.[option] ?? 0));
                 const available = product.sizes.includes(option) && isSizeAvailable(product, option);
                 const enoughStock = required <= getSizeQuantity(product, option);
-                const unavailable = !available || !enoughStock;
                 const reason = !available ? "Out of stock" : !enoughStock ? "Insufficient stock" : "";
                 return (
                   <button
@@ -116,7 +116,7 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
                     aria-pressed={draftSize === option}
                     aria-label={`Size ${option}${reason ? `, ${reason}` : ""}`}
                     title={reason || `Size ${option}`}
-                    disabled={disabled || (option !== size && unavailable)}
+                    disabled={disabled || (option !== size && !available)}
                     onClick={() => setDraftSize(option)}
                     className={`relative min-w-14 cursor-pointer rounded-md border px-4 py-2 transition disabled:cursor-not-allowed disabled:opacity-40 ${draftSize === option ? "border-secondary bg-secondary/5 font-semibold text-secondary" : "border-gray-200 hover:border-secondary"}`}
                   >
@@ -129,7 +129,15 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
           </div>
           <p className="mt-5" aria-live="polite">Stock: {isSizeAvailable(product, draftSize) ? getSizeQuantity(product, draftSize) : 0}</p>
           {draftSize !== size && Number(quantities?.[draftSize] ?? 0) > 0 && (
-            <p className="mt-2">This size is already in your cart. The quantities will be combined.</p>
+            <p className="mt-2" aria-live="polite">
+              {quantity} + {Number(quantities[draftSize])} = {requiredQuantity} items of {draftSize}.
+              The existing {draftSize} row will be combined into this row.
+            </p>
+          )}
+          {draftSize !== size && isSizeAvailable(product, draftSize) && !canConfirm && (
+            <p className="mt-2 text-red-600" role="alert">
+              This change requires {requiredQuantity} items of {draftSize}, but only {getSizeQuantity(product, draftSize)} are in stock.
+            </p>
           )}
         </div>
         <div className="flex justify-end gap-3 border-t border-gray-100 p-5">

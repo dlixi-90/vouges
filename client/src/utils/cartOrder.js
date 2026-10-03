@@ -21,6 +21,9 @@ export const setCartLineAddedAt = (timestamps, productId, size, addedAt) => ({
   [productId]: { ...timestamps[productId], [size]: addedAt },
 });
 
+// A size change carries the source's addedAt, so its React row survives a merge.
+export const getCartRowKey = (item) => `${item._id}::${item.addedAt}`;
+
 // Replacing a size must not delete and reinsert the product itself.
 export const moveCartSize = (cartItems, productId, fromSize, toSize, quantity) => {
   const next = structuredClone(cartItems);

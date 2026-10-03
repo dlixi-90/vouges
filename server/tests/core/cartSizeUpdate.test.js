@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { persistCartSizeChange } from "../../../client/src/utils/cartSizeUpdate.js";
-import { getOrderedCartItems } from "../../../client/src/utils/cartOrder.js";
+import { getCartRowKey, getOrderedCartItems } from "../../../client/src/utils/cartOrder.js";
 
 const setup = () => {
   let resolve, reject;
@@ -44,3 +44,24 @@ test("sign-out never writes a late size result or rollback into the next account
   await assert.rejects(request, { name: "AbortError" });
   assert.equal(changes.length, 1);
 });
+
+for (const [fromSize, toSize, sourceNewer] of [["200ml", "400ml", false], ["400ml", "200ml", true]]) {
+  test(`merging ${fromSize} into ${toSize} keeps the edited row's identity, quantity and position`, async () => {
+    const cartItems = { product: { "200ml": 1, "400ml": 2 }, other: { "100ml": 1 } };
+    const cartAddedAt = { product: { [fromSize]: sourceNewer ? 300 : 100, [toSize]: sourceNewer ? 100 : 300 }, other: { "100ml": 200 } };
+    const before = getOrderedCartItems(cartItems, cartAddedAt);
+    const source = before.find((item) => item._id === "product" && item.size === fromSize);
+    const target = before.find((item) => item._id === "product" && item.size === toSize);
+    let merged;
+    await persistCartSizeChange({ itemId: "product", fromSize, toSize, cartItems, cartAddedAt,
+      addedAt: source.addedAt, signal: new AbortController().signal,
+      apply: (state) => { merged = state; }, send: async () => ({ quantity: 3, addedAt: source.addedAt }) });
+    assert.deepEqual(merged.sizes, { [toSize]: 3 });
+    const after = getOrderedCartItems({ ...cartItems, product: merged.sizes }, { ...cartAddedAt, product: merged.timestamps });
+    const remaining = after.find((item) => item._id === "product");
+    assert.equal(getCartRowKey(remaining), getCartRowKey(source));
+    assert.ok(after.every((item) => getCartRowKey(item) !== getCartRowKey(target)));
+    assert.deepEqual(after.map((item) => item._id), sourceNewer ? ["product", "other"] : ["other", "product"]);
+    assert.deepEqual(cartItems.product, { "200ml": 1, "400ml": 2 });
+  });
+}

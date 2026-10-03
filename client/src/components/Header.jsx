@@ -31,7 +31,6 @@ const Header = () => {
   const [menuOpened, setMenuOpened] = useState(false);
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
   const [hasOpenedAIChat, setHasOpenedAIChat] = useState(false);
-
   const { openSignIn } = useClerk();
 
   const { navigate, openCart, user, getCartCount, isOwner } = useAppContext();
@@ -136,6 +135,8 @@ const Header = () => {
                   }}
                 >
                   <UserButton.MenuItems>
+                    <UserButton.Action label="Thành viên & voucher" labelIcon={<OrdersIcon />}
+                      onClick={() => navigate("/membership")} />
                     <UserButton.Action
                       label="My Orders"
                       labelIcon={<OrdersIcon />}
@@ -145,7 +146,7 @@ const Header = () => {
                 </UserButton>
               ) : (
                 <button
-                  onClick={openSignIn}
+                  onClick={() => openSignIn()}
                   className="btn-secondary flexCenter gap-2 rofunded-full"
                 >
                   Login

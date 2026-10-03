@@ -11,6 +11,16 @@ export const getAvailableCartItems = (items, products) => {
   });
 };
 
+// Keep the saved order within each group; availability only changes display order.
+export const sortCartItemsByAvailability = (items, products) => {
+  const availableItems = getAvailableCartItems(items, products);
+  const availableSet = new Set(availableItems);
+  return [
+    ...availableItems,
+    ...items.filter((item) => !availableSet.has(item)),
+  ];
+};
+
 export const changeSizeSelection = (deselected, productId, fromSize, toSize, targetExists) => {
   const sourceKey = getCartItemKey(productId, fromSize);
   const targetKey = getCartItemKey(productId, toSize);

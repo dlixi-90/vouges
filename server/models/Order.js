@@ -14,6 +14,12 @@ const orderSchema = new mongoose.Schema(
       },
     ],
     amount: { type: Number, required: true },
+    subtotal: { type: Number },
+    shipping: { type: Number },
+    shippingMethod: { type: String, enum: ["standard", "express"], default: "standard" },
+    discount: { type: Number, default: 0 },
+    voucherId: { type: mongoose.Schema.Types.ObjectId, ref: "Voucher", default: null },
+    voucherCode: { type: String, default: "" },
     address: { type: String, required: true, ref: "Address" },
     status: {
       type: String,

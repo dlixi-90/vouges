@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Package } from "lucide-react";
+import { Link } from "react-router-dom";
 import Title from "../components/Title";
 import { useAppContext } from "../context/AppContext";
 import { formatThousandsVnd } from "../utils/money";
@@ -171,6 +172,8 @@ const CustomerOrderCard = ({ order, currency }) => {
                       <p className="truncate text-sm font-semibold text-[#263b4a]">
                         {productTitle}
                       </p>
+                      {order.status === "Delivery" && product._id && <Link to={`/collection/${product._id}#reviews`}
+                        className="mt-1 inline-block text-xs text-secondary underline">Đánh giá sản phẩm</Link>}
                       <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px] text-[#69747e]">
                         <span className="rounded-md bg-[#f1f4f2] px-2 py-1">
                           Size: <b className="text-[#263b4a]">{item.size}</b>
@@ -202,6 +205,14 @@ const CustomerOrderCard = ({ order, currency }) => {
           </h4>
 
           <dl className="mt-4 space-y-4">
+            {order.shipping !== undefined && <div>
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Giao hàng</dt>
+              <dd className="mt-1 text-sm">{order.shippingMethod === "express" ? "Giao nhanh" : "Giao tiêu chuẩn"} · {formatThousandsVnd(order.shipping, currency)}</dd>
+            </div>}
+            {order.discount > 0 && <div>
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Voucher {order.voucherCode}</dt>
+              <dd className="mt-1 text-sm text-green-700">−{formatThousandsVnd(order.discount, currency)}</dd>
+            </div>}
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
                 Customer

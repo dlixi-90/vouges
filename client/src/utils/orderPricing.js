@@ -1,4 +1,4 @@
-export const FREE_SHIPPING_THRESHOLD = 1000;
+export const FREE_SHIPPING_THRESHOLD = 500;
 
 export const getShippingCharge = (subtotal, deliveryCharge) => {
   const normalizedSubtotal = Number(subtotal);

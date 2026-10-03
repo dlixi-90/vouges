@@ -8,7 +8,7 @@ import { getCartAddedAt } from "../../utils/cartOrder.js";
 import { getOrderedCartItems, moveCartSize, setCartLineAddedAt } from "../../../client/src/utils/cartOrder.js";
 import cartRouter from "../../routes/cartRoute.js";
 import authUser from "../../middleware/authMiddleware.js";
-import { changeSizeSelection, getCartItemKey, getAvailableCartItems } from "../../../client/src/utils/cartSelection.js";
+import { changeSizeSelection, getCartItemKey, getAvailableCartItems, sortCartItemsByAvailability } from "../../../client/src/utils/cartSelection.js";
 
 test("cart checkout excludes unavailable lines without removing or reordering the saved cart", () => {
   const items = ["S", "M", "L", "XL"].map((size) => ({ _id: "product", size }));
@@ -24,6 +24,44 @@ test("cart checkout excludes unavailable lines without removing or reordering th
   assert.deepEqual(getAvailableCartItems(items, [{ ...product, inStock: false }]), []);
   assert.deepEqual(getAvailableCartItems(items, [{ ...product, isDeleted: true }]), []);
   assert.deepEqual(getAvailableCartItems(items, []), []);
+});
+
+test("all sold-out cart lines move after available lines, preserving each group's added order and saved data", () => {
+  const cartItems = { first: { S: 1, M: 2 }, second: { S: 1 }, third: { S: 1 } };
+  const timestamps = { first: { S: 400, M: 300 }, second: { S: 200 }, third: { S: 100 } };
+  const before = structuredClone({ cartItems, timestamps });
+  const rows = getOrderedCartItems(cartItems, timestamps);
+  const products = [
+    { _id: "first", inStock: true, sizes: ["S", "M"], stockBySize: { S: 0, M: 5 } },
+    { _id: "second", inStock: false, sizes: ["S"], stockBySize: { S: 3 } },
+    { _id: "third", inStock: true, sizes: ["S"], stockBySize: { S: 4 } },
+  ];
+  assert.deepEqual(sortCartItemsByAvailability(rows, products), [rows[1], rows[3], rows[0], rows[2]]);
+  assert.deepEqual(rows, getOrderedCartItems(cartItems, timestamps));
+  assert.deepEqual({ cartItems, timestamps }, before);
+});
+
+test("cart display moves newly sold-out variants down and restores added order after restocking", () => {
+  const rows = [{ _id: "product", size: "S" }, { _id: "product", size: "M" }, { _id: "other", size: "S" }];
+  const product = { _id: "product", inStock: true, sizes: ["S", "M"], stockBySize: { S: 2, M: 3 } };
+  const other = { _id: "other", inStock: true, sizes: ["S"], stockBySize: { S: 2 } };
+  assert.deepEqual(sortCartItemsByAvailability(rows, [product, other]), rows);
+  product.stockBySize.S = 0;
+  assert.deepEqual(sortCartItemsByAvailability(rows, [product, other]), [rows[1], rows[2], rows[0]]);
+  other.stockBySize.S = 0;
+  assert.deepEqual(sortCartItemsByAvailability(rows, [product, other]), [rows[1], rows[0], rows[2]]);
+  product.stockBySize.S = 2; other.stockBySize.S = 2;
+  assert.deepEqual(sortCartItemsByAvailability(rows, [product, other]), rows);
+});
+
+test("disabled, removed and missing variants also stay at the end, including an entirely unavailable cart", () => {
+  const rows = ["S", "M", "L"].map((size) => ({ _id: "product", size }));
+  rows.push({ _id: "missing", size: "S" });
+  const product = { _id: "product", inStock: true, sizes: ["S", "M"],
+    stockBySize: { S: 3, M: 3, L: 3 }, inStockBySize: { S: false, M: true } };
+  assert.deepEqual(sortCartItemsByAvailability(rows, [product]), [rows[1], rows[0], rows[2], rows[3]]);
+  assert.deepEqual(sortCartItemsByAvailability(rows, []), rows);
+  assert.deepEqual(sortCartItemsByAvailability([], [product]), []);
 });
 
 test("refreshed stock removes a previously selected size from checkout while keeping other sizes", () => {
@@ -298,6 +336,27 @@ test("merging into another size retains the position of the edited line", async 
   assert.equal(user.cartData[id].M, 2);
   assert.equal(user.cartAddedAt[id].M, sourceTimestamp);
   assert.deepEqual(lineKeys(user.cartData, user.cartAddedAt), [`${secondId}:S`, `${id}:M`]);
+});
+
+test("merging the customer's 200ml/400ml example adds both quantities and survives profile reload in either direction", async (t) => {
+  const { user, call } = mockCartStorage(t, {
+    cartData: { [id]: { "200ml": 1, "400ml": 2 }, [secondId]: { S: 1 } },
+    cartAddedAt: { [id]: { "200ml": 100, "400ml": 300 }, [secondId]: { S: 200 } },
+  });
+  t.mock.method(Product, "findOne", async () => ({ sizes: ["200ml", "400ml"], inStock: true,
+    stockBySize: { "200ml": 10, "400ml": 10 } }));
+  await call(changeCartSize, { itemId: id, fromSize: "200ml", toSize: "400ml", fromQuantity: 1, toQuantity: 2 });
+  assert.deepEqual(user.cartData[id], { "400ml": 3 });
+  let restored = await call(getUserProfile);
+  assert.deepEqual(restored.cartData[id], { "400ml": 3 });
+  assert.deepEqual(lineKeys(restored.cartData, restored.cartAddedAt), [`${secondId}:S`, `${id}:400ml`]);
+
+  user.cartData[id] = { "200ml": 1, "400ml": 2 };
+  user.cartAddedAt[id] = { "200ml": 100, "400ml": 300 };
+  await call(changeCartSize, { itemId: id, fromSize: "400ml", toSize: "200ml", fromQuantity: 2, toQuantity: 1 });
+  restored = await call(getUserProfile);
+  assert.deepEqual(restored.cartData[id], { "200ml": 3 });
+  assert.deepEqual(lineKeys(restored.cartData, restored.cartAddedAt), [`${id}:200ml`, `${secondId}:S`]);
 });
 
 test("legacy carts preserve their baseline through size edits and later new additions", async (t) => {

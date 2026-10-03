@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { Check, ImagePlus, PackagePlus, Plus, X } from "lucide-react";
+import { ImagePlus, PackagePlus, Plus, X } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import { useLocation, useParams } from "react-router-dom";
 import {

@@ -12,10 +12,12 @@ import {
   getCartItemKey,
   changeSizeSelection,
   getAvailableCartItems,
+  sortCartItemsByAvailability,
 } from "../utils/cartSelection";
 import { getSizeQuantity } from "../utils/productStock";
 import { initialCheckoutAddress } from "../utils/checkoutAddress";
-import { getOrderedCartItems } from "../utils/cartOrder";
+import { getCartRowKey, getOrderedCartItems } from "../utils/cartOrder";
+import useCheckoutQuote from "../hooks/useCheckoutQuote";
 
 const CartTotal = lazy(() => import("../components/CartTotal"));
 const QrPaymentStatus = lazy(() => import("../components/QrPaymentStatus"));
@@ -94,7 +96,10 @@ const Cart = () => {
   const cartData = useMemo(() => {
     if (products.length === 0) return [];
 
-    return getOrderedCartItems(cartItems, cartAddedAt);
+    return sortCartItemsByAvailability(
+      getOrderedCartItems(cartItems, cartAddedAt),
+      products,
+    );
   }, [products, cartItems, cartAddedAt]);
 
   const availableCartData = useMemo(
@@ -135,6 +140,7 @@ const Cart = () => {
   const allItemsSelected =
     availableCartData.length > 0 &&
     selectedItemKeys.size === availableCartData.length;
+  const checkout = useCheckoutQuote(selectedItemKeys, currentStep !== 3);
   const someItemsSelected =
     selectedItemKeys.size > 0 &&
     selectedItemKeys.size < availableCartData.length;
@@ -353,7 +359,7 @@ const Cart = () => {
 
                   return (
                     <div
-                      key={itemKey}
+                      key={getCartRowKey(item)}
                       className={`grid grid-cols-[32px_minmax(0,1fr)_40px] items-center gap-x-2 gap-y-4 rounded-xl px-3 py-5 transition sm:gap-x-3 sm:px-4 lg:grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] lg:py-6 ${isUnavailable ? "bg-white/40 [&>div]:opacity-50" : isSelected ? "bg-white" : "bg-white/60"}`}
                     >
                       <div className="col-start-1 row-start-1">
@@ -551,6 +557,7 @@ const Cart = () => {
         <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_379px] xl:items-start">
           {/* Address Form bên trái */}
           <CheckoutAddressForm
+            checkout={checkout}
             onOrderCreated={handleOrderCreated}
             isSubmitting={isSubmitting}
             setIsSubmitting={setIsSubmitting}
@@ -563,6 +570,7 @@ const Cart = () => {
           <aside className="w-full xl:w-[379px]">
             <div className="w-full rounded-xl bg-white p-5 py-8 xl:sticky xl:top-28">
               <CartTotal
+                checkout={checkout}
                 currentStep={2}
                 isSubmitting={isSubmitting || isUpdatingCart}
                 selectedItemKeys={selectedItemKeys}

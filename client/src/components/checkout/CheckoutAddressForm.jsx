@@ -16,6 +16,7 @@ import DeliveryAddressFields from "./DeliveryAddressFields";
 import AddressBookDialog from "./AddressBookDialog";
 
 const CheckoutAddressForm = ({
+  checkout,
   onOrderCreated,
   isSubmitting,
   setIsSubmitting,
@@ -224,6 +225,8 @@ const CheckoutAddressForm = ({
     if (hasPendingCartUpdates()) return toast.error("Please wait for cart changes to finish saving");
 
     if (isSubmitting || submitRef.current) return;
+    if (!checkout.ready) return toast.error("Vui lòng chờ kiểm tra tổng tiền và voucher.");
+    if (method === "QR" && checkout.pricing.amount === 0) return toast.error("Đơn 0đ: vui lòng chọn COD để đặt đơn.");
     if (isLoadingAddresses || addressLoadError)
       return toast.error("Please load your saved addresses before checkout.");
     if (isAddressBookOpen) return;
@@ -261,6 +264,9 @@ const CheckoutAddressForm = ({
         {
           items,
           address: addressId,
+          shippingMethod: checkout.shippingMethod,
+          voucherCode: checkout.voucherCode,
+          expectedAmount: checkout.pricing.amount,
         },
         {
           headers: {
@@ -297,6 +303,7 @@ const CheckoutAddressForm = ({
       );
       await fetchProducts();
     } finally {
+      checkout.refresh();
       submitRef.current = false;
       setIsSubmitting(false);
     }

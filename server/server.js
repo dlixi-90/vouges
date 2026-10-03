@@ -12,6 +12,8 @@ import addressRouter from "./routes/addressRoute.js";
 import cartRouter from "./routes/cartRoute.js";
 import orderRouter from "./routes/orderRoute.js";
 import aiRouter from "./routes/aiRoute.js";
+import voucherRouter from "./routes/voucherRoute.js";
+import { awardBirthdays } from "./controllers/voucherController.js";
 import multer from "multer";
 
 await connectDB(); // Establish connection to the database
@@ -29,6 +31,8 @@ app.use(
   clerkWebhooks,
 );
 app.use(express.json()); //Enables JSON request body parsing
+// Cron uses its own bearer secret, not a Clerk session token.
+app.get("/api/vouchers/birthdays", awardBirthdays);
 app.use(clerkMiddleware());
 
 // Define API Routes
@@ -38,6 +42,7 @@ app.use("/api/categories", categoryRouter);
 app.use("/api/addresses", addressRouter); // Routes for handling addresses
 app.use("/api/cart", cartRouter); // Routes for handling cart
 app.use("/api/orders", orderRouter);
+app.use("/api/vouchers", voucherRouter);
 app.use("/api/ai", aiRouter); // Routes for handling order
 
 // Route Endpoint to check API Status

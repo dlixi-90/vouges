@@ -6,7 +6,8 @@ import crypto from "crypto";
 import Address from "../models/Address.js";
 import mongoose, { isObjectIdOrHexString } from "mongoose";
 import { getSizeQuantity, isSizeAvailable } from "../utils/productStock.js";
-import { getOrderTotal } from "../utils/orderPricing.js";
+import { getShippingCharge, SHIPPING_METHODS } from "../utils/orderPricing.js";
+import { validateVoucher, calculateDiscount, reserveVoucher, releaseVoucher } from "../services/voucherService.js";
 import { getCartAddedAt } from "../utils/cartOrder.js";
 import { validateDeliveryPhone } from "../utils/deliveryPhone.js";
 import { buildOrderConfirmationEmail } from "../emails/orderConfirmation.js";
@@ -220,6 +221,31 @@ const createOrderItemSnapshots = (validatedOrder) =>
     };
   });
 
+const priceOrder = async (subtotal, body, userId, session) => {
+  const shippingMethod = body.shippingMethod ?? "standard";
+  const shipping = getShippingCharge(subtotal, shippingMethod);
+  const voucher = await validateVoucher(body.voucherCode, userId, subtotal, session);
+  const discount = voucher ? calculateDiscount(voucher, subtotal) : 0;
+  const amount = Math.round((subtotal - discount + shipping) * 1000) / 1000;
+  return { subtotal, shippingMethod, shipping, discount, amount,
+    voucherId: voucher?._id || null, voucherCode: voucher?.code || "", voucher };
+};
+
+const checkQuotedAmount = (body, pricing) => {
+  if (body.expectedAmount !== undefined &&
+      (typeof body.expectedAmount !== "number" || !Number.isFinite(body.expectedAmount) ||
+       Math.round(body.expectedAmount * 1000) !== Math.round(pricing.amount * 1000)))
+    throw new OrderRequestError("Giá trị đơn hàng đã thay đổi. Vui lòng kiểm tra lại tổng tiền.", 409);
+};
+
+export const quoteOrder = async (req, res) => {
+  try {
+    const validated = await validateOrderItems(req.body.items);
+    const { voucher: _voucher, ...pricing } = await priceOrder(validated.subtotal, req.body, req.user._id);
+    return res.json({ success: true, pricing, shippingMethods: SHIPPING_METHODS });
+  } catch (error) { return sendOrderError(res, error); }
+};
+
 const syncProductStockStatus = (product, restoredSizes = new Set()) => {
   const inStockBySize = {};
 
@@ -360,6 +386,7 @@ const expireQrOrder = async (orderId) => {
     if (!order) return false;
 
     await restoreOrderStock(order, session);
+    await releaseVoucher(order, session);
     order.status = "Payment Expired";
     await order.save({ session });
 
@@ -385,6 +412,7 @@ const releaseExpiredQrReservations = async () => {
 
     for (const order of expiredOrders) {
       await restoreOrderStock(order, session);
+      await releaseVoucher(order, session);
       order.status = "Payment Expired";
       await order.save({ session });
     }
@@ -407,7 +435,8 @@ export const placeOrderCOD = async (req, res) => {
         session,
       );
       const validatedOrder = await validateOrderItems(items, session);
-      const totalAmount = getOrderTotal(validatedOrder.subtotal);
+      const { voucher, ...pricing } = await priceOrder(validatedOrder.subtotal, req.body, userId, session);
+      checkQuotedAmount(req.body, pricing);
       const orderItems = createOrderItemSnapshots(validatedOrder);
 
       await reserveOrderStock(validatedOrder, session);
@@ -417,13 +446,15 @@ export const placeOrderCOD = async (req, res) => {
           {
             userId,
             items: orderItems,
-            amount: totalAmount,
+            ...pricing,
             address: selectedAddress._id,
             paymentMethod: "COD",
           },
         ],
         { session },
       );
+
+      await reserveVoucher(voucher, userId, order._id, session);
 
       await removeOrderItemsFromCart(
         userId,
@@ -440,7 +471,7 @@ export const placeOrderCOD = async (req, res) => {
     const user = await User.findById(userId);
 
     try {
-      await transporter.sendMail({
+      if (user.email) await transporter.sendMail({
         from: { name: "Velours", address: process.env.SMTP_SENDER_EMAIL },
         to: user.email,
         ...buildOrderConfirmationEmail(populatedOrder),
@@ -527,11 +558,13 @@ export const placeOrderQr = async (req, res) => {
         session,
       );
       const validatedOrder = await validateOrderItems(items, session);
-      const totalAmount = getOrderTotal(validatedOrder.subtotal);
+      const { voucher, ...pricing } = await priceOrder(validatedOrder.subtotal, req.body, userId, session);
+      checkQuotedAmount(req.body, pricing);
+      if (pricing.amount <= 0) throw new OrderRequestError("Đơn hàng 0đ không cần chuyển khoản. Vui lòng chọn COD để đặt đơn.");
       const orderItems = createOrderItemSnapshots(validatedOrder);
 
       // Giá trong project đang biểu diễn 30 = 30.000 VNĐ.
-      const qrAmount = Math.round(totalAmount * 1000);
+      const qrAmount = Math.round(pricing.amount * 1000);
 
       await reserveOrderStock(validatedOrder, session);
 
@@ -540,7 +573,7 @@ export const placeOrderQr = async (req, res) => {
           {
             userId,
             items: orderItems,
-            amount: totalAmount,
+            ...pricing,
             address: selectedAddress._id,
             paymentMethod: "QR",
             paymentCode,
@@ -553,6 +586,7 @@ export const placeOrderQr = async (req, res) => {
         { session },
       );
 
+      await reserveVoucher(voucher, userId, createdOrder._id, session);
       return createdOrder.toObject();
     });
 
@@ -683,6 +717,7 @@ export const cancelQrOrder = async (req, res) => {
       }
 
       const stockUpdates = await restoreOrderStock(order, session);
+      await releaseVoucher(order, session);
       order.status = "Payment Cancelled";
       order.paymentExpiresAt = new Date();
       await order.save({ session });
@@ -792,6 +827,13 @@ export const sepayWebhook = async (req, res) => {
       order.paidAt = new Date();
 
       if (order.status === "Payment Expired") {
+        // Its voucher reservation has been released and may have been reused.
+        // Record the transfer for owner review without spending that voucher twice.
+        if (order.voucherId) {
+          order.status = "Payment Review";
+          await order.save({ session });
+          return "review";
+        }
         try {
           const validatedOrder = await validateOrderItems(order.items, session);
 

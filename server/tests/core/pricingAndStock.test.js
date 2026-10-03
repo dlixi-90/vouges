@@ -9,11 +9,13 @@ import { hasAnyEnabledSize } from "../../utils/productStock.js";
 import Product from "../../models/Product.js";
 import { toggleStock } from "../../controllers/productController.js";
 
-test("shipping is free only from the one-million-VND threshold", () => {
-  assert.equal(FREE_SHIPPING_THRESHOLD, 1000);
-  assert.equal(getShippingCharge(999.99), 30);
-  assert.equal(getShippingCharge(1000), 0);
-  assert.equal(getOrderTotal(1000), 1000);
+test("standard shipping is free from 500,000 VND; express retains its fee", () => {
+  assert.equal(FREE_SHIPPING_THRESHOLD, 500);
+  assert.equal(getShippingCharge(499.99), 30);
+  assert.equal(getShippingCharge(500), 0);
+  assert.equal(getOrderTotal(500), 500);
+  assert.equal(getShippingCharge(1000, "express"), 50);
+  assert.throws(() => getShippingCharge(500, "unknown"), /không hợp lệ/);
 });
 
 test("master stock follows whether at least one stocked size is enabled", () => {

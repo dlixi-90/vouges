@@ -11,6 +11,8 @@ const Blog = lazy(() => import("./pages/Blog"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Cart = lazy(() => import("./pages/Cart"));
 const MyOrders = lazy(() => import("./pages/MyOrders"));
+const Membership = lazy(() => import("./pages/Membership"));
+const Vouchers = lazy(() => import("./pages/owner/Vouchers"));
 const Sidebar = lazy(() => import("./components/owner/Sidebar"));
 const Dashboard = lazy(() => import("./pages/owner/Dashboard"));
 const AddProduct = lazy(() => import("./pages/owner/AddProduct"));
@@ -39,11 +41,13 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/membership" element={<Membership />} />
           <Route path="/owner" element={<Sidebar />}>
             <Route index element={<Dashboard />} />
             <Route path="add-product" element={<AddProduct />} />
             <Route path="add-category" element={<AddCategory />} />
             <Route path="list-product" element={<ListProduct />} />
+            <Route path="vouchers" element={<Vouchers />} />
             <Route path="edit-product/:productId" element={<AddProduct />} />
           </Route>
         </Routes>
