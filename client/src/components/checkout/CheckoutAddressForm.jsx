@@ -313,10 +313,17 @@ const CheckoutAddressForm = ({
     <form
       id="checkout-address-form"
       onSubmit={handleSubmit}
-      className="rounded-xl bg-white p-6 md:p-8"
+      className="relative overflow-hidden rounded-xl bg-white p-5 sm:p-6"
     >
-      <p className="text-sm uppercase tracking-wider text-gray-400">Checkout</p>
-      <h2 className="mt-1 text-2xl font-semibold">Delivery Information</h2>
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-1"
+        style={{ background: "repeating-linear-gradient(135deg, #41334e 0 24px, #fff 24px 40px, #b5adcb 40px 64px, #fff 64px 80px)" }}
+      />
+      <h2 className="flex items-center gap-2 text-lg font-semibold text-secondary">
+        <MapPin size={20} aria-hidden="true" />
+        Delivery Address
+      </h2>
 
       {isLoadingAddresses ? (
         <p className="mt-8" role="status">
@@ -334,36 +341,30 @@ const CheckoutAddressForm = ({
           </button>
         </div>
       ) : address._id ? (
-        <div className="mt-6 rounded-xl border border-gray-200 bg-primary/50 p-5">
-          <div className="flex items-start gap-3">
-            <MapPin size={21} className="mt-0.5 shrink-0 text-secondary" />
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="font-semibold">
-                  {address.firstName} {address.lastName}
-                </span>
-                <span className="text-sm font-medium">
-                  {validateDeliveryPhone(address.phone).normalized ||
-                    address.phone}
-                </span>
-              </div>
-              <p className="mt-2 break-words !leading-relaxed">
-                {[address.street, address.state, address.city, address.country]
-                  .filter(Boolean)
-                  .join(", ")}
-              </p>
-              {address.isDefault && (
-                <span className="mt-3 inline-block rounded border border-secondary/25 bg-secondary/5 px-2 py-0.5 text-xs text-secondary">
-                  Default
-                </span>
-              )}
-            </div>
+        <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-4">
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span className="break-words font-semibold">
+              {address.firstName} {address.lastName}
+            </span>
+            <span className="text-sm font-medium">
+              {validateDeliveryPhone(address.phone).normalized || address.phone}
+            </span>
           </div>
+          <p className="min-w-0 flex-1 basis-64 break-words !leading-relaxed">
+            {[address.street, address.state, address.city, address.country]
+              .filter(Boolean)
+              .join(", ")}
+          </p>
+          {address.isDefault && (
+            <span className="inline-block rounded border border-secondary/25 bg-secondary/5 px-2 py-0.5 text-xs text-secondary">
+              Default
+            </span>
+          )}
           <button
             type="button"
             disabled={isSubmitting}
             onClick={() => setIsAddressBookOpen(true)}
-            className="btn-outline mt-5 !rounded-md disabled:opacity-40"
+            className="cursor-pointer rounded-md px-2 py-2 text-sm font-medium text-secondary underline underline-offset-4 disabled:opacity-40"
           >
             Change Address
           </button>

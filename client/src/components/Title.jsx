@@ -3,8 +3,6 @@ const Title = ({
   title2,
   titleStyles,
   title1Styles,
-  paraStyles,
-  para,
 }) => {
   return (
     <div className={titleStyles}>

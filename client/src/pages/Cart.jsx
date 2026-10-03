@@ -1,9 +1,10 @@
-import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Check } from "lucide-react";
 import Title from "../components/Title";
 import CartSteps from "../components/CartSteps";
 import CartSizePicker from "../components/CartSizePicker";
+import CartActionBar from "../components/CartActionBar";
 import ProductImage from "../components/ProductImage";
 import { useAppContext } from "../context/AppContext";
 import { assets } from "../assets/data";
@@ -93,7 +94,7 @@ const Cart = () => {
   const selectAllRef = useRef(null);
   const footerSelectAllRef = useRef(null);
   const cartContentRef = useRef(null);
-  const cartActionsRef = useRef(null);
+  const checkoutContentRef = useRef(null);
 
   const cartData = useMemo(() => {
     if (products.length === 0) return [];
@@ -103,43 +104,6 @@ const Cart = () => {
       products,
     );
   }, [products, cartItems, cartAddedAt]);
-  const hasCartItems = cartData.length > 0;
-
-  useLayoutEffect(() => {
-    if (currentStep !== 1 || !hasCartItems) return undefined;
-    const content = cartContentRef.current;
-    const actions = cartActionsRef.current;
-    if (!content || !actions) return undefined;
-
-    let frameId = null;
-    const updateActionsPosition = () => {
-      if (frameId !== null) window.cancelAnimationFrame(frameId);
-      frameId = null;
-      // Stop at the end of the cart so the bar scrolls away above the footer.
-      const bottomOffset = Math.max(0, window.innerHeight - content.getBoundingClientRect().bottom);
-      actions.style.bottom = `${bottomOffset}px`;
-    };
-    const scheduleActionsPosition = () => {
-      if (frameId === null) frameId = window.requestAnimationFrame(updateActionsPosition);
-    };
-    const updateActionsLayout = () => {
-      // Reserve the bar's actual height, including wrapped controls on mobile.
-      content.style.paddingBottom = `${Math.ceil(actions.getBoundingClientRect().height) + 20}px`;
-      updateActionsPosition();
-    };
-    updateActionsLayout();
-    const observer = new ResizeObserver(updateActionsLayout);
-    observer.observe(actions);
-    observer.observe(content);
-    window.addEventListener("scroll", scheduleActionsPosition, { passive: true });
-    window.addEventListener("resize", scheduleActionsPosition);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("scroll", scheduleActionsPosition);
-      window.removeEventListener("resize", scheduleActionsPosition);
-      if (frameId !== null) window.cancelAnimationFrame(frameId);
-    };
-  }, [currentStep, hasCartItems]);
 
   const availableCartData = useMemo(
     () => getAvailableCartItems(cartData, products),
@@ -371,7 +335,7 @@ const Cart = () => {
       {/* STEP 1 */}
       {currentStep === 1 && (
         <section className="min-w-0 text-[95%]">
-          <Title title1="Cart" title2="Overview" title1Styles="pb-5" />
+          <Title title1="Cart" title2="Overview" title1Styles="pb-10" />
           {cartData.length > 0 ? (
             <div ref={cartContentRef}>
               <div className="hidden shrink-0 grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] items-center gap-3 rounded-xl bg-white px-4 py-3 lg:grid">
@@ -536,8 +500,7 @@ const Cart = () => {
                 })}
               </div>
 
-              <div ref={cartActionsRef} className="max-padd-container fixed inset-x-0 bottom-0 z-40">
-              <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-t-xl border border-secondary/10 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(0,0,0,0.08)] sm:p-5 sm:pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+              <CartActionBar contentRef={cartContentRef}>
                 <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                   <div className="flex items-center gap-1">
                     <CartCheckbox
@@ -591,8 +554,7 @@ const Cart = () => {
                     {isUpdatingCart ? "Saving changes..." : "Proceed to Checkout"}
                   </button>
                 </div>
-              </div>
-              </div>
+              </CartActionBar>
             </div>
           ) : (
             <div className="rounded-xl bg-white px-6 py-16 text-center">
@@ -615,34 +577,27 @@ const Cart = () => {
       {/* STEP 2 */}
       {currentStep === 2 && (
         <Suspense fallback={<p role="status" className="py-12 text-center">Loading checkout...</p>}>
-        <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_379px] xl:items-start">
-          {/* Address Form bên trái */}
-          <CheckoutAddressForm
-            checkout={checkout}
-            onOrderCreated={handleOrderCreated}
-            isSubmitting={isSubmitting}
-            setIsSubmitting={setIsSubmitting}
-            selectedItemKeys={selectedItemKeys}
-            address={checkoutAddress}
-            setAddress={setCheckoutAddress}
-          />
-
-          {/* CartTotal vẫn bên phải */}
-          <aside className="w-full xl:w-[379px]">
-            <div className="w-full rounded-xl bg-white p-5 py-8 xl:sticky xl:top-28">
-              <CartTotal
-                checkout={checkout}
-                currentStep={2}
-                isSubmitting={isSubmitting || isUpdatingCart}
-                selectedItemKeys={selectedItemKeys}
-                onBack={() => {
-                  setCurrentStep(1);
-                  window.scrollTo(0, 0);
-                }}
-              />
-            </div>
-          </aside>
-        </div>
+          <div ref={checkoutContentRef} className="space-y-4 text-[95%]">
+            <CheckoutAddressForm
+              checkout={checkout}
+              onOrderCreated={handleOrderCreated}
+              isSubmitting={isSubmitting}
+              setIsSubmitting={setIsSubmitting}
+              selectedItemKeys={selectedItemKeys}
+              address={checkoutAddress}
+              setAddress={setCheckoutAddress}
+            />
+            <CartTotal
+              checkout={checkout}
+              contentRef={checkoutContentRef}
+              isSubmitting={isSubmitting || isUpdatingCart}
+              selectedItemKeys={selectedItemKeys}
+              onBack={() => {
+                setCurrentStep(1);
+                window.scrollTo(0, 0);
+              }}
+            />
+          </div>
         </Suspense>
       )}
 
