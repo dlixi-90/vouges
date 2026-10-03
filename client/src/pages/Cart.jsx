@@ -111,14 +111,34 @@ const Cart = () => {
     const actions = cartActionsRef.current;
     if (!content || !actions) return undefined;
 
-    // Reserve the bar's actual height, including wrapped controls on mobile.
-    const reserveActionsSpace = () => {
-      content.style.paddingBottom = `${Math.ceil(actions.getBoundingClientRect().height) + 20}px`;
+    let frameId = null;
+    const updateActionsPosition = () => {
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+      frameId = null;
+      // Stop at the end of the cart so the bar scrolls away above the footer.
+      const bottomOffset = Math.max(0, window.innerHeight - content.getBoundingClientRect().bottom);
+      actions.style.bottom = `${bottomOffset}px`;
     };
-    reserveActionsSpace();
-    const observer = new ResizeObserver(reserveActionsSpace);
+    const scheduleActionsPosition = () => {
+      if (frameId === null) frameId = window.requestAnimationFrame(updateActionsPosition);
+    };
+    const updateActionsLayout = () => {
+      // Reserve the bar's actual height, including wrapped controls on mobile.
+      content.style.paddingBottom = `${Math.ceil(actions.getBoundingClientRect().height) + 20}px`;
+      updateActionsPosition();
+    };
+    updateActionsLayout();
+    const observer = new ResizeObserver(updateActionsLayout);
     observer.observe(actions);
-    return () => observer.disconnect();
+    observer.observe(content);
+    window.addEventListener("scroll", scheduleActionsPosition, { passive: true });
+    window.addEventListener("resize", scheduleActionsPosition);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", scheduleActionsPosition);
+      window.removeEventListener("resize", scheduleActionsPosition);
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+    };
   }, [currentStep, hasCartItems]);
 
   const availableCartData = useMemo(
