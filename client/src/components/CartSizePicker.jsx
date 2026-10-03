@@ -128,12 +128,6 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
             </div>
           </div>
           <p className="mt-5" aria-live="polite">Stock: {isSizeAvailable(product, draftSize) ? getSizeQuantity(product, draftSize) : 0}</p>
-          {draftSize !== size && Number(quantities?.[draftSize] ?? 0) > 0 && (
-            <p className="mt-2" aria-live="polite">
-              {quantity} + {Number(quantities[draftSize])} = {requiredQuantity} items of {draftSize}.
-              The existing {draftSize} row will be combined into this row.
-            </p>
-          )}
           {draftSize !== size && isSizeAvailable(product, draftSize) && !canConfirm && (
             <p className="mt-2 text-red-600" role="alert">
               This change requires {requiredQuantity} items of {draftSize}, but only {getSizeQuantity(product, draftSize)} are in stock.

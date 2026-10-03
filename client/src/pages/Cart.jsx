@@ -113,6 +113,10 @@ const Cart = () => {
       ),
     [availableCartData],
   );
+  const unavailableCartData = useMemo(
+    () => cartData.filter((item) => !availableItemKeys.has(getCartItemKey(item._id, item.size))),
+    [cartData, availableItemKeys],
+  );
 
   useEffect(() => {
     if (createdOrder) return undefined;
@@ -263,6 +267,10 @@ const Cart = () => {
     if (cartUpdateRef.current) return;
     return Promise.all(selectedItems.map((item) => updateQuantity(item._id, item.size, 0)));
   };
+  const removeUnavailableItems = () => {
+    if (cartUpdateRef.current || hasPendingCartUpdates()) return;
+    return Promise.all(unavailableCartData.map((item) => updateQuantity(item._id, item.size, 0)));
+  };
 
   const handleCheckout = () => {
     if (cartUpdateRef.current || hasPendingCartUpdates()) return;
@@ -326,8 +334,8 @@ const Cart = () => {
         <section className="min-w-0 text-[95%]">
           <Title title1="Cart" title2="Overview" title1Styles="pb-5" />
           {cartData.length > 0 ? (
-            <>
-              <div className="hidden grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] items-center gap-3 rounded-xl bg-white px-4 py-3 lg:grid">
+            <div className="flex max-h-[max(28rem,calc(100dvh-20rem))] flex-col">
+              <div className="hidden shrink-0 grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] items-center gap-3 rounded-xl bg-white px-4 py-3 lg:grid">
                 <CartCheckbox
                   inputRef={selectAllRef}
                   disabled={isChangingSize || availableCartData.length === 0}
@@ -343,7 +351,12 @@ const Cart = () => {
                 <h5 className="h5 text-center">Action</h5>
               </div>
 
-              <div className="mt-3 space-y-3">
+              <div
+                role="region"
+                aria-label="Cart products"
+                tabIndex={0}
+                className="mt-3 min-h-0 overflow-y-auto overscroll-contain space-y-3 rounded-xl focus-visible:outline-2 focus-visible:outline-secondary/40"
+              >
                 {cartData.map((item) => {
                   const product = products.find(
                     (entry) => entry._id === item._id,
@@ -485,7 +498,7 @@ const Cart = () => {
                 })}
               </div>
 
-              <div className="sticky bottom-0 z-20 mt-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-xl border border-secondary/10 bg-white p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] sm:p-5">
+              <div className="z-20 mt-5 flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-xl border border-secondary/10 bg-white p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] sm:p-5">
                 <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                   <div className="flex items-center gap-1">
                     <CartCheckbox
@@ -508,7 +521,15 @@ const Cart = () => {
                     disabled={isUpdatingCart || selectedItemKeys.size === 0}
                     className="cursor-pointer rounded-md px-2 py-2 text-sm text-gray-500 transition hover:bg-primary hover:text-secondary disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    Remove
+                    Remove All
+                  </button>
+                  <button
+                    type="button"
+                    onClick={removeUnavailableItems}
+                    disabled={isUpdatingCart || unavailableCartData.length === 0}
+                    className="cursor-pointer rounded-md px-2 py-2 text-sm text-gray-500 transition hover:bg-primary hover:text-secondary disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Remove Out of Stock
                   </button>
                 </div>
                 <div className="flex w-full flex-wrap items-center justify-between gap-4 lg:w-auto lg:justify-end lg:gap-6">
@@ -532,7 +553,7 @@ const Cart = () => {
                   </button>
                 </div>
               </div>
-            </>
+            </div>
           ) : (
             <div className="rounded-xl bg-white px-6 py-16 text-center">
               <h2 className="text-xl font-semibold">Your cart is empty</h2>
