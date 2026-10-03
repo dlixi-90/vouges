@@ -68,6 +68,28 @@ test("my review endpoint restricts the query to the authenticated customer", asy
   assert.equal(res.body.eligible, false); assert.equal(res.body.review, null);
 });
 
+test("delivered buyers can load their saved score and comment for editing", async (t) => {
+  const saved = { _id: "review", productId, userId, authorName: "Customer", rating: 3,
+    comment: "Sản phẩm dùng tốt.", createdAt: new Date("2026-01-01"), updatedAt: new Date("2026-01-02") };
+  t.mock.method(Review, "findOne", (filter) => {
+    assert.deepEqual(filter, { productId, userId });
+    return { lean: async () => saved };
+  });
+  t.mock.method(Order, "exists", async (filter) => {
+    assert.equal(filter.userId, userId);
+    assert.equal(filter["items.product"], productId);
+    assert.equal(filter.status, "Delivery");
+    assert.deepEqual(filter.$or, [{ paymentMethod: "COD" }, { isPaid: true }]);
+    return { _id: "delivered-order" };
+  });
+  const res = response();
+  await myReview(req(), res, next);
+  assert.equal(res.body.eligible, true);
+  assert.equal(res.body.review.rating, 3);
+  assert.equal(res.body.review.comment, saved.comment);
+  assert.equal(res.body.review.userId, undefined);
+});
+
 test("malformed product IDs are rejected before Mongo queries", async (t) => {
   const find = t.mock.method(Review, "find", () => assert.fail("No query"));
   const res = response(); await listReviews({ params: { productId: "invalid" } }, res, next);

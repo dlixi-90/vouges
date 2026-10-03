@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
-import { Package } from "lucide-react";
-import { Link } from "react-router-dom";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { Package, Star } from "lucide-react";
 import Title from "../components/Title";
 import { useAppContext } from "../context/AppContext";
 import { formatThousandsVnd } from "../utils/money";
 
+const ProductReviewDialog = lazy(() => import("../components/ProductReviewDialog"));
+
 const MyOrders = () => {
   const { currency, user, axios, getToken } = useAppContext();
   const [orders, setOrders] = useState([]);
+  const [reviewProduct, setReviewProduct] = useState(null);
 
   const requestOrders = useCallback(
     async () =>
@@ -51,6 +53,7 @@ const MyOrders = () => {
             key={order._id}
             order={order}
             currency={currency}
+            onReview={setReviewProduct}
           />
         ))}
 
@@ -60,11 +63,14 @@ const MyOrders = () => {
           </div>
         )}
       </div>
+      {reviewProduct && <Suspense fallback={<p role="status" className="mt-4 text-sm">Đang mở form đánh giá…</p>}>
+        <ProductReviewDialog key={`${reviewProduct.id}::${user?.id || "guest"}`} product={reviewProduct} onClose={() => setReviewProduct(null)} />
+      </Suspense>}
     </main>
   );
 };
 
-const CustomerOrderCard = ({ order, currency }) => {
+const CustomerOrderCard = ({ order, currency, onReview }) => {
   const address = order.address || {};
   const items = order.items || [];
   const customerName = [address.firstName, address.lastName]
@@ -149,6 +155,7 @@ const CustomerOrderCard = ({ order, currency }) => {
               const productImage = item.image || product.images?.[0];
               const productTitle =
                 item.title || product.title || "Unavailable product";
+              const productId = product._id || (typeof item.product === "string" ? item.product : null);
 
               return (
                 <div
@@ -172,8 +179,6 @@ const CustomerOrderCard = ({ order, currency }) => {
                       <p className="truncate text-sm font-semibold text-[#263b4a]">
                         {productTitle}
                       </p>
-                      {order.status === "Delivery" && product._id && <Link to={`/collection/${product._id}#reviews`}
-                        className="mt-1 inline-block text-xs text-secondary underline">Đánh giá sản phẩm</Link>}
                       <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px] text-[#69747e]">
                         <span className="rounded-md bg-[#f1f4f2] px-2 py-1">
                           Size: <b className="text-[#263b4a]">{item.size}</b>
@@ -185,13 +190,19 @@ const CustomerOrderCard = ({ order, currency }) => {
                     </div>
                   </div>
 
-                  <div className="shrink-0 pt-0.5 text-right">
+                  <div className="shrink-0 space-y-3 pt-0.5 text-right">
                     <p className="whitespace-nowrap text-sm font-semibold leading-5 text-[#263b4a]">
                       {formatThousandsVnd(
                         item.unitPrice ?? product.price?.[item.size] ?? 0,
                         currency,
                       )}
                     </p>
+                    {order.status === "Delivery" && (order.paymentMethod === "COD" || order.isPaid) && productId && !product.isDeleted && (
+                      <button type="button" onClick={() => onReview({ id: String(productId), title: productTitle, image: productImage, size: item.size })}
+                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-secondary/30 bg-white px-3 py-2 text-xs font-semibold text-secondary transition hover:bg-secondary/5">
+                        <Star size={14} aria-hidden="true" />Đánh giá
+                      </button>
+                    )}
                   </div>
                 </div>
               );

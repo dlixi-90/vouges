@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Check, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
+import { Check, Minus, Plus, ShieldCheck, Star, Truck } from "lucide-react";
 import { useParams } from "react-router-dom";
 import ProductDescription from "../components/ProductDescription";
 import ProductFeatures from "../components/ProductFeatures";
@@ -148,6 +148,9 @@ const ProductDetail = () => {
           <p className="mt-2 text-2xl text-[#737373]">
             {formatThousandsVnd(size ? product.price?.[size] : 0, currency)}
           </p>
+          <a href="#reviews" className="mt-3 inline-flex items-center gap-2 rounded-md py-1 text-sm text-secondary underline underline-offset-4">
+            <Star size={16} className="text-amber-500" aria-hidden="true" />Xem / viết đánh giá sản phẩm
+          </a>
 
           <div className="mt-6 border-t border-[#dededb] pt-5">
             <div className="mb-3 flex items-center justify-between gap-4">
@@ -259,8 +262,8 @@ const ProductDetail = () => {
         </section>
       </div>
 
-      <ProductFeatures />
       <ProductReviews key={productId} productId={productId} />
+      <ProductFeatures />
       <RelatedProducts product={product} productId={productId} />
     </div>
   );
