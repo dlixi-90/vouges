@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Check } from "lucide-react";
 import Title from "../components/Title";
@@ -92,6 +92,8 @@ const Cart = () => {
   const [deselectedItemKeys, setDeselectedItemKeys] = useState(() => new Set());
   const selectAllRef = useRef(null);
   const footerSelectAllRef = useRef(null);
+  const cartContentRef = useRef(null);
+  const cartActionsRef = useRef(null);
 
   const cartData = useMemo(() => {
     if (products.length === 0) return [];
@@ -101,6 +103,23 @@ const Cart = () => {
       products,
     );
   }, [products, cartItems, cartAddedAt]);
+  const hasCartItems = cartData.length > 0;
+
+  useLayoutEffect(() => {
+    if (currentStep !== 1 || !hasCartItems) return undefined;
+    const content = cartContentRef.current;
+    const actions = cartActionsRef.current;
+    if (!content || !actions) return undefined;
+
+    // Reserve the bar's actual height, including wrapped controls on mobile.
+    const reserveActionsSpace = () => {
+      content.style.paddingBottom = `${Math.ceil(actions.getBoundingClientRect().height) + 20}px`;
+    };
+    reserveActionsSpace();
+    const observer = new ResizeObserver(reserveActionsSpace);
+    observer.observe(actions);
+    return () => observer.disconnect();
+  }, [currentStep, hasCartItems]);
 
   const availableCartData = useMemo(
     () => getAvailableCartItems(cartData, products),
@@ -334,7 +353,7 @@ const Cart = () => {
         <section className="min-w-0 text-[95%]">
           <Title title1="Cart" title2="Overview" title1Styles="pb-5" />
           {cartData.length > 0 ? (
-            <div className="flex max-h-[max(28rem,calc(100dvh-20rem))] flex-col">
+            <div ref={cartContentRef}>
               <div className="hidden shrink-0 grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] items-center gap-3 rounded-xl bg-white px-4 py-3 lg:grid">
                 <CartCheckbox
                   inputRef={selectAllRef}
@@ -354,8 +373,7 @@ const Cart = () => {
               <div
                 role="region"
                 aria-label="Cart products"
-                tabIndex={0}
-                className="mt-3 min-h-0 overflow-y-auto overscroll-contain space-y-3 rounded-xl focus-visible:outline-2 focus-visible:outline-secondary/40"
+                className="mt-3 space-y-3"
               >
                 {cartData.map((item) => {
                   const product = products.find(
@@ -498,7 +516,8 @@ const Cart = () => {
                 })}
               </div>
 
-              <div className="z-20 mt-5 flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-xl border border-secondary/10 bg-white p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] sm:p-5">
+              <div ref={cartActionsRef} className="max-padd-container fixed inset-x-0 bottom-0 z-40">
+              <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-t-xl border border-secondary/10 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(0,0,0,0.08)] sm:p-5 sm:pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
                 <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                   <div className="flex items-center gap-1">
                     <CartCheckbox
@@ -552,6 +571,7 @@ const Cart = () => {
                     {isUpdatingCart ? "Saving changes..." : "Proceed to Checkout"}
                   </button>
                 </div>
+              </div>
               </div>
             </div>
           ) : (
