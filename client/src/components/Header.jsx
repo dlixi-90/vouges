@@ -135,13 +135,13 @@ const Header = () => {
                   }}
                 >
                   <UserButton.MenuItems>
-                    <UserButton.Action label="Thành viên & voucher" labelIcon={<OrdersIcon />}
-                      onClick={() => navigate("/membership")} />
                     <UserButton.Action
                       label="My Orders"
                       labelIcon={<OrdersIcon />}
                       onClick={() => navigate("/my-orders")}
                     />
+                    <UserButton.Action label="Thành viên & voucher" labelIcon={<OrdersIcon />}
+                      onClick={() => navigate("/membership")} />
                   </UserButton.MenuItems>
                 </UserButton>
               ) : (

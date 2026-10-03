@@ -7,7 +7,6 @@ const Sidebar = () => {
   const { isOwner, user, profileError, retryUserProfile } = useAppContext();
 
   const navItems = [
-    { path: "/owner/vouchers", label: "Vouchers", icon: assets.list },
     {
       path: "/owner",
       label: "Dashboard",
@@ -28,6 +27,7 @@ const Sidebar = () => {
       label: "List Product",
       icon: assets.list,
     },
+    { path: "/owner/vouchers", label: "Vouchers", icon: assets.list },
   ];
 
   if (isOwner === null) {
@@ -36,9 +36,21 @@ const Sidebar = () => {
         {profileError ? (
           <div role="alert" className="text-center">
             <p>{profileError}</p>
-            <button type="button" onClick={retryUserProfile} className="btn-outline mt-4">Retry</button>
+            <button
+              type="button"
+              onClick={retryUserProfile}
+              className="btn-outline mt-4"
+            >
+              Retry
+            </button>
           </div>
-        ) : <div role="status" aria-label="Verifying account" className="w-8 h-8 border-4 border-gray-300 border-t-black rounded-full animate-spin" />}
+        ) : (
+          <div
+            role="status"
+            aria-label="Verifying account"
+            className="w-8 h-8 border-4 border-gray-300 border-t-black rounded-full animate-spin"
+          />
+        )}
       </div>
     );
   }

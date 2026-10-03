@@ -13,7 +13,6 @@ const Title = ({
         <span className="font-light text-secondary"> {title2}</span>
       </h3>
       <div className="w-24 h-[3px] rounded-full bg-gradient-to-r from-secondary to-[#DDD9FF]" />
-      <p className={`${paraStyles} max-w-lg mt-2`}></p>
     </div>
   );
 };
