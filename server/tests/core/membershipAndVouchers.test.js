@@ -208,12 +208,41 @@ for (const handler of [placeOrderCOD, placeOrderQr]) test(`${handler.name} saves
   const mail = t.mock.method(transporter, "sendMail", async () => assert.fail("Phone-only account has no email"));
   const res = response();
   await handler({ auth: () => ({ userId }), body: { items: [{ product: productId, size: "M", quantity: 1 }],
-    address: addressId, expectedAmount: 500, shippingMethod: "express", voucherCode: "SAVE10", discount: 99999 } }, res);
+    address: addressId, expectedAmount: 500, shippingMethod: "express", voucherCode: "SAVE10", discount: 99999,
+    note: "  Gói quà giúp tôi.\nGọi trước khi giao & giữ nguyên hộp.  " } }, res);
   assert.equal(res.statusCode, 201); assert.equal(created.amount, 500); assert.equal(created.subtotal, 500);
   assert.equal(created.discount, 50); assert.equal(created.shipping, 50); assert.equal(created.shippingMethod, "express");
   assert.equal(created.voucherCode, "SAVE10"); assert.equal(increment.mock.callCount(), 1); assert.equal(ledger.mock.callCount(), 1);
+  assert.equal(created.note, "Gói quà giúp tôi.\nGọi trước khi giao & giữ nguyên hộp.");
+  assert.equal(res.body.order.note, created.note);
   assert.equal(mail.mock.callCount(), 0);
   if (handler === placeOrderQr) assert.equal(created.qrAmount, 500000);
+});
+
+for (const handler of [placeOrderCOD, placeOrderQr]) test(`${handler.name} rejects invalid seller messages before changing stock or orders`, async (t) => {
+  const queryOrders = t.mock.method(Order, "exists", async () => assert.fail("No stock release before note validation"));
+  const transaction = t.mock.method(mongoose, "startSession", async () => assert.fail("No transaction for an invalid note"));
+  for (const note of [null, 123, {}, [], "x".repeat(501)]) {
+    const res = response();
+    await handler({ auth: () => ({ userId }), body: {
+      items: [{ product: productId, size: "M", quantity: 1 }], address: addressId, note,
+    } }, res);
+    assert.equal(res.statusCode, 400);
+    assert.match(res.body.message, /500/);
+  }
+  assert.equal(queryOrders.mock.callCount(), 0);
+  assert.equal(transaction.mock.callCount(), 0);
+});
+
+test("order messages are optional and enforce the same 500-character limit in storage", async () => {
+  const values = { userId, items: [{ product: productId, size: "M", quantity: 1 }], amount: 530, address: addressId, paymentMethod: "COD" };
+  const order = new Order(values);
+  assert.equal(order.note, "");
+  await assert.doesNotReject(() => order.validate());
+  order.note = "x".repeat(500);
+  await assert.doesNotReject(() => order.validate());
+  order.note += "x";
+  await assert.rejects(() => order.validate(), (error) => error.errors.note.kind === "maxlength");
 });
 
 test("zero-value QR orders do not reserve stock or issue an unpayable QR", async (t) => {

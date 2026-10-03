@@ -11,6 +11,7 @@ import { validateVoucher, calculateDiscount, reserveVoucher, releaseVoucher } fr
 import { getCartAddedAt } from "../utils/cartOrder.js";
 import { validateDeliveryPhone } from "../utils/deliveryPhone.js";
 import { buildOrderConfirmationEmail } from "../emails/orderConfirmation.js";
+import { normalizeOrderNote } from "../utils/orderNote.js";
 
 // Global variables for payment
 const orderStatuses = ["Order Placed", "Packing", "Shipping", "Delivery"];
@@ -425,6 +426,7 @@ const releaseExpiredQrReservations = async () => {
 export const placeOrderCOD = async (req, res) => {
   try {
     const { items, address } = req.body;
+    const note = normalizeOrderNote(req.body.note);
     const { userId } = req.auth();
     await releaseExpiredQrReservations();
 
@@ -449,6 +451,7 @@ export const placeOrderCOD = async (req, res) => {
             ...pricing,
             address: selectedAddress._id,
             paymentMethod: "COD",
+            note,
           },
         ],
         { session },
@@ -526,6 +529,7 @@ const serializeQrOrder = (order) => ({
 export const placeOrderQr = async (req, res) => {
   try {
     const { items, address } = req.body;
+    const note = normalizeOrderNote(req.body.note);
     const { userId } = req.auth();
     await releaseExpiredQrReservations();
 
@@ -576,6 +580,7 @@ export const placeOrderQr = async (req, res) => {
             ...pricing,
             address: selectedAddress._id,
             paymentMethod: "QR",
+            note,
             paymentCode,
             qrAmount,
             paymentExpiresAt,

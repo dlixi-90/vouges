@@ -205,6 +205,10 @@ const CustomerOrderCard = ({ order, currency }) => {
           </h4>
 
           <dl className="mt-4 space-y-4">
+            {order.note && <div>
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Lời nhắn cho cửa hàng</dt>
+              <dd className="mt-1 whitespace-pre-wrap break-words text-sm text-[#52616b]">{order.note}</dd>
+            </div>}
             {order.shipping !== undefined && <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Giao hàng</dt>
               <dd className="mt-1 text-sm">{order.shippingMethod === "express" ? "Giao nhanh" : "Giao tiêu chuẩn"} · {formatThousandsVnd(order.shipping, currency)}</dd>

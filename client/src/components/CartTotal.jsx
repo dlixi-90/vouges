@@ -1,19 +1,18 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { CreditCard, Package, Ticket, Truck } from "lucide-react";
+import { useMemo } from "react";
+import { CreditCard, Package, Truck } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import { formatThousandsVnd } from "../utils/money";
 import { getCartItemKey } from "../utils/cartSelection";
 import ProductImage from "./ProductImage";
 import CartActionBar from "./CartActionBar";
+import CheckoutVoucherPicker from "./checkout/CheckoutVoucherPicker";
 
 const fallbackShippingMethods = [
   { id: "standard", label: "Giao tiêu chuẩn", description: "Dự kiến 3–5 ngày", fee: 30, freeFrom: 500 },
   { id: "express", label: "Giao nhanh", description: "Dự kiến 1–2 ngày", fee: 50, freeFrom: null },
 ];
 
-const CartTotal = ({ checkout, contentRef, onBack, isSubmitting = false, selectedItemKeys }) => {
-  const [voucherDraft, setVoucherDraft] = useState(checkout.voucherCode);
+const CartTotal = ({ checkout, contentRef, onBack, isSubmitting = false, selectedItemKeys, orderNote, setOrderNote }) => {
   const { products, cartItems, currency, method, setMethod } = useAppContext();
   const orderItems = useMemo(() => {
     const result = [];
@@ -42,10 +41,6 @@ const CartTotal = ({ checkout, contentRef, onBack, isSubmitting = false, selecte
       ? checkout.pricing.shipping
       : option.freeFrom != null && subtotal >= option.freeFrom ? 0 : option.fee;
     return fee === 0 ? "Free" : formatPrice(fee);
-  };
-  const applyVoucher = () => {
-    checkout.setVoucherCode(voucherDraft.trim());
-    checkout.refresh();
   };
 
   return (
@@ -93,10 +88,18 @@ const CartTotal = ({ checkout, contentRef, onBack, isSubmitting = false, selecte
             </div>
           ))}
         </div>
-        <fieldset disabled={isSubmitting} className="border-t border-dashed border-gray-200 bg-primary/40 p-5 sm:p-6">
-          <legend className="sr-only">Shipping Method</legend>
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-            <div>
+        <div className="grid border-t border-dashed border-gray-200 bg-primary/40 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+          <div className="border-b border-dashed border-gray-200 p-5 sm:p-6 lg:border-r lg:border-b-0">
+            <label htmlFor="order-note" className="mb-3 block text-sm font-medium">Lời nhắn cho cửa hàng:</label>
+            <textarea id="order-note" name="note" form="checkout-address-form" rows={2} maxLength={500}
+              value={orderNote} onChange={(event) => setOrderNote(event.target.value)} disabled={isSubmitting}
+              placeholder="Lưu ý cho người bán…" aria-describedby="order-note-limit"
+              className="w-full resize-y rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-secondary disabled:opacity-50" />
+            <p id="order-note-limit" className="mt-2 text-right text-xs text-gray-500">{orderNote.length}/500</p>
+          </div>
+          <fieldset disabled={isSubmitting} className="p-5 sm:p-6">
+            <legend className="sr-only">Shipping Method</legend>
+            <div className="mb-4">
               <h3 className="flex items-center gap-2 font-semibold"><Truck size={19} className="text-secondary" aria-hidden="true" />Shipping Method</h3>
               <p className="mt-2 text-sm text-gray-500">Miễn phí giao tiêu chuẩn cho đơn từ 500.000đ trước giảm giá.</p>
             </div>
@@ -115,38 +118,16 @@ const CartTotal = ({ checkout, contentRef, onBack, isSubmitting = false, selecte
                 </label>
               ))}
             </div>
-          </div>
-        </fieldset>
+          </fieldset>
+        </div>
         <div className="flex flex-wrap items-center justify-end gap-3 border-t border-dashed border-gray-200 bg-primary/40 px-5 py-4 sm:px-6">
           <span className="text-sm text-gray-500">Products subtotal ({selectedCount} items):</span>
           <span className="font-semibold text-secondary">{formatPrice(checkout.pricing?.subtotal ?? subtotal)}</span>
         </div>
       </section>
 
-      <section aria-labelledby="checkout-voucher-title" className="rounded-xl bg-white p-5 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h2 id="checkout-voucher-title" className="flex items-center gap-2 font-semibold"><Ticket size={20} className="text-secondary" aria-hidden="true" />Voucher</h2>
-          <div className="flex w-full gap-2 sm:w-auto sm:min-w-80">
-            <label htmlFor="voucher-code" className="sr-only">Voucher code</label>
-            <input id="voucher-code" value={voucherDraft} maxLength={40} disabled={isSubmitting}
-              onChange={(event) => setVoucherDraft(event.target.value.toUpperCase())}
-              onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); if (voucherDraft.trim() && !isSubmitting) applyVoucher(); } }}
-              placeholder="Nhập mã voucher" className="min-w-0 flex-1 rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-secondary" />
-            <button type="button" disabled={isSubmitting || !voucherDraft.trim()} onClick={applyVoucher}
-              className="btn-outline !rounded-md !px-4 !py-2 disabled:cursor-not-allowed disabled:opacity-50">Áp dụng</button>
-          </div>
-        </div>
-        <div className="mt-3 flex flex-wrap items-center justify-end gap-3 text-sm">
-          {checkout.voucherCode && <span className="break-all">{checkout.voucherCode}
-            <button type="button" disabled={isSubmitting} onClick={() => { checkout.setVoucherCode(""); setVoucherDraft(""); }} className="ml-2 cursor-pointer text-secondary underline disabled:opacity-50">Bỏ mã</button>
-          </span>}
-          <Link to="/membership" className="text-secondary underline underline-offset-4">Xem voucher của tôi</Link>
-        </div>
-        {discount > 0 && <p role="status" className="mt-3 text-right text-sm text-green-700">Đã giảm {formatPrice(discount)}</p>}
-        {checkout.loading && <p role="status" className="mt-3 text-sm text-gray-500">Đang tính tổng tiền…</p>}
-        {checkout.error && <div role="alert" className="mt-3 text-sm text-red-600">{checkout.error}
-          <button type="button" disabled={isSubmitting} onClick={checkout.refresh} className="ml-2 cursor-pointer underline disabled:opacity-50">Thử lại</button>
-        </div>}
+      <section aria-label="Voucher cửa hàng" className="rounded-xl bg-white p-5 sm:p-6">
+        <CheckoutVoucherPicker checkout={checkout} subtotal={checkout.pricing?.subtotal ?? subtotal} disabled={isSubmitting} />
       </section>
 
       <section aria-labelledby="checkout-payment-title" className="rounded-xl bg-white">

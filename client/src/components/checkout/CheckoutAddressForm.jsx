@@ -23,6 +23,7 @@ const CheckoutAddressForm = ({
   selectedItemKeys,
   address,
   setAddress,
+  orderNote,
 }) => {
   const {
     user,
@@ -43,6 +44,12 @@ const CheckoutAddressForm = ({
   const [isAddressBookOpen, setIsAddressBookOpen] = useState(false);
   const [makeDefault, setMakeDefault] = useState(true);
   const submitRef = useRef(false);
+  const userId = user?.id;
+  const addressAuthRef = useRef({ user, getToken });
+
+  useEffect(() => {
+    addressAuthRef.current = { user, getToken };
+  }, [user, getToken]);
 
   const items = useMemo(() => {
     const result = [];
@@ -71,14 +78,15 @@ const CheckoutAddressForm = ({
   }, [products, cartItems, selectedItemKeys]);
 
   useEffect(() => {
-    if (!user) return undefined;
+    if (!userId) return undefined;
     const controller = new AbortController();
+    const auth = addressAuthRef.current;
     const loadAddresses = async () => {
       setIsLoadingAddresses(true);
       setAddressLoadError("");
       try {
         const { data } = await axios.get("/api/addresses", {
-          headers: { Authorization: `Bearer ${await getToken()}` },
+          headers: { Authorization: `Bearer ${await auth.getToken()}` },
           signal: controller.signal,
         });
         if (!data.success)
@@ -86,7 +94,7 @@ const CheckoutAddressForm = ({
         if (controller.signal.aborted) return;
         const saved = data.addresses || [];
         setAddresses(saved);
-        setAddress((current) => resolveCheckoutAddress(current, saved, user));
+        setAddress((current) => resolveCheckoutAddress(current, saved, auth.user));
       } catch (error) {
         if (!controller.signal.aborted)
           setAddressLoadError(
@@ -100,7 +108,7 @@ const CheckoutAddressForm = ({
     };
     loadAddresses();
     return () => controller.abort();
-  }, [axios, getToken, user, setAddress, loadAttempt]);
+  }, [axios, userId, setAddress, loadAttempt]);
 
   const saveAddress = async (
     draft,
@@ -267,6 +275,7 @@ const CheckoutAddressForm = ({
           shippingMethod: checkout.shippingMethod,
           voucherCode: checkout.voucherCode,
           expectedAmount: checkout.pricing.amount,
+          note: orderNote,
         },
         {
           headers: {
@@ -325,7 +334,7 @@ const CheckoutAddressForm = ({
         Delivery Address
       </h2>
 
-      {isLoadingAddresses ? (
+      {isLoadingAddresses && !address._id ? (
         <p className="mt-8" role="status">
           Loading your addresses...
         </p>

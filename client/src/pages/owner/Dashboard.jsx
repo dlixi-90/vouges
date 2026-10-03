@@ -399,6 +399,10 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
           </h4>
 
           <dl className="mt-4 space-y-4">
+            {order.note && <div>
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Lời nhắn cho cửa hàng</dt>
+              <dd className="mt-1 whitespace-pre-wrap break-words text-sm text-[#52616b]">{order.note}</dd>
+            </div>}
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
                 Customer

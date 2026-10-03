@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { MAX_ORDER_NOTE_LENGTH } from "../utils/orderNote.js";
 
 const orderSchema = new mongoose.Schema(
   {
@@ -20,6 +21,7 @@ const orderSchema = new mongoose.Schema(
     discount: { type: Number, default: 0 },
     voucherId: { type: mongoose.Schema.Types.ObjectId, ref: "Voucher", default: null },
     voucherCode: { type: String, default: "" },
+    note: { type: String, default: "", maxlength: MAX_ORDER_NOTE_LENGTH },
     address: { type: String, required: true, ref: "Address" },
     status: {
       type: String,

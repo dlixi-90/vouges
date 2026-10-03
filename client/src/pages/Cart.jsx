@@ -90,6 +90,7 @@ const Cart = () => {
   const [checkoutAddress, setCheckoutAddress] = useState(
     initialCheckoutAddress,
   );
+  const [orderNote, setOrderNote] = useState("");
   const [deselectedItemKeys, setDeselectedItemKeys] = useState(() => new Set());
   const selectAllRef = useRef(null);
   const footerSelectAllRef = useRef(null);
@@ -586,12 +587,15 @@ const Cart = () => {
               selectedItemKeys={selectedItemKeys}
               address={checkoutAddress}
               setAddress={setCheckoutAddress}
+              orderNote={orderNote}
             />
             <CartTotal
               checkout={checkout}
               contentRef={checkoutContentRef}
               isSubmitting={isSubmitting || isUpdatingCart}
               selectedItemKeys={selectedItemKeys}
+              orderNote={orderNote}
+              setOrderNote={setOrderNote}
               onBack={() => {
                 setCurrentStep(1);
                 window.scrollTo(0, 0);
