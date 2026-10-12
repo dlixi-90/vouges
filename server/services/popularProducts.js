@@ -38,7 +38,7 @@ export const getPopularProducts = async () => {
     { $match: { "product.isDeleted": { $ne: true } } },
     // Stable ordering when products have sold the same number of units.
     { $sort: { soldQuantity: -1, "product._id": 1 } },
-    { $limit: 4 },
+    { $limit: 10 },
     {
       $project: {
         _id: "$product._id",

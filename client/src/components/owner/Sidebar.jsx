@@ -1,10 +1,11 @@
 import { useAppContext } from "../../context/AppContext";
 import { assets } from "../../assets/data";
-import { Link, NavLink, Outlet, Navigate } from "react-router-dom";
+import { Link, NavLink, Outlet, Navigate, useMatch } from "react-router-dom";
 import { UserButton } from "@clerk/react";
 
 const Sidebar = () => {
   const { isOwner, user, profileError, retryUserProfile } = useAppContext();
+  const isVoucherPage = Boolean(useMatch("/owner/vouchers"));
 
   const navItems = [
     {
@@ -60,10 +61,10 @@ const Sidebar = () => {
   }
 
   return (
-    <div>
-      <div className="mx-auto max-w-[1440px] flex flex-col md:flex-row">
+    <div className={isVoucherPage ? "fixed inset-0 overflow-hidden" : undefined}>
+      <div className={`mx-auto max-w-[1440px] flex flex-col md:flex-row ${isVoucherPage ? "h-full min-h-0 overflow-hidden" : ""}`}>
         {/* Sidebar */}
-        <div className="max-md:flexCenter flex flex-col justify-between bg-primary sm:m-3 md:min-w-[20%] md:min-h-[97vh] rotate-xl shadow">
+        <div className={`max-md:flexCenter flex flex-col justify-between bg-primary sm:m-3 md:min-w-[20%] rotate-xl shadow ${isVoucherPage ? "min-h-0 shrink-0 overflow-y-auto overscroll-y-contain max-md:max-h-[40dvh]" : "md:min-h-[97vh]"}`}>
           <div className="flex flex-col gap-y-6 max-md:items-center md:flex-col md:pt-5">
             <div className="w-full flex justify-between md:flex-col">
               {/* Logo */}

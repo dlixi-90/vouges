@@ -174,7 +174,7 @@ const Dashboard = () => {
               </p>
             )}
             <div className="mt-4 flex flex-col gap-2">
-              {popularProducts.map((product) => (
+              {popularProducts.slice(0, 4).map((product) => (
                 <div
                   key={product._id}
                   className="flex items-center justify-between gap-3 rounded-lg border border-[#edf0f2] p-3"

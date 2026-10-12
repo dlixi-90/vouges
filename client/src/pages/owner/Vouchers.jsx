@@ -63,7 +63,7 @@ export default function Vouchers() {
   };
 
   return (
-    <main className="m-1 h-[97vh] min-w-0 overflow-y-auto rounded-xl bg-primary px-3 py-6 shadow sm:m-3 sm:px-5 md:px-8 lg:w-11/12 xl:py-8">
+    <main className="m-1 min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-y-contain rounded-xl bg-primary px-3 py-6 shadow sm:m-3 sm:px-5 md:px-8 xl:py-8">
       <div className="mx-auto w-full max-w-[1120px]">
         <header className="mb-6 flex flex-col gap-4 border-b border-[#e1e6e3] pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
