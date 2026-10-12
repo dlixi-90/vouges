@@ -3,6 +3,7 @@ import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
 import SearchInput from "../components/SearchInput";
 import { SearchX } from "lucide-react";
+import { formatThousandsVnd } from "../utils/money";
 import {
   getAvailableSizes,
   hasAnyAvailableSize,
@@ -21,7 +22,7 @@ const Collection = () => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, []);
 
-  const { products, searchQuery, categories } = useAppContext();
+  const { products, searchQuery, categories, currency } = useAppContext();
   const allCategories = [...new Set([
     ...categories.map((item) => item.name),
     ...products.map((item) => item.category).filter(Boolean),
@@ -29,8 +30,18 @@ const Collection = () => {
   const [category, setCategory] = useState([]);
   const [type, setType] = useState([]);
   const [selectedSort, setSelectedSort] = useState("relevant");
+  const [maxPrice, setMaxPrice] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
+  const maxProductPrice = useMemo(() => products.reduce((highest, product) => {
+    const price = getDisplayedPrice(product);
+    return Number.isFinite(price) ? Math.max(highest, price) : highest;
+  }, 0), [products]);
+  // Prices are stored in thousands of VND; one slider step equals 1,000 VND.
+  const priceCeiling = Math.max(1, Math.ceil(maxProductPrice));
+  const priceLimit = maxPrice === null ? priceCeiling : Math.min(maxPrice, priceCeiling);
+  const isPriceFiltered = maxPrice !== null && priceLimit < priceCeiling;
+  const formatPrice = (price) => formatThousandsVnd(price, currency);
 
   const toggleFilter = (value, setState) => {
     setState((prev) =>
@@ -72,6 +83,10 @@ const Collection = () => {
       );
     }
 
+    if (isPriceFiltered) {
+      filtered = filtered.filter((product) => getDisplayedPrice(product) <= priceLimit);
+    }
+
     if (selectedSort === "low") {
       return [...filtered].sort(
         (a, b) => getDisplayedPrice(a) - getDisplayedPrice(b),
@@ -85,7 +100,7 @@ const Collection = () => {
     }
 
     return filtered;
-  }, [availableTypes, category, products, searchQuery, selectedSort, type]);
+  }, [availableTypes, category, products, searchQuery, selectedSort, type, isPriceFiltered, priceLimit]);
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const activePage = Math.min(currentPage, Math.max(totalPages, 1));
@@ -114,6 +129,40 @@ const Collection = () => {
               <option value="low">Low</option>
               <option value="high">High</option>
             </select>
+          </div>
+          <div className="px-4 py-4 mt-4 bg-white rounded-xl">
+            <div className="flex items-center justify-between gap-3">
+              <h5 className="h5">Lọc theo giá</h5>
+              {isPriceFiltered && <button type="button"
+                onClick={() => { setMaxPrice(null); setCurrentPage(1); }}
+                className="shrink-0 cursor-pointer rounded px-1 py-1 text-xs font-medium text-secondary underline underline-offset-4 focus-visible:outline-secondary">
+                Đặt lại
+              </button>}
+            </div>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+              <label htmlFor="collection-max-price" className="text-sm text-gray-500">Giá tối đa</label>
+              <output htmlFor="collection-max-price" className="rounded-md bg-secondary/5 px-2.5 py-1.5 text-sm font-semibold text-secondary">
+                {formatPrice(priceLimit)}
+              </output>
+            </div>
+            <div className="py-5">
+              <input id="collection-max-price" type="range" min={0} max={priceCeiling} step={1}
+                value={priceLimit} disabled={maxProductPrice <= 0}
+                onChange={(event) => {
+                  const value = Number(event.target.value);
+                  setMaxPrice(value >= priceCeiling ? null : value);
+                  setCurrentPage(1);
+                }}
+                aria-valuetext={formatPrice(priceLimit)} aria-describedby="collection-price-summary"
+                style={{ "--range-progress": `${priceLimit / priceCeiling * 100}%` }}
+                className="price-filter-range" />
+            </div>
+            <div className="flex justify-between gap-2 text-xs text-gray-500">
+              <span>{formatPrice(0)}</span><span>{formatPrice(priceCeiling)}</span>
+            </div>
+            <p id="collection-price-summary" className="mt-3 text-xs text-gray-500">
+              {isPriceFiltered ? `${filteredProducts.length} sản phẩm phù hợp.` : "Hiển thị tất cả mức giá."}
+            </p>
           </div>
           <div className="pl-5 py-3 mt-4 bg-white rounded-xl">
             <h5 className="h5 mb-4">Categories</h5>

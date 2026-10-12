@@ -337,7 +337,7 @@ const Cart = () => {
       {/* STEP 1 */}
       {currentStep === 1 && (
         <section className="min-w-0 text-[95%]">
-          <Title title1="Cart" title2="Overview" title1Styles="pb-10" />
+          <Title title1="Cart" title2="Overview" titleStyles="pb-10" />
           {cartData.length > 0 ? (
             <div ref={cartContentRef}>
               <div className="hidden shrink-0 grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] items-center gap-3 rounded-xl bg-white px-4 py-3 lg:grid">

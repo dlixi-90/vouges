@@ -64,6 +64,45 @@ html, body {
    font-family: "Inter", sans-serif;
 }
 
+.price-filter-range {
+  display: block;
+  width: 100%;
+  height: 6px;
+  appearance: none;
+  border-radius: 9999px;
+  background: linear-gradient(to right, var(--color-secondary) 0 var(--range-progress), #e5e7eb var(--range-progress) 100%);
+  cursor: pointer;
+}
+
+.price-filter-range::-webkit-slider-thumb {
+  width: 20px;
+  height: 20px;
+  appearance: none;
+  border: 3px solid white;
+  border-radius: 50%;
+  background: var(--color-secondary);
+  box-shadow: 0 0 0 1px rgb(65 51 78 / 20%), 0 2px 4px rgb(0 0 0 / 12%);
+}
+
+.price-filter-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 3px solid white;
+  border-radius: 50%;
+  background: var(--color-secondary);
+  box-shadow: 0 0 0 1px rgb(65 51 78 / 20%), 0 2px 4px rgb(0 0 0 / 12%);
+}
+
+.price-filter-range:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 6px;
+}
+
+.price-filter-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 /* width */
 ::-webkit-scrollbar {
   display: none;
