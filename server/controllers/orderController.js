@@ -6,7 +6,7 @@ import crypto from "crypto";
 import Address from "../models/Address.js";
 import mongoose, { isObjectIdOrHexString } from "mongoose";
 import { getSizeQuantity, isSizeAvailable } from "../utils/productStock.js";
-import { getShippingCharge, SHIPPING_METHODS } from "../utils/orderPricing.js";
+import { getShippingPricing, SHIPPING_METHODS } from "../utils/orderPricing.js";
 import { validateVoucher, calculateDiscount, reserveVoucher, releaseVoucher } from "../services/voucherService.js";
 import { getCartAddedAt } from "../utils/cartOrder.js";
 import { validateDeliveryPhone } from "../utils/deliveryPhone.js";
@@ -226,10 +226,7 @@ const priceOrder = async (subtotal, body, userId, session) => {
   const shippingMethod = body.shippingMethod ?? "standard";
   const voucher = await validateVoucher(body.voucherCode, userId, subtotal, session);
   const discount = voucher ? calculateDiscount(voucher, subtotal) : 0;
-  const discountedSubtotal = Math.round((subtotal - discount) * 1000) / 1000;
-  const shipping = getShippingCharge(subtotal, shippingMethod);
-  const amount = Math.round((discountedSubtotal + shipping) * 1000) / 1000;
-  return { subtotal, shippingMethod, shipping, discount, amount,
+  return { subtotal, discount, ...getShippingPricing(subtotal, discount, shippingMethod),
     voucherId: voucher?._id || null, voucherCode: voucher?.code || "", voucher };
 };
 
@@ -244,7 +241,10 @@ export const quoteOrder = async (req, res) => {
   try {
     const validated = await validateOrderItems(req.body.items);
     const { voucher: _voucher, ...pricing } = await priceOrder(validated.subtotal, req.body, req.user._id);
-    return res.json({ success: true, pricing, shippingMethods: SHIPPING_METHODS });
+    const shippingQuotes = Object.fromEntries(SHIPPING_METHODS.map(({ id }) => [
+      id, getShippingPricing(pricing.subtotal, pricing.discount, id),
+    ]));
+    return res.json({ success: true, pricing, shippingMethods: SHIPPING_METHODS, shippingQuotes });
   } catch (error) { return sendOrderError(res, error); }
 };
 

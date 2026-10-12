@@ -28,3 +28,9 @@ export const getShippingCharge = (subtotal, shippingMethod = "standard") => {
 export const getOrderTotal = (subtotal) => {
   return subtotal + getShippingCharge(subtotal);
 };
+
+export const getShippingPricing = (subtotal, discount, shippingMethod) => {
+  const shipping = getShippingCharge(subtotal, shippingMethod);
+  const discountedSubtotal = Math.round((subtotal - discount) * 1000) / 1000;
+  return { shippingMethod, shipping, amount: Math.round((discountedSubtotal + shipping) * 1000) / 1000 };
+};

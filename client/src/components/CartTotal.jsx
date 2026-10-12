@@ -32,14 +32,12 @@ const CartTotal = ({ checkout, contentRef, onBack, isSubmitting = false, selecte
   const shippingMethods = checkout.shippingMethods || SHIPPING_METHODS;
   const isUrgentShipping = checkout.shippingMethod === "urgent";
   const discount = checkout.pricing?.discount || 0;
-  const shippingSubtotal = checkout.pricing?.subtotal ?? subtotal;
   const formatPrice = (value) => formatThousandsVnd(value, currency);
   const shippingPrice = (option) => {
     if (option.fee === null) return "Theo giá đơn vị giao hàng · Thanh toán sau";
-    if (!checkout.ready) return "—";
-    const fee = checkout.ready && checkout.shippingMethod === option.id
-      ? checkout.pricing.shipping
-      : option.freeFrom != null && shippingSubtotal >= option.freeFrom ? 0 : option.fee;
+    const quote = checkout.shippingQuotes?.[option.id];
+    if (!quote) return "—";
+    const fee = quote.shipping;
     return fee === 0 ? "Free" : formatPrice(fee);
   };
 

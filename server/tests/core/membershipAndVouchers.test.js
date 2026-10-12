@@ -170,6 +170,13 @@ test("checkout quote ignores client prices/discounts and computes express shippi
   assert.equal(res.body.pricing.subtotal, 500); assert.equal(res.body.pricing.discount, 50);
   assert.equal(res.body.pricing.shipping, 50); assert.equal(res.body.pricing.amount, 500);
   assert.equal(res.body.pricing.voucher, undefined);
+  assert.deepEqual(res.body.shippingQuotes, {
+    standard: { shippingMethod: "standard", shipping: 30, amount: 480 },
+    express: { shippingMethod: "express", shipping: 50, amount: 500 },
+    urgent: { shippingMethod: "urgent", shipping: 0, amount: 450 },
+  });
+  assert.equal(Product.find.mock.callCount(), 1);
+  assert.equal(Voucher.findOne.mock.callCount(), 1);
 });
 
 for (const [price, voucherCode, discount, shipping] of [
@@ -190,6 +197,10 @@ for (const [price, voucherCode, discount, shipping] of [
   assert.equal(res.body.pricing.discount, discount);
   assert.equal(res.body.pricing.shipping, shipping);
   assert.equal(res.body.pricing.amount, Math.round((price - discount + shipping) * 1000) / 1000);
+  assert.equal(res.body.shippingQuotes.standard.shipping, shipping);
+  assert.equal(res.body.shippingQuotes.standard.amount, res.body.pricing.amount);
+  assert.equal(res.body.shippingQuotes.express.amount, Math.round((price - discount + 50) * 1000) / 1000);
+  assert.equal(res.body.shippingQuotes.urgent.amount, Math.round((price - discount) * 1000) / 1000);
 });
 
 for (const [price, shipping] of [[500, 30], [1000, 0]]) test(`a fully discounted standard order keeps shipping based on its original subtotal ${price}`, async (t) => {
@@ -202,6 +213,9 @@ for (const [price, shipping] of [[500, 30], [1000, 0]]) test(`a fully discounted
   assert.equal(res.body.pricing.discount, price);
   assert.equal(res.body.pricing.shipping, shipping);
   assert.equal(res.body.pricing.amount, shipping);
+  assert.equal(res.body.shippingQuotes.standard.amount, shipping);
+  assert.equal(res.body.shippingQuotes.express.amount, 50);
+  assert.equal(res.body.shippingQuotes.urgent.amount, 0);
 });
 
 test("urgent quote excludes the deferred carrier fee and exposes a pending fee option", async (t) => {
@@ -255,9 +269,14 @@ for (const handler of [placeOrderCOD, placeOrderQr]) for (const [shippingMethod,
     assert.equal(options.session, session); assert.deepEqual(entry, { voucherId, userId, orderId });
   });
   const mail = t.mock.method(transporter, "sendMail", async () => assert.fail("Phone-only account has no email"));
+  const quote = response();
+  await quoteOrder({ user: { _id: userId }, body: {
+    items: [{ product: productId, size: "M", quantity: 1 }], voucherCode: "SAVE10",
+  } }, quote);
+  assert.equal(quote.body.shippingQuotes[shippingMethod].amount, amount);
   const res = response();
   await handler({ auth: () => ({ userId }), body: { items: [{ product: productId, size: "M", quantity: 1 }],
-    address: addressId, expectedAmount: amount, shippingMethod, voucherCode: "SAVE10", discount: 99999,
+    address: addressId, expectedAmount: quote.body.shippingQuotes[shippingMethod].amount, shippingMethod, voucherCode: "SAVE10", discount: 99999,
     note: "  Gói quà giúp tôi.\nGọi trước khi giao & giữ nguyên hộp.  " } }, res);
   assert.equal(res.statusCode, 201); assert.equal(created.amount, amount); assert.equal(created.subtotal, price);
   assert.equal(created.discount, Math.min(price * 0.1, 100)); assert.equal(created.shipping, shipping); assert.equal(created.shippingMethod, shippingMethod);

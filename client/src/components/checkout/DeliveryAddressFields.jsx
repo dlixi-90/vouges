@@ -4,6 +4,12 @@ import { validateDeliveryPhone } from "../../utils/deliveryPhone";
 
 const COUNTRIES_NOW_API = "https://countriesnow.space/api/v0.1";
 const VIETNAM_PROVINCES_API = "https://provinces.open-api.vn/api/v2/?depth=2";
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const getEmailError = (value) => {
+  if (!value.trim()) return "Vui lòng nhập email.";
+  if (!value.includes("@")) return "Email phải có dấu @, ví dụ: ten@gmail.com.";
+  return emailPattern.test(value.trim()) ? "" : "Email không đúng định dạng. Ví dụ: ten@gmail.com.";
+};
 
 const contactFields = [
   {
@@ -63,6 +69,8 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
   const { axios } = useAppContext();
   const [phoneError, setPhoneError] = useState("");
   const phoneHelpId = useId();
+  const [emailError, setEmailError] = useState("");
+  const emailHelpId = useId();
   const [countries, setCountries] = useState([]);
   const [cities, setCities] = useState([]);
   const [vietnamProvinces, setVietnamProvinces] = useState([]);
@@ -184,11 +192,32 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
       event.target.setCustomValidity("");
       if (phoneError) setPhoneError(validateDeliveryPhone(value).error);
     }
+    if (name === "email") {
+      const message = emailError ? getEmailError(value) : "";
+      setEmailError(message);
+      event.target.setCustomValidity(message);
+    }
 
     setAddress((current) => ({
       ...current,
       [name]: value,
     }));
+  };
+
+  const handleContactBlur = (event) => {
+    if (event.target.name === "phone") {
+      const result = validateDeliveryPhone(event.target.value);
+      setPhoneError(result.error);
+      event.target.setCustomValidity(result.error);
+      if (result.valid) setAddress((current) => ({ ...current, phone: result.normalized }));
+    }
+    if (event.target.name === "email") {
+      const value = event.target.value.trim();
+      const message = getEmailError(value);
+      setEmailError(message);
+      event.target.setCustomValidity(message);
+      setAddress((current) => ({ ...current, email: value }));
+    }
   };
 
   const handleCountryChange = (event) => {
@@ -233,18 +262,26 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
               name={field.name}
               value={address[field.name]}
               onChange={handleChange}
-              inputMode={field.name === "phone" ? "tel" : undefined}
-              onBlur={field.name === "phone" ? (event) => {
-                const result = validateDeliveryPhone(event.target.value);
-                setPhoneError(result.error);
-                event.target.setCustomValidity(result.error);
-                if (result.valid) setAddress((current) => ({ ...current, phone: result.normalized }));
+              inputMode={field.name === "phone" ? "tel" : field.name === "email" ? "email" : undefined}
+              pattern={field.name === "email" ? emailPattern.source : undefined}
+              maxLength={field.name === "email" ? 254 : undefined}
+              placeholder={field.name === "email" ? "ten@gmail.com" : undefined}
+              onBlur={handleContactBlur}
+              onInvalid={field.name === "email" ? (event) => {
+                const message = getEmailError(event.target.value);
+                setEmailError(message);
+                event.target.setCustomValidity(message);
               } : undefined}
-              aria-invalid={field.name === "phone" ? Boolean(phoneError) : undefined}
-              aria-describedby={field.name === "phone" ? phoneHelpId : undefined}
+              aria-invalid={field.name === "phone" ? Boolean(phoneError) : field.name === "email" ? Boolean(emailError) : undefined}
+              aria-describedby={field.name === "phone" ? phoneHelpId : field.name === "email" ? emailHelpId : undefined}
               autoComplete={field.name}
-              className={inputClass}
+              className={`${inputClass} ${field.name === "email" && emailError ? "border-red-500" : ""}`}
             />
+            {field.name === "email" && (
+              <span id={emailHelpId} className={`mt-2 block text-xs ${emailError ? "text-red-600" : "text-gray-500"}`} aria-live="polite">
+                {emailError || "Email phải có dấu @, ví dụ: ten@gmail.com."}
+              </span>
+            )}
             {field.name === "phone" && (
               <span id={phoneHelpId} className={`mt-2 block text-xs ${phoneError ? "text-red-600" : "text-gray-500"}`} aria-live="polite">
                 {phoneError}
