@@ -3,14 +3,10 @@ import { CreditCard, Package, Truck } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import { formatThousandsVnd } from "../utils/money";
 import { getCartItemKey } from "../utils/cartSelection";
+import { SHIPPING_METHODS, URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
 import ProductImage from "./ProductImage";
 import CartActionBar from "./CartActionBar";
 import CheckoutVoucherPicker from "./checkout/CheckoutVoucherPicker";
-
-const fallbackShippingMethods = [
-  { id: "standard", label: "Giao tiêu chuẩn", description: "Dự kiến 3–5 ngày", fee: 30, freeFrom: 500 },
-  { id: "express", label: "Giao nhanh", description: "Dự kiến 1–2 ngày", fee: 50, freeFrom: null },
-];
 
 const CartTotal = ({ checkout, contentRef, onBack, isSubmitting = false, selectedItemKeys, orderNote, setOrderNote }) => {
   const { products, cartItems, currency, method, setMethod } = useAppContext();
@@ -33,13 +29,17 @@ const CartTotal = ({ checkout, contentRef, onBack, isSubmitting = false, selecte
     (total, item) => total + Number(item.product.price[item.size]) * item.quantity,
     0,
   );
-  const shippingMethods = checkout.shippingMethods || fallbackShippingMethods;
+  const shippingMethods = checkout.shippingMethods || SHIPPING_METHODS;
+  const isUrgentShipping = checkout.shippingMethod === "urgent";
   const discount = checkout.pricing?.discount || 0;
+  const shippingSubtotal = checkout.pricing?.subtotal ?? subtotal;
   const formatPrice = (value) => formatThousandsVnd(value, currency);
   const shippingPrice = (option) => {
+    if (option.fee === null) return "Theo giá đơn vị giao hàng · Thanh toán sau";
+    if (!checkout.ready) return "—";
     const fee = checkout.ready && checkout.shippingMethod === option.id
       ? checkout.pricing.shipping
-      : option.freeFrom != null && subtotal >= option.freeFrom ? 0 : option.fee;
+      : option.freeFrom != null && shippingSubtotal >= option.freeFrom ? 0 : option.fee;
     return fee === 0 ? "Free" : formatPrice(fee);
   };
 
@@ -101,9 +101,9 @@ const CartTotal = ({ checkout, contentRef, onBack, isSubmitting = false, selecte
             <legend className="sr-only">Shipping Method</legend>
             <div className="mb-4">
               <h3 className="flex items-center gap-2 font-semibold"><Truck size={19} className="text-secondary" aria-hidden="true" />Shipping Method</h3>
-              <p className="mt-2 text-sm text-gray-500">Miễn phí giao tiêu chuẩn cho đơn từ 500.000đ trước giảm giá.</p>
+              <p className="mt-2 text-sm text-gray-500">Miễn phí giao tiêu chuẩn khi tổng tiền hàng trước khi áp voucher từ 1.000.000đ.</p>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 xl:grid-cols-3">
               {shippingMethods.map((option) => (
                 <label key={option.id} className={`flex cursor-pointer items-start gap-3 rounded-lg border bg-white p-4 text-sm ${checkout.shippingMethod === option.id ? "border-secondary" : "border-gray-200"} ${isSubmitting ? "cursor-not-allowed opacity-50" : ""}`}>
                   <input type="radio" name="shippingMethod" value={option.id} checked={checkout.shippingMethod === option.id}
@@ -118,6 +118,7 @@ const CartTotal = ({ checkout, contentRef, onBack, isSubmitting = false, selecte
                 </label>
               ))}
             </div>
+            {isUrgentShipping && <p className="mt-3 text-sm text-gray-500">{URGENT_SHIPPING_NOTE}</p>}
           </fieldset>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-3 border-t border-dashed border-gray-200 bg-primary/40 px-5 py-4 sm:px-6">
@@ -148,9 +149,10 @@ const CartTotal = ({ checkout, contentRef, onBack, isSubmitting = false, selecte
         <div className="flex justify-end bg-primary/40 p-5 sm:p-6">
           <dl className="w-full max-w-sm space-y-3 text-sm">
             <div className="flex justify-between gap-6"><dt className="text-gray-500">Products subtotal</dt><dd className="font-medium">{formatPrice(checkout.pricing?.subtotal ?? subtotal)}</dd></div>
-            <div className="flex justify-between gap-6"><dt className="text-gray-500">Shipping</dt><dd className="font-medium">{checkout.ready ? checkout.pricing.shipping === 0 ? "Free" : formatPrice(checkout.pricing.shipping) : "—"}</dd></div>
+            <div className="flex justify-between gap-6"><dt className="text-gray-500">Shipping</dt><dd className="font-medium">{isUrgentShipping ? "Thanh toán sau" : checkout.ready ? checkout.pricing.shipping === 0 ? "Free" : formatPrice(checkout.pricing.shipping) : "—"}</dd></div>
             <div className="flex justify-between gap-6"><dt className="text-gray-500">Voucher discount</dt><dd className={discount > 0 ? "font-medium text-green-700" : "font-medium"}>{checkout.ready ? `${discount > 0 ? "−" : ""}${formatPrice(discount)}` : "—"}</dd></div>
             <div className="flex items-baseline justify-between gap-6 border-t border-gray-200 pt-3"><dt className="font-semibold">Total Payment</dt><dd className="text-xl font-bold text-secondary">{checkout.ready ? formatPrice(checkout.pricing.amount) : "—"}</dd></div>
+            {isUrgentShipping && <div className="text-xs text-gray-500"><dt className="sr-only">Phí Hỏa tốc</dt><dd>{URGENT_SHIPPING_NOTE}</dd></div>}
           </dl>
         </div>
       </section>
@@ -159,7 +161,7 @@ const CartTotal = ({ checkout, contentRef, onBack, isSubmitting = false, selecte
         <button type="button" onClick={onBack} disabled={isSubmitting} className="btn-outline !rounded-md !px-4 disabled:opacity-50">Back to Cart</button>
         <div className="flex w-full flex-wrap items-center justify-between gap-4 lg:w-auto lg:justify-end lg:gap-6">
           <div aria-live="polite">
-            <p className="text-xs text-gray-500">{selectedCount} items · Shipping and discount included</p>
+            <p className="text-xs text-gray-500">{selectedCount} items · {isUrgentShipping ? "Chưa gồm phí Hỏa tốc (thanh toán sau)" : "Shipping and discount included"}</p>
             <p className="mt-1 flex flex-wrap items-baseline gap-3"><span className="text-sm">Total Payment:</span><span className="text-xl font-bold text-secondary">{checkout.ready ? formatPrice(checkout.pricing.amount) : "—"}</span></p>
           </div>
           <button type="submit" form="checkout-address-form" disabled={isSubmitting || selectedCount === 0 || !checkout.ready || (method === "QR" && checkout.pricing.amount === 0)}

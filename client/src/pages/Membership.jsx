@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAppContext } from "../context/AppContext";
 import { formatThousandsVnd } from "../utils/money";
+import { formatVoucherExpiryDate } from "../utils/voucherDates";
 
 export default function Membership() {
   const { user, axios, getToken, requireCartLogin } = useAppContext();
@@ -65,7 +66,7 @@ export default function Membership() {
             <h3 className="font-semibold">{voucher.kind === "birthday" ? "Chúc mừng sinh nhật!" : "Ưu đãi thành viên"}</h3>
             <p className="mt-1 text-sm">Giảm {voucher.type === "percent" ? `${voucher.value}%` : formatThousandsVnd(voucher.value)}
               {voucher.maxDiscount != null && `, tối đa ${formatThousandsVnd(voucher.maxDiscount)}`}</p>
-            <p className="mt-1 text-xs text-gray-500">Đơn từ {formatThousandsVnd(voucher.minSubtotal)} · Hết hạn {new Date(voucher.expiresAt).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}</p>
+            <p className="mt-1 text-xs text-gray-500">Đơn từ {formatThousandsVnd(voucher.minSubtotal)} · Hết hạn {formatVoucherExpiryDate(voucher.expiresAt)}</p>
             <p className="mt-3 break-all font-mono text-sm">{voucher.code}</p>
             <button type="button" className="mt-2 text-sm text-secondary underline" onClick={async () => {
               try { await navigator.clipboard.writeText(voucher.code); toast.success("Đã sao chép mã."); }

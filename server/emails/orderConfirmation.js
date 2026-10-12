@@ -64,6 +64,11 @@ export const buildOrderConfirmationEmail = (
   const total = Number(order.amount);
   const discount = Number(order.discount || 0);
   const shipping = Number(order.shipping ?? Math.max(0, total - subtotal + discount));
+  const isUrgentShipping = order.shippingMethod === "urgent";
+  const shippingLabel = isUrgentShipping
+    ? "Theo giá đơn vị giao hàng bên thứ ba, thanh toán sau"
+    : shipping === 0 ? "Miễn phí" : money(shipping);
+  const urgentShippingNote = "Tổng thanh toán chưa gồm phí giao Hỏa tốc. Phí này theo giá của đơn vị giao hàng bên thứ ba và thanh toán sau.";
   const quantity = items.reduce((sum, item) => sum + item.quantity, 0);
   const paymentMethod =
     order.paymentMethod === "COD"
@@ -72,10 +77,12 @@ export const buildOrderConfirmationEmail = (
   const paymentStatus = order.isPaid ? "Đã thanh toán" : "Chưa thanh toán";
   const totalLabel = order.isPaid ? "Tổng đã thanh toán" : "Tổng thanh toán";
   const paymentNote = order.isPaid
-    ? "Velours đã ghi nhận thanh toán của bạn. Bạn không cần thanh toán lại khi nhận hàng."
+    ? isUrgentShipping
+      ? `Velours đã ghi nhận thanh toán tiền hàng của bạn. ${urgentShippingNote}`
+      : "Velours đã ghi nhận thanh toán của bạn. Bạn không cần thanh toán lại khi nhận hàng."
     : order.paymentMethod === "COD"
-      ? `Vui lòng thanh toán ${money(total)} cho đơn vị vận chuyển khi nhận hàng.`
-      : "Bạn có thể kiểm tra trạng thái thanh toán trong mục Đơn hàng của tôi.";
+      ? `Vui lòng thanh toán ${money(total)} cho đơn vị vận chuyển khi nhận hàng.${isUrgentShipping ? ` ${urgentShippingNote}` : ""}`
+      : `Bạn có thể kiểm tra trạng thái thanh toán trong mục Đơn hàng của tôi.${isUrgentShipping ? ` ${urgentShippingNote}` : ""}`;
   const subject = `Velours · Xác nhận đơn hàng #${orderId.slice(-8).toUpperCase()}`;
 
   const productRows = items
@@ -157,7 +164,7 @@ export const buildOrderConfirmationEmail = (
           <table role="presentation" width="100%">
             <tr><td style="padding:0 0 12px;font-size:13px;color:#78847e;">Tạm tính</td><td align="right" style="padding:0 0 12px;font-size:13px;">${escapeHtml(money(subtotal))}</td></tr>
             ${discount > 0 ? `<tr><td style="padding:0 0 12px;font-size:13px;color:#78847e;">Voucher ${escapeHtml(order.voucherCode)}</td><td align="right" style="padding:0 0 12px;font-size:13px;">−${escapeHtml(money(discount))}</td></tr>` : ""}
-            <tr><td style="padding:0 0 18px;font-size:13px;color:#78847e;">Phí vận chuyển${order.shippingMethod === "express" ? " (giao nhanh)" : ""}</td><td align="right" style="padding:0 0 18px;font-size:13px;${shipping === 0 ? "color:#557b5e;" : ""}">${shipping === 0 ? "Miễn phí" : escapeHtml(money(shipping))}</td></tr>
+            <tr><td style="padding:0 0 18px;font-size:13px;color:#78847e;">Phí vận chuyển${isUrgentShipping ? " (Hỏa tốc)" : order.shippingMethod === "express" ? " (giao nhanh)" : ""}</td><td align="right" style="padding:0 0 18px;font-size:13px;${!isUrgentShipping && shipping === 0 ? "color:#557b5e;" : ""}">${escapeHtml(shippingLabel)}</td></tr>
             <tr><td style="border-top:1px solid #e8ece7;padding-top:18px;font-size:14px;font-weight:600;">${totalLabel}</td><td align="right" style="border-top:1px solid #e8ece7;padding-top:18px;font-size:24px;font-weight:700;color:#41334e;white-space:nowrap;">${escapeHtml(money(total))}</td></tr>
           </table>
         </td></tr>
@@ -205,7 +212,7 @@ export const buildOrderConfirmationEmail = (
     "",
     `Tạm tính: ${money(subtotal)}`,
     ...(discount > 0 ? [`Voucher ${order.voucherCode}: -${money(discount)}`] : []),
-    `Phí vận chuyển: ${shipping === 0 ? "Miễn phí" : money(shipping)}`,
+    `Phí vận chuyển: ${shippingLabel}`,
     `${totalLabel}: ${money(total)}`,
     `${paymentMethod} — ${paymentStatus}`,
     paymentNote,

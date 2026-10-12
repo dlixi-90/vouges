@@ -3,6 +3,7 @@ import { Package, Star } from "lucide-react";
 import Title from "../components/Title";
 import { useAppContext } from "../context/AppContext";
 import { formatThousandsVnd } from "../utils/money";
+import { SHIPPING_METHODS, URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
 
 const ProductReviewDialog = lazy(() => import("../components/ProductReviewDialog"));
 
@@ -222,7 +223,8 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
             </div>}
             {order.shipping !== undefined && <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Giao hàng</dt>
-              <dd className="mt-1 text-sm">{order.shippingMethod === "express" ? "Giao nhanh" : "Giao tiêu chuẩn"} · {formatThousandsVnd(order.shipping, currency)}</dd>
+              <dd className="mt-1 text-sm">{SHIPPING_METHODS.find((method) => method.id === order.shippingMethod)?.label || "Giao tiêu chuẩn"} · {order.shippingMethod === "urgent" ? "Thanh toán sau" : formatThousandsVnd(order.shipping, currency)}</dd>
+              {order.shippingMethod === "urgent" && <dd className="mt-1 text-xs text-gray-500">{URGENT_SHIPPING_NOTE}</dd>}
             </div>}
             {order.discount > 0 && <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Voucher {order.voucherCode}</dt>

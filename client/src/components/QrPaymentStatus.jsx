@@ -4,6 +4,7 @@ import { useAppContext } from "../context/AppContext";
 import { removePurchasedItems } from "../utils/cartSelection";
 import { useBlocker } from "react-router-dom";
 import { createQrCancellation, shouldCancelQrNavigation } from "../utils/qrNavigation";
+import { URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
 
 const getRemainingSeconds = (expiresAt) =>
   Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 1000));
@@ -272,6 +273,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
         <p className="mt-3 text-gray-500">
           Your payment has been confirmed and the order is being processed.
         </p>
+        {order.shippingMethod === "urgent" && <p className="mt-3 text-sm text-gray-500">{URGENT_SHIPPING_NOTE}</p>}
 
         <p className="mt-2 text-sm text-gray-400">Order ID: {order._id}</p>
 
@@ -329,6 +331,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
             <p className="mt-1 text-2xl font-bold text-secondary">
               {Number(order.qrAmount).toLocaleString("vi-VN")} VND
             </p>
+            {order.shippingMethod === "urgent" && <p className="mt-3 text-sm text-gray-500">{URGENT_SHIPPING_NOTE}</p>}
 
             <hr className="my-5 border-gray-200" />
 

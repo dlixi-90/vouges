@@ -224,10 +224,11 @@ const createOrderItemSnapshots = (validatedOrder) =>
 
 const priceOrder = async (subtotal, body, userId, session) => {
   const shippingMethod = body.shippingMethod ?? "standard";
-  const shipping = getShippingCharge(subtotal, shippingMethod);
   const voucher = await validateVoucher(body.voucherCode, userId, subtotal, session);
   const discount = voucher ? calculateDiscount(voucher, subtotal) : 0;
-  const amount = Math.round((subtotal - discount + shipping) * 1000) / 1000;
+  const discountedSubtotal = Math.round((subtotal - discount) * 1000) / 1000;
+  const shipping = getShippingCharge(subtotal, shippingMethod);
+  const amount = Math.round((discountedSubtotal + shipping) * 1000) / 1000;
   return { subtotal, shippingMethod, shipping, discount, amount,
     voucherId: voucher?._id || null, voucherCode: voucher?.code || "", voucher };
 };

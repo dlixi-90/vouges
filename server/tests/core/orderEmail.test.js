@@ -84,3 +84,15 @@ test("paid receipt does not ask the customer to pay again", () => {
   assert.match(text, /không cần thanh toán lại/);
   assert.doesNotMatch(text, /Vui lòng thanh toán/);
 });
+
+for (const isPaid of [false, true]) test(`urgent receipt explains the separately payable carrier fee when paid=${isPaid}`, () => {
+  const order = { ...sampleOrder(), shippingMethod: "urgent", shipping: 0, amount: 300,
+    paymentMethod: isPaid ? "QR" : "COD", isPaid };
+  const { html, text } = buildOrderConfirmationEmail(order);
+  for (const receipt of [html, text]) {
+    assert.match(receipt, /Hỏa tốc/);
+    assert.match(receipt, /Theo giá đơn vị giao hàng bên thứ ba, thanh toán sau/);
+    assert.match(receipt, /Tổng thanh toán chưa gồm phí giao Hỏa tốc/);
+    assert.doesNotMatch(receipt, /Miễn phí|không cần thanh toán lại khi nhận hàng/i);
+  }
+});

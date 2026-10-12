@@ -9,6 +9,7 @@ import ProductImage from "../components/ProductImage";
 import { useAppContext } from "../context/AppContext";
 import { assets } from "../assets/data";
 import { formatThousandsVnd } from "../utils/money";
+import { URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
 import {
   getCartItemKey,
   changeSizeSelection,
@@ -630,6 +631,7 @@ const Cart = () => {
           <p className="mt-3 text-gray-500">
             Your order has been created. You will pay when it is delivered.
           </p>
+          {createdOrder.shippingMethod === "urgent" && <p className="mt-3 text-sm text-gray-500">{URGENT_SHIPPING_NOTE}</p>}
 
           <button
             type="button"

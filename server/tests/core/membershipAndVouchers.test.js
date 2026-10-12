@@ -17,6 +17,7 @@ import { buildOrderConfirmationEmail } from "../../emails/orderConfirmation.js";
 import transporter from "../../config/nodemailer.js";
 import { Webhook } from "svix";
 import clerkWebhooks from "../../controllers/ClerkWebhooks.js";
+import { getVoucherValidityPeriod, formatVoucherDate, formatVoucherExpiryDate } from "../../../client/src/utils/voucherDates.js";
 
 const productId = "507f1f77bcf86cd799439011";
 const orderId = "507f1f77bcf86cd799439012";
@@ -171,6 +172,51 @@ test("checkout quote ignores client prices/discounts and computes express shippi
   assert.equal(res.body.pricing.voucher, undefined);
 });
 
+for (const [price, voucherCode, discount, shipping] of [
+  [999.999, "", 0, 30],
+  [999.999, "SAVE10", 100, 30],
+  [1000, "", 0, 0],
+  [1000, "SAVE10", 100, 0],
+  [1099.999, "SAVE10", 100, 0],
+  [1100, "SAVE10", 100, 0],
+]) test(`standard quote uses the subtotal before vouchers for price ${price} and voucher ${voucherCode || "none"}`, async (t) => {
+  mockCatalog(t, price);
+  const res = response();
+  await quoteOrder({ user: { _id: userId }, body: {
+    items: [{ product: productId, size: "M", quantity: 1 }], shippingMethod: "standard", voucherCode,
+    discount: 0, shipping: 0,
+  } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.pricing.discount, discount);
+  assert.equal(res.body.pricing.shipping, shipping);
+  assert.equal(res.body.pricing.amount, Math.round((price - discount + shipping) * 1000) / 1000);
+});
+
+for (const [price, shipping] of [[500, 30], [1000, 0]]) test(`a fully discounted standard order keeps shipping based on its original subtotal ${price}`, async (t) => {
+  mockCatalog(t, price);
+  t.mock.method(Voucher, "findOne", async () => coupon({ value: 100, maxDiscount: null }));
+  const res = response();
+  await quoteOrder({ user: { _id: userId }, body: {
+    items: [{ product: productId, size: "M", quantity: 1 }], shippingMethod: "standard", voucherCode: "SAVE10",
+  } }, res);
+  assert.equal(res.body.pricing.discount, price);
+  assert.equal(res.body.pricing.shipping, shipping);
+  assert.equal(res.body.pricing.amount, shipping);
+});
+
+test("urgent quote excludes the deferred carrier fee and exposes a pending fee option", async (t) => {
+  mockCatalog(t);
+  const res = response();
+  await quoteOrder({ user: { _id: userId }, body: {
+    items: [{ product: productId, size: "M", quantity: 1 }], shippingMethod: "urgent", voucherCode: "SAVE10", shipping: 80,
+  } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.pricing.shippingMethod, "urgent");
+  assert.equal(res.body.pricing.shipping, 0);
+  assert.equal(res.body.pricing.amount, 450);
+  assert.equal(res.body.shippingMethods.find((method) => method.id === "urgent").fee, null);
+});
+
 for (const handler of [placeOrderCOD, placeOrderQr]) test(`${handler.name} rejects a stale quote before reserving stock or vouchers`, async (t) => {
   mockCatalog(t);
   t.mock.method(Order, "exists", async () => null);
@@ -184,8 +230,11 @@ for (const handler of [placeOrderCOD, placeOrderQr]) test(`${handler.name} rejec
   assert.equal(res.statusCode, 409); assert.equal(write.mock.callCount(), 0);
 });
 
-for (const handler of [placeOrderCOD, placeOrderQr]) test(`${handler.name} saves authoritative voucher/shipping totals and reserves the use in the stock transaction`, async (t) => {
-  mockCatalog(t);
+for (const handler of [placeOrderCOD, placeOrderQr]) for (const [shippingMethod, shipping, amount, price = 500] of [
+  ["standard", 30, 480], ["express", 50, 500], ["urgent", 0, 450],
+  ["standard", 0, 900, 1000],
+]) test(`${handler.name} saves authoritative ${shippingMethod} totals for subtotal ${price} and reserves the voucher use in the stock transaction`, async (t) => {
+  mockCatalog(t, price);
   const session = { withTransaction: async (callback) => callback(), endSession: async () => {} };
   t.mock.method(mongoose, "startSession", async () => session);
   t.mock.method(Order, "exists", async () => null);
@@ -208,15 +257,16 @@ for (const handler of [placeOrderCOD, placeOrderQr]) test(`${handler.name} saves
   const mail = t.mock.method(transporter, "sendMail", async () => assert.fail("Phone-only account has no email"));
   const res = response();
   await handler({ auth: () => ({ userId }), body: { items: [{ product: productId, size: "M", quantity: 1 }],
-    address: addressId, expectedAmount: 500, shippingMethod: "express", voucherCode: "SAVE10", discount: 99999,
+    address: addressId, expectedAmount: amount, shippingMethod, voucherCode: "SAVE10", discount: 99999,
     note: "  Gói quà giúp tôi.\nGọi trước khi giao & giữ nguyên hộp.  " } }, res);
-  assert.equal(res.statusCode, 201); assert.equal(created.amount, 500); assert.equal(created.subtotal, 500);
-  assert.equal(created.discount, 50); assert.equal(created.shipping, 50); assert.equal(created.shippingMethod, "express");
+  assert.equal(res.statusCode, 201); assert.equal(created.amount, amount); assert.equal(created.subtotal, price);
+  assert.equal(created.discount, Math.min(price * 0.1, 100)); assert.equal(created.shipping, shipping); assert.equal(created.shippingMethod, shippingMethod);
+  await assert.doesNotReject(() => new Order(created).validate());
   assert.equal(created.voucherCode, "SAVE10"); assert.equal(increment.mock.callCount(), 1); assert.equal(ledger.mock.callCount(), 1);
   assert.equal(created.note, "Gói quà giúp tôi.\nGọi trước khi giao & giữ nguyên hộp.");
   assert.equal(res.body.order.note, created.note);
   assert.equal(mail.mock.callCount(), 0);
-  if (handler === placeOrderQr) assert.equal(created.qrAmount, 500000);
+  if (handler === placeOrderQr) assert.equal(created.qrAmount, amount * 1000);
 });
 
 for (const handler of [placeOrderCOD, placeOrderQr]) test(`${handler.name} rejects invalid seller messages before changing stock or orders`, async (t) => {
@@ -254,7 +304,7 @@ test("zero-value QR orders do not reserve stock or issue an unpayable QR", async
   t.mock.method(mongoose, "startSession", async () => ({ withTransaction: async (callback) => callback(), endSession: async () => {} }));
   const write = t.mock.method(Order, "create", async () => assert.fail("No zero QR"));
   const res = response(); await placeOrderQr({ auth: () => ({ userId }), body: { items: [{ product: productId, size: "M", quantity: 1 }],
-    address: addressId, voucherCode: "SAVE10", shippingMethod: "standard", expectedAmount: 0 } }, res);
+    address: addressId, voucherCode: "SAVE10", shippingMethod: "urgent", expectedAmount: 0 } }, res);
   assert.equal(res.statusCode, 400); assert.match(res.body.message, /COD/); assert.equal(write.mock.callCount(), 0);
 });
 
@@ -297,6 +347,39 @@ test("admin voucher API rejects non-finite values and reserved birthday codes", 
     assert.equal(res.statusCode, 400);
   }
   assert.equal(write.mock.callCount(), 0);
+});
+
+test("date-only voucher creation includes the entire selected Vietnam day and expires at the next midnight", async (t) => {
+  const period = getVoucherValidityPeriod("2099-12-31", "2099-12-31");
+  assert.equal(period.startsAt, "2099-12-30T17:00:00.000Z");
+  assert.equal(period.expiresAt, "2099-12-31T17:00:00.000Z");
+  assert.equal(formatVoucherDate(period.startsAt), "31/12/2099");
+  assert.equal(formatVoucherExpiryDate(period.expiresAt), "31/12/2099");
+  let saved;
+  t.mock.method(Voucher, "create", async (values) => {
+    saved = { ...coupon(), ...values }; return saved;
+  });
+  const res = response();
+  await createVoucher({ body: { code: "SAVE10", type: "percent", value: 10, maxUses: 1, ...period } }, res, (error) => { throw error; });
+  assert.equal(res.statusCode, 201);
+  t.mock.method(Voucher, "findOne", async () => saved);
+  t.mock.method(VoucherUse, "exists", async () => null);
+  const start = new Date(period.startsAt);
+  const end = new Date(period.expiresAt);
+  await assert.rejects(validateVoucher("SAVE10", userId, 500, null, new Date(start.getTime() - 1)), /chưa có hiệu lực/);
+  await assert.doesNotReject(() => validateVoucher("SAVE10", userId, 500, null, start));
+  await assert.doesNotReject(() => validateVoucher("SAVE10", userId, 500, null, new Date(end.getTime() - 1)));
+  await assert.rejects(validateVoucher("SAVE10", userId, 500, null, end), /hết hạn/);
+});
+
+test("date-only voucher periods handle leap days and reject invalid or reversed dates", () => {
+  const period = getVoucherValidityPeriod("2028-02-29", "2028-02-29");
+  assert.equal(period.expiresAt, "2028-02-29T17:00:00.000Z");
+  assert.equal(formatVoucherExpiryDate(period.expiresAt), "29/02/2028");
+  for (const [start, end] of [["2027-02-29", "2027-03-01"], ["2028-02-29", "2028-02-30"],
+    ["", "2028-02-29"], ["2028-03-01", "2028-02-29"]]) {
+    assert.throws(() => getVoucherValidityPeriod(start, end));
+  }
 });
 
 test("receipt displays voucher separately from saved delivery fees", () => {
