@@ -3,7 +3,7 @@ import { Star } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import ProductReviewForm from "./ProductReviewForm";
 
-export default function ProductReviews({ productId }) {
+export default function ProductReviews({ productId, onSummaryChange }) {
   const { user, axios } = useAppContext();
   const [page, setPage] = useState(1);
   const [data, setData] = useState(null);
@@ -18,10 +18,21 @@ export default function ProductReviews({ productId }) {
   useEffect(() => {
     const controller = new AbortController();
     load(controller.signal).then((result) => {
-      if (!controller.signal.aborted) { setData(result); setError(""); }
-    }).catch((err) => { if (!controller.signal.aborted) setError(err.response?.data?.message || err.message); });
+      if (!controller.signal.aborted) {
+        setData(result);
+        setError("");
+        // Share the existing request's aggregate with the product header.
+        onSummaryChange?.({ productId, count: result.count, average: result.average });
+      }
+    }).catch((err) => {
+      if (!controller.signal.aborted) {
+        const message = err.response?.data?.message || err.message;
+        setError(message);
+        onSummaryChange?.({ productId, error: message });
+      }
+    });
     return () => controller.abort();
-  }, [load, attempt]);
+  }, [load, attempt, productId, onSummaryChange]);
 
   const changePage = (nextPage) => {
     setData(null);

@@ -20,16 +20,31 @@ import ProductReviews from "../components/ProductReviews";
 
 const MAX_QUANTITY_PER_ADD = 10;
 
+const RatingStars = ({ average }) => (
+  <span className="inline-flex shrink-0 items-center gap-0.5" aria-hidden="true">
+    {[0, 1, 2, 3, 4].map((index) => (
+      <span key={index} className="relative block h-[15px] w-[15px]">
+        <Star size={15} className="fill-gray-200 text-gray-200" />
+        <span className="absolute inset-y-0 left-0 overflow-hidden" style={{ width: `${Math.max(0, Math.min(1, average - index)) * 100}%` }}>
+          <Star size={15} className="fill-amber-400 text-amber-400" />
+        </span>
+      </span>
+    ))}
+  </span>
+);
+
 const ProductDetail = () => {
   const { products, currency, addToCart, requireCartLogin } = useAppContext();
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [addStatus, setAddStatus] = useState("idle");
+  const [reviewSummary, setReviewSummary] = useState(null);
   const productImageRef = useRef(null);
   const addedResetTimerRef = useRef(null);
 
   const { productId } = useParams();
+  const reviewStats = reviewSummary?.productId === productId ? reviewSummary : null;
   const product = products.find((item) => item._id === productId);
   const productAvailable = product ? hasAnyAvailableSize(product) : false;
   const availableSizes = product ? getAvailableSizes(product) : [];
@@ -148,8 +163,21 @@ const ProductDetail = () => {
           <p className="mt-2 text-2xl text-[#737373]">
             {formatThousandsVnd(size ? product.price?.[size] : 0, currency)}
           </p>
-          <a href="#reviews" className="mt-3 inline-flex items-center gap-2 rounded-md py-1 text-sm text-secondary underline underline-offset-4">
-            <Star size={16} className="text-amber-500" aria-hidden="true" />Xem / viết đánh giá sản phẩm
+          <a href="#reviews"
+            aria-label={reviewStats && !reviewStats.error
+              ? reviewStats.count > 0 ? `${reviewStats.average.toFixed(1)} trên 5 sao, ${reviewStats.count} đánh giá. Xem hoặc viết đánh giá sản phẩm.` : "Chưa có đánh giá. Viết đánh giá sản phẩm."
+              : "Xem hoặc viết đánh giá sản phẩm"}
+            className="mt-3 inline-flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md py-1 text-sm text-secondary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary">
+            {reviewStats && !reviewStats.error ? (
+              <>
+                <span className="border-b border-current leading-5">{reviewStats.count > 0 ? reviewStats.average.toFixed(1) : "Chưa có đánh giá"}</span>
+                <RatingStars average={reviewStats.average} />
+                <span className="inline-flex items-center gap-1.5 border-l border-gray-200 pl-3">
+                  <span className="border-b border-current leading-5">{reviewStats.count.toLocaleString("vi-VN")}</span>
+                  <span className="text-gray-500">Đánh giá</span>
+                </span>
+              </>
+            ) : <span className="text-gray-500">{reviewStats?.error ? "Xem đánh giá sản phẩm" : "Đang tải đánh giá…"}</span>}
           </a>
 
           <div className="mt-6 border-t border-[#dededb] pt-5">
@@ -262,7 +290,7 @@ const ProductDetail = () => {
         </section>
       </div>
 
-      <ProductReviews key={productId} productId={productId} />
+      <ProductReviews key={productId} productId={productId} onSummaryChange={setReviewSummary} />
       <ProductFeatures />
       <RelatedProducts product={product} productId={productId} />
     </div>
