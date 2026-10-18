@@ -1,8 +1,8 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Check } from "lucide-react";
+import { useBlocker } from "react-router-dom";
 import Title from "../components/Title";
-import CartSteps from "../components/CartSteps";
 import CartSizePicker from "../components/CartSizePicker";
 import CartActionBar from "../components/CartActionBar";
 import ProductImage from "../components/ProductImage";
@@ -24,6 +24,19 @@ import useCheckoutQuote from "../hooks/useCheckoutQuote";
 const CartTotal = lazy(() => import("../components/CartTotal"));
 const QrPaymentStatus = lazy(() => import("../components/QrPaymentStatus"));
 const CheckoutAddressForm = lazy(() => import("../components/checkout/CheckoutAddressForm"));
+
+// Mount only during checkout so the QR screen keeps its own cancellation guard.
+const CheckoutBackGuard = ({ onBack, isSubmitting }) => {
+  const blocker = useBlocker(({ historyAction }) => historyAction === "POP");
+
+  useEffect(() => {
+    if (blocker.state !== "blocked") return;
+    blocker.reset();
+    if (!isSubmitting) onBack();
+  }, [blocker, isSubmitting, onBack]);
+
+  return null;
+};
 
 const CartCheckbox = ({
   checked,
@@ -83,7 +96,6 @@ const Cart = () => {
   const userId = user?.id;
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [highestStep, setHighestStep] = useState(1);
   const [createdOrder, setCreatedOrder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isChangingSize, setIsChangingSize] = useState(false);
@@ -201,7 +213,6 @@ const Cart = () => {
         if (isActive && data.success && data.order) {
           setCreatedOrder(data.order);
           setCurrentStep(3);
-          setHighestStep(3);
         }
       } catch {
         // The cart remains usable if no pending payment can be restored.
@@ -289,7 +300,6 @@ const Cart = () => {
     }
 
     setCurrentStep(2);
-    setHighestStep(2);
     window.scrollTo(0, 0);
   };
 
@@ -297,7 +307,6 @@ const Cart = () => {
     storeResources.invalidateMembership();
     setCreatedOrder(order);
     setCurrentStep(3);
-    setHighestStep(3);
     window.scrollTo(0, 0);
   };
 
@@ -305,7 +314,6 @@ const Cart = () => {
     storeResources.invalidateMembership();
     setCreatedOrder(null);
     setCurrentStep(1);
-    setHighestStep(1);
     window.scrollTo(0, 0);
   };
 
@@ -313,31 +321,16 @@ const Cart = () => {
     storeResources.invalidateMembership();
     setCreatedOrder(null);
     setCurrentStep(2);
-    setHighestStep(2);
     window.scrollTo(0, 0);
   }, [storeResources]);
 
-  const handleStepChange = (step) => {
-    if (cartUpdateRef.current || hasPendingCartUpdates()) return;
-    if (createdOrder) return;
-    if (step > highestStep) return;
-    if (step === 2 && selectedItemKeys.size === 0) {
-      return toast.error("Please select at least one available product");
-    }
-
-    setCurrentStep(step);
+  const handleBackToCart = useCallback(() => {
+    setCurrentStep(1);
     window.scrollTo(0, 0);
-  };
+  }, []);
 
   return products && cartItems ? (
     <div className="max-padd-container bg-primary py-16 pt-28">
-      <CartSteps
-        currentStep={currentStep}
-        highestStep={highestStep}
-        onStepChange={handleStepChange}
-        locked={Boolean(createdOrder) || isUpdatingCart}
-      />
-
       {/* STEP 1 */}
       {currentStep === 1 && (
         <section className="min-w-0 text-[95%]">
@@ -581,6 +574,7 @@ const Cart = () => {
       )}
 
       {/* STEP 2 */}
+      {currentStep === 2 && <CheckoutBackGuard onBack={handleBackToCart} isSubmitting={isSubmitting} />}
       {currentStep === 2 && (
         <Suspense fallback={<p role="status" className="py-12 text-center">Loading checkout...</p>}>
           <div ref={checkoutContentRef} className="space-y-4 text-[95%]">
@@ -601,10 +595,7 @@ const Cart = () => {
               selectedItemKeys={selectedItemKeys}
               orderNote={orderNote}
               setOrderNote={setOrderNote}
-              onBack={() => {
-                setCurrentStep(1);
-                window.scrollTo(0, 0);
-              }}
+              onBack={handleBackToCart}
             />
           </div>
         </Suspense>
