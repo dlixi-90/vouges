@@ -5,27 +5,21 @@ import "swiper/css";
 import Title from "./Title";
 import Item from "./Item";
 import { useAppContext } from "../context/AppContext";
+import { selectRelatedProducts } from "../utils/relatedProducts";
 
 const RelatedProducts = ({ product, productId }) => {
   const { products } = useAppContext();
 
-  const relatedProducts = useMemo(
-    () =>
-      products
-        .filter(
-          (item) =>
-            item.category === product.category &&
-            item._id !== productId,
-        )
-        .slice(0, 6),
-    [product.category, productId, products],
+  const { products: relatedProducts, isFallback } = useMemo(
+    () => selectRelatedProducts(products, product, productId),
+    [product, productId, products],
   );
 
   if (relatedProducts.length === 0) return null;
 
   return (
     <section className="mt-20 sm:mt-24">
-      <Title title1="Related" title2="Products" titleStyles="pb-10" />
+      <Title title1={isFallback ? "You may" : "Related"} title2={isFallback ? "also like" : "Products"} titleStyles="pb-10" />
 
       <Swiper
         spaceBetween={30}

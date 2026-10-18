@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -13,6 +14,7 @@ import axios from "axios";
 import { createCartUpdateQueue } from "../utils/cartUpdateQueue";
 import { createUserProfileLoader } from "../utils/userProfileLoader";
 import { createDashboardCache } from "../utils/dashboardCache";
+import { createStoreResources } from "../utils/storeResources";
 import { persistCartSizeChange } from "../utils/cartSizeUpdate";
 import { getCartItemKey } from "../utils/cartSelection";
 import { getOrderedCartItems, setCartLineAddedAt } from "../utils/cartOrder";
@@ -86,13 +88,15 @@ export const AppContextProvider = ({ children }) => {
   const [profileResult, setProfileResult] = useState({ userId: null, role: null, error: "" });
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const needsCatalog = pathname.replace(/\/+$/, "") !== "/owner";
+  const needsCatalog = !["/owner", "/owner/messages", "/membership"].includes(pathname.replace(/\/+$/, ""));
   const currency = import.meta.env.VITE_CURRENCY;
   const delivery_charges = 30;
 
   // Clerk
   const { user } = useUser();
   const { getToken, userId: authUserId, isLoaded } = useAuth();
+  const storeResources = useMemo(() => createStoreResources({ axios, userId: authUserId, getToken }), [authUserId, getToken]);
+  useEffect(() => () => storeResources.clear(), [storeResources]);
   const isOwner = !isLoaded ? null : !authUserId ? false
     : profileResult.userId === authUserId ? profileResult.role : null;
   const profileError = profileResult.userId === authUserId ? profileResult.error : "";
@@ -533,6 +537,7 @@ export const AppContextProvider = ({ children }) => {
   }, [fetchCategories, needsCatalog]);
 
   const value = {
+    storeResources,
     dashboardCache,
     authenticatedUserId: authUserId,
     productDrafts,

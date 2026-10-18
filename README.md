@@ -3,6 +3,7 @@
 # VELOURS /Vơ-lua/
 
 Hướng dẫn tính năng mới: [hồ sơ thành viên, voucher sinh nhật, giao hàng và đánh giá](MEMBERSHIP.md).
+Hỗ trợ khách hàng: [chat với nhân viên CSKH và hộp thư quản trị](SUPPORT.md).
 ### Mỹ phẩm, nước hoa & trải nghiệm mua sắm cùng AI
 
 **Nền tảng thương mại điện tử kết hợp cửa hàng trực tuyến, thanh toán QR và trợ lý mua sắm AI trong cùng một trải nghiệm.**

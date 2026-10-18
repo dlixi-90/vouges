@@ -7,8 +7,10 @@ import { vietnamDate } from "../utils/membership.js";
 
 export const listMyVouchers = async (req, res, next) => {
   try {
-    await issueBirthdayVoucher(req.user);
-    const uses = await VoucherUse.find({ userId: req.user._id }).select("voucherId").lean();
+    const [, uses] = await Promise.all([
+      issueBirthdayVoucher(req.user),
+      VoucherUse.find({ userId: req.user._id }).select("voucherId -_id").lean(),
+    ]);
     const now = new Date();
     const vouchers = await Voucher.find({ active: true,
       _id: { $nin: uses.map((use) => use.voucherId) },
@@ -16,7 +18,11 @@ export const listMyVouchers = async (req, res, next) => {
       startsAt: { $lte: now }, expiresAt: { $gt: now },
       $expr: { $lt: ["$usedCount", "$maxUses"] },
     }).select("code kind type value maxDiscount minSubtotal expiresAt").sort({ expiresAt: 1 }).limit(100).lean();
-    res.json({ success: true, vouchers });
+    res.set("Cache-Control", "private, no-store");
+    res.json({ success: true, vouchers, profile: {
+      username: req.user.username, phone: req.user.phone,
+      email: req.user.email, birthday: req.user.birthday || "",
+    } });
   } catch (error) { next(error); }
 };
 

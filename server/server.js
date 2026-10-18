@@ -13,10 +13,17 @@ import cartRouter from "./routes/cartRoute.js";
 import orderRouter from "./routes/orderRoute.js";
 import aiRouter from "./routes/aiRoute.js";
 import voucherRouter from "./routes/voucherRoute.js";
+import supportRouter from "./routes/supportRoute.js";
 import { awardBirthdays } from "./controllers/voucherController.js";
 import multer from "multer";
+import SupportConversation from "./models/SupportConversation.js";
+import SupportMessage from "./models/SupportMessage.js";
+import SupportUsage from "./models/SupportUsage.js";
+
+export const config = { maxDuration: 60 };
 
 await connectDB(); // Establish connection to the database
+await Promise.all([SupportConversation.init(), SupportMessage.init(), SupportUsage.init()]);
 await connectCloudinary(); //Setup cloudinary for image storage
 
 const app = express(); // Initialize Express Application
@@ -43,6 +50,7 @@ app.use("/api/addresses", addressRouter); // Routes for handling addresses
 app.use("/api/cart", cartRouter); // Routes for handling cart
 app.use("/api/orders", orderRouter);
 app.use("/api/vouchers", voucherRouter);
+app.use("/api/support", supportRouter);
 app.use("/api/ai", aiRouter); // Routes for handling order
 
 // Route Endpoint to check API Status

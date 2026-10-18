@@ -3,11 +3,18 @@ import toast from "react-hot-toast";
 import { LoaderCircle, Plus, Search, Ticket } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import { formatThousandsVnd } from "../../utils/money";
-import { getVoucherValidityPeriod, formatVoucherDate, formatVoucherExpiryDate } from "../../utils/voucherDates";
+import { getVoucherValidityPeriod, getVoucherStatus, formatVoucherDate, formatVoucherExpiryDate } from "../../utils/voucherDates";
 
 const initial = { code: "", type: "percent", value: 10, minSubtotal: 0, maxDiscount: "", maxUses: 100, startsAt: "", expiresAt: "" };
+const voucherStatuses = {
+  available: { label: "Có thể sử dụng", style: "bg-[#edf6ee] text-[#557b5e]" },
+  inactive: { label: "Đã tắt", style: "bg-[#f0f2f3] text-[#839099]" },
+  expired: { label: "Đã hết hạn", style: "bg-red-50 text-red-700" },
+  upcoming: { label: "Chưa đến ngày", style: "bg-amber-50 text-amber-700" },
+  exhausted: { label: "Hết lượt dùng", style: "bg-[#f0f2f3] text-[#839099]" },
+};
 export default function Vouchers() {
-  const { axios, getToken } = useAppContext();
+  const { axios, getToken, storeResources } = useAppContext();
   const [draft, setDraft] = useState(initial);
   const [vouchers, setVouchers] = useState([]);
   const [error, setError] = useState("");
@@ -41,6 +48,7 @@ export default function Vouchers() {
         maxUses: Number(draft.maxUses),
         ...getVoucherValidityPeriod(draft.startsAt, draft.expiresAt),
       }, { headers: { Authorization: `Bearer ${await getToken()}` } });
+      storeResources.invalidateMembership();
       setDraft(initial); setVouchers(await load()); toast.success("Đã tạo voucher.");
     } catch (err) { toast.error(err.response?.data?.message || err.message); }
     finally { setBusy(false); }
@@ -50,6 +58,7 @@ export default function Vouchers() {
     setBusy(true);
     try {
       await axios.patch(`/api/vouchers/${voucher._id}`, { active: !voucher.active }, { headers: { Authorization: `Bearer ${await getToken()}` } });
+      storeResources.invalidateMembership();
       setVouchers(await load());
     } catch (err) { toast.error(err.response?.data?.message || err.message); }
     finally { setBusy(false); }
@@ -155,7 +164,9 @@ export default function Vouchers() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#edf0f2]">
-                      {visibleVouchers.map((voucher) => (
+                      {visibleVouchers.map((voucher) => {
+                        const status = voucherStatuses[getVoucherStatus(voucher)];
+                        return (
                         <tr key={voucher._id} className="transition-colors hover:bg-[#f1f3f2]">
                           <th scope="row" className="px-5 py-4 font-mono font-semibold text-[#263b4a]">
                             <span className="break-all">{voucher.code}</span>
@@ -176,17 +187,18 @@ export default function Vouchers() {
                             <div className="flex items-center gap-3">
                               <label className={`relative inline-flex shrink-0 items-center ${busy ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}>
                                 <input type="checkbox" role="switch" className="peer sr-only" checked={voucher.active} disabled={busy}
-                                  onChange={() => toggle(voucher)} aria-label={`Bật mã voucher ${voucher.code}`} />
+                                  onChange={() => toggle(voucher)} aria-label={`${voucher.active ? "Tắt" : "Bật"} mã voucher ${voucher.code}`} />
                                 <span className="h-5 w-9 rounded-full bg-[#d6dde0] transition peer-checked:bg-[#78a782] peer-focus-visible:ring-2 peer-focus-visible:ring-[#b8d2be]" />
                                 <span className="absolute left-1 h-3.5 w-3.5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-4" />
                               </label>
-                              <span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${voucher.active ? "bg-[#edf6ee] text-[#557b5e]" : "bg-[#f0f2f3] text-[#839099]"}`}>
-                                {voucher.active ? "Đang bật" : "Đã tắt"}
+                              <span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${status.style}`}>
+                                {status.label}
                               </span>
                             </div>
                           </td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>}

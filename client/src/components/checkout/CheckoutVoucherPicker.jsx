@@ -5,7 +5,7 @@ import { formatThousandsVnd } from "../../utils/money";
 import { formatVoucherExpiryDate } from "../../utils/voucherDates";
 
 const CheckoutVoucherPicker = ({ checkout, subtotal, disabled }) => {
-  const { user, axios, getToken, currency } = useAppContext();
+  const { user, currency, storeResources } = useAppContext();
   const popupId = useId();
   const titleId = useId();
   const codeId = useId();
@@ -14,8 +14,10 @@ const CheckoutVoucherPicker = ({ checkout, subtotal, disabled }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [draft, setDraft] = useState(checkout.voucherCode);
   const [wallet, setWallet] = useState(null);
+  const [loadedAt, setLoadedAt] = useState(Date.now);
   const [attempt, setAttempt] = useState(0);
   const currentWallet = wallet?.userId === user?.id ? wallet : null;
+  const vouchers = (currentWallet?.vouchers || []).filter((voucher) => new Date(voucher.expiresAt).getTime() > loadedAt);
   const appliedCode = checkout.ready ? checkout.pricing.voucherCode : "";
   const hasAppliedVoucher = Boolean(appliedCode);
   const displayedCode = appliedCode || checkout.voucherCode;
@@ -53,23 +55,18 @@ const CheckoutVoucherPicker = ({ checkout, subtotal, disabled }) => {
 
   useEffect(() => {
     if (!isOpen || !user?.id) return undefined;
-    const controller = new AbortController();
+    let active = true;
     const loadWallet = async () => {
       try {
-        const { data } = await axios.get("/api/vouchers/mine", {
-          headers: { Authorization: `Bearer ${await getToken()}` },
-          signal: controller.signal,
-          timeout: 15000,
-        });
-        if (!data.success) throw new Error(data.message || "Không thể tải voucher.");
-        if (!controller.signal.aborted) setWallet({ userId: user.id, vouchers: data.vouchers || [] });
+        const result = await storeResources.loadMembership();
+        if (active) { setWallet(result); setLoadedAt(Date.now()); }
       } catch (error) {
-        if (!controller.signal.aborted) setWallet({ userId: user.id, error: error.response?.data?.message || error.message });
+        if (active && error.name !== "AbortError") setWallet({ userId: user.id, error: error.response?.data?.message || error.message });
       }
     };
     loadWallet();
-    return () => controller.abort();
-  }, [isOpen, user?.id, axios, getToken, attempt]);
+    return () => { active = false; };
+  }, [isOpen, user?.id, storeResources, attempt]);
 
   const closePopup = () => {
     popupRef.current?.hidePopover();
@@ -78,7 +75,8 @@ const CheckoutVoucherPicker = ({ checkout, subtotal, disabled }) => {
   const preparePopup = () => {
     if (popupRef.current.matches(":popover-open")) return;
     setDraft(checkout.voucherCode);
-    setWallet(null);
+    setWallet(storeResources.peekMembership() || null);
+    setLoadedAt(Date.now());
   };
   const applyVoucher = () => {
     if (disabled || checkout.loading || !draft.trim()) return;
@@ -167,12 +165,12 @@ const CheckoutVoucherPicker = ({ checkout, subtotal, disabled }) => {
               : currentWallet.error ? <div role="alert" className="py-8 text-center text-gray-500">{currentWallet.error}
                 <button type="button" onClick={() => { setWallet(null); setAttempt((value) => value + 1); }} className="mt-3 block w-full cursor-pointer text-secondary underline">Thử lại</button>
               </div>
-              : currentWallet.vouchers.length === 0 ? <div className="flex h-full min-h-40 flex-col items-center justify-center gap-3 text-center">
+              : vouchers.length === 0 ? <div className="flex h-full min-h-40 flex-col items-center justify-center gap-3 text-center">
                 <Ticket size={52} strokeWidth={1} className="text-gray-300" aria-hidden="true" />
-                <p>Chưa có mã giảm giá nào của cửa hàng</p>
-                <p className="max-w-64 text-xs text-gray-500">Nhập mã giảm giá có thể sử dụng vào thanh bên trên.</p>
+                <p>Chưa có voucher có thể sử dụng</p>
+                <p className="max-w-64 text-xs text-gray-500">Chỉ hiển thị mã đang có hiệu lực, còn lượt và bạn chưa sử dụng. Bạn có thể nhập mã ở trên để kiểm tra.</p>
               </div>
-              : <div className="space-y-3">{currentWallet.vouchers.map((voucher) => {
+              : <div className="space-y-3">{vouchers.map((voucher) => {
                 const eligible = subtotal >= voucher.minSubtotal;
                 return <button key={voucher._id} type="button" disabled={disabled || !eligible} aria-pressed={draft === voucher.code}
                   onClick={() => setDraft(voucher.code)} className={`flex w-full cursor-pointer items-start gap-3 rounded-lg border border-dashed p-4 text-left disabled:cursor-not-allowed disabled:opacity-50 ${draft === voucher.code ? "border-secondary bg-secondary/5" : "border-gray-200 hover:border-secondary"}`}>
@@ -187,9 +185,6 @@ const CheckoutVoucherPicker = ({ checkout, subtotal, disabled }) => {
                   {draft === voucher.code && <Check size={16} className="shrink-0 text-secondary" aria-hidden="true" />}
                 </button>;
               })}</div>}
-          </div>
-          <div className="flex shrink-0 justify-end border-t border-gray-100 px-5 py-3">
-            <button type="button" onClick={closePopup} className="btn-dark !rounded-md !px-5 !py-2">Xong</button>
           </div>
         </div>
       </div>

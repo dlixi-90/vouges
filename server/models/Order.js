@@ -70,6 +70,7 @@ orderSchema.index({
 });
 
 orderSchema.index({ createdAt: -1, _id: -1 });
+orderSchema.index({ userId: 1, status: 1, "items.product": 1 });
 
 const Order = mongoose.model("Order", orderSchema);
 

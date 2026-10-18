@@ -4,38 +4,34 @@ import { useAppContext } from "../context/AppContext";
 import ProductReviewForm from "./ProductReviewForm";
 
 export default function ProductReviews({ productId, onSummaryChange }) {
-  const { user, axios } = useAppContext();
+  const { user, storeResources } = useAppContext();
   const [page, setPage] = useState(1);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState(() => storeResources.peekReviews(productId) || null);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
-  const load = useCallback(async (signal) => {
-    const { data } = await axios.get(`/api/products/${productId}/reviews`, { params: { page }, signal, timeout: 15000 });
-    if (!data.success) throw new Error(data.message || "Không thể tải đánh giá sản phẩm.");
-    return data;
-  }, [axios, productId, page]);
+  const load = useCallback(() => storeResources.loadReviews(productId, page), [storeResources, productId, page]);
 
   useEffect(() => {
-    const controller = new AbortController();
-    load(controller.signal).then((result) => {
-      if (!controller.signal.aborted) {
+    let active = true;
+    load().then((result) => {
+      if (active) {
         setData(result);
         setError("");
         // Share the existing request's aggregate with the product header.
         onSummaryChange?.({ productId, count: result.count, average: result.average });
       }
     }).catch((err) => {
-      if (!controller.signal.aborted) {
+      if (active && err.name !== "AbortError") {
         const message = err.response?.data?.message || err.message;
         setError(message);
         onSummaryChange?.({ productId, error: message });
       }
     });
-    return () => controller.abort();
+    return () => { active = false; };
   }, [load, attempt, productId, onSummaryChange]);
 
   const changePage = (nextPage) => {
-    setData(null);
+    setData(storeResources.peekReviews(productId, nextPage) || null);
     setError("");
     setPage(nextPage);
   };

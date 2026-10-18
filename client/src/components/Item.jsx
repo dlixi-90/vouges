@@ -1,12 +1,18 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { getAvailableSizes } from "../utils/productStock";
 import { formatThousandsVnd } from "../utils/money";
 import ProductImage from "./ProductImage";
 
 const Item = ({ product, collectionLayout = false }) => {
-  const { navigate, currency } = useAppContext();
+  const { navigate, currency, storeResources } = useAppContext();
   const [hovered, setHovered] = useState(false);
+  const prefetchTimer = useRef(null);
+  useEffect(() => () => window.clearTimeout(prefetchTimer.current), []);
+  const prefetchProduct = () => {
+    void import("../pages/ProductDetail").catch(() => {});
+    void storeResources.loadReviews(product._id).catch(() => {});
+  };
   const availableSizes = getAvailableSizes(product);
   const isAvailable = availableSizes.length > 0;
   const size = availableSizes[0] ?? null;
@@ -20,6 +26,7 @@ const Item = ({ product, collectionLayout = false }) => {
 
   return (
     <article
+      onFocus={prefetchProduct}
       className={`group relative overflow-hidden ${
         collectionLayout ? "rounded-xl" : ""
       }`}
@@ -27,8 +34,11 @@ const Item = ({ product, collectionLayout = false }) => {
     >
       {/* Image */}
       <div
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseEnter={() => {
+          setHovered(true);
+          prefetchTimer.current = window.setTimeout(prefetchProduct, 200);
+        }}
+        onMouseLeave={() => { setHovered(false); window.clearTimeout(prefetchTimer.current); }}
         className={`flexCenter group relative h-[182px] w-full transition-all duration-300 ${
           collectionLayout ? "" : "rounded-xl"
         }`}

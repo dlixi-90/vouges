@@ -34,7 +34,7 @@ const RatingStars = ({ average }) => (
 );
 
 const ProductDetail = () => {
-  const { products, currency, addToCart, requireCartLogin } = useAppContext();
+  const { products, currency, addToCart, requireCartLogin, storeResources } = useAppContext();
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -44,7 +44,12 @@ const ProductDetail = () => {
   const addedResetTimerRef = useRef(null);
 
   const { productId } = useParams();
-  const reviewStats = reviewSummary?.productId === productId ? reviewSummary : null;
+  const reviewStats = reviewSummary?.productId === productId ? reviewSummary : storeResources.peekReviews(productId);
+  // Start independently of the catalog request, including on direct links.
+  useEffect(() => {
+    void storeResources.loadReviews(productId).catch(() => {});
+    void storeResources.loadOwnReview(productId).catch(() => {});
+  }, [storeResources, productId]);
   const product = products.find((item) => item._id === productId);
   const productAvailable = product ? hasAnyAvailableSize(product) : false;
   const availableSizes = product ? getAvailableSizes(product) : [];

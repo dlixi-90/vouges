@@ -27,6 +27,14 @@ export const getVoucherValidityPeriod = (startsOn, expiresOn) => {
 
 export const formatVoucherDate = (value) => dateFormatter.format(new Date(value));
 
+export const getVoucherStatus = (voucher, now = new Date()) => {
+  if (!voucher.active) return "inactive";
+  if (now >= new Date(voucher.expiresAt)) return "expired";
+  if (now < new Date(voucher.startsAt)) return "upcoming";
+  if (voucher.usedCount >= voucher.maxUses) return "exhausted";
+  return "available";
+};
+
 // Show the last usable day, including for existing vouchers ending at midnight.
 export const formatVoucherExpiryDate = (value) =>
   dateFormatter.format(new Date(new Date(value).getTime() - 1));

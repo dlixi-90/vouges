@@ -6,14 +6,15 @@ import { useAppContext } from "../context/AppContext";
 const ratingLabels = ["Rất không hài lòng", "Không hài lòng", "Bình thường", "Hài lòng", "Rất hài lòng"];
 
 const ProductReviewForm = ({ productId, onSaved, onCancel, onBusyChange }) => {
-  const { user, axios, getToken, requireCartLogin } = useAppContext();
+  const { user, axios, getToken, requireCartLogin, storeResources } = useAppContext();
   const userId = user?.id;
   const formId = useId();
   const tokenRef = useRef(getToken);
   const saveRequestRef = useRef(null);
-  const [own, setOwn] = useState(null);
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState("");
+  const draftDirtyRef = useRef(false);
+  const [own, setOwn] = useState(() => storeResources.peekOwnReview(productId) || null);
+  const [rating, setRating] = useState(() => storeResources.peekOwnReview(productId)?.review?.rating || 0);
+  const [comment, setComment] = useState(() => storeResources.peekOwnReview(productId)?.review?.comment || "");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -23,27 +24,24 @@ const ProductReviewForm = ({ productId, onSaved, onCancel, onBusyChange }) => {
 
   useEffect(() => {
     if (!userId) return undefined;
-    const controller = new AbortController();
+    let active = true;
     const load = async () => {
       try {
-        const token = await tokenRef.current();
-        controller.signal.throwIfAborted();
-        const { data } = await axios.get(`/api/products/${productId}/reviews/mine`, {
-          headers: { Authorization: `Bearer ${token}` }, signal: controller.signal, timeout: 15000,
-        });
-        if (!data.success) throw new Error(data.message || "Không thể tải đánh giá của bạn.");
-        if (controller.signal.aborted) return;
+        const data = await storeResources.loadOwnReview(productId);
+        if (!active) return;
         setOwn({ ...data, userId });
-        setRating(data.review?.rating || 0);
-        setComment(data.review?.comment || "");
+        if (!draftDirtyRef.current) {
+          setRating(data.review?.rating || 0);
+          setComment(data.review?.comment || "");
+        }
         setError("");
       } catch (err) {
-        if (!controller.signal.aborted) setError(err.response?.data?.message || err.message);
+        if (active && err.name !== "AbortError") setError(err.response?.data?.message || err.message);
       }
     };
     load();
-    return () => controller.abort();
-  }, [axios, productId, userId, attempt]);
+    return () => { active = false; };
+  }, [storeResources, productId, userId, attempt]);
 
   const save = async (event) => {
     event.preventDefault();
@@ -61,6 +59,9 @@ const ProductReviewForm = ({ productId, onSaved, onCancel, onBusyChange }) => {
       });
       if (!data.success) throw new Error(data.message || "Không thể lưu đánh giá.");
       if (controller.signal.aborted) return;
+      storeResources.invalidateReviews(productId);
+      storeResources.setOwnReview(productId, { success: true, eligible: true, review: data.review });
+      draftDirtyRef.current = false;
       setOwn({ userId, eligible: true, review: data.review });
       setRating(data.review.rating);
       setComment(data.review.comment);
@@ -93,7 +94,7 @@ const ProductReviewForm = ({ productId, onSaved, onCancel, onBusyChange }) => {
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
           <div className="flex gap-2">{[1, 2, 3, 4, 5].map((value) => (
             <label key={value} className={`rounded-md p-1 ${busy ? "cursor-not-allowed" : "cursor-pointer"}`}>
-              <input type="radio" name={`rating-${formId}`} value={value} required checked={rating === value} onChange={() => setRating(value)}
+              <input type="radio" name={`rating-${formId}`} value={value} required checked={rating === value} onChange={() => { draftDirtyRef.current = true; setRating(value); }}
                 className="peer sr-only" aria-label={`${value} sao: ${ratingLabels[value - 1]}`} />
               <Star size={30} aria-hidden="true" className={`rounded peer-focus-visible:ring-2 peer-focus-visible:ring-secondary ${value <= rating ? "fill-amber-400 text-amber-400" : "text-gray-300"}`} />
             </label>
@@ -103,7 +104,7 @@ const ProductReviewForm = ({ productId, onSaved, onCancel, onBusyChange }) => {
       </fieldset>
       <div>
         <label htmlFor={`comment-${formId}`} className="mb-2 block text-sm font-medium">Nhận xét của bạn</label>
-        <textarea id={`comment-${formId}`} value={comment} onChange={(event) => setComment(event.target.value)} required maxLength={2000} rows={4} disabled={busy}
+        <textarea id={`comment-${formId}`} value={comment} onChange={(event) => { draftDirtyRef.current = true; setComment(event.target.value); }} required maxLength={2000} rows={4} disabled={busy}
           aria-describedby={`comment-limit-${formId}`} className="w-full resize-y rounded-lg border border-gray-200 p-3 text-sm focus:outline-secondary disabled:opacity-50"
           placeholder="Chia sẻ cảm nhận về chất lượng, công dụng và trải nghiệm sử dụng sản phẩm…" />
         <p id={`comment-limit-${formId}`} className="mt-1 text-right text-xs text-gray-500">{comment.length}/2.000 ký tự</p>

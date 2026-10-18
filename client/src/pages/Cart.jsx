@@ -78,6 +78,7 @@ const Cart = () => {
     axios,
     getToken,
     fetchProducts,
+    storeResources,
   } = useAppContext();
   const userId = user?.id;
 
@@ -293,6 +294,7 @@ const Cart = () => {
   };
 
   const handleOrderCreated = (order) => {
+    storeResources.invalidateMembership();
     setCreatedOrder(order);
     setCurrentStep(3);
     setHighestStep(3);
@@ -300,6 +302,7 @@ const Cart = () => {
   };
 
   const handleQrExpired = () => {
+    storeResources.invalidateMembership();
     setCreatedOrder(null);
     setCurrentStep(1);
     setHighestStep(1);
@@ -307,11 +310,12 @@ const Cart = () => {
   };
 
   const handleQrCancelled = useCallback(() => {
+    storeResources.invalidateMembership();
     setCreatedOrder(null);
     setCurrentStep(2);
     setHighestStep(2);
     window.scrollTo(0, 0);
-  }, []);
+  }, [storeResources]);
 
   const handleStepChange = (step) => {
     if (cartUpdateRef.current || hasPendingCartUpdates()) return;

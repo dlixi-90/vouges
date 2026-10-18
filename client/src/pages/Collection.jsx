@@ -112,9 +112,11 @@ const Collection = () => {
 
   return (
     <div className="max-padd-container !px-0 mt-20">
-      <div className="flex flex-col sm:flex-row gap-8 mb-16">
+      <div className="mb-16 flex flex-col gap-8 sm:grid sm:grid-cols-[18rem_minmax(0,1fr)] lg:grid-cols-[20rem_minmax(0,1fr)]">
         {/* Filters Option */}
-        <div className="min-w-72 bg-primary p-4 pl-6 lg:pl-12 rounded-r-xl">
+        <aside className="relative min-w-0 rounded-r-xl bg-primary sm:min-h-0">
+        <div role="region" aria-label="Bộ lọc sản phẩm" tabIndex={0}
+          className="collection-filters max-h-[60dvh] overflow-y-auto overscroll-y-contain rounded-r-xl p-4 pl-6 focus-visible:outline-2 focus-visible:outline-secondary sm:absolute sm:inset-0 sm:max-h-none lg:pl-12">
           <SearchInput />
           <div className="px-4 py-3 mt-4 bg-white rounded-xl">
             <h5 className="h5 mb-4">Sort By Price</h5>
@@ -199,8 +201,9 @@ const Collection = () => {
             </div>
           </div>
         </div>
+        </aside>
         {/* Right Side - Filtered Products */}
-        <div className="max-sm:px-10 sm:pr-10 flex-1">
+        <div className="min-w-0 max-sm:px-10 sm:pr-10">
           <div className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {paginatedProducts.length > 0 ? (
               paginatedProducts.map((product) => (
@@ -223,7 +226,7 @@ const Collection = () => {
           </div>
           {/* Pagination */}
           {filteredProducts.length > 0 && (
-            <div className="flexCenter flex flex-wrap mt-14 mb-10 gap-4">
+            <div className="flexCenter flex flex-wrap mt-14 gap-4">
               <button
                 disabled={activePage === 1}
                 onClick={() => setCurrentPage((prev) => prev - 1)}

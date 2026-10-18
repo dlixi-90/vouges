@@ -11,13 +11,13 @@ import Voucher from "../../models/Voucher.js";
 import VoucherUse from "../../models/VoucherUse.js";
 import { calculateDiscount, validateVoucher, issueBirthdayVoucher, reserveVoucher, releaseVoucher } from "../../services/voucherService.js";
 import { saveBirthday } from "../../controllers/userController.js";
-import { awardBirthdays, createVoucher } from "../../controllers/voucherController.js";
+import { awardBirthdays, createVoucher, listMyVouchers } from "../../controllers/voucherController.js";
 import { quoteOrder, placeOrderCOD, placeOrderQr, cancelQrOrder, sepayWebhook } from "../../controllers/orderController.js";
 import { buildOrderConfirmationEmail } from "../../emails/orderConfirmation.js";
 import transporter from "../../config/nodemailer.js";
 import { Webhook } from "svix";
 import clerkWebhooks from "../../controllers/ClerkWebhooks.js";
-import { getVoucherValidityPeriod, formatVoucherDate, formatVoucherExpiryDate } from "../../../client/src/utils/voucherDates.js";
+import { getVoucherValidityPeriod, getVoucherStatus, formatVoucherDate, formatVoucherExpiryDate } from "../../../client/src/utils/voucherDates.js";
 
 const productId = "507f1f77bcf86cd799439011";
 const orderId = "507f1f77bcf86cd799439012";
@@ -112,6 +112,36 @@ test("birthday change cannot overwrite a saved date or accept a role from the bo
   const res = response();
   await saveBirthday({ user: { _id: userId }, body: { birthday: "2000-01-01", role: "owner" } }, res, (err) => { throw err; });
   assert.equal(res.statusCode, 409);
+});
+
+test("membership returns the authenticated profile with vouchers and overlaps independent wallet reads", async (t) => {
+  let finishIssuing;
+  const issuance = new Promise((resolve) => { finishIssuing = resolve; });
+  const birthday = `2000-${vietnamDate(new Date()).slice(5)}`;
+  const user = { _id: userId, username: "Customer", phone: "0912345678", email: "customer@example.com", birthday,
+    role: "owner", cartData: { private: true } };
+  const issue = t.mock.method(Voucher, "findOneAndUpdate", () => issuance);
+  const uses = t.mock.method(VoucherUse, "find", (filter) => {
+    assert.deepEqual(filter, { userId });
+    return { select: () => ({ lean: async () => [{ voucherId }] }) };
+  });
+  const find = t.mock.method(Voucher, "find", (filter) => {
+    assert.deepEqual(filter._id, { $nin: [voucherId] });
+    assert.deepEqual(filter.$or, [{ userId }, { userId: null }]);
+    return { select: () => ({ sort: () => ({ limit: () => ({ lean: async () => [{ code: "NEW-BIRTHDAY" }] }) }) }) };
+  });
+  const res = response();
+  const headers = {};
+  res.set = (key, value) => { headers[key] = value; };
+  const request = listMyVouchers({ user }, res, (error) => { throw error; });
+  assert.equal(issue.mock.callCount(), 1);
+  assert.equal(uses.mock.callCount(), 1);
+  assert.equal(find.mock.callCount(), 0);
+  finishIssuing({ code: "NEW-BIRTHDAY" });
+  await request;
+  assert.deepEqual(res.body.profile, { username: user.username, phone: user.phone, email: user.email, birthday });
+  assert.deepEqual(res.body.vouchers, [{ code: "NEW-BIRTHDAY" }]);
+  assert.equal(headers["Cache-Control"], "private, no-store");
 });
 
 test("discounts cap percentage/fixed awards at subtotal and round to a single VND", () => {
@@ -389,6 +419,17 @@ test("date-only voucher creation includes the entire selected Vietnam day and ex
   await assert.doesNotReject(() => validateVoucher("SAVE10", userId, 500, null, start));
   await assert.doesNotReject(() => validateVoucher("SAVE10", userId, 500, null, new Date(end.getTime() - 1)));
   await assert.rejects(validateVoucher("SAVE10", userId, 500, null, end), /hết hạn/);
+});
+
+test("admin voucher status reflects validity and remaining uses even while the switch is on", () => {
+  const voucher = { ...coupon(), active: true };
+  assert.equal(getVoucherStatus(voucher, now), "available");
+  assert.equal(getVoucherStatus({ ...voucher, active: false }, now), "inactive");
+  assert.equal(getVoucherStatus({ ...voucher, startsAt: new Date(now.getTime() + 1).toISOString() }, now), "upcoming");
+  assert.equal(getVoucherStatus({ ...voucher, startsAt: now.toISOString() }, now), "available");
+  assert.equal(getVoucherStatus({ ...voucher, expiresAt: now.toISOString(), usedCount: 1, maxUses: 100 }, now), "expired");
+  assert.equal(getVoucherStatus({ ...voucher, expiresAt: new Date(now.getTime() + 1).toISOString() }, now), "available");
+  assert.equal(getVoucherStatus({ ...voucher, usedCount: 10 }, now), "exhausted");
 });
 
 test("date-only voucher periods handle leap days and reject invalid or reversed dates", () => {

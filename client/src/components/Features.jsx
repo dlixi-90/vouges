@@ -1,4 +1,5 @@
 import { assets } from "../assets/data";
+import { BadgeCheck, ShieldCheck, Truck } from "lucide-react";
 
 const Features = () => {
   return (
@@ -28,14 +29,17 @@ const Features = () => {
           />
         </div>
         <div className="p-4">
+          <BadgeCheck size={32} strokeWidth={1.6} className="mb-3 text-secondary" aria-hidden="true" />
           <h4 className="h4 capitalize">Quality Product</h4>
           <p>Luxury beauty products crafted with care excellence.</p>
         </div>
         <div className="p-4">
+          <Truck size={32} strokeWidth={1.6} className="mb-3 text-secondary" aria-hidden="true" />
           <h4 className="h4 capitalize">Fast Delivery</h4>
           <p>Luxury beauty products crafted with care excellence.</p>
         </div>
         <div className="p-4">
+          <ShieldCheck size={32} strokeWidth={1.6} className="mb-3 text-secondary" aria-hidden="true" />
           <h4 className="h4 capitalize">Secure Payment</h4>
           <p>Luxury beauty products crafted with care excellence.</p>
         </div>

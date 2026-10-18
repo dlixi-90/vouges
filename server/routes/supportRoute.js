@@ -1,0 +1,16 @@
+import express from "express";
+import authUser, { requireOwner } from "../middleware/authMiddleware.js";
+import { supportRateLimit } from "../middleware/supportRateLimit.js";
+import { getMySupport, startSupport, getSupportMessages, postSupportMessage, markSupportRead, setSupportStatus, getSupportInbox, streamSupportInbox, streamSupportConversation } from "../controllers/supportController.js";
+const router = express.Router();
+router.use(authUser);
+router.get("/mine", getMySupport);
+router.post("/mine", supportRateLimit, startSupport);
+router.get("/inbox", requireOwner, getSupportInbox);
+router.get("/inbox/events", requireOwner, supportRateLimit, streamSupportInbox);
+router.get("/conversations/:id/messages", getSupportMessages);
+router.post("/conversations/:id/messages", supportRateLimit, postSupportMessage);
+router.post("/conversations/:id/read", markSupportRead);
+router.patch("/conversations/:id/status", requireOwner, supportRateLimit, setSupportStatus);
+router.get("/conversations/:id/events", supportRateLimit, streamSupportConversation);
+export default router;

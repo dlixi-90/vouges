@@ -103,9 +103,61 @@ html, body {
   opacity: 0.5;
 }
 
-/* width */
+html {
+  scrollbar-gutter: stable;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #a69dad var(--color-primary);
+}
+
 ::-webkit-scrollbar {
-  display: none;
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid var(--color-primary);
+  border-radius: 9999px;
+  background: #a69dad;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--color-primary);
+}
+
+.collection-filters {
+  scrollbar-width: thin;
+  scrollbar-color: #a69dad var(--color-primary);
+  scrollbar-gutter: stable;
+}
+
+.collection-filters::-webkit-scrollbar {
+  display: block;
+  width: 7px;
+}
+
+.collection-filters::-webkit-scrollbar-track {
+  background: var(--color-primary);
+}
+
+.collection-filters::-webkit-scrollbar-thumb {
+  border: 2px solid var(--color-primary);
+  border-radius: 9999px;
+  background: #a69dad;
+}
+
+.collection-filters::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
 }
 
 

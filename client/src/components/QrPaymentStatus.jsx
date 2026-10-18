@@ -26,6 +26,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
     fetchPopularProducts,
     applyStockUpdates,
     dashboardCache,
+    storeResources,
   } = useAppContext();
 
   const [order, setOrder] = useState(initialOrder);
@@ -91,6 +92,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
             setHasShownSuccess(true);
           }
         } else if (data.order.status === "Payment Expired") {
+          storeResources.invalidateMembership();
           void fetchProducts();
 
           if (showError) {
@@ -124,6 +126,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
       setCartItems,
       hasShownSuccess,
       dashboardCache,
+      storeResources,
     ],
   );
 
@@ -196,6 +199,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
           throw new Error(data.message || "Could not cancel QR payment");
         }
 
+        storeResources.invalidateMembership();
         applyStockUpdates(data.stockUpdates);
         void fetchProducts();
         return true;
@@ -221,6 +225,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
       getToken,
       initialOrder._id,
       cancellation,
+      storeResources,
     ],
   );
 

@@ -5,6 +5,7 @@ import {
   Bot,
   Check,
   Eraser,
+  Headset,
   LoaderCircle,
   Package,
   Send,
@@ -14,10 +15,11 @@ import {
   Square,
   X,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { AI_MESSAGE_MAX_LENGTH } from "../../apis/aiService";
 import { useAppContext } from "../../context/AppContext";
 import useAIAgent from "../../hooks/useAIAgent";
+const SupportChatPanel = lazy(() => import("../support/SupportChatPanel"));
 
 const suggestedPrompts = [
   "Bạn có thể giúp gì cho tôi?",
@@ -167,6 +169,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
   } = useAIAgent({ getToken });
 
   const [input, setInput] = useState("");
+  const [chatMode, setChatMode] = useState("ai");
   const [cartActionStates, setCartActionStates] = useState({});
   const cartActionsInFlightRef = useRef(new Set());
   const messagesEndRef = useRef(null);
@@ -284,6 +287,9 @@ const AIChatPanel = ({ isOpen, onClose }) => {
   };
 
   if (!isOpen) return null;
+  if (chatMode === "support") return <Suspense fallback={<div role="status" className="fixed bottom-6 right-6 z-50 rounded-2xl bg-white p-6 text-sm shadow-xl">Đang mở chat CSKH…</div>}>
+    <SupportChatPanel onClose={onClose} onBack={() => setChatMode("ai")} aiMessages={messages} />
+  </Suspense>;
 
   return (
     <>
@@ -921,6 +927,12 @@ const AIChatPanel = ({ isOpen, onClose }) => {
             </div>
           )}
 
+          {user && <div className="shrink-0 border-t border-secondary/10 bg-primary/60 px-4 py-3">
+            <p className="mb-2 text-[11px] text-gray-500">{error ? "AI chưa thể giải đáp? Nhân viên Velours có thể hỗ trợ thêm." : "Bạn muốn được nhân viên tư vấn trực tiếp?"}</p>
+            <button type="button" onClick={() => { cancelRequest(); setChatMode("support"); }} className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-secondary/20 bg-white px-3 py-2.5 text-xs font-semibold text-secondary transition hover:bg-secondary/5">
+              <Headset size={16} aria-hidden="true" />Chat với nhân viên CSKH
+            </button>
+          </div>}
           <form
             onSubmit={handleSubmit}
             className="shrink-0 border-t border-slate-100 bg-white p-3"

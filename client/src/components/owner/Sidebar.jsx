@@ -2,10 +2,13 @@ import { useAppContext } from "../../context/AppContext";
 import { assets } from "../../assets/data";
 import { Link, NavLink, Outlet, Navigate, useMatch } from "react-router-dom";
 import { UserButton } from "@clerk/react";
+import { MessagesSquare } from "lucide-react";
 
 const Sidebar = () => {
   const { isOwner, user, profileError, retryUserProfile } = useAppContext();
   const isVoucherPage = Boolean(useMatch("/owner/vouchers"));
+  const isMessagesPage = Boolean(useMatch("/owner/messages"));
+  const isWorkspacePage = isVoucherPage || isMessagesPage;
 
   const navItems = [
     {
@@ -29,6 +32,7 @@ const Sidebar = () => {
       icon: assets.list,
     },
     { path: "/owner/vouchers", label: "Vouchers", icon: assets.list },
+    { path: "/owner/messages", label: "Messages", iconComponent: <MessagesSquare size={18} className="hidden md:block" aria-hidden="true" /> },
   ];
 
   if (isOwner === null) {
@@ -61,10 +65,10 @@ const Sidebar = () => {
   }
 
   return (
-    <div className={isVoucherPage ? "fixed inset-0 overflow-hidden" : undefined}>
-      <div className={`mx-auto max-w-[1440px] flex flex-col md:flex-row ${isVoucherPage ? "h-full min-h-0 overflow-hidden" : ""}`}>
+    <div className={isWorkspacePage ? "fixed inset-0 overflow-hidden" : undefined}>
+      <div className={`mx-auto max-w-[1440px] flex flex-col md:flex-row ${isWorkspacePage ? "h-full min-h-0 overflow-hidden" : ""}`}>
         {/* Sidebar */}
-        <div className={`max-md:flexCenter flex flex-col justify-between bg-primary sm:m-3 md:min-w-[20%] rotate-xl shadow ${isVoucherPage ? "min-h-0 shrink-0 overflow-y-auto overscroll-y-contain max-md:max-h-[40dvh]" : "md:min-h-[97vh]"}`}>
+        <div className={`max-md:flexCenter flex flex-col justify-between bg-primary sm:m-3 md:min-w-[20%] rotate-xl shadow ${isWorkspacePage ? "min-h-0 shrink-0 overflow-y-auto overscroll-y-contain max-md:max-h-[40dvh]" : "md:min-h-[97vh]"}`}>
           <div className="flex flex-col gap-y-6 max-md:items-center md:flex-col md:pt-5">
             <div className="w-full flex justify-between md:flex-col">
               {/* Logo */}
@@ -102,12 +106,12 @@ const Sidebar = () => {
                       : "flexStart gap-x-2 lg:pl-12 p-5 bold-13 sm:!text-sm cursor-pointer h-10 rounded-xl"
                   }
                 >
-                  <img
+                  {link.iconComponent || <img
                     src={link.icon}
                     alt={link.label}
                     className="hidden md:block"
                     width={18}
-                  />
+                  />}
                   <div>{link.label}</div>
                 </NavLink>
               ))}

@@ -5,4 +5,5 @@ const schema = new mongoose.Schema({
   orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Order", required: true, unique: true },
 }, { timestamps: true });
 schema.index({ voucherId: 1, userId: 1 }, { unique: true });
+schema.index({ userId: 1, voucherId: 1 });
 export default mongoose.model("VoucherUse", schema);

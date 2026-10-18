@@ -4,7 +4,7 @@ import { assets } from "../assets/data";
 import Navbar from "./Navbar";
 import { useClerk, UserButton } from "@clerk/react";
 import { useAppContext } from "../context/AppContext";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Ticket } from "lucide-react";
 const AIChatPanel = lazy(() => import("./ai/AIChatPanel"));
 
 const OrdersIcon = () => (
@@ -33,7 +33,13 @@ const Header = () => {
   const [hasOpenedAIChat, setHasOpenedAIChat] = useState(false);
   const { openSignIn } = useClerk();
 
-  const { navigate, openCart, user, getCartCount, isOwner } = useAppContext();
+  const { navigate, openCart, user, getCartCount, isOwner, storeResources } = useAppContext();
+
+  const prefetchMembership = () => {
+    if (!user) return;
+    void import("../pages/Membership").catch(() => {});
+    void storeResources.loadMembership().catch(() => {});
+  };
 
   const toggleMenu = () => {
     setMenuOpened((prev) => !prev);
@@ -122,7 +128,7 @@ const Header = () => {
               </span>
             </button>
             {/* User Profile */}
-            <div className="group">
+            <div className="group" onPointerEnter={prefetchMembership} onFocus={prefetchMembership}>
               {user ? (
                 <UserButton
                   appearance={{
@@ -140,7 +146,7 @@ const Header = () => {
                       labelIcon={<OrdersIcon />}
                       onClick={() => navigate("/my-orders")}
                     />
-                    <UserButton.Action label="Thành viên & voucher" labelIcon={<OrdersIcon />}
+                    <UserButton.Action label="Thành viên & voucher" labelIcon={<Ticket size={16} aria-hidden="true" />}
                       onClick={() => navigate("/membership")} />
                   </UserButton.MenuItems>
                 </UserButton>
@@ -161,6 +167,7 @@ const Header = () => {
       {hasOpenedAIChat && (
         <Suspense fallback={isAIChatOpen ? <div role="status" className="fixed bottom-6 right-6 z-50 rounded-xl bg-white p-5 shadow-lg">Loading chat...</div> : null}>
           <AIChatPanel
+            key={user?.id || "guest"}
             isOpen={isAIChatOpen}
             onClose={() => setIsAIChatOpen(false)}
           />
