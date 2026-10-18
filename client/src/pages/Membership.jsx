@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, ArrowUpRight, BadgeCheck, CalendarDays, Check, Copy, Gift, LoaderCircle, Mail, Phone, RefreshCw, ShoppingBag, Sparkles, Ticket } from "lucide-react";
+import { useClerk } from "@clerk/react";
+import { ArrowRight, ArrowUpRight, BadgeCheck, CalendarDays, Copy, Gift, LoaderCircle, Mail, Phone, RefreshCw, Settings, ShoppingBag, Sparkles, Ticket } from "lucide-react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAppContext } from "../context/AppContext";
@@ -9,6 +10,7 @@ import { formatVoucherExpiryDate } from "../utils/voucherDates";
 const focusStyles = "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary";
 
 export default function Membership() {
+  const { openUserProfile } = useClerk();
   const { user, axios, getToken, requireCartLogin, storeResources } = useAppContext();
   const userId = user?.id;
   const [data, setData] = useState(() => storeResources.peekMembership() || null);
@@ -98,14 +100,18 @@ export default function Membership() {
           </div>
         ) : (
           <div className="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)] xl:gap-8">
-            <div className="min-w-0 space-y-6">
+            <div className="min-w-0">
               <section aria-labelledby="member-profile-title" className="overflow-hidden rounded-3xl border border-secondary/10 bg-white">
                 <div className="relative isolate overflow-hidden bg-secondary p-6 text-white sm:p-7">
                   <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 -z-10 h-56 w-56 rounded-full border border-white/10" />
                   <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 -right-8 -z-10 h-56 w-56 rounded-full border border-white/10" />
-                  <p className="flex items-center justify-between gap-3 text-[10px] font-semibold uppercase tracking-[0.23em] text-white/70">
-                    Velours<BadgeCheck size={20} strokeWidth={1.5} aria-hidden="true" />
-                  </p>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.23em] text-white/70">Velours</span>
+                    <button type="button" onClick={() => openUserProfile()} aria-label="Manage account" title="Quản lý tài khoản"
+                      className="-m-2 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                      <Settings size={20} strokeWidth={1.5} aria-hidden="true" />
+                    </button>
+                  </div>
                   <div className="mb-5 mt-7 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-white/10">
                     {user.imageUrl ? <img src={user.imageUrl} alt="" className="h-full w-full object-cover" />
                       : <span className="text-xl font-medium">{displayName.charAt(0).toUpperCase()}</span>}
@@ -122,31 +128,28 @@ export default function Membership() {
                     <Phone size={17} className="mt-1 shrink-0 text-[#998ca2]" aria-hidden="true" />
                     <div className="min-w-0"><dt className="text-xs text-gray-500">Số điện thoại</dt><dd className="mt-1 break-words text-sm">{current.profile.phone || "Chưa cập nhật"}</dd></div>
                   </div>
-                </dl>
-              </section>
-
-              <section aria-labelledby="member-birthday-title" className="rounded-3xl border border-secondary/10 bg-white p-6 sm:p-7">
-                <h2 id="member-birthday-title" className="flex items-center gap-2.5 text-base font-semibold"><CalendarDays size={19} className="text-[#998ca2]" aria-hidden="true" />Ngày sinh của bạn</h2>
-                {current.profile.birthday ? (
-                  <div className="mt-5">
-                    <p className="text-2xl font-semibold tracking-wide">{current.profile.birthday.split("-").reverse().join("/")}</p>
-                    <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-[#557b5e]"><Check size={14} aria-hidden="true" />Đã lưu để nhận quà sinh nhật</p>
-                    <p className="mt-4 text-xs leading-5 text-gray-500">Cần sửa ngày sinh? Liên hệ Velours để được hỗ trợ.</p>
+                  <div className="flex items-start gap-3">
+                    <CalendarDays size={17} className="mt-1 shrink-0 text-[#998ca2]" aria-hidden="true" />
+                    <div className="min-w-0 flex-1">
+                      <dt className="text-xs text-gray-500">Ngày sinh</dt>
+                      <dd className="mt-1 text-sm">
+                        {current.profile.birthday ? current.profile.birthday.split("-").reverse().join("/") : (
+                          <form onSubmit={save} className="space-y-3 pt-1">
+                            <label htmlFor="birthday" className="sr-only">Ngày sinh</label>
+                            <input id="birthday" type="date" required min="1900-01-01" max={today} value={birthday} disabled={saving}
+                              aria-describedby="birthday-once" onChange={(event) => setBirthday(event.target.value)}
+                              className="block min-w-0 w-full rounded-lg border border-secondary/15 bg-[#fafaf8] px-3 py-2 text-sm outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/10 disabled:opacity-50" />
+                            <p id="birthday-once" className="text-xs text-gray-500">Ngày sinh chỉ được lưu một lần.</p>
+                            <button type="submit" disabled={saving} className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-secondary px-4 py-2 text-xs font-medium text-white transition hover:bg-secondary/90 disabled:cursor-wait disabled:opacity-60 ${focusStyles}`}>
+                              {saving && <LoaderCircle size={14} className="animate-spin" aria-hidden="true" />}
+                              {saving ? "Đang lưu…" : "Lưu ngày sinh"}
+                            </button>
+                          </form>
+                        )}
+                      </dd>
+                    </div>
                   </div>
-                ) : (
-                  <form onSubmit={save} className="mt-4">
-                    <p id="birthday-help" className="mb-4 text-sm leading-6 text-gray-500">Thêm ngày sinh để nhận một ưu đãi từ Velours vào dịp đặc biệt mỗi năm.</p>
-                    <label htmlFor="birthday" className="mb-2 block text-xs font-medium">Ngày / tháng / năm sinh</label>
-                    <input id="birthday" type="date" required min="1900-01-01" max={today} value={birthday} disabled={saving}
-                      aria-describedby="birthday-help birthday-once" onChange={(event) => setBirthday(event.target.value)}
-                      className="block min-w-0 w-full rounded-xl border border-secondary/15 bg-[#fafaf8] px-3 py-3 text-sm outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/10 disabled:opacity-50" />
-                    <p id="birthday-once" className="mt-3 text-xs leading-5 text-gray-500">Ngày sinh chỉ được lưu một lần. Hãy kiểm tra trước khi xác nhận.</p>
-                    <button type="submit" disabled={saving} className={`mt-5 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-secondary px-5 py-3 text-sm font-medium text-white transition hover:bg-secondary/90 disabled:cursor-wait disabled:opacity-60 ${focusStyles}`}>
-                      {saving ? <LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> : <Gift size={16} aria-hidden="true" />}
-                      {saving ? "Đang lưu…" : "Lưu ngày sinh"}
-                    </button>
-                  </form>
-                )}
+                </dl>
               </section>
             </div>
 
