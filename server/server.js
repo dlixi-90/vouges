@@ -81,7 +81,11 @@ app.use((error, _req, res, _next) => {
 
 const port = process.env.PORT || 3000; // Define server port
 
-// Start the server
-app.listen(port, () =>
-  console.log(`Server is running at http://localhost:${port}`),
-);
+// Vercel invokes the exported Express handler instead of a listening socket.
+export default app;
+
+if (!process.env.VERCEL) {
+  app.listen(port, () =>
+    console.log(`Server is running at http://localhost:${port}`),
+  );
+}
