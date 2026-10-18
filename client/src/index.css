@@ -104,60 +104,55 @@ html, body {
 }
 
 html {
+  --scrollbar-thumb: rgb(65 51 78 / 32%);
+  --scrollbar-thumb-hover: rgb(65 51 78 / 55%);
   scrollbar-gutter: stable;
 }
 
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #a69dad var(--color-primary);
+/* Keep exact sizing in Chromium; use the native thin style in Firefox. */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-primary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  border: 2px solid var(--color-primary);
+  border: 1px solid transparent;
   border-radius: 9999px;
-  background: #a69dad;
+  background-color: var(--scrollbar-thumb);
+  background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-secondary);
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background-color: var(--color-secondary);
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 ::-webkit-scrollbar-corner {
-  background: var(--color-primary);
+  background: transparent;
 }
 
 .collection-filters {
-  scrollbar-width: thin;
-  scrollbar-color: #a69dad var(--color-primary);
   scrollbar-gutter: stable;
-}
-
-.collection-filters::-webkit-scrollbar {
-  display: block;
-  width: 7px;
-}
-
-.collection-filters::-webkit-scrollbar-track {
-  background: var(--color-primary);
-}
-
-.collection-filters::-webkit-scrollbar-thumb {
-  border: 2px solid var(--color-primary);
-  border-radius: 9999px;
-  background: #a69dad;
-}
-
-.collection-filters::-webkit-scrollbar-thumb:hover {
-  background: var(--color-secondary);
 }
 
 

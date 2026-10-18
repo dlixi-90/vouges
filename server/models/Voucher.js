@@ -14,6 +14,7 @@ const voucherSchema = new mongoose.Schema({
   maxUses: { type: Number, required: true, min: 1 },
   usedCount: { type: Number, default: 0, min: 0 },
   active: { type: Boolean, default: true },
+  deletedAt: { type: Date, default: null },
 }, { timestamps: true });
 voucherSchema.index({ userId: 1, birthdayYear: 1 }, {
   unique: true, partialFilterExpression: { kind: "birthday" },

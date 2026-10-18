@@ -33,7 +33,7 @@ export const validateVoucher = async (code, userId, subtotal, session, now = new
   if (!code) return null;
   if (typeof code !== "string" || !/^[A-Z0-9-]{3,40}$/i.test(code.trim()))
     throw new VoucherError("Mã voucher không hợp lệ.");
-  const query = Voucher.findOne({ code: code.trim().toUpperCase(), active: true });
+  const query = Voucher.findOne({ code: code.trim().toUpperCase(), active: true, deletedAt: null });
   const voucher = await (session ? query.session(session) : query);
   if (!voucher || (voucher.userId && voucher.userId !== userId))
     throw new VoucherError("Voucher không tồn tại hoặc không dành cho tài khoản này.");
@@ -50,7 +50,7 @@ export const validateVoucher = async (code, userId, subtotal, session, now = new
 export const reserveVoucher = async (voucher, userId, orderId, session) => {
   if (!voucher) return;
   const result = await Voucher.updateOne({ _id: voucher._id,
-    active: true, usedCount: { $lt: voucher.maxUses },
+    active: true, deletedAt: null, usedCount: { $lt: voucher.maxUses },
   }, { $inc: { usedCount: 1 } }, { session });
   if (result.modifiedCount !== 1) throw new VoucherError("Voucher đã hết lượt sử dụng.", 409);
   try {

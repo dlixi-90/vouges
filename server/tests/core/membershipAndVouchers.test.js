@@ -11,7 +11,9 @@ import Voucher from "../../models/Voucher.js";
 import VoucherUse from "../../models/VoucherUse.js";
 import { calculateDiscount, validateVoucher, issueBirthdayVoucher, reserveVoucher, releaseVoucher } from "../../services/voucherService.js";
 import { saveBirthday } from "../../controllers/userController.js";
-import { awardBirthdays, createVoucher, listMyVouchers } from "../../controllers/voucherController.js";
+import { awardBirthdays, createVoucher, deleteVoucher, listVouchers, listMyVouchers, setVoucherActive } from "../../controllers/voucherController.js";
+import voucherRouter from "../../routes/voucherRoute.js";
+import authUser, { requireOwner } from "../../middleware/authMiddleware.js";
 import { quoteOrder, placeOrderCOD, placeOrderQr, cancelQrOrder, sepayWebhook } from "../../controllers/orderController.js";
 import { buildOrderConfirmationEmail } from "../../emails/orderConfirmation.js";
 import transporter from "../../config/nodemailer.js";
@@ -126,6 +128,8 @@ test("membership returns the authenticated profile with vouchers and overlaps in
     return { select: () => ({ lean: async () => [{ voucherId }] }) };
   });
   const find = t.mock.method(Voucher, "find", (filter) => {
+    assert.equal(filter.deletedAt, null);
+    assert.equal(filter.active, true);
     assert.deepEqual(filter._id, { $nin: [voucherId] });
     assert.deepEqual(filter.$or, [{ userId }, { userId: null }]);
     return { select: () => ({ sort: () => ({ limit: () => ({ lean: async () => [{ code: "NEW-BIRTHDAY" }] }) }) }) };
@@ -396,6 +400,97 @@ test("admin voucher API rejects non-finite values and reserved birthday codes", 
     assert.equal(res.statusCode, 400);
   }
   assert.equal(write.mock.callCount(), 0);
+});
+
+test("voucher deletion requires an authenticated owner", () => {
+  const route = voucherRouter.stack.find((layer) => layer.route?.methods.delete)?.route;
+  assert.equal(route.path, "/:id");
+  assert.deepEqual(route.stack.map((layer) => layer.handle), [authUser, requireOwner, deleteVoucher]);
+  const res = response();
+  requireOwner({ user: { role: "user" } }, res, () => assert.fail("Customer cannot delete vouchers"));
+  assert.equal(res.statusCode, 403);
+});
+
+test("deleting a voucher disables it while retaining its code, counters and order use history", async (t) => {
+  const saved = coupon({ kind: "general", active: true, usedCount: 3, deletedAt: null });
+  t.mock.method(Voucher, "findOneAndUpdate", async (filter, update) => {
+    assert.deepEqual(filter, { _id: voucherId, kind: "general", deletedAt: null });
+    assert.deepEqual(Object.keys(update), ["$set"]);
+    assert.deepEqual(Object.keys(update.$set).sort(), ["active", "deletedAt"]);
+    assert.equal(update.$set.active, false);
+    assert.ok(update.$set.deletedAt instanceof Date);
+    Object.assign(saved, update.$set);
+    return saved;
+  });
+  t.mock.method(VoucherUse, "deleteMany", () => assert.fail("Keep order use history"));
+  t.mock.method(Voucher, "deleteOne", () => assert.fail("Keep original voucher"));
+  const res = response();
+  await deleteVoucher({ params: { id: voucherId } }, res, (error) => { throw error; });
+  assert.equal(res.body.success, true);
+  assert.equal(saved.active, false);
+  assert.equal(saved.usedCount, 3);
+  assert.equal(saved.code, "SAVE10");
+});
+
+test("voucher deletion rejects malformed IDs before writing", async (t) => {
+  const write = t.mock.method(Voucher, "findOneAndUpdate", () => assert.fail("No invalid writes"));
+  for (const id of ["bad-id", undefined, { $ne: null }]) {
+    const res = response();
+    await deleteVoucher({ params: { id } }, res, (error) => { throw error; });
+    assert.equal(res.statusCode, 400);
+  }
+  assert.equal(write.mock.callCount(), 0);
+});
+
+test("missing, birthday and already deleted vouchers cannot be deleted or reactivated", async (t) => {
+  t.mock.method(Voucher, "findOneAndUpdate", async (filter) => {
+    assert.deepEqual(filter, { _id: voucherId, kind: "general", deletedAt: null });
+    return null;
+  });
+  for (const handler of [deleteVoucher, setVoucherActive]) {
+    const res = response();
+    await handler({ params: { id: voucherId }, body: { active: true } }, res, (error) => { throw error; });
+    assert.equal(res.statusCode, 404);
+    assert.equal(res.body.success, false);
+  }
+});
+
+test("admin voucher list excludes deleted entries and keeps legacy entries with no deletion field", async (t) => {
+  t.mock.method(Voucher, "find", (filter) => {
+    // MongoDB's null equality also matches older documents where the field is absent.
+    assert.deepEqual(filter, { kind: "general", deletedAt: null });
+    return { sort: () => ({ limit: () => ({ lean: async () => [coupon()] }) }) };
+  });
+  const res = response();
+  await listVouchers({}, res, (error) => { throw error; });
+  assert.equal(res.body.vouchers[0].code, "SAVE10");
+});
+
+test("deleted vouchers cannot be quoted or reserved from a stale checkout", async (t) => {
+  t.mock.method(Voucher, "findOne", async (filter) => {
+    assert.equal(filter.deletedAt, null);
+    assert.equal(filter.active, true);
+    return null;
+  });
+  await assert.rejects(validateVoucher("SAVE10", userId, 500, null, now), /không tồn tại/);
+  t.mock.method(Voucher, "updateOne", async (filter) => {
+    assert.equal(filter.deletedAt, null);
+    assert.equal(filter.active, true);
+    return { modifiedCount: 0 };
+  });
+  const ledger = t.mock.method(VoucherUse, "create", () => assert.fail("No use of deleted voucher"));
+  await assert.rejects(reserveVoucher(coupon(), userId, orderId, {}));
+  assert.equal(ledger.mock.callCount(), 0);
+});
+
+test("voucher deletion passes database failures to the error handler", async (t) => {
+  const failure = new Error("Database unavailable");
+  t.mock.method(Voucher, "findOneAndUpdate", async () => { throw failure; });
+  let received;
+  const res = response();
+  await deleteVoucher({ params: { id: voucherId } }, res, (error) => { received = error; });
+  assert.equal(received, failure);
+  assert.equal(res.body, undefined);
 });
 
 test("date-only voucher creation includes the entire selected Vietnam day and expires at the next midnight", async (t) => {

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { LoaderCircle, Plus, Search, Ticket } from "lucide-react";
+import { LoaderCircle, Plus, Search, Ticket, Trash2 } from "lucide-react";
+import DeleteVoucherDialog from "../../components/owner/DeleteVoucherDialog";
 import { useAppContext } from "../../context/AppContext";
 import { formatThousandsVnd } from "../../utils/money";
 import { getVoucherValidityPeriod, getVoucherStatus, formatVoucherDate, formatVoucherExpiryDate } from "../../utils/voucherDates";
@@ -21,6 +22,8 @@ export default function Vouchers() {
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteError, setDeleteError] = useState("");
   const query = search.trim().toLowerCase();
   const visibleVouchers = vouchers.filter((voucher) => voucher.code.toLowerCase().includes(query));
   const load = useCallback(async (signal) => {
@@ -62,6 +65,23 @@ export default function Vouchers() {
       setVouchers(await load());
     } catch (err) { toast.error(err.response?.data?.message || err.message); }
     finally { setBusy(false); }
+  };
+  const remove = async () => {
+    if (busy || !deleteTarget) return;
+    setBusy(true);
+    setDeleteError("");
+    try {
+      const { data } = await axios.delete(`/api/vouchers/${deleteTarget._id}`, {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
+      if (!data.success) throw new Error(data.message || "Không thể xóa voucher.");
+      setVouchers((current) => current.filter((voucher) => voucher._id !== deleteTarget._id));
+      storeResources.invalidateMembership();
+      setDeleteTarget(null);
+      toast.success("Đã xóa voucher.");
+    } catch (err) {
+      setDeleteError(err.response?.data?.message || err.message);
+    } finally { setBusy(false); }
   };
   const field = (name, value) => setDraft((current) => ({ ...current, [name]: value }));
   const retry = async () => {
@@ -158,7 +178,7 @@ export default function Vouchers() {
                     <caption className="sr-only">Voucher cửa hàng và trạng thái sử dụng</caption>
                     <thead>
                       <tr className="border-b border-[#edf0f2] bg-[#fafbfb] text-[#69747e]">
-                        {["Mã voucher", "Ưu đãi", "Đơn tối thiểu", "Thời hạn", "Lượt dùng", "Trạng thái"].map((label) => (
+                        {["Mã voucher", "Ưu đãi", "Đơn tối thiểu", "Thời hạn", "Lượt dùng", "Trạng thái", "Thao tác"].map((label) => (
                           <th key={label} scope="col" className="px-5 py-3 font-medium">{label}</th>
                         ))}
                       </tr>
@@ -196,6 +216,14 @@ export default function Vouchers() {
                               </span>
                             </div>
                           </td>
+                          <td className="px-5 py-4">
+                            <button type="button" disabled={busy}
+                              onClick={() => { setDeleteError(""); setDeleteTarget(voucher); }}
+                              aria-label={`Xóa voucher ${voucher.code}`}
+                              className="inline-flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-red-600 transition hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:cursor-not-allowed disabled:opacity-50">
+                              <Trash2 size={16} aria-hidden="true" />Xóa
+                            </button>
+                          </td>
                         </tr>
                         );
                       })}
@@ -206,6 +234,8 @@ export default function Vouchers() {
           </section>
         </div>
       </div>
+      {deleteTarget && <DeleteVoucherDialog voucher={deleteTarget} busy={busy} error={deleteError}
+        onCancel={() => { if (!busy) setDeleteTarget(null); }} onConfirm={remove} />}
     </main>
   );
 }

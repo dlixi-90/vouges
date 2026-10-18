@@ -12,7 +12,7 @@ export const listMyVouchers = async (req, res, next) => {
       VoucherUse.find({ userId: req.user._id }).select("voucherId -_id").lean(),
     ]);
     const now = new Date();
-    const vouchers = await Voucher.find({ active: true,
+    const vouchers = await Voucher.find({ active: true, deletedAt: null,
       _id: { $nin: uses.map((use) => use.voucherId) },
       $or: [{ userId: req.user._id }, { userId: null }],
       startsAt: { $lte: now }, expiresAt: { $gt: now },
@@ -28,7 +28,7 @@ export const listMyVouchers = async (req, res, next) => {
 
 export const listVouchers = async (_req, res, next) => {
   try {
-    res.json({ success: true, vouchers: await Voucher.find({ kind: "general" }).sort({ createdAt: -1 }).limit(100).lean() });
+    res.json({ success: true, vouchers: await Voucher.find({ kind: "general", deletedAt: null }).sort({ createdAt: -1 }).limit(100).lean() });
   } catch (error) { next(error); }
 };
 
@@ -58,10 +58,25 @@ export const setVoucherActive = async (req, res, next) => {
   try {
     if (!/^[a-f0-9]{24}$/i.test(req.params.id) || typeof req.body.active !== "boolean")
       return res.status(400).json({ success: false, message: "Yêu cầu không hợp lệ." });
-    const voucher = await Voucher.findOneAndUpdate({ _id: req.params.id, kind: "general" },
+    const voucher = await Voucher.findOneAndUpdate({ _id: req.params.id, kind: "general", deletedAt: null },
       { active: req.body.active }, { new: true });
     if (!voucher) return res.status(404).json({ success: false, message: "Không tìm thấy voucher." });
     res.json({ success: true, voucher });
+  } catch (error) { next(error); }
+};
+
+export const deleteVoucher = async (req, res, next) => {
+  try {
+    if (!/^[a-f0-9]{24}$/i.test(req.params.id))
+      return res.status(400).json({ success: false, message: "Yêu cầu không hợp lệ." });
+    // Keep the original voucher and its code for order history and use records.
+    const voucher = await Voucher.findOneAndUpdate(
+      { _id: req.params.id, kind: "general", deletedAt: null },
+      { $set: { active: false, deletedAt: new Date() } },
+      { new: true },
+    );
+    if (!voucher) return res.status(404).json({ success: false, message: "Không tìm thấy voucher." });
+    res.json({ success: true, message: "Đã xóa voucher." });
   } catch (error) { next(error); }
 };
 
