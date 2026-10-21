@@ -71,14 +71,15 @@ body { background:#fff; color:var(--net-ink); }
 .net-header nav.fixed { border:1px solid var(--net-line); border-radius:18px; padding:14px; box-shadow:0 16px 40px #00000012; }
 
 /* Hero keeps the original photo, text, promotional card and collection link. */
-.net-hero > div { height:clamp(610px,78vh,760px); margin-top:98px; border-radius:26px; isolation:isolate; }
-.net-hero > div::after { content:""; position:absolute; inset:0; z-index:0; background:linear-gradient(120deg,#000b 0%,#0006 55%,#0002 100%),linear-gradient(0deg,#0009,transparent 50%); pointer-events:none; }
-.net-hero > div > .relative { z-index:1; max-width:none; padding:clamp(28px,4vw,56px); }
-.net-hero .h1 { max-width:820px; color:#fff; font-weight:500; line-height:1.2; letter-spacing:-.045em; }
+.net-hero > div { height:auto; min-height:clamp(610px,78vh,760px); margin-top:98px; border-radius:26px; isolation:isolate; }
+.net-hero > div::after { content:none; }
+.net-hero > div > .relative { z-index:1; max-width:none; height:auto; min-height:inherit; gap:32px; padding:clamp(28px,4vw,56px); }
+.net-hero > div > .relative > div { flex-shrink:0; }
+.net-hero .h1 { max-width:820px; color:var(--net-ink); font-weight:500; line-height:1.2; letter-spacing:-.045em; }
 .net-hero .h1 .text-secondary { color:inherit; }
-.net-hero .max-w-3xl > p { max-width:580px; margin-top:24px; color:#ffffffe0; font-size:15px; line-height:1.9; }
-.net-hero .max-w-3xl a { background:#ffffff0a; border:1px solid #ffffffb3; color:#fff; padding-block:4px; padding-left:22px; backdrop-filter:blur(8px); font-size:13px; }
-.net-hero .max-w-3xl a:hover { background:#ffffff1c; }
+.net-hero .max-w-3xl > p { max-width:580px; margin-top:24px; color:#494949; font-size:15px; line-height:1.9; }
+.net-hero .max-w-3xl a { background:#171717; border:1px solid #171717; color:#fff; padding-block:4px; padding-left:22px; font-size:13px; }
+.net-hero .max-w-3xl a:hover { background:#343434; }
 .net-hero .max-w-3xl a img { box-shadow:none; }
 .net-hero .max-w-\[249px\] { background:#ffffffed; border-radius:18px; padding:12px; }
 .net-hero .max-w-\[249px\] p { color:#494949; }
@@ -93,19 +94,7 @@ body { background:#fff; color:var(--net-ink); }
 .net-testimonials { padding-block:var(--net-space); }
 .net-testimonials .shadow { border:1px solid var(--net-line); border-radius:20px; box-shadow:none; padding:22px; }
 
-/* Product contents and hover controls remain in place. */
-.net-product-card { border:1px solid var(--net-line); border-radius:20px; background:#fff!important; }
-.net-product-card > div:first-child { min-height:250px; background:#f3f3f3!important; border-radius:0; overflow:hidden; }
-.net-product-card > div:first-child > img { width:78%; height:210px; object-fit:contain; transition:transform .35s ease; }
-.net-product-card:hover > div:first-child > img { transform:scale(1.035); }
-.net-product-card > div:nth-child(2) { padding:20px; text-align:left; }
-.net-product-card > div:nth-child(2) h5 { color:#171717; font-size:14px; font-weight:500; letter-spacing:.015em; line-height:1.6; }
-.net-product-card > div:nth-child(2) p { font-size:14px; margin-top:6px; }
-.net-product-card > [class*="group-hover:blur"] { opacity:1!important; filter:none!important; }
-.net-product-card > div:last-child > button { border:1px solid #d0d0d0; background:#171717; color:#fff; box-shadow:none; }
-.net-product-card > div:last-child > button:hover { background:#343434; }
-.net-product-card .absolute.top-2 { border:1px solid #d5d5d5; background:#ffffffde; padding:4px 12px; font-size:11px; line-height:1.6; }
-.net-product-card .bg-red-50 { color:#9f3838; border-color:#e9bfbf; }
+/* Product cards use their original component backgrounds, sizing and hover styles. */
 .net-theme .net-collection { margin-top:112px; padding-inline:clamp(20px,3.4vw,48px)!important; }
 .net-collection > div { gap:30px; }
 .net-collection aside { background:#f5f5f5; border-radius:22px; }
@@ -113,7 +102,7 @@ body { background:#fff; color:var(--net-ink); }
 .net-collection .collection-filters > div { border:1px solid #e5e5e5; border-radius:15px; }
 .net-collection select { min-height:42px; border-radius:9px; }
 .net-product-detail { padding-top:112px; }
-.net-product-detail :is(.bg-\[\#f5f5f0\],.bg-\[\#f5f5f2\]) { background:#f3f3f3; border-radius:20px; }
+
 .net-blog { background:#fff; padding-block:112px var(--net-space); }
 .net-blog .bg-secondary\/10 { background:#f3f3f3; padding:0; border-radius:20px; overflow:hidden; }
 .net-blog img { border-radius:20px; box-shadow:none; width:100%; }
@@ -214,7 +203,7 @@ body { background:#fff; color:var(--net-ink); }
   .net-header > div > div:last-child { gap:10px; }
   .net-header .btn-secondary { padding:10px 14px; font-size:12px; }
   .net-header [aria-controls="vouges-ai-chat-panel"] { padding-inline:11px; }
-  .net-hero > div { height:650px; margin-top:90px; border-radius:20px; }
+  .net-hero > div { min-height:650px; margin-top:90px; border-radius:20px; }
   .net-hero > div > .relative { padding:28px 24px; }
   .net-hero .h1 { font-size:40px; }
   .net-hero .max-w-3xl > p { font-size:13px; line-height:1.8; margin-top:18px; }
@@ -222,9 +211,9 @@ body { background:#fff; color:var(--net-ink); }
   .net-hero .max-w-\[249px\] { max-width:220px; }
   .net-hero .max-w-\[249px\] > div { width:100%; }
   .net-features > div { gap:18px; padding-block:22px; }
-  .net-product-card > div:first-child { min-height:210px; }
-  .net-product-card > div:first-child > img { height:180px; }
-  .net-product-card > div:nth-child(2) { padding:16px; }
+
+
+
   .net-collection > div { gap:22px; }
   .net-collection aside { border-radius:18px; margin-inline:0; }
   .net-footer { width:calc(100% - 24px); border-radius:20px; padding-top:36px; margin-bottom:12px; }
@@ -238,10 +227,7 @@ body { background:#fff; color:var(--net-ink); }
   .net-admin .net-admin-messages { padding:0; }
   .net-admin .net-admin-messages > header { padding:20px; }
 }
-@media(prefers-reduced-motion:reduce) {
-  .net-product-card > div:first-child > img { transition:none; }
-  .net-product-card:hover > div:first-child > img { transform:none; }
-}
+
 
 /* Normalize former decorative accent colors; semantic error/status colors remain. */
 .net-theme [class~="text-[#263b4a]"],
