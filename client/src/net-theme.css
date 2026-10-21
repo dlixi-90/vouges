@@ -59,7 +59,7 @@ body { background:#fff; color:var(--net-ink); }
 .net-header { background:#fff; padding-block:10px; }
 .net-header > .max-padd-container { min-height:66px; gap:24px; }
 .net-header nav { background:transparent; }
-.net-header nav a { color:#737373; font-size:14px; font-weight:400; padding:9px 11px; border-radius:0; white-space:nowrap; }
+.net-header nav a { color:#737373; font-size:14px; font-weight:700; padding:9px 11px; border-radius:0; white-space:nowrap; }
 .net-header nav a.active-link { color:#171717; background:transparent; box-shadow:inset 0 -1px #171717; }
 .net-header nav a:hover { color:#171717; }
 .net-header button { min-height:40px; }
