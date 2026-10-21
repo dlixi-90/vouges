@@ -389,7 +389,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                       type="button"
                       onClick={() => void submitMessage(prompt)}
                       disabled={isSending}
-                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm text-slate-700 transition hover:border-amber-300 hover:bg-amber-50 disabled:opacity-50"
+                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 disabled:opacity-50"
                     >
                       {prompt}
                     </button>
