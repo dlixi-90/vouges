@@ -24,7 +24,7 @@ const ProductReviewDialog = ({ product, onClose }) => {
 
   return createPortal(
     <dialog ref={dialogRef} aria-labelledby={titleId} onCancel={(event) => { event.preventDefault(); if (!busy) onClose(); }}
-      className="fixed inset-0 m-auto max-h-[calc(100dvh-32px)] w-[600px] max-w-[calc(100vw-32px)] overflow-y-auto rounded-2xl border-0 bg-white p-0 text-tertiary shadow-xl backdrop:bg-black/40">
+      className="net-form-dialog fixed inset-0 m-auto max-h-[calc(100dvh-32px)] w-[600px] max-w-[calc(100vw-32px)] overflow-y-auto rounded-2xl border-0 bg-white p-0 text-tertiary shadow-xl backdrop:bg-black/40">
       <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 sm:px-6">
         <h2 id={titleId} className="text-lg font-semibold">Đánh giá sản phẩm</h2>
         <button type="button" disabled={busy} onClick={onClose} aria-label="Đóng đánh giá" className="cursor-pointer rounded-md p-2 hover:bg-primary disabled:opacity-50"><X size={20} /></button>

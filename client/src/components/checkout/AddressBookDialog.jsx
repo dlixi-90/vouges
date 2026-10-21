@@ -122,7 +122,7 @@ const AddressBookDialog = ({ addresses, selectedId, user, onSelect, onSave, onUp
       aria-busy={isSaving}
       onCancel={(event) => { event.preventDefault(); if (!busyRef.current) onClose(); }}
       onClick={(event) => { if (event.target === event.currentTarget && !busyRef.current) onClose(); }}
-      className="fixed inset-0 m-auto max-h-[90dvh] w-[640px] max-w-[calc(100vw-32px)] overflow-y-auto rounded-xl border border-gray-200 bg-white p-0 text-tertiary shadow-xl backdrop:bg-black/35"
+      className="net-form-dialog fixed inset-0 m-auto max-h-[90dvh] w-[640px] max-w-[calc(100vw-32px)] overflow-y-auto rounded-xl border border-gray-200 bg-white p-0 text-tertiary shadow-xl backdrop:bg-black/35"
     >
       <div>
         <div className="flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-5">

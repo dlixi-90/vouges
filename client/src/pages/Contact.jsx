@@ -21,7 +21,7 @@ export default function Contact() {
           <label htmlFor="name" className="font-medium">
             Full Name
           </label>
-          <div className="flex items-center mt-2 mb-4 h-10 pl-3 border border-slate-300 bg-secondary/10 rounded-full focus-within:ring-2 focus-within:ring-black/80 transition-all overflow-hidden">
+          <div className="net-field-shell flex items-center mt-2 mb-4 h-10 pl-3 border border-slate-300 bg-secondary/10 rounded-full focus-within:ring-2 focus-within:ring-black/80 transition-all overflow-hidden">
             <img src={assets.user} alt="" width={19} className="invert-50" />
             <input
               type="text"
@@ -34,7 +34,7 @@ export default function Contact() {
           <label htmlFor="email-address" className="font-medium mt-4">
             Email Address
           </label>
-          <div className="flex items-center mt-2 mb-4 h-10 pl-3 border border-slate-300 bg-secondary/10 rounded-full focus-within:ring-2 focus-within:ring-black/80 transition-all overflow-hidden">
+          <div className="net-field-shell flex items-center mt-2 mb-4 h-10 pl-3 border border-slate-300 bg-secondary/10 rounded-full focus-within:ring-2 focus-within:ring-black/80 transition-all overflow-hidden">
             <img src={assets.mail} alt="" width={18} className="invert-50" />
             <input
               type="email"

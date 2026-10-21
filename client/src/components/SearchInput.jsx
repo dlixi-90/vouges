@@ -6,7 +6,7 @@ const SearchInput = () => {
   return (
     <div className="py-4">
       <div className="text-center">
-        <div className="inline-flex items-center justify-center px-3 py-1.5 rounded-full bg-white ring-1 ring-slate-900/20 w-full">
+        <div className="net-field-shell inline-flex items-center justify-center px-3 py-1.5 rounded-full bg-white ring-1 ring-slate-900/20 w-full">
           <input
             type="text"
             value={searchQuery}

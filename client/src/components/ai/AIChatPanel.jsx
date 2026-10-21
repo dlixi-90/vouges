@@ -937,7 +937,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
             onSubmit={handleSubmit}
             className="shrink-0 border-t border-slate-100 bg-white p-3"
           >
-            <div className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-2 transition focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-100">
+            <div className="net-field-shell flex items-end gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-2 transition focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-100">
               <textarea
                 ref={textareaRef}
                 value={input}

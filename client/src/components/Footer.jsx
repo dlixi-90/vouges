@@ -75,7 +75,7 @@ const Footer = () => {
             <p className="mt-3 text-sm">
               Subscribe to our newsletter for inspiration and special offers.
             </p>
-            <div className="flex items-center border pl-4 gap-2 bg-secondary/10 border-gray-500/30 h-[46px] rounded-full overflow-hidden max-w-md w-full mt-6">
+            <div className="net-field-shell flex items-center border pl-4 gap-2 bg-secondary/10 border-gray-500/30 h-[46px] rounded-full overflow-hidden max-w-md w-full mt-6">
               <input
                 className="w-full h-full outline-none text-sm text-gray-500"
                 placeholder="Your email"

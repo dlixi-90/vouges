@@ -43,9 +43,9 @@ body { background:#fff; color:var(--net-ink); }
 .net-theme p { line-height:1.8; }
 .net-theme a { text-underline-offset:5px; }
 .net-theme :is(button,input,textarea,select) { font-family:inherit; }
-.net-theme :is(button,a,input,textarea,select):focus-visible { outline:2px solid var(--net-ink); outline-offset:4px; }
+:where(.net-theme,.net-form-dialog) :is(button,a,input[type=checkbox],input[type=radio],input[type=range],input[type=file]):focus-visible { outline:2px solid #999; outline-offset:3px; }
 .net-theme :is(input,select,textarea) { accent-color:var(--net-ink); }
-.net-theme :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),textarea,select) { border-color:#d8d8d8; }
+.net-theme :where(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),textarea,select):not([aria-invalid=true]) { border-color:#d8d8d8; }
 .net-theme :is(input,textarea)::placeholder { color:#8b8b8b; }
 .net-theme :is(.btn-dark,.btn-secondary,.admin-primary-button) { background:#171717; color:#fff; border:1px solid #171717; border-radius:999px; box-shadow:none; font-weight:500; }
 .net-theme :is(.btn-dark,.btn-secondary,.admin-primary-button):hover:not(:disabled) { background:#343434; border-color:#343434; }
@@ -71,17 +71,19 @@ body { background:#fff; color:var(--net-ink); }
 .net-header nav.fixed { border:1px solid var(--net-line); border-radius:18px; padding:14px; box-shadow:0 16px 40px #00000012; }
 
 /* Hero keeps the original photo, text, promotional card and collection link. */
-.net-hero > div { height:auto; min-height:clamp(610px,78vh,760px); margin-top:98px; border-radius:26px; isolation:isolate; }
+.net-hero > div { height:clamp(610px,78vh,760px); margin-top:98px; border-radius:26px; isolation:isolate; }
 .net-hero > div::after { content:none; }
-.net-hero > div > .relative { z-index:1; max-width:none; height:auto; min-height:inherit; gap:32px; padding:clamp(28px,4vw,56px); }
+.net-hero > div > .relative { z-index:1; max-width:none; height:100%; min-height:0; gap:20px; padding:28px; }
 .net-hero > div > .relative > div { flex-shrink:0; }
 .net-hero .h1 { max-width:820px; color:var(--net-ink); font-weight:500; line-height:1.2; letter-spacing:-.045em; }
 .net-hero .h1 .text-secondary { color:inherit; }
-.net-hero .max-w-3xl > p { max-width:580px; margin-top:24px; color:#494949; font-size:15px; line-height:1.9; }
-.net-hero .max-w-3xl a { background:#171717; border:1px solid #171717; color:#fff; padding-block:4px; padding-left:22px; font-size:13px; }
+.net-hero .max-w-3xl > p { max-width:580px; margin-top:18px; color:#494949; font-size:15px; line-height:1.8; }
+.net-hero .max-w-3xl a { margin-top:20px; background:#171717; border:1px solid #171717; color:#fff; padding-block:4px; padding-left:22px; font-size:13px; }
 .net-hero .max-w-3xl a:hover { background:#343434; }
 .net-hero .max-w-3xl a img { box-shadow:none; }
-.net-hero .max-w-\[249px\] { background:#ffffffed; border-radius:18px; padding:12px; }
+.net-hero .max-w-\[249px\] { background:#ffffffed; border-radius:18px; padding:12px; margin-bottom:0; }
+.net-hero .max-w-\[249px\] > div { height:104px; }
+.net-hero .max-w-\[249px\] > div > img { height:100%; }
 .net-hero .max-w-\[249px\] p { color:#494949; }
 .net-features { margin-block:var(--net-space); }
 .net-features > div { border-block:1px solid var(--net-line); padding-block:28px; gap:22px; }
@@ -188,6 +190,21 @@ body { background:#fff; color:var(--net-ink); }
 .cl-formFieldInput,.cl-socialButtonsBlockButton { border:1px solid #d7d7d7; border-radius:11px; box-shadow:none; }
 .cl-footerActionLink { color:#171717; text-decoration:underline; text-underline-offset:3px; }
 
+
+/* A single soft focus boundary for standalone fields and composite input shells. */
+:is(.net-theme,.net-form-dialog) :where(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=button]):not([type=submit]):not([type=reset]):not([type=image]):not([type=hidden]),textarea,select):focus {
+  outline:none;
+  outline-offset:0;
+  border-color:#a5a5a5;
+  --tw-ring-color:transparent;
+  box-shadow:0 0 0 3px #1717170a;
+}
+:where(.net-theme,.net-form-dialog) :is(input,textarea,select)[aria-invalid=true]:focus { border-color:#dc2626; box-shadow:0 0 0 3px #dc262610; }
+.net-theme .net-field-shell { border:1px solid #d8d8d8; box-shadow:none; transition:border-color .16s ease,box-shadow .16s ease; }
+.net-theme .net-field-shell:focus-within { border-color:#a5a5a5; --tw-ring-color:transparent; box-shadow:0 0 0 3px #1717170a; }
+.net-theme .net-field-shell :is(input,textarea):focus { outline:none; border-color:transparent; box-shadow:none; }
+.net-footer .net-field-shell:focus-within { border-color:#bcbcbc; box-shadow:0 0 0 3px #ffffff14; }
+
 @media(min-width:768px) {
   .net-sidebar { min-width:238px; width:238px; flex-shrink:0; min-height:calc(100dvh - 32px); }
   .net-admin-layout > div > main { height:calc(100dvh - 32px); }
@@ -203,8 +220,8 @@ body { background:#fff; color:var(--net-ink); }
   .net-header > div > div:last-child { gap:10px; }
   .net-header .btn-secondary { padding:10px 14px; font-size:12px; }
   .net-header [aria-controls="vouges-ai-chat-panel"] { padding-inline:11px; }
-  .net-hero > div { min-height:650px; margin-top:90px; border-radius:20px; }
-  .net-hero > div > .relative { padding:28px 24px; }
+  .net-hero > div { height:auto; min-height:650px; margin-top:90px; border-radius:20px; }
+  .net-hero > div > .relative { height:auto; min-height:650px; padding:28px 24px; }
   .net-hero .h1 { font-size:40px; }
   .net-hero .max-w-3xl > p { font-size:13px; line-height:1.8; margin-top:18px; }
   .net-hero .max-w-3xl a { padding-left:15px; font-size:11px; }

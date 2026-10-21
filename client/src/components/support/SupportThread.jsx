@@ -134,7 +134,7 @@ export default function SupportThread({ conversationId, role = "customer", onCon
       {((error && !pendingDelivered) || feed.error) && <p role="alert" className="flex shrink-0 items-start gap-2 bg-red-50 px-4 py-2 text-xs leading-5 text-red-700"><AlertCircle size={14} className="mt-0.5 shrink-0" aria-hidden="true" />{(!pendingDelivered && error) || feed.error}</p>}
       <form onSubmit={submit} className="shrink-0 border-t border-secondary/10 bg-white p-3">
         {conversation?.status === "resolved" && <p className="mb-2 text-xs text-gray-500"><CheckCheck size={13} className="mr-1 inline" aria-hidden="true" />Gửi tin mới để mở lại hội thoại.</p>}
-        <div className="flex items-end gap-2 rounded-2xl border border-secondary/15 bg-primary/60 p-2 focus-within:border-secondary/50">
+        <div className="net-field-shell flex items-end gap-2 rounded-2xl border border-secondary/15 bg-primary/60 p-2 focus-within:border-secondary/50">
           <label htmlFor={`support-input-${conversationId}`} className="sr-only">Tin nhắn CSKH</label>
           <textarea id={`support-input-${conversationId}`} rows={2} maxLength={SUPPORT_MESSAGE_LIMIT} value={input} disabled={!conversation || Boolean(blockedPending)} onChange={(event) => setInput(event.target.value)}
             onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); submit(event); } }}
