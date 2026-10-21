@@ -102,7 +102,7 @@ body { background:#fff; color:var(--net-ink); }
 .net-collection > div { gap:30px; }
 .net-collection aside { background:#f5f5f5; border-radius:22px; }
 .net-collection .collection-filters { padding:22px; border-radius:22px; }
-.net-collection .collection-filters > div { border:1px solid #e5e5e5; border-radius:15px; }
+.net-collection .collection-filters > div:not(.net-search-input) { border:1px solid #e5e5e5; border-radius:15px; }
 .net-collection select { min-height:42px; border-radius:9px; }
 .net-product-detail { padding-top:112px; }
 
