@@ -86,13 +86,13 @@ body { background:#fff; color:var(--net-ink); }
 .net-hero .max-w-\[249px\] > div > img { height:100%; }
 .net-hero .max-w-\[249px\] p { color:#494949; }
 .net-features { margin-block:var(--net-space); }
-.net-features > div { border-block:1px solid var(--net-line); padding-block:28px; gap:22px; }
+.net-features > div { border-block:0; padding-block:0; gap:22px; }
 .net-features h4 { margin-bottom:10px; }
 .net-features p { font-size:13px; }
 .net-section-title > div { height:1px; width:48px; margin-top:15px; background:#171717; background-image:none; }
 .net-storefront .net-new-arrivals { margin-top:var(--net-space); }
-.net-new-arrivals > .swiper { min-height:0; }
-.net-popular-products { padding-top:clamp(28px,3vw,40px); padding-bottom:var(--net-space); }
+.net-new-arrivals > .swiper,.net-popular-products > .swiper { min-height:0; }
+.net-popular-products { padding-top:clamp(28px,3vw,40px); padding-bottom:0; }
 .net-home-banner { border-radius:24px; overflow:hidden; margin-top:32px; }
 .net-testimonials { padding-block:var(--net-space); }
 .net-testimonials .shadow { border:1px solid var(--net-line); border-radius:20px; box-shadow:none; padding:22px; }
@@ -228,7 +228,7 @@ body { background:#fff; color:var(--net-ink); }
   .net-hero .max-w-3xl a { padding-left:15px; font-size:11px; }
   .net-hero .max-w-\[249px\] { max-width:220px; }
   .net-hero .max-w-\[249px\] > div { width:100%; }
-  .net-features > div { gap:18px; padding-block:22px; }
+  .net-features > div { gap:18px; padding-block:0; }
 
 
 
