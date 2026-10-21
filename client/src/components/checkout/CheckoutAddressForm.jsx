@@ -399,7 +399,7 @@ const CheckoutAddressForm = ({
             type="button"
             disabled={isSubmitting}
             onClick={saveInlineAddress}
-            className="btn-dark mt-5 !rounded-md disabled:opacity-40"
+            className="btn-dark mt-5 !rounded-full disabled:opacity-40"
           >
             {isSubmitting ? "Saving..." : "Save Address"}
           </button>
@@ -408,7 +408,7 @@ const CheckoutAddressForm = ({
               type="button"
               disabled={isSubmitting}
               onClick={() => setIsAddressBookOpen(true)}
-              className="btn-outline mt-5 !rounded-md"
+              className="btn-outline mt-5 !rounded-full"
             >
               Choose Saved Address
             </button>

@@ -27,7 +27,7 @@ const Item = ({ product, collectionLayout = false }) => {
   return (
     <article
       onFocus={prefetchProduct}
-      className={`group relative overflow-hidden ${
+      className={`net-product-card group relative overflow-hidden ${
         collectionLayout ? "rounded-xl" : ""
       }`}
       style={collectionLayout ? { backgroundColor: bgcolor } : undefined}

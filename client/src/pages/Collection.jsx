@@ -111,7 +111,7 @@ const Collection = () => {
   );
 
   return (
-    <div className="max-padd-container !px-0 mt-20">
+    <div className="net-collection max-padd-container !px-0 mt-20">
       <div className="mb-16 flex flex-col gap-8 sm:grid sm:grid-cols-[18rem_minmax(0,1fr)] lg:grid-cols-[20rem_minmax(0,1fr)]">
         {/* Filters Option */}
         <aside className="relative min-w-0 rounded-r-xl bg-primary sm:min-h-0">

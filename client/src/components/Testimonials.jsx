@@ -66,7 +66,7 @@ const Testimonial = () => {
   );
 
   return (
-    <section className="max-padd-container py-16 xl:py-22">
+    <section className="net-testimonials max-padd-container py-16 xl:py-22">
       <>
         <style>{`
             @keyframes marqueeScroll {

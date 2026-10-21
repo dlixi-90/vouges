@@ -10,7 +10,7 @@ const PopularProducts = () => {
     fetchPopularProducts,
   } = usePopularProducts();
   return (
-    <section className="max-padd-container">
+    <section className="net-popular-products max-padd-container">
       <Title title1={"Popular"} title2={"Products"} titleStyles={"pb-10"} />
       <p className="mb-6 text-sm text-gray-500">Best sellers by units sold · All time</p>
       {popularProductsError && (

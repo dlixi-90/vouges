@@ -45,7 +45,7 @@ const MyOrders = () => {
   }, [requestOrders, user]);
 
   return (
-    <main className="max-padd-container min-h-screen bg-primary py-16 pt-28">
+    <main className="net-orders max-padd-container min-h-screen bg-primary py-16 pt-28">
       <Title title1="My" title2="Orders List" titleStyles="pb-10" />
 
       <div className="space-y-4">

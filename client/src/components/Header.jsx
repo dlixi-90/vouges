@@ -52,7 +52,7 @@ const Header = () => {
   };
   return (
     <>
-      <header className="absolute top-0 left-0 right-0 z-50 bg-white py-3">
+      <header className="net-header absolute top-0 left-0 right-0 z-50 bg-white py-3">
         <div className="max-padd-container flexBetween">
           {/* Logo */}
           <div className="flex flex-1">

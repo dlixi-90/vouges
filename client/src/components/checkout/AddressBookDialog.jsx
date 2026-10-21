@@ -155,8 +155,8 @@ const AddressBookDialog = ({ addresses, selectedId, user, onSelect, onSave, onUp
                     <div className="ml-7 mt-3 rounded-md border border-gray-200 bg-primary p-3">
                       <p className="text-sm">Delete this saved address?</p>
                       <div className="mt-3 flex flex-wrap gap-3">
-                        <button type="button" disabled={isSaving} onClick={() => setDeleteId(null)} className="btn-outline !rounded-md !px-4 !py-2 disabled:opacity-40">Cancel</button>
-                        <button type="button" disabled={isSaving} onClick={() => removeAddress(entry)} className="btn-dark !rounded-md !px-4 !py-2 disabled:opacity-40">{isSaving ? "Deleting..." : "Delete Address"}</button>
+                        <button type="button" disabled={isSaving} onClick={() => setDeleteId(null)} className="btn-outline !rounded-full !px-4 !py-2 disabled:opacity-40">Cancel</button>
+                        <button type="button" disabled={isSaving} onClick={() => removeAddress(entry)} className="btn-dark !rounded-full !px-4 !py-2 disabled:opacity-40">{isSaving ? "Deleting..." : "Delete Address"}</button>
                       </div>
                     </div>
                   )}
@@ -164,11 +164,11 @@ const AddressBookDialog = ({ addresses, selectedId, user, onSelect, onSave, onUp
               ))}
             </div>
             <div className="flex flex-wrap justify-between gap-3 border-t border-gray-200 p-6">
-              <button type="button" onClick={addNewAddress} disabled={isSaving} className="btn-outline inline-flex items-center gap-2 !rounded-md disabled:opacity-40"><Plus size={17} />Add New Address</button>
+              <button type="button" onClick={addNewAddress} disabled={isSaving} className="btn-outline inline-flex items-center gap-2 !rounded-full disabled:opacity-40"><Plus size={17} />Add New Address</button>
               <button type="button" disabled={isSaving || !addresses.some((entry) => entry._id === pendingId)} onClick={() => {
                 const selected = addresses.find((entry) => entry._id === pendingId);
                 if (selected) onSelect(selected);
-              }} className="btn-dark !rounded-md disabled:opacity-40">Confirm</button>
+              }} className="btn-dark !rounded-full disabled:opacity-40">Confirm</button>
             </div>
           </>
         ) : (
@@ -176,8 +176,8 @@ const AddressBookDialog = ({ addresses, selectedId, user, onSelect, onSave, onUp
             <DeliveryAddressFields key={editingAddress?._id || "new"} address={draft} setAddress={setDraft} disabled={isSaving} />
             <label className="mt-5 flex cursor-pointer items-center gap-2 text-sm"><input type="checkbox" checked={makeDefault} onChange={(event) => setMakeDefault(event.target.checked)} disabled={isSaving || Boolean(editingAddress?.isDefault)} className="h-4 w-4 accent-secondary" />Set as default address</label>
             <div className="mt-6 flex justify-end gap-3">
-              <button type="button" disabled={isSaving} onClick={() => addresses.length ? setMode("list") : onClose()} className="btn-outline !rounded-md disabled:opacity-40">Back</button>
-              <button type="submit" disabled={isSaving} className="btn-dark !rounded-md disabled:opacity-40">{isSaving ? "Saving..." : mode === "edit" ? "Save Changes" : "Save Address"}</button>
+              <button type="button" disabled={isSaving} onClick={() => addresses.length ? setMode("list") : onClose()} className="btn-outline !rounded-full disabled:opacity-40">Back</button>
+              <button type="submit" disabled={isSaving} className="btn-dark !rounded-full disabled:opacity-40">{isSaving ? "Saving..." : mode === "edit" ? "Save Changes" : "Save Address"}</button>
             </div>
           </form>
         )}

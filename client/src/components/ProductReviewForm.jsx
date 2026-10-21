@@ -78,7 +78,7 @@ const ProductReviewForm = ({ productId, onSaved, onCancel, onBusyChange }) => {
     }
   };
 
-  if (!userId) return <button type="button" onClick={requireCartLogin} className="btn-outline !rounded-md">Đăng nhập để đánh giá</button>;
+  if (!userId) return <button type="button" onClick={requireCartLogin} className="btn-outline !rounded-full">Đăng nhập để đánh giá</button>;
   if (error) return <div role="alert" className="rounded-lg bg-primary p-4 text-sm">
     <p className="text-red-600">{error}</p>
     <button type="button" onClick={() => { setError(""); setOwn(null); setAttempt((value) => value + 1); }} className="mt-3 cursor-pointer text-secondary underline">Thử lại</button>
@@ -110,8 +110,8 @@ const ProductReviewForm = ({ productId, onSaved, onCancel, onBusyChange }) => {
         <p id={`comment-limit-${formId}`} className="mt-1 text-right text-xs text-gray-500">{comment.length}/2.000 ký tự</p>
       </div>
       <div className="flex flex-wrap justify-end gap-3">
-        {onCancel && <button type="button" onClick={onCancel} disabled={busy} className="btn-outline !rounded-md disabled:opacity-50">Để sau</button>}
-        <button type="submit" disabled={busy || rating === 0 || !comment.trim()} className="btn-dark !rounded-md disabled:cursor-not-allowed disabled:opacity-50">
+        {onCancel && <button type="button" onClick={onCancel} disabled={busy} className="btn-outline !rounded-full disabled:opacity-50">Để sau</button>}
+        <button type="submit" disabled={busy || rating === 0 || !comment.trim()} className="btn-dark !rounded-full disabled:cursor-not-allowed disabled:opacity-50">
           {busy ? "Đang lưu…" : own.review ? "Cập nhật đánh giá" : "Gửi đánh giá"}
         </button>
       </div>

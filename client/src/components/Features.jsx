@@ -3,7 +3,7 @@ import { BadgeCheck, ShieldCheck, Truck } from "lucide-react";
 
 const Features = () => {
   return (
-    <section className="max-padd-container my-10 xl:my-22">
+    <section className="net-features max-padd-container my-10 xl:my-22">
       {/* Container */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-[1fr_1fr_1fr_1fr_1fr] gap-6 gap-y-12 items-center rounded-xl">
         <div>

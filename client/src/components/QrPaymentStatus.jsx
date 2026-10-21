@@ -258,7 +258,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
         <button
           type="button"
           onClick={() => navigate("/my-orders")}
-          className="btn-dark mt-8 !rounded-md"
+          className="btn-dark mt-8 !rounded-full"
         >
           View My Orders
         </button>
@@ -285,7 +285,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
         <button
           type="button"
           onClick={() => navigate("/my-orders")}
-          className="btn-dark mt-8 !rounded-md"
+          className="btn-dark mt-8 !rounded-full"
         >
           View My Orders
         </button>
@@ -306,7 +306,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
         <button
           type="button"
           onClick={onExpired}
-          className="btn-dark mt-8 !rounded-md"
+          className="btn-dark mt-8 !rounded-full"
         >
           Return to cart
         </button>
@@ -374,7 +374,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
             type="button"
             onClick={() => checkPayment(true)}
             disabled={isChecking || isCancelling}
-            className="btn-dark mt-5 w-full !rounded-md disabled:cursor-not-allowed disabled:opacity-50"
+            className="btn-dark mt-5 w-full !rounded-full disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isChecking ? "Checking..." : "I Have Paid"}
           </button>
@@ -383,7 +383,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
             type="button"
             onClick={backToPaymentMethod}
             disabled={isCancelling}
-            className="btn-outline mt-3 w-full !rounded-md disabled:cursor-not-allowed disabled:opacity-50"
+            className="btn-outline mt-3 w-full !rounded-full disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isCancelling ? "Cancelling..." : "Back to payment method"}
           </button>

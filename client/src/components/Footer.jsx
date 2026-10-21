@@ -3,7 +3,7 @@ import { assets } from "../assets/data";
 
 const Footer = () => {
   return (
-    <footer className="pt-16 xl:pt-20 w-full text-gray-500 bg-primary">
+    <footer className="net-footer pt-16 xl:pt-20 w-full text-gray-500 bg-primary">
       <div className="max-padd-container">
         <div className="flex flex-wrap justify-between gap-12 md:gap-6">
           <div className="max-w-80">

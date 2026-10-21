@@ -6,7 +6,7 @@ const NewArrivals = () => {
   const { products } = useAppContext();
 
   return (
-    <section className="max-padd-container mt-28">
+    <section className="net-new-arrivals max-padd-container mt-28">
       <Title title1={"New"} title2={"Arrivals"} titleStyles={"pb-10"} />
       <ProductCarousel products={products} />
     </section>

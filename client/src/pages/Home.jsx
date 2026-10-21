@@ -15,7 +15,7 @@ const Home = () => {
       <Features />
       <DeferredSection minHeight={540}><NewArrivals /></DeferredSection>
       <DeferredSection minHeight={450}><PopularProducts /></DeferredSection>
-      <div className="hidden sm:block max-padd-container relative mt-28 h-[288px]">
+      <div className="net-home-banner hidden sm:block max-padd-container relative mt-28 h-[288px]">
         <img src={banner} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
       </div>
       <DeferredSection minHeight={440}><Testimonials /></DeferredSection>

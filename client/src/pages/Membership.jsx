@@ -62,7 +62,7 @@ export default function Membership() {
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }).format(new Date());
 
   return (
-    <main className="min-h-screen bg-[#fafaf8] pb-16 pt-28 text-secondary sm:pb-20 sm:pt-32">
+    <main className="net-membership min-h-screen bg-[#fafaf8] pb-16 pt-28 text-secondary sm:pb-20 sm:pt-32">
       <div className="max-padd-container">
         <header className="mb-8 flex flex-col gap-5 border-b border-secondary/10 pb-7 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
           <div>

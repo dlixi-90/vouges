@@ -135,8 +135,8 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
           )}
         </div>
         <div className="flex justify-end gap-3 border-t border-gray-100 p-5">
-          <button type="button" onClick={closePopup} disabled={disabled} className="btn-outline !rounded-md disabled:opacity-50">Back</button>
-          <button type="button" onClick={confirmSize} disabled={disabled || !canConfirm} className="btn-dark !rounded-md disabled:cursor-not-allowed disabled:opacity-50">
+          <button type="button" onClick={closePopup} disabled={disabled} className="btn-outline !rounded-full disabled:opacity-50">Back</button>
+          <button type="button" onClick={confirmSize} disabled={disabled || !canConfirm} className="btn-dark !rounded-full disabled:cursor-not-allowed disabled:opacity-50">
             {disabled ? "Updating..." : "Confirm"}
           </button>
         </div>

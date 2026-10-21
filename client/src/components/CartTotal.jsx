@@ -156,14 +156,14 @@ const CartTotal = ({ checkout, contentRef, onBack, isSubmitting = false, selecte
       </section>
 
       <CartActionBar contentRef={contentRef}>
-        <button type="button" onClick={onBack} disabled={isSubmitting} className="btn-outline !rounded-md !px-4 disabled:opacity-50">Back to Cart</button>
+        <button type="button" onClick={onBack} disabled={isSubmitting} className="btn-outline !rounded-full !px-4 disabled:opacity-50">Back to Cart</button>
         <div className="flex w-full flex-wrap items-center justify-between gap-4 lg:w-auto lg:justify-end lg:gap-6">
           <div aria-live="polite">
             <p className="text-xs text-gray-500">{selectedCount} items · {isUrgentShipping ? "Chưa gồm phí Hỏa tốc (thanh toán sau)" : "Shipping and discount included"}</p>
             <p className="mt-1 flex flex-wrap items-baseline gap-3"><span className="text-sm">Total Payment:</span><span className="text-xl font-bold text-secondary">{checkout.ready ? formatPrice(checkout.pricing.amount) : "—"}</span></p>
           </div>
           <button type="submit" form="checkout-address-form" disabled={isSubmitting || selectedCount === 0 || !checkout.ready || (method === "QR" && checkout.pricing.amount === 0)}
-            className="btn-dark w-full !rounded-md disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-48">
+            className="btn-dark w-full !rounded-full disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-48">
             {isSubmitting ? "Processing..." : method === "QR" ? "Create Payment QR" : "Place Order"}
           </button>
         </div>

@@ -5,7 +5,7 @@ const Title = ({
   title1Styles,
 }) => {
   return (
-    <div className={titleStyles}>
+    <div className={`net-section-title ${titleStyles || ""}`}>
       <h3 className={`${title1Styles} h3 capitalize`}>
         {title1}
         <span className="font-light text-secondary"> {title2}</span>

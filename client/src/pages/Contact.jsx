@@ -2,7 +2,7 @@ import { assets } from "../assets/data";
 
 export default function Contact() {
   return (
-    <div className="bg-primary py-28">
+    <div className="net-contact bg-primary py-28">
       <form className="flex flex-col items-center text-sm text-slate-800">
         <p className="text-xs bg-black/80 text-white font-medium px-3 py-1 rounded-full">
           Contact Us

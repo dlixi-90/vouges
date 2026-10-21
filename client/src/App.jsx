@@ -24,7 +24,7 @@ const App = () => {
   const location = useLocation();
   const isOwnerPath = location.pathname.includes("owner");
   return (
-    <main className="overflow-hidden text-tertiary">
+    <main className={`net-theme ${isOwnerPath ? "net-admin" : "net-storefront"} overflow-hidden text-tertiary`}>
       {!isOwnerPath && <Header />}
       <Toaster position="bottom-right" />
       <Suspense

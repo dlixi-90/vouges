@@ -153,7 +153,7 @@ const CheckoutVoucherPicker = ({ checkout, subtotal, disabled }) => {
                 onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); applyVoucher(); } }}
                 placeholder="Nhập mã voucher của cửa hàng" className="min-w-0 flex-1 rounded-md border border-gray-200 bg-white px-2 py-2 text-xs focus:outline-secondary" />
               <button type="button" onClick={applyVoucher} disabled={checkout.loading || !draft.trim()}
-                className="btn-outline shrink-0 !rounded-md !px-3 !py-2 !text-xs disabled:cursor-not-allowed disabled:opacity-40">{isReplacingVoucher ? "THAY MÃ" : "ÁP DỤNG"}</button>
+                className="btn-outline shrink-0 !rounded-full !px-3 !py-2 !text-xs disabled:cursor-not-allowed disabled:opacity-40">{isReplacingVoucher ? "THAY MÃ" : "ÁP DỤNG"}</button>
             </div>
             {checkout.loading && <p role="status" className="mt-3 text-xs text-gray-500">Đang kiểm tra voucher…</p>}
             {checkout.error && <p role="alert" className="mt-3 text-xs text-red-600">{checkout.error}</p>}

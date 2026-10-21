@@ -111,7 +111,7 @@ const ProductDetail = () => {
   if (!product) return null;
 
   return (
-    <div className="max-padd-container pb-14 pt-24 sm:pt-28">
+    <div className="net-product-detail max-padd-container pb-14 pt-24 sm:pt-28">
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,720px)_minmax(390px,1fr)] xl:gap-14">
         <section
           className="w-full max-w-[720px] lg:sticky lg:top-24"

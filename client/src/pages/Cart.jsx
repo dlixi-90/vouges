@@ -330,7 +330,7 @@ const Cart = () => {
   }, []);
 
   return products && cartItems ? (
-    <div className="max-padd-container bg-primary py-16 pt-28">
+    <div className="net-cart max-padd-container bg-primary py-16 pt-28">
       {/* STEP 1 */}
       {currentStep === 1 && (
         <section className="min-w-0 text-[95%]">
@@ -548,7 +548,7 @@ const Cart = () => {
                     type="button"
                     onClick={handleCheckout}
                     disabled={selectedItemKeys.size === 0 || isUpdatingCart}
-                    className="btn-dark w-full !rounded-md disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-48"
+                    className="btn-dark w-full !rounded-full disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-48"
                   >
                     {isUpdatingCart ? "Saving changes..." : "Proceed to Checkout"}
                   </button>
@@ -564,7 +564,7 @@ const Cart = () => {
               <button
                 type="button"
                 onClick={() => navigate("/collection")}
-                className="btn-dark mt-6 !rounded-md"
+                className="btn-dark mt-6 !rounded-full"
               >
                 Continue Shopping
               </button>
@@ -631,7 +631,7 @@ const Cart = () => {
           <button
             type="button"
             onClick={() => navigate("/my-orders")}
-            className="btn-dark mt-8 !rounded-md"
+            className="btn-dark mt-8 !rounded-full"
           >
             View My Orders
           </button>

@@ -1,9 +1,10 @@
 @import "tailwindcss";
+@import "./net-theme.css";
 
 @theme {
-  --color-primary: #f6f9f6;
-  --color-primary-dark: #e8f0ce;
-  --color-secondary: #41334e;
+  --color-primary: #f5f5f5;
+  --color-primary-dark: #ececec;
+  --color-secondary: #171717;
   --color-tertiary: #000000e3;
   --color-gray-50: #7b7b7b;
 }
@@ -39,7 +40,7 @@
 .cart-add-feedback::after {
   position: absolute;
   inset: -5px;
-  border: 2px solid rgb(5 150 105 / 55%);
+  border: 2px solid rgb(23 23 23 / 40%);
   border-radius: 9999px;
   content: "";
   pointer-events: none;
@@ -104,8 +105,8 @@ html, body {
 }
 
 html {
-  --scrollbar-thumb: rgb(65 51 78 / 32%);
-  --scrollbar-thumb-hover: rgb(65 51 78 / 55%);
+  --scrollbar-thumb: rgb(23 23 23 / 28%);
+  --scrollbar-thumb-hover: rgb(23 23 23 / 48%);
   scrollbar-gutter: stable;
 }
 

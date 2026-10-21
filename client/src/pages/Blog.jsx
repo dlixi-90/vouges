@@ -2,7 +2,7 @@ import { blogs } from "../assets/data";
 
 const Blog = () => {
   return (
-    <div className="bg-primary pt-28 pb-28">
+    <div className="net-blog bg-primary pt-28 pb-28">
       <div className="max-padd-container">
         {/* Center */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 gap-y-12">

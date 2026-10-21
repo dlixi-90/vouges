@@ -17,7 +17,7 @@ export default function Messages() {
   const params = new URLSearchParams({ search: query, status, page: String(page) });
   const feed = useSupportFeed(`/api/support/inbox/events?${params}`, true);
   const inbox = feed.data;
-  return <main className="m-1 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-secondary/10 bg-white text-secondary shadow-sm sm:m-3">
+  return <main className="net-admin-messages m-1 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-secondary/10 bg-white text-secondary shadow-sm sm:m-3">
     <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-secondary/10 bg-primary/50 px-5 py-5 sm:px-6">
       <div><p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#82738d]">Velours customer care</p><h1 className="flex items-center gap-2.5 text-xl font-semibold"><Headset size={23} aria-hidden="true" />Tin nhắn CSKH</h1></div>
       <span className="rounded-full bg-secondary/5 px-3 py-2 text-xs font-medium">{inbox ? `${inbox.unread} hội thoại chưa đọc` : "Đang kết nối…"}</span>
