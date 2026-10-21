@@ -91,7 +91,8 @@ body { background:#fff; color:var(--net-ink); }
 .net-features p { font-size:13px; }
 .net-section-title > div { height:1px; width:48px; margin-top:15px; background:#171717; background-image:none; }
 .net-storefront .net-new-arrivals { margin-top:var(--net-space); }
-.net-popular-products { padding-block:var(--net-space); }
+.net-new-arrivals > .swiper { min-height:0; }
+.net-popular-products { padding-top:clamp(28px,3vw,40px); padding-bottom:var(--net-space); }
 .net-home-banner { border-radius:24px; overflow:hidden; margin-top:32px; }
 .net-testimonials { padding-block:var(--net-space); }
 .net-testimonials .shadow { border:1px solid var(--net-line); border-radius:20px; box-shadow:none; padding:22px; }
