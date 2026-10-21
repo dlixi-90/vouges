@@ -93,7 +93,7 @@ body { background:#fff; color:var(--net-ink); }
 .net-storefront .net-new-arrivals { margin-top:var(--net-space); }
 .net-new-arrivals > .swiper,.net-popular-products > .swiper { min-height:0; }
 .net-popular-products { padding-top:clamp(28px,3vw,40px); padding-bottom:0; }
-.net-home-banner { border-radius:24px; overflow:hidden; margin-top:80px; }
+.net-home-banner { border-radius:24px; overflow:hidden; margin-top:96px; }
 .net-testimonials { padding-block:var(--net-space); }
 .net-testimonials .shadow { border:1px solid var(--net-line); border-radius:20px; box-shadow:none; padding:22px; }
 
