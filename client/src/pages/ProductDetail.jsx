@@ -1,3 +1,4 @@
+import { translateCatalogText } from "../utils/localization.js";
 import { useEffect, useRef, useState } from "react";
 import { Check, Minus, Plus, ShieldCheck, Star, Truck } from "lucide-react";
 import { useParams } from "react-router-dom";
@@ -115,7 +116,7 @@ const ProductDetail = () => {
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,720px)_minmax(390px,1fr)] xl:gap-14">
         <section
           className="w-full max-w-[720px] lg:sticky lg:top-24"
-          aria-label="Product gallery"
+          aria-label="Thư viện ảnh sản phẩm"
         >
           <div className="flex gap-2 sm:gap-3">
             <div className="flex w-16 shrink-0 flex-col gap-2 sm:w-[72px]">
@@ -124,7 +125,7 @@ const ProductDetail = () => {
                   type="button"
                   key={`${item}-${index}`}
                   onClick={() => setSelectedImage(item)}
-                  aria-label={`View product image ${index + 1}`}
+                  aria-label={`Xem ảnh sản phẩm ${index + 1}`}
                   className={`aspect-square overflow-hidden rounded-lg bg-[#f5f5f0] p-1.5 transition ${
                     item === image
                       ? "ring-1 ring-[#343434]"
@@ -157,13 +158,13 @@ const ProductDetail = () => {
 
         <section
           className="min-w-0 py-1 lg:py-2"
-          aria-label="Product information"
+          aria-label="Thông tin sản phẩm"
         >
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#858b87]">
-            {product.category} · {product.type.replaceAll("-", " ")}
+            {translateCatalogText(product.category)} · {product.type.replaceAll("-", " ")}
           </p>
           <h1 className="text-2xl font-semibold leading-tight tracking-[-0.025em] text-[#303030] sm:text-3xl">
-            {product.title}
+            {translateCatalogText(product.title)}
           </h1>
           <p className="mt-2 text-2xl text-[#737373]">
             {formatThousandsVnd(size ? product.price?.[size] : 0, currency)}
@@ -188,11 +189,11 @@ const ProductDetail = () => {
           <div className="mt-6 border-t border-[#dededb] pt-5">
             <div className="mb-3 flex items-center justify-between gap-4">
               <p className="text-xs font-medium uppercase tracking-[0.12em] text-[#4c4c4c]">
-                Select size
+                Chọn dung tích
               </p>
               {size && (
                 <span className="text-xs text-[#858585]">
-                  {selectedStock} in stock
+                  {selectedStock} sản phẩm còn trong kho
                 </span>
               )}
             </div>
@@ -223,7 +224,7 @@ const ProductDetail = () => {
 
             {!productAvailable && (
               <p className="mt-3 text-sm font-medium text-red-500">
-                Out of stock
+                Hết hàng
               </p>
             )}
           </div>
@@ -237,7 +238,7 @@ const ProductDetail = () => {
                 }
                 disabled={!selectedSizeAvailable || safeQuantity <= 1}
                 className="flex h-full w-10 items-center justify-center disabled:cursor-not-allowed disabled:opacity-35"
-                aria-label="Decrease quantity"
+                aria-label="Giảm số lượng"
               >
                 <Minus size={14} />
               </button>
@@ -251,7 +252,7 @@ const ProductDetail = () => {
                 }
                 disabled={!selectedSizeAvailable || safeQuantity >= maxQuantity}
                 className="flex h-full w-10 items-center justify-center disabled:cursor-not-allowed disabled:opacity-35"
-                aria-label="Increase quantity"
+                aria-label="Tăng số lượng"
               >
                 <Plus size={14} />
               </button>
@@ -270,10 +271,10 @@ const ProductDetail = () => {
               <span className="flex items-center justify-center gap-2">
                 {addStatus === "added" && <Check size={16} />}
                 {addStatus === "adding"
-                  ? "Adding..."
+                  ? "Đang thêm…"
                   : addStatus === "added"
-                    ? "Added!"
-                    : "Add to cart"}
+                    ? "Đã thêm!"
+                    : "Thêm vào giỏ hàng"}
               </span>
             </button>
           </div>
@@ -284,12 +285,12 @@ const ProductDetail = () => {
           <div className="mt-5 grid gap-2 text-xs text-[#70756f] sm:grid-cols-2">
             <div className="flex items-center gap-2">
               <Truck size={16} />
-              Free delivery from{" "}
+              Miễn phí giao hàng cho đơn từ{" "}
               {(FREE_SHIPPING_THRESHOLD * 1000).toLocaleString("vi-VN")}₫
             </div>
             <div className="flex items-center gap-2 sm:justify-end">
               <ShieldCheck size={16} />
-              Authentic products
+              Sản phẩm chính hãng
             </div>
           </div>
         </section>

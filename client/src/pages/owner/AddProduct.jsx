@@ -1,3 +1,4 @@
+import { translateCatalogText } from "../../utils/localization.js";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { ImagePlus, PackagePlus, Plus, X } from "lucide-react";
@@ -162,8 +163,8 @@ const ProductForm = () => {
     // Seed the editable form once after the product arrives from context.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setInputs({
-      title: product.title || "",
-      description: product.description || "",
+      title: translateCatalogText(product.title) || "",
+      description: translateCatalogText(product.description) || "",
       ingredients: product.ingredients || "",
       category: product.category || "",
       type: product.type || "",
@@ -213,17 +214,17 @@ const ProductForm = () => {
     const quantity = Number(newQuantity);
 
     if (!size || newPrice === "" || newQuantity === "") {
-      toast.error("Please enter size, price and quantity");
+      toast.error("Vui lòng nhập dung tích, giá và số lượng");
       return;
     }
 
     if (!Number.isFinite(price) || price <= 0) {
-      toast.error("Price must be greater than 0");
+      toast.error("Giá phải lớn hơn 0");
       return;
     }
 
     if (!Number.isInteger(quantity) || quantity < 0) {
-      toast.error("Quantity must be a non-negative integer");
+      toast.error("Số lượng phải là số nguyên không âm");
       return;
     }
 
@@ -232,7 +233,7 @@ const ProductForm = () => {
     );
 
     if (sizeAlreadyExists) {
-      toast.error("Size already exists");
+      toast.error("Dung tích này đã tồn tại");
       return;
     }
 
@@ -286,12 +287,12 @@ const ProductForm = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
+      toast.error("Vui lòng chọn tệp hình ảnh");
       return;
     }
 
     if (file.size > MAX_IMAGE_SIZE) {
-      toast.error("Each image must be smaller than 5 MB");
+      toast.error("Mỗi ảnh phải có dung lượng nhỏ hơn 5 MB");
       return;
     }
 
@@ -325,22 +326,22 @@ const ProductForm = () => {
   const onSubmitHandler = async (event) => {
     event.preventDefault();
     if (hasVariantEdits) {
-      toast.error("Save or cancel the size edits before saving the product");
+      toast.error("Vui lòng lưu hoặc hủy thay đổi dung tích trước khi lưu sản phẩm");
       return;
     }
 
     if (!inputs.title.trim() || !inputs.description.trim() || !selectedType) {
-      toast.error("Please fill all required fields");
+      toast.error("Vui lòng điền đầy đủ các trường bắt buộc");
       return;
     }
 
     if (categoriesLoading || categoriesError) {
-      toast.error("Please load product types before saving");
+      toast.error("Vui lòng tải danh sách loại sản phẩm trước khi lưu");
       return;
     }
 
     if (sizePrices.length === 0) {
-      toast.error("Please add at least one size, price and quantity");
+      toast.error("Vui lòng thêm ít nhất một dung tích kèm giá và số lượng");
       return;
     }
 
@@ -354,7 +355,7 @@ const ProductForm = () => {
     );
 
     if (hasInvalidVariant) {
-      toast.error("Every size must have a valid price and quantity");
+      toast.error("Mỗi dung tích phải có giá và số lượng hợp lệ");
       return;
     }
 
@@ -371,7 +372,7 @@ const ProductForm = () => {
         normalizedSizes.length
     ) {
       toast.error(
-        "Size names must be unique, at most 50 characters, without dots or a leading $.",
+        "Tên dung tích không được trùng nhau, dài tối đa 50 ký tự, không chứa dấu chấm hoặc bắt đầu bằng dấu $.",
       );
       return;
     }
@@ -385,7 +386,7 @@ const ProductForm = () => {
     const newImages = selectedImages.filter((image) => image instanceof File);
 
     if (selectedImages.length === 0) {
-      toast.error("Please upload at least one image");
+      toast.error("Vui lòng tải lên ít nhất một ảnh");
       return;
     }
 
@@ -448,8 +449,8 @@ const ProductForm = () => {
         toast.success(
           data.message ||
             (isEditMode
-              ? "Product updated successfully"
-              : "Product added successfully"),
+              ? "Đã cập nhật sản phẩm thành công"
+              : "Đã thêm sản phẩm thành công"),
         );
 
         await fetchProducts();
@@ -462,14 +463,14 @@ const ProductForm = () => {
       } else {
         toast.error(
           data.message ||
-            (isEditMode ? "Unable to update product" : "Unable to add product"),
+            (isEditMode ? "Không thể cập nhật sản phẩm" : "Không thể thêm sản phẩm"),
         );
       }
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
           error.message ||
-          (isEditMode ? "Unable to update product" : "Unable to add product"),
+          (isEditMode ? "Không thể cập nhật sản phẩm" : "Không thể thêm sản phẩm"),
       );
     } finally {
       setLoading(false);
@@ -482,11 +483,11 @@ const ProductForm = () => {
         <header className="mb-6 flex flex-col gap-4 border-b border-[#e1e6e3] pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#6f9a79]">
-              Products
+              Sản phẩm
             </p>
 
             <h1 className="text-2xl font-semibold tracking-tight text-[#263b4a] sm:text-3xl">
-              {isEditMode ? "Edit Product" : "Add Product"}
+              {isEditMode ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm"}
             </h1>
           </div>
         </header>
@@ -498,50 +499,50 @@ const ProductForm = () => {
           <section className="rounded-2xl border border-[#e2e7e4] bg-white p-5 shadow-sm sm:p-6">
             <div className="mb-6">
               <h2 className="text-lg font-semibold text-[#263b4a]">
-                Product details
+                Thông tin sản phẩm
               </h2>
             </div>
 
             <div className="space-y-5">
-              <Field label="Product name" required>
+              <Field label="Tên sản phẩm" required>
                 <input
                   value={inputs.title}
                   onChange={(event) => updateInput("title", event.target.value)}
                   type="text"
-                  placeholder="e.g. Nourishing Body Lotion"
+                  placeholder="Ví dụ: Sữa dưỡng thể cấp ẩm"
                   className="admin-input"
                   autoComplete="off"
                   required
                 />
               </Field>
 
-              <Field label="Description" required>
+              <Field label="Mô tả" required>
                 <textarea
                   value={inputs.description}
                   onChange={(event) =>
                     updateInput("description", event.target.value)
                   }
-                  placeholder="Describe your product..."
+                  placeholder="Nhập mô tả sản phẩm…"
                   rows={6}
                   className="admin-input min-h-36 resize-y"
                   required
                 />
               </Field>
 
-              <Field label="Ingredients">
+              <Field label="Thành phần">
                 <textarea
                   value={inputs.ingredients}
                   onChange={(event) =>
                     updateInput("ingredients", event.target.value)
                   }
-                  placeholder="e.g. Aqua, Glycerin, Aloe Barbadensis Leaf Juice..."
+                  placeholder="Ví dụ: Nước, glycerin, nước ép lá nha đam…"
                   rows={4}
                   className="admin-input min-h-28 resize-y"
                 />
               </Field>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field label="Product type" required>
+                <Field label="Loại sản phẩm" required>
                   <select
                     value={selectedType?._id || ""}
                     onChange={(event) => {
@@ -561,14 +562,14 @@ const ProductForm = () => {
                       categoriesLoading || Boolean(categoriesError) || loading
                     }
                   >
-                    <option value="">Select product type</option>
+                    <option value="">Chọn loại sản phẩm</option>
                     {categories
                       .filter((category) => category.types?.length)
                       .map((category) => (
                         <optgroup key={category._id} label={category.name}>
                           {category.types.map((type) => (
                             <option key={type._id} value={type._id}>
-                              {type.name}
+                              {translateCatalogText(type.name)}
                             </option>
                           ))}
                         </optgroup>
@@ -576,7 +577,7 @@ const ProductForm = () => {
                   </select>
                   {categoriesLoading && (
                     <span className="mt-1 block text-xs text-[#839099]">
-                      Loading product types...
+                      Đang tải danh sách loại sản phẩm…
                     </span>
                   )}
                   {categoriesError && (
@@ -587,7 +588,7 @@ const ProductForm = () => {
                         onClick={fetchCategories}
                         className="underline"
                       >
-                        Retry
+                        Thử lại
                       </button>
                     </span>
                   )}
@@ -597,17 +598,17 @@ const ProductForm = () => {
                     disabled={loading}
                     className="mt-2 text-xs font-medium text-[#496852] underline disabled:opacity-50"
                   >
-                    Add / manage product types
+                    Thêm / quản lý loại sản phẩm
                   </button>
                 </Field>
-                <Field label="Category">
+                <Field label="Danh mục">
                   <input
                     type="text"
-                    value={selectedCategory?.name || ""}
-                    placeholder="Select a product type first"
+                    value={translateCatalogText(selectedCategory?.name) || ""}
+                    placeholder="Vui lòng chọn loại sản phẩm trước"
                     readOnly
                     className="admin-input bg-[#f8faf8]"
-                    aria-label="Category"
+                    aria-label="Danh mục"
                   />
                 </Field>
               </div>
@@ -615,7 +616,7 @@ const ProductForm = () => {
               <div className="rounded-xl border border-[#e2e7e4] bg-[#f8faf8] p-4 sm:p-5">
                 <div className="mb-4">
                   <h3 className="text-sm font-semibold text-[#263b4a]">
-                    Sizes, prices and inventory
+                    Dung tích, giá và tồn kho
                   </h3>
                 </div>
 
@@ -626,8 +627,8 @@ const ProductForm = () => {
                     onChange={(event) => setNewSize(event.target.value)}
                     onKeyDown={handleSizePriceKeyDown}
                     type="text"
-                    placeholder="Size, e.g. 50ml"
-                    aria-label="Product size"
+                    placeholder="Dung tích, ví dụ: 50 ml"
+                    aria-label="Dung tích sản phẩm"
                     className="admin-input"
                   />
 
@@ -638,8 +639,8 @@ const ProductForm = () => {
                     type="number"
                     min="1"
                     step="0.1"
-                    placeholder="Price, e.g. 5, 50"
-                    aria-label="Price in thousands of VND"
+                    placeholder="Giá, ví dụ: 5, 50"
+                    aria-label="Giá tính bằng nghìn đồng"
                     className="admin-input"
                   />
 
@@ -651,8 +652,8 @@ const ProductForm = () => {
                     min="0"
                     step="1"
                     inputMode="numeric"
-                    placeholder="Quantity"
-                    aria-label="Stock quantity"
+                    placeholder="Số lượng"
+                    aria-label="Số lượng tồn kho"
                     className="admin-input"
                   />
 
@@ -662,7 +663,7 @@ const ProductForm = () => {
                     className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#cfdad2] bg-white px-4 py-2.5 text-sm font-medium text-[#496852] transition hover:border-[#86a78d] hover:bg-[#f2f7f3]"
                   >
                     <Plus size={16} />
-                    Add
+                    Thêm
                   </button>
                 </div>
 
@@ -676,7 +677,7 @@ const ProductForm = () => {
                       />
 
                       <p className="mt-2 text-sm font-medium text-[#76847c]">
-                        No product variants added
+                        Chưa thêm phân loại sản phẩm nào
                       </p>
                     </div>
                   ) : (
@@ -713,7 +714,7 @@ const ProductForm = () => {
             <section className="rounded-2xl border border-[#e2e7e4] bg-white p-5 shadow-sm">
               <div className="mb-4">
                 <h2 className="text-base font-semibold text-[#263b4a]">
-                  Product images
+                  Ảnh sản phẩm
                 </h2>
               </div>
 
@@ -733,7 +734,7 @@ const ProductForm = () => {
             <section className="rounded-2xl border border-[#e2e7e4] bg-white p-5 shadow-sm">
               <div className="mb-4">
                 <h2 className="text-base font-semibold text-[#263b4a]">
-                  Publishing
+                  Đăng sản phẩm
                 </h2>
               </div>
 
@@ -746,15 +747,15 @@ const ProductForm = () => {
 
                 {loading
                   ? isEditMode
-                    ? "Saving changes..."
-                    : "Adding product..."
+                    ? "Đang lưu thay đổi…"
+                    : "Đang thêm sản phẩm…"
                   : isEditMode
-                    ? "Save changes"
-                    : "Add product"}
+                    ? "Lưu thay đổi"
+                    : "Thêm sản phẩm"}
               </button>
               {hasVariantEdits && (
                 <p role="status" className="mt-2 text-xs text-amber-700">
-                  Save or cancel your size edits to continue.
+                  Lưu hoặc hủy thay đổi dung tích để tiếp tục.
                 </p>
               )}
               {isEditMode && (
@@ -763,7 +764,7 @@ const ProductForm = () => {
                   onClick={() => navigate("/owner/list-product")}
                   className="mt-3 w-full rounded-lg border border-[#dfe5e8] px-4 py-2.5 text-sm font-medium text-[#52616a] transition hover:bg-[#f7f9f8]"
                 >
-                  Cancel
+                  Hủy
                 </button>
               )}
             </section>
@@ -829,7 +830,7 @@ const ImageUpload = ({ slot, file, onChange, onRemove }) => {
         {previewUrl ? (
           <img
             src={previewUrl}
-            alt={"Product preview " + slot}
+            alt={"Xem trước sản phẩm " + slot}
             className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
           />
         ) : (
@@ -838,7 +839,7 @@ const ImageUpload = ({ slot, file, onChange, onRemove }) => {
               <ImagePlus size={19} />
             </span>
 
-            <span className="text-xs font-medium">Add image {slot}</span>
+            <span className="text-xs font-medium">Thêm ảnh {slot}</span>
           </span>
         )}
       </label>
@@ -848,7 +849,7 @@ const ImageUpload = ({ slot, file, onChange, onRemove }) => {
           type="button"
           onClick={() => onRemove(slot)}
           className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-[#9c5555] shadow transition hover:bg-[#fff0f0]"
-          aria-label={"Remove image " + slot}
+          aria-label={"Xóa ảnh " + slot}
         >
           <X size={15} />
         </button>

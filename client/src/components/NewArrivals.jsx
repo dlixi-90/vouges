@@ -7,7 +7,7 @@ const NewArrivals = () => {
 
   return (
     <section className="net-new-arrivals max-padd-container mt-28">
-      <Title title1={"New"} title2={"Arrivals"} titleStyles={"pb-10"} />
+      <Title title1={"Sản phẩm"} title2={"mới"} titleStyles={"pb-10"} />
       <ProductCarousel products={products} />
     </section>
   );

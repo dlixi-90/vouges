@@ -1,3 +1,4 @@
+import { translateCatalogText } from "../utils/localization.js";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
@@ -10,7 +11,7 @@ const getIngredientCopy = (product) => {
     return product.ingredients;
   }
 
-  return "The complete ingredient list is printed on the product packaging. Please check the label before use if you have allergies or known sensitivities.";
+  return "Danh sách thành phần đầy đủ được in trên bao bì sản phẩm. Nếu bạn có tiền sử dị ứng hoặc nhạy cảm với thành phần nào đó, vui lòng kiểm tra nhãn trước khi sử dụng.";
 };
 
 const ProductDescription = ({ product, selectedSize }) => {
@@ -19,16 +20,16 @@ const ProductDescription = ({ product, selectedSize }) => {
   const sections = [
     {
       id: "description",
-      label: "Description",
+      label: "Mô tả",
       content: (
         <p className="text-sm leading-6 text-[#697078]">
-          {product.description}
+          {translateCatalogText(product.description)}
         </p>
       ),
     },
     {
       id: "ingredients",
-      label: "Ingredients",
+      label: "Thành phần",
       content: (
         <p className="text-sm leading-6 text-[#697078]">
           {getIngredientCopy(product)}
@@ -37,16 +38,15 @@ const ProductDescription = ({ product, selectedSize }) => {
     },
     {
       id: "size-guide",
-      label: "Size guide",
+      label: "Hướng dẫn chọn dung tích",
       content: (
         <div>
           <p className="text-sm leading-6 text-[#697078]">
-            Available in {product.sizes.join(", ")}.
-            {selectedSize ? ` You are viewing the ${selectedSize} size.` : ""}
+            Các dung tích hiện có: {product.sizes.join(", ")}.
+            {selectedSize ? ` Bạn đang xem dung tích ${selectedSize}.` : ""}
           </p>
           <p className="mt-2 text-xs leading-5 text-[#92989d]">
-            Choose a smaller size for travel or trial, and a larger size for
-            regular use.
+            Chọn dung tích nhỏ để dùng thử hoặc mang theo khi đi du lịch; chọn dung tích lớn nếu sử dụng thường xuyên.
           </p>
         </div>
       ),

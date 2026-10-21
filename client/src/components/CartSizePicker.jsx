@@ -1,3 +1,4 @@
+import { translateCatalogText } from "../utils/localization.js";
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { getSizeQuantity, isSizeAvailable } from "../utils/productStock";
@@ -77,13 +78,13 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
         aria-haspopup="dialog"
         aria-expanded={isOpen}
         aria-controls={popupId}
-        aria-label={`Change size for ${product.title}, currently ${size}`}
+        aria-label={`Thay đổi dung tích của ${product.title}, hiện tại là ${size}`}
         onClick={togglePopup}
         className="flex max-w-full cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-left text-sm text-gray-500 transition hover:bg-primary focus-visible:outline-2 focus-visible:outline-secondary disabled:opacity-50"
       >
         <span className="min-w-0">
-          <span className="block">Variation</span>
-          <span className="mt-1 block truncate font-medium text-secondary">Size: {size}</span>
+          <span className="block">Phân loại</span>
+          <span className="mt-1 block truncate font-medium text-secondary">Dung tích: {size}</span>
         </span>
         <ChevronDown size={15} className={`shrink-0 transition ${isOpen ? "rotate-180" : ""}`} />
       </button>
@@ -99,23 +100,23 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
         className="fixed inset-auto m-0 max-h-[calc(100dvh-32px)] w-[420px] max-w-[calc(100vw-32px)] overflow-y-auto rounded-xl border border-gray-200 bg-white p-0 text-sm text-tertiary shadow-xl"
       >
         <div className="p-5 sm:p-6">
-          <h3 id={titleId} className="font-semibold">Choose variation</h3>
-          <p className="mt-1 truncate">{product.title}</p>
+          <h3 id={titleId} className="font-semibold">Chọn phân loại</h3>
+          <p className="mt-1 truncate">{translateCatalogText(product.title)}</p>
           <div className="mt-5 flex items-start gap-4">
-            <span className="pt-2 text-gray-500">Size:</span>
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Available sizes">
+            <span className="pt-2 text-gray-500">Dung tích:</span>
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Các dung tích hiện có">
               {Array.from(new Set([size, ...product.sizes])).map((option) => {
                 const required = quantity + (option === size ? 0 : Number(quantities?.[option] ?? 0));
                 const available = product.sizes.includes(option) && isSizeAvailable(product, option);
                 const enoughStock = required <= getSizeQuantity(product, option);
-                const reason = !available ? "Out of stock" : !enoughStock ? "Insufficient stock" : "";
+                const reason = !available ? "Hết hàng" : !enoughStock ? "Không đủ hàng trong kho" : "";
                 return (
                   <button
                     key={option}
                     type="button"
                     aria-pressed={draftSize === option}
-                    aria-label={`Size ${option}${reason ? `, ${reason}` : ""}`}
-                    title={reason || `Size ${option}`}
+                    aria-label={`Dung tích ${option}${reason ? `, ${reason}` : ""}`}
+                    title={reason || `Dung tích ${option}`}
                     disabled={disabled || (option !== size && !available)}
                     onClick={() => setDraftSize(option)}
                     className={`relative min-w-14 cursor-pointer rounded-md border px-4 py-2 transition disabled:cursor-not-allowed disabled:opacity-40 ${draftSize === option ? "border-secondary bg-secondary/5 font-semibold text-secondary" : "border-gray-200 hover:border-secondary"}`}
@@ -127,17 +128,17 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
               })}
             </div>
           </div>
-          <p className="mt-5" aria-live="polite">Stock: {isSizeAvailable(product, draftSize) ? getSizeQuantity(product, draftSize) : 0}</p>
+          <p className="mt-5" aria-live="polite">Tồn kho: {isSizeAvailable(product, draftSize) ? getSizeQuantity(product, draftSize) : 0}</p>
           {draftSize !== size && isSizeAvailable(product, draftSize) && !canConfirm && (
             <p className="mt-2 text-red-600" role="alert">
-              This change requires {requiredQuantity} items of {draftSize}, but only {getSizeQuantity(product, draftSize)} are in stock.
+              Thay đổi này cần {requiredQuantity} sản phẩm dung tích {draftSize}, nhưng kho chỉ còn {getSizeQuantity(product, draftSize)} sản phẩm.
             </p>
           )}
         </div>
         <div className="flex justify-end gap-3 border-t border-gray-100 p-5">
-          <button type="button" onClick={closePopup} disabled={disabled} className="btn-outline !rounded-full disabled:opacity-50">Back</button>
+          <button type="button" onClick={closePopup} disabled={disabled} className="btn-outline !rounded-full disabled:opacity-50">Quay lại</button>
           <button type="button" onClick={confirmSize} disabled={disabled || !canConfirm} className="btn-dark !rounded-full disabled:cursor-not-allowed disabled:opacity-50">
-            {disabled ? "Updating..." : "Confirm"}
+            {disabled ? "Đang cập nhật…" : "Xác nhận"}
           </button>
         </div>
       </div>

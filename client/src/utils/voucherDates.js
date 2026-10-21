@@ -7,11 +7,11 @@ const dateFormatter = new Intl.DateTimeFormat("vi-VN", {
 export const getVoucherValidityPeriod = (startsOn, expiresOn) => {
   const parseDay = (value) => {
     if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-      throw new Error("Ngày voucher không hợp lệ.");
+      throw new Error("Ngày mã giảm giá không hợp lệ.");
     }
     const day = new Date(`${value}T00:00:00Z`);
     if (!Number.isFinite(day.getTime()) || day.toISOString().slice(0, 10) !== value) {
-      throw new Error("Ngày voucher không hợp lệ.");
+      throw new Error("Ngày mã giảm giá không hợp lệ.");
     }
     return new Date(`${value}T00:00:00+07:00`);
   };

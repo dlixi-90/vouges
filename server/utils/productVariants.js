@@ -6,7 +6,7 @@ export const isValidSizeName = (size) =>
 export const getSizeRenames = (raw, current, sizes) => {
   const renames = raw.sizeRenames ?? [];
   const invalid = () => {
-    throw Object.assign(new Error("Invalid size rename. Reload the product and try again."), { statusCode: 400 });
+    throw Object.assign(new Error("Tên dung tích mới không hợp lệ. Vui lòng tải lại sản phẩm và thử lại."), { statusCode: 400 });
   };
   if (!Array.isArray(renames) || renames.length > 50) invalid();
   const sources = new Set();

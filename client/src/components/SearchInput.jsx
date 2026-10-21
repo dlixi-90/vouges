@@ -11,7 +11,7 @@ const SearchInput = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search here..."
+            placeholder="Tìm kiếm sản phẩm…"
             className="border-none outline-none w-full text-sm"
           />
           <div>

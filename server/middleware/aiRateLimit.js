@@ -125,7 +125,7 @@ export const aiRateLimit = async (req, res, next) => {
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: "Not Authorized",
+        message: "Bạn không có quyền thực hiện thao tác này",
       });
     }
 

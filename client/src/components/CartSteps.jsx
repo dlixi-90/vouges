@@ -1,6 +1,6 @@
 import React from "react";
 
-const steps = ["Shopping cart", "Checkout", "Order status"];
+const steps = ["Giỏ hàng", "Thanh toán", "Trạng thái đơn hàng"];
 
 const CartSteps = ({
   currentStep,

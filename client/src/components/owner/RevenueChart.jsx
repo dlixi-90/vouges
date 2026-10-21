@@ -10,8 +10,8 @@ const RevenueChart = ({ data, currency }) => (
       <YAxis axisLine={false} tickLine={false} tick={{ fill: "#7d8792", fontSize: 12 }} />
       <Tooltip formatter={(value) => formatThousandsVnd(value, currency)} cursor={{ fill: "#f4f6f5" }} />
       <Legend />
-      <Bar dataKey="total" name="Total" fill="#9fc4a9" radius={[4, 4, 0, 0]} isAnimationActive={false} />
-      <Bar dataKey="successful" name="Paid" fill="#263b4a" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+      <Bar dataKey="total" name="Tổng doanh thu" fill="#9fc4a9" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+      <Bar dataKey="successful" name="Đã thanh toán" fill="#263b4a" radius={[4, 4, 0, 0]} isAnimationActive={false} />
     </BarChart>
   </ResponsiveContainer>
 );

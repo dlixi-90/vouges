@@ -541,6 +541,6 @@ test("receipt displays voucher separately from saved delivery fees", () => {
   const order = { _id: orderId, createdAt: now, amount: 500, shipping: 50, discount: 50, voucherCode: "SAVE10", shippingMethod: "express",
     items: [{ title: "Lotion", quantity: 1, unitPrice: 500, size: "M" }], address: {}, paymentMethod: "COD" };
   const { html, text } = buildOrderConfirmationEmail(order);
-  assert.match(text, /Voucher SAVE10: -50\.000/); assert.match(text, /Phí vận chuyển: 50\.000/);
+  assert.match(text, /Mã giảm giá SAVE10: -50\.000/); assert.match(text, /Phí vận chuyển: 50\.000/);
   assert.match(html, /giao nhanh/);
 });

@@ -9,23 +9,23 @@ const Hero = () => {
         <img src={background} alt="" fetchPriority="high" className="absolute inset-0 h-full w-full object-cover" />
         <div className="relative mx-auto max-w-[1440px] px-4 pt-1 sm:pt-8 flex flex-col justify-between h-full">
           <div className="max-w-3xl">
-            <h1 className="h1 !font-[400] capitalize">
-              Enhance Your
-              <span className="!font-[600] text-secondary"> Look</span> With
-              <span className="!font-[600] text-secondary"> Glam </span>{" "}
-              Essentials
+            <h1 className="h1 !font-[400] ">
+              Tôn lên
+              <span className="!font-[600] text-secondary"> vẻ đẹp</span> với
+              <span className="!font-[600] text-secondary"> mỹ phẩm </span>{" "}
+              tinh chọn
             </h1>
             <p>
-              Discover premium beauty with our cosmetic collection, crafted to
-              enhance your natural glow, boost confidence, and deliver flawless
-              elegance every day with trusted, affordable products.
+              Khám phá bộ sưu tập mỹ phẩm chất lượng, đáng tin cậy với mức giá
+              hợp lý, giúp tôn lên vẻ đẹp tự nhiên và mang lại sự tự tin,
+              rạng rỡ mỗi ngày.
             </p>
             <div className="flex">
               <Link
                 to={"/collection"}
-                className="bg-secondary text-white text-xs font-medium capitalize pl-5 rounded-full flexCenter gap-x-2 mt-7 group"
+                className="bg-secondary text-white text-xs font-medium pl-5 rounded-full flexCenter gap-x-2 mt-7 group"
               >
-                Check Our Modern Collection
+                Khám phá bộ sưu tập mới
                 <img
                   src={assets.forward}
                   alt=""
@@ -45,8 +45,8 @@ const Hero = () => {
               />
             </div>
             <p className="text-[13px] pt-2">
-              <b className="uppercase">Unlock</b> your best look, one click at a
-              time, Your style upgrade starts here, shop today!
+              <b className="uppercase">Khơi dậy</b> vẻ đẹp của bạn chỉ với một
+              cú nhấp chuột. Khám phá phong cách mới và mua sắm ngay hôm nay!
             </p>
           </div>
         </div>

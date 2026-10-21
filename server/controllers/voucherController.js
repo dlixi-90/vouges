@@ -44,12 +44,12 @@ export const createVoucher = async (req, res, next) => {
       || (maxDiscount !== null && (typeof maxDiscount !== "number" || !Number.isFinite(maxDiscount) || maxDiscount <= 0))
       || !Number.isSafeInteger(maxUses) || maxUses < 1
       || !Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end <= start || end <= new Date())
-      return res.status(400).json({ success: false, message: "Thông tin voucher không hợp lệ." });
+      return res.status(400).json({ success: false, message: "Thông tin mã giảm giá không hợp lệ." });
     const voucher = await Voucher.create({ code: code.trim().toUpperCase(), type, value,
       minSubtotal, maxDiscount, maxUses, startsAt: start, expiresAt: end });
     res.status(201).json({ success: true, voucher });
   } catch (error) {
-    if (error.code === 11000) return res.status(409).json({ success: false, message: "Mã voucher đã tồn tại." });
+    if (error.code === 11000) return res.status(409).json({ success: false, message: "mã giảm giá đã tồn tại." });
     next(error);
   }
 };
@@ -60,7 +60,7 @@ export const setVoucherActive = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Yêu cầu không hợp lệ." });
     const voucher = await Voucher.findOneAndUpdate({ _id: req.params.id, kind: "general", deletedAt: null },
       { active: req.body.active }, { new: true });
-    if (!voucher) return res.status(404).json({ success: false, message: "Không tìm thấy voucher." });
+    if (!voucher) return res.status(404).json({ success: false, message: "Không tìm thấy mã giảm giá." });
     res.json({ success: true, voucher });
   } catch (error) { next(error); }
 };
@@ -75,8 +75,8 @@ export const deleteVoucher = async (req, res, next) => {
       { $set: { active: false, deletedAt: new Date() } },
       { new: true },
     );
-    if (!voucher) return res.status(404).json({ success: false, message: "Không tìm thấy voucher." });
-    res.json({ success: true, message: "Đã xóa voucher." });
+    if (!voucher) return res.status(404).json({ success: false, message: "Không tìm thấy mã giảm giá." });
+    res.json({ success: true, message: "Đã xóa mã giảm giá." });
   } catch (error) { next(error); }
 };
 
@@ -85,7 +85,7 @@ export const awardBirthdays = async (req, res, next) => {
   const received = Buffer.from(req.get("authorization") || "");
   const bearer = Buffer.from(`Bearer ${expected.toString()}`);
   if (!expected.length || received.length !== bearer.length || !crypto.timingSafeEqual(received, bearer))
-    return res.status(401).json({ success: false, message: "Unauthorized" });
+    return res.status(401).json({ success: false, message: "Bạn chưa được xác thực" });
   try {
     const now = new Date();
     const today = new Date(`${vietnamDate(now)}T00:00:00+07:00`);

@@ -1,3 +1,4 @@
+import { getOrderStatusLabel, getPaymentMethodLabel, translateCatalogText } from "../../utils/localization.js";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Package } from "lucide-react";
 import toast from "react-hot-toast";
@@ -44,7 +45,7 @@ const Dashboard = () => {
     });
 
     if (!data.success) {
-      throw new Error(data.message || "Unable to load dashboard data");
+      throw new Error(data.message || "Không thể tải dữ liệu tổng quan");
     }
 
     return data.dashboardData;
@@ -136,10 +137,10 @@ const Dashboard = () => {
         <header className="mb-6 flex flex-col gap-4 border-b border-[#e1e6e3] pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#6f9a79]">
-              Overview
+              Tổng quan
             </p>
             <h1 className="text-2xl font-semibold tracking-tight text-[#263b4a] sm:text-3xl">
-              Dashboard
+              Tổng quan
             </h1>
           </div>
         </header>
@@ -148,7 +149,7 @@ const Dashboard = () => {
           <DashboardCard className="xl:col-span-2">
             <div className="flex w-full items-center justify-between gap-3">
               <h2 className="text-lg font-medium text-[#263b4a]">
-                Total Revenue
+                Tổng doanh thu
               </h2>
 
               <p className="text-xl font-medium text-black">
@@ -156,20 +157,20 @@ const Dashboard = () => {
               </p>
             </div>
             <div className="mt-4 h-[360px] min-h-[360px] min-w-0 w-full">
-              <Suspense fallback={<EmptyState text="Loading chart..." />}>
+              <Suspense fallback={<EmptyState text="Đang tải biểu đồ…" />}>
                 <RevenueChart data={dashboardData.monthlyData} currency={currency} />
               </Suspense>
             </div>
           </DashboardCard>
 
           <DashboardCard>
-            <CardTitle title="Popular Products" />
-            <p className="mt-2 text-xs text-[#8b949c]">Top 4 by units sold · All time</p>
+            <CardTitle title="Sản phẩm bán chạy" />
+            <p className="mt-2 text-xs text-[#8b949c]">4 sản phẩm bán chạy nhất theo số lượng · Toàn thời gian</p>
             {popularProductsError && (
               <p role="alert" className="mt-3 text-sm text-red-600">
                 {popularProductsError}{" "}
                 <button type="button" onClick={fetchPopularProducts} className="underline">
-                  Retry
+                  Thử lại
                 </button>
               </p>
             )}
@@ -194,18 +195,18 @@ const Dashboard = () => {
                     </div>
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-[#263b4a]">
-                        {product.title}
+                        {translateCatalogText(product.title)}
                       </p>
                       <p className="text-xs text-[#8b949c]">
-                        {product.soldQuantity} sold
+                        {product.soldQuantity} đã bán
                       </p>
                     </div>
                   </div>
                 </div>
               ))}
-              {popularProductsLoading && <p role="status">Loading popular products...</p>}
+              {popularProductsLoading && <p role="status">Đang tải sản phẩm bán chạy…</p>}
               {!popularProductsLoading && !popularProductsError && !popularProducts.length && (
-                <EmptyState text="No sales yet" />
+                <EmptyState text="Chưa có sản phẩm nào được bán" />
               )}
             </div>
           </DashboardCard>
@@ -215,21 +216,21 @@ const Dashboard = () => {
           <div className="mb-5 flex items-center justify-between border-b border-[#edf0f2] pb-4">
             <div>
               <h2 className="text-lg font-medium text-[#263b4a]">
-                All Orders / Sales
+                Tất cả đơn hàng
               </h2>
             </div>
             <span className="rounded-full bg-[#edf5ef] px-3 py-1 text-xs font-medium text-[#50745a]">
-              {dashboardData.totalOrders ?? "—"} total
+              {dashboardData.totalOrders ?? "—"} đơn hàng
             </span>
           </div>
 
           <div className="space-y-4">
             {loadError && (
               <p role="alert" className="text-sm text-red-600">
-                {loadError} <button type="button" onClick={() => getDashboardData({ force: true })} className="underline">Retry</button>
+                {loadError} <button type="button" onClick={() => getDashboardData({ force: true })} className="underline">Thử lại</button>
               </p>
             )}
-            {isLoading && <p role="status" className="py-8 text-center text-sm text-[#8b949c]">Loading orders...</p>}
+            {isLoading && <p role="status" className="py-8 text-center text-sm text-[#8b949c]">Đang tải đơn hàng…</p>}
             {!isLoading && dashboardData.page === page && orders.map((order) => (
               <OrderCard
                 key={order._id}
@@ -239,13 +240,13 @@ const Dashboard = () => {
                 updating={updatingOrderIds.includes(order._id)}
               />
             ))}
-            {!isLoading && !loadError && !orders.length && <EmptyState text="No orders found" />}
+            {!isLoading && !loadError && !orders.length && <EmptyState text="Chưa có đơn hàng nào" />}
           </div>
           {dashboardData.totalPages > 1 && (
             <div className="mt-5 flex items-center justify-center gap-4 text-sm">
-              <button type="button" disabled={isLoading || updatingOrderIds.length > 0 || page <= 1} onClick={() => setPage((current) => current - 1)} className="btn-light !px-4 !py-2 disabled:opacity-40">Previous</button>
-              <span>Page {page} / {dashboardData.totalPages}</span>
-              <button type="button" disabled={isLoading || updatingOrderIds.length > 0 || page >= dashboardData.totalPages} onClick={() => setPage((current) => current + 1)} className="btn-secondary !px-4 !py-2 disabled:opacity-40">Next</button>
+              <button type="button" disabled={isLoading || updatingOrderIds.length > 0 || page <= 1} onClick={() => setPage((current) => current - 1)} className="btn-light !px-4 !py-2 disabled:opacity-40">Trước</button>
+              <span>Trang {page} / {dashboardData.totalPages}</span>
+              <button type="button" disabled={isLoading || updatingOrderIds.length > 0 || page >= dashboardData.totalPages} onClick={() => setPage((current) => current + 1)} className="btn-secondary !px-4 !py-2 disabled:opacity-40">Tiếp</button>
             </div>
           )}
         </section>
@@ -284,7 +285,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
       <header className="flex flex-col gap-3 border-b border-[#edf0f2] bg-[#fafbfb] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8b949c]">
-            Order
+            Đơn hàng
           </p>
           <h3
             className="mt-1 truncate font-mono text-sm font-semibold text-[#263b4a]"
@@ -293,7 +294,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
             #{String(order._id).slice(-8).toUpperCase()}
           </h3>
           <p className="mt-1 text-xs text-[#8b949c]">
-            Placed on {formattedDate}
+            Đặt ngày {formattedDate}
           </p>
         </div>
 
@@ -306,14 +307,14 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
             }`}
           >
             {order.isPaid
-              ? "Paid"
+              ? "Đã thanh toán"
               : order.paymentMethod === "COD"
-                ? "Pay on delivery"
-                : "Pending"}
+                ? "Thanh toán khi nhận hàng"
+                : "Chờ thanh toán"}
           </span>
           <div className="text-right">
             <p className="text-[11px] uppercase tracking-wide text-[#8b949c]">
-              Total
+              Tổng cộng
             </p>
             <p className="mt-0.5 text-base font-semibold text-[#263b4a]">
               {formatThousandsVnd(order.amount, currency)}
@@ -325,9 +326,9 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
       <div className="grid lg:grid-cols-[minmax(0,1.55fr)_minmax(260px,0.75fr)]">
         <section className="p-4 sm:p-5 lg:border-r lg:border-[#edf0f2]">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-[#263b4a]">Products</h4>
+            <h4 className="text-sm font-semibold text-[#263b4a]">Sản phẩm</h4>
             <span className="text-xs text-[#8b949c]">
-              {items.length} {items.length === 1 ? "item" : "items"}
+              {items.length} {"sản phẩm"}
             </span>
           </div>
 
@@ -339,7 +340,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
                   : {};
               const productImage = item.image || product.images?.[0];
               const productTitle =
-                item.title || product.title || "Unavailable product";
+                item.title || product.title || "Sản phẩm không còn có sẵn";
 
               return (
                 <div
@@ -363,16 +364,16 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
 
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-[#263b4a]">
-                        {productTitle}
+                        {translateCatalogText(productTitle)}
                       </p>
 
                       <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px] text-[#69747e]">
                         <span className="rounded-md bg-[#f1f4f2] px-2 py-1">
-                          Size: <b className="text-[#263b4a]">{item.size}</b>
+                          Dung tích: <b className="text-[#263b4a]">{item.size}</b>
                         </span>
 
                         <span className="rounded-md bg-[#f1f4f2] px-2 py-1">
-                          Qty: <b className="text-[#263b4a]">{item.quantity}</b>
+                          Số lượng: <b className="text-[#263b4a]">{item.quantity}</b>
                         </span>
                       </div>
                     </div>
@@ -395,7 +396,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
 
         <aside className="border-t border-[#edf0f2] bg-[#fcfdfc] p-4 sm:p-5 lg:border-t-0">
           <h4 className="text-sm font-semibold text-[#263b4a]">
-            Customer details
+            Thông tin khách hàng
           </h4>
 
           <dl className="mt-4 space-y-4">
@@ -405,7 +406,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
             </div>}
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
-                Customer
+                Khách hàng
               </dt>
               <dd className="mt-1 text-sm font-medium text-[#263b4a]">
                 {customerName || "—"}
@@ -413,7 +414,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
             </div>
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
-                Phone
+                Số điện thoại
               </dt>
               <dd className="mt-1 text-sm text-[#52616b]">
                 {address.phone || "—"}
@@ -421,7 +422,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
             </div>
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
-                Shipping address
+                Địa chỉ giao hàng
               </dt>
               <dd className="mt-1 text-sm leading-5 text-[#52616b]">
                 {fullAddress || "—"}
@@ -429,7 +430,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
             </div>
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
-                ZIP code
+                Mã bưu chính
               </dt>
               <dd className="mt-1 text-sm font-medium text-[#263b4a]">
                 {zipcode}
@@ -437,10 +438,10 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
             </div>
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
-                Payment method
+                Phương thức thanh toán
               </dt>
               <dd className="mt-1 text-sm font-medium text-[#263b4a]">
-                {order.paymentMethod || "—"}
+                {getPaymentMethodLabel(order.paymentMethod)}
               </dd>
             </div>
           </dl>
@@ -452,7 +453,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
           htmlFor={`status-${order._id}`}
           className="text-xs font-medium text-[#69747e]"
         >
-          Order status
+          Trạng thái đơn hàng
         </label>
         <select
           id={`status-${order._id}`}
@@ -463,11 +464,11 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
           className="w-full rounded-md border border-[#dfe5e8] bg-white px-3 py-2 text-xs font-semibold text-[#263b4a] outline-none transition focus:border-[#9fc4a9] focus:ring-2 focus:ring-[#dcecdf] disabled:cursor-not-allowed disabled:bg-[#f1f4f2] sm:w-40"
         >
           {!ORDER_STATUSES.includes(order.status) && (
-            <option value={order.status}>{order.status}</option>
+            <option value={order.status}>{getOrderStatusLabel(order.status)}</option>
           )}
           {ORDER_STATUSES.map((status, index) => (
             <option key={status} value={status} disabled={index < currentStep}>
-              {status === "Delivery" ? "Delivered" : status}
+              {getOrderStatusLabel(status)}
             </option>
           ))}
         </select>

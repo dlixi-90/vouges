@@ -13,26 +13,26 @@ const Sidebar = () => {
   const navItems = [
     {
       path: "/owner",
-      label: "Dashboard",
+      label: "Tổng quan",
       icon: assets.dashboard,
     },
     {
       path: "/owner/add-product",
-      label: "Add Product",
+      label: "Thêm sản phẩm",
       icon: assets.squarePlus,
     },
     {
       path: "/owner/add-category",
-      label: "Add Category",
+      label: "Thêm danh mục",
       icon: assets.squarePlus,
     },
     {
       path: "/owner/list-product",
-      label: "List Product",
+      label: "Danh sách sản phẩm",
       icon: assets.list,
     },
-    { path: "/owner/vouchers", label: "Vouchers", icon: assets.list },
-    { path: "/owner/messages", label: "Messages", iconComponent: <MessagesSquare size={18} className="hidden md:block" aria-hidden="true" /> },
+    { path: "/owner/vouchers", label: "Mã giảm giá", icon: assets.list },
+    { path: "/owner/messages", label: "Tin nhắn", iconComponent: <MessagesSquare size={18} className="hidden md:block" aria-hidden="true" /> },
   ];
 
   if (isOwner === null) {
@@ -46,13 +46,13 @@ const Sidebar = () => {
               onClick={retryUserProfile}
               className="btn-outline mt-4"
             >
-              Retry
+              Thử lại
             </button>
           </div>
         ) : (
           <div
             role="status"
-            aria-label="Verifying account"
+            aria-label="Đang xác minh tài khoản"
             className="w-8 h-8 border-4 border-gray-300 border-t-black rounded-full animate-spin"
           />
         )}
@@ -89,7 +89,7 @@ const Sidebar = () => {
                     },
                   }}
                 />
-                <div className="text-sm font-semibold text-gray-800 capitalize">
+                <div className="text-sm font-semibold text-gray-800 ">
                   {user?.firstName} {user?.lastName}
                 </div>
               </div>
@@ -128,7 +128,7 @@ const Sidebar = () => {
                 },
               }}
             />
-            <div className="text-sm font-semibold text-gray-800 capitalize">
+            <div className="text-sm font-semibold text-gray-800 ">
               {user?.firstName} {user?.lastName}
             </div>
           </div>

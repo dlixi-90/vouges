@@ -49,7 +49,7 @@ const sendOrderError = (res, error) => {
 
   return res.status(statusCode).json({
     success: false,
-    message: statusCode === 500 ? "Unable to process order" : error.message,
+    message: statusCode === 500 ? "Không thể xử lý đơn hàng" : error.message,
   });
 };
 
@@ -70,11 +70,11 @@ const runInTransaction = async (operation) => {
 
 const validateUserAddress = async (addressId, userId, session) => {
   if (!addressId) {
-    throw new OrderRequestError("Please provide a delivery address");
+    throw new OrderRequestError("Vui lòng cung cấp địa chỉ giao hàng");
   }
 
   if (!isObjectIdOrHexString(addressId)) {
-    throw new OrderRequestError("Invalid delivery address");
+    throw new OrderRequestError("Địa chỉ giao hàng không hợp lệ");
   }
 
   const addressQuery = Address.findOne({
@@ -87,7 +87,7 @@ const validateUserAddress = async (addressId, userId, session) => {
     : await addressQuery;
 
   if (!address) {
-    throw new OrderRequestError("Delivery address not found", 404);
+    throw new OrderRequestError("Không tìm thấy địa chỉ giao hàng", 404);
   }
 
   const phone = validateDeliveryPhone(address.phone);
@@ -98,7 +98,7 @@ const validateUserAddress = async (addressId, userId, session) => {
 
 const normalizeOrderItems = (items) => {
   if (!Array.isArray(items) || items.length === 0) {
-    throw new OrderRequestError("Please add product first");
+    throw new OrderRequestError("Vui lòng thêm sản phẩm trước");
   }
 
   const groupedItems = new Map();
@@ -109,15 +109,15 @@ const normalizeOrderItems = (items) => {
     const quantity = Number(item?.quantity);
 
     if (!isObjectIdOrHexString(productId)) {
-      throw new OrderRequestError("Invalid product ID");
+      throw new OrderRequestError("Mã sản phẩm không hợp lệ");
     }
 
     if (!size) {
-      throw new OrderRequestError("Invalid product size");
+      throw new OrderRequestError("Dung tích sản phẩm không hợp lệ");
     }
 
     if (!Number.isSafeInteger(quantity) || quantity < 1) {
-      throw new OrderRequestError("Quantity must be a positive integer");
+      throw new OrderRequestError("Số lượng phải là số nguyên dương");
     }
 
     const key = `${productId}:${size}`;
@@ -127,7 +127,7 @@ const normalizeOrderItems = (items) => {
       existingItem.quantity += quantity;
 
       if (!Number.isSafeInteger(existingItem.quantity)) {
-        throw new OrderRequestError("Invalid product quantity");
+        throw new OrderRequestError("Số lượng sản phẩm không hợp lệ");
       }
     } else {
       groupedItems.set(key, {
@@ -165,18 +165,18 @@ const validateOrderItems = async (items, session) => {
     const product = productsById.get(item.product);
 
     if (!product) {
-      throw new OrderRequestError("Product not found", 404);
+      throw new OrderRequestError("Không tìm thấy sản phẩm", 404);
     }
 
     if (!product.sizes.includes(item.size)) {
       throw new OrderRequestError(
-        `Invalid size ${item.size} for ${product.title}`,
+        `Dung tích không hợp lệ ${item.size} của ${product.title}`,
       );
     }
 
     if (!isSizeAvailable(product, item.size)) {
       throw new OrderRequestError(
-        `${product.title} - ${item.size} is out of stock`,
+        `${product.title} - ${item.size} đã hết hàng`,
       );
     }
 
@@ -184,7 +184,7 @@ const validateOrderItems = async (items, session) => {
 
     if (item.quantity > stockQuantity) {
       throw new OrderRequestError(
-        `Only ${stockQuantity} items are available for ${product.title} - ${item.size}`,
+        `Chỉ còn ${stockQuantity} sản phẩm của ${product.title} - ${item.size}`,
       );
     }
 
@@ -192,14 +192,14 @@ const validateOrderItems = async (items, session) => {
 
     if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
       throw new OrderRequestError(
-        `Invalid price for ${product.title} - ${item.size}`,
+        `Giá không hợp lệ cho ${product.title} - ${item.size}`,
       );
     }
 
     subtotal += unitPrice * item.quantity;
 
     if (!Number.isFinite(subtotal) || subtotal > Number.MAX_SAFE_INTEGER / 1000) {
-      throw new OrderRequestError("Order total is too large");
+      throw new OrderRequestError("Tổng giá trị đơn hàng vượt quá giới hạn cho phép");
     }
   }
 
@@ -338,7 +338,7 @@ const removeOrderItemsFromCart = async (userId, items, session) => {
   const user = await User.findById(userId).session(session);
 
   if (!user) {
-    throw new OrderRequestError("User not found", 404);
+    throw new OrderRequestError("Không tìm thấy người dùng", 404);
   }
 
   const cartData = { ...(user.cartData || {}) };
@@ -546,7 +546,7 @@ export const placeOrderQr = async (req, res) => {
     if (pendingOrder) {
       return res.json({
         success: true,
-        message: "Pending QR payment restored",
+        message: "Đã khôi phục thanh toán bằng mã QR đang chờ xử lý",
         order: serializeQrOrder(pendingOrder),
       });
     }
@@ -603,7 +603,7 @@ export const placeOrderQr = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "QR order created",
+      message: "Đã tạo đơn hàng thanh toán bằng mã QR",
       order: {
         ...order,
         qrUrl,
@@ -621,7 +621,7 @@ export const getOrderStatus = async (req, res) => {
     if (!isObjectIdOrHexString(req.params.orderId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid order ID",
+        message: "Mã đơn hàng không hợp lệ",
       });
     }
 
@@ -631,14 +631,14 @@ export const getOrderStatus = async (req, res) => {
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: "Order not found",
+        message: "Không tìm thấy đơn hàng",
       });
     }
 
     if (order.userId !== userId && req.user?.role !== "owner") {
       return res.status(403).json({
         success: false,
-        message: "Not Authorized",
+        message: "Bạn không có quyền thực hiện thao tác này",
       });
     }
 
@@ -657,7 +657,7 @@ export const getOrderStatus = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Unable to load order status",
+      message: "Không thể tải trạng thái đơn hàng",
     });
   }
 };
@@ -695,7 +695,7 @@ export const cancelQrOrder = async (req, res) => {
     if (!isObjectIdOrHexString(orderId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid order ID",
+        message: "Mã đơn hàng không hợp lệ",
       });
     }
 
@@ -706,7 +706,7 @@ export const cancelQrOrder = async (req, res) => {
       }).session(session);
 
       if (!order) {
-        throw new OrderRequestError("Order not found", 404);
+        throw new OrderRequestError("Không tìm thấy đơn hàng", 404);
       }
 
       if (order.paymentMethod === "QR" && !order.isPaid &&
@@ -736,14 +736,14 @@ export const cancelQrOrder = async (req, res) => {
         success: false,
         message:
           result.status === "Order Placed"
-            ? "Payment has already been confirmed"
-            : "QR payment can no longer be cancelled",
+            ? "Thanh toán đã được xác nhận"
+            : "Không thể hủy thanh toán bằng mã QR vào lúc này",
       });
     }
 
     return res.json({
       success: true,
-      message: "QR payment cancelled",
+      message: "Đã hủy thanh toán bằng mã QR",
       stockUpdates: result.stockUpdates,
     });
   } catch (error) {
@@ -766,7 +766,7 @@ export const sepayWebhook = async (req, res) => {
     ) {
       return res.status(401).json({
         success: false,
-        message: "Invalid webhook API key",
+        message: "Khóa API của webhook không hợp lệ",
       });
     }
 
@@ -787,7 +787,7 @@ export const sepayWebhook = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "Invalid payment transaction",
+        message: "Giao dịch thanh toán không hợp lệ",
       });
     }
 
@@ -879,7 +879,7 @@ export const sepayWebhook = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Unable to process payment webhook",
+      message: "Không thể xử lý thông báo thanh toán",
     });
   }
 };
@@ -900,7 +900,7 @@ export const userOrders = async (req, res) => {
     console.log(error.message);
     return res.status(500).json({
       success: false,
-      message: "Unable to load orders",
+      message: "Không thể tải danh sách đơn hàng",
     });
   }
 };
@@ -927,7 +927,7 @@ export const allOrders = async (req, res) => {
     console.log(error.message);
     return res.status(500).json({
       success: false,
-      message: "Unable to load orders",
+      message: "Không thể tải danh sách đơn hàng",
     });
   }
 };
@@ -940,14 +940,14 @@ export const updateStatus = async (req, res) => {
     if (!isObjectIdOrHexString(orderId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid order ID",
+        message: "Mã đơn hàng không hợp lệ",
       });
     }
 
     if (!orderStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid order status",
+        message: "Trạng thái đơn hàng không hợp lệ",
       });
     }
 
@@ -956,7 +956,7 @@ export const updateStatus = async (req, res) => {
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: "Order not found",
+        message: "Không tìm thấy đơn hàng",
       });
     }
 
@@ -966,12 +966,12 @@ export const updateStatus = async (req, res) => {
     if (currentStep < 0 || nextStep < currentStep) {
       return res.status(409).json({
         success: false,
-        message: "Order status can only move forward",
+        message: "Chỉ có thể chuyển đơn hàng sang bước xử lý tiếp theo",
       });
     }
 
     if (nextStep === currentStep) {
-      return res.json({ success: true, message: "Order status unchanged", order });
+      return res.json({ success: true, message: "Trạng thái đơn hàng không thay đổi", order });
     }
 
     const update = { status };
@@ -996,20 +996,20 @@ export const updateStatus = async (req, res) => {
     if (!updatedOrder) {
       return res.status(409).json({
         success: false,
-        message: "Order changed. Refresh and try again",
+        message: "Đơn hàng đã thay đổi. Vui lòng tải lại và thử lại",
       });
     }
 
     return res.json({
       success: true,
-      message: "Order status updated",
+      message: "Đã cập nhật trạng thái đơn hàng",
       order: updatedOrder,
     });
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({
       success: false,
-      message: "Unable to update order status",
+      message: "Không thể cập nhật trạng thái đơn hàng",
     });
   }
 };

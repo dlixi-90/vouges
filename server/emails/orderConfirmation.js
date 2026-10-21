@@ -98,7 +98,7 @@ export const buildOrderConfirmationEmail = (
       </td>
       <td valign="top" style="padding:20px 8px 20px 0;border-bottom:1px solid #e8ece7;">
         <p style="margin:0 0 7px;font-size:14px;line-height:21px;font-weight:600;color:#263b4a;overflow-wrap:anywhere;">${escapeHtml(item.title)}</p>
-        <p style="margin:0 0 5px;font-size:12px;line-height:18px;color:#78847e;">Dung tích / Size: ${escapeHtml(item.size)}</p>
+        <p style="margin:0 0 5px;font-size:12px;line-height:18px;color:#78847e;">Dung tích: ${escapeHtml(item.size)}</p>
         <p style="margin:0;font-size:12px;line-height:18px;color:#78847e;">${escapeHtml(money(item.unitPrice))} × ${item.quantity}</p>
       </td>
       <td align="right" valign="top" style="padding:20px 0;border-bottom:1px solid #e8ece7;font-size:14px;line-height:21px;font-weight:600;color:#263b4a;white-space:nowrap;">${escapeHtml(money(item.unitPrice * item.quantity))}</td>
@@ -163,7 +163,7 @@ export const buildOrderConfirmationEmail = (
         <tr><td class="content-pad" style="padding:22px 36px 28px;">
           <table role="presentation" width="100%">
             <tr><td style="padding:0 0 12px;font-size:13px;color:#78847e;">Tạm tính</td><td align="right" style="padding:0 0 12px;font-size:13px;">${escapeHtml(money(subtotal))}</td></tr>
-            ${discount > 0 ? `<tr><td style="padding:0 0 12px;font-size:13px;color:#78847e;">Voucher ${escapeHtml(order.voucherCode)}</td><td align="right" style="padding:0 0 12px;font-size:13px;">−${escapeHtml(money(discount))}</td></tr>` : ""}
+            ${discount > 0 ? `<tr><td style="padding:0 0 12px;font-size:13px;color:#78847e;">Mã giảm giá ${escapeHtml(order.voucherCode)}</td><td align="right" style="padding:0 0 12px;font-size:13px;">−${escapeHtml(money(discount))}</td></tr>` : ""}
             <tr><td style="padding:0 0 18px;font-size:13px;color:#78847e;">Phí vận chuyển${isUrgentShipping ? " (Hỏa tốc)" : order.shippingMethod === "express" ? " (giao nhanh)" : ""}</td><td align="right" style="padding:0 0 18px;font-size:13px;${!isUrgentShipping && shipping === 0 ? "color:#557b5e;" : ""}">${escapeHtml(shippingLabel)}</td></tr>
             <tr><td style="border-top:1px solid #e8ece7;padding-top:18px;font-size:14px;font-weight:600;">${totalLabel}</td><td align="right" style="border-top:1px solid #e8ece7;padding-top:18px;font-size:24px;font-weight:700;color:#41334e;white-space:nowrap;">${escapeHtml(money(total))}</td></tr>
           </table>
@@ -188,7 +188,7 @@ export const buildOrderConfirmationEmail = (
         </td></tr>
         <tr><td class="content-pad" align="center" style="padding:24px 36px;border-top:1px solid #e8ece7;">
           <p style="margin:0 0 7px;font:italic 18px/26px Georgia,serif;color:#557b5e;">Một chút chăm sóc, dành riêng cho bạn.</p>
-          <p style="margin:0;font-size:11px;line-height:19px;color:#929b95;">Email xác nhận đơn hàng từ Velours.<br>Vui lòng giữ lại email này để đối chiếu khi cần.</p>
+          <p style="margin:0;font-size:11px;line-height:19px;color:#929b95;">Thư xác nhận đơn hàng từ Velours.<br>Vui lòng giữ lại thư này để đối chiếu khi cần.</p>
         </td></tr>
       </table>
       <!--[if mso]></td></tr></table><![endif]-->
@@ -211,7 +211,7 @@ export const buildOrderConfirmationEmail = (
     ),
     "",
     `Tạm tính: ${money(subtotal)}`,
-    ...(discount > 0 ? [`Voucher ${order.voucherCode}: -${money(discount)}`] : []),
+    ...(discount > 0 ? [`Mã giảm giá ${order.voucherCode}: -${money(discount)}`] : []),
     `Phí vận chuyển: ${shippingLabel}`,
     `${totalLabel}: ${money(total)}`,
     `${paymentMethod} — ${paymentStatus}`,

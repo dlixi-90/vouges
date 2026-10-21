@@ -92,12 +92,12 @@ const CheckoutVoucherPicker = ({ checkout, subtotal, disabled }) => {
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="flex items-center gap-2 font-semibold"><Ticket size={20} className="text-secondary" aria-hidden="true" />Voucher cửa hàng</h2>
-          <p className="mt-2 text-sm text-gray-500">Mỗi đơn hàng chỉ áp dụng 1 mã voucher.</p>
+          <h2 className="flex items-center gap-2 font-semibold"><Ticket size={20} className="text-secondary" aria-hidden="true" />Mã giảm giá cửa hàng</h2>
+          <p className="mt-2 text-sm text-gray-500">Mỗi đơn hàng chỉ áp dụng 1 mã giảm giá.</p>
         </div>
         <button ref={triggerRef} type="button" popoverTarget={popupId} disabled={disabled} aria-haspopup="dialog" aria-expanded={isOpen} aria-controls={popupId}
           onClick={preparePopup} className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-secondary/20 bg-white px-4 py-2.5 text-sm font-medium text-secondary transition hover:bg-secondary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary disabled:cursor-not-allowed disabled:opacity-50">
-          <Ticket size={16} aria-hidden="true" />{hasAppliedVoucher ? "Đổi voucher" : "Chọn voucher"}
+          <Ticket size={16} aria-hidden="true" />{hasAppliedVoucher ? "Đổi mã giảm giá" : "Chọn mã giảm giá"}
         </button>
       </div>
       {displayedCode && <div className={`mt-4 flex flex-col gap-4 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 ${hasAppliedVoucher ? "border-green-200 bg-green-50/60" : "border-gray-200 bg-primary/60"}`}>
@@ -108,7 +108,7 @@ const CheckoutVoucherPicker = ({ checkout, subtotal, disabled }) => {
           <div className="min-w-0">
             <p className={`flex items-center gap-1.5 text-xs font-medium ${hasAppliedVoucher ? "text-green-700" : "text-gray-500"}`}>
               {hasAppliedVoucher && <Check size={14} aria-hidden="true" />}
-              {hasAppliedVoucher ? "Đã áp dụng voucher" : checkout.loading ? "Đang kiểm tra mã" : "Mã chưa được áp dụng"}
+              {hasAppliedVoucher ? "Đã áp dụng mã giảm giá" : checkout.loading ? "Đang kiểm tra mã" : "Mã chưa được áp dụng"}
             </p>
             <p className="mt-1 break-all font-mono text-base font-semibold tracking-wide text-secondary">{displayedCode}</p>
           </div>
@@ -118,7 +118,7 @@ const CheckoutVoucherPicker = ({ checkout, subtotal, disabled }) => {
             <p className="text-xs text-green-700">Bạn tiết kiệm</p>
             <p className="mt-1 whitespace-nowrap text-lg font-semibold text-green-700">{formatPrice(checkout.pricing.discount)}</p>
           </div>}
-          <button type="button" disabled={disabled} onClick={removeVoucher} aria-label={`Bỏ mã voucher ${displayedCode}`}
+          <button type="button" disabled={disabled} onClick={removeVoucher} aria-label={`Bỏ mã giảm giá ${displayedCode}`}
             className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary disabled:cursor-not-allowed disabled:opacity-50">
             <X size={15} aria-hidden="true" />Bỏ mã
           </button>
@@ -141,33 +141,33 @@ const CheckoutVoucherPicker = ({ checkout, subtotal, disabled }) => {
         className="fixed inset-auto m-0 h-[min(540px,calc(100dvh-32px))] w-[420px] max-w-[calc(100vw-32px)] overflow-hidden rounded-xl border border-gray-200 bg-white p-0 text-sm text-tertiary shadow-xl">
         <div className="flex h-full flex-col">
           <div className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-100 px-5 py-4">
-            <h3 id={titleId} className="font-semibold">Voucher của Velours</h3>
-            <button type="button" onClick={closePopup} aria-label="Đóng bảng voucher" className="cursor-pointer rounded-md p-1 hover:bg-primary"><X size={18} /></button>
+            <h3 id={titleId} className="font-semibold">Mã giảm giá của Velours</h3>
+            <button type="button" onClick={closePopup} aria-label="Đóng bảng mã giảm giá" className="cursor-pointer rounded-md p-1 hover:bg-primary"><X size={18} /></button>
           </div>
           <fieldset disabled={disabled} className="shrink-0 bg-primary/60 p-4">
-            <legend className="sr-only">Nhập mã voucher</legend>
+            <legend className="sr-only">Nhập mã giảm giá</legend>
             <p className="mb-3 text-xs leading-relaxed text-gray-500">Chỉ áp dụng 1 mã cho mỗi đơn hàng. Áp dụng mã mới sẽ thay thế mã hiện tại.</p>
             <div className="flex items-center gap-2">
-              <label htmlFor={codeId} className="shrink-0 text-xs">Mã Voucher</label>
+              <label htmlFor={codeId} className="shrink-0 text-xs">Mã Mã giảm giá</label>
               <input id={codeId} value={draft} maxLength={40} onChange={(event) => setDraft(event.target.value.toUpperCase())}
                 onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); applyVoucher(); } }}
-                placeholder="Nhập mã voucher của cửa hàng" className="min-w-0 flex-1 rounded-md border border-gray-200 bg-white px-2 py-2 text-xs focus:outline-secondary" />
+                placeholder="Nhập mã giảm giá của cửa hàng" className="min-w-0 flex-1 rounded-md border border-gray-200 bg-white px-2 py-2 text-xs focus:outline-secondary" />
               <button type="button" onClick={applyVoucher} disabled={checkout.loading || !draft.trim()}
                 className="btn-outline shrink-0 !rounded-full !px-3 !py-2 !text-xs disabled:cursor-not-allowed disabled:opacity-40">{isReplacingVoucher ? "THAY MÃ" : "ÁP DỤNG"}</button>
             </div>
-            {checkout.loading && <p role="status" className="mt-3 text-xs text-gray-500">Đang kiểm tra voucher…</p>}
+            {checkout.loading && <p role="status" className="mt-3 text-xs text-gray-500">Đang kiểm tra mã giảm giá…</p>}
             {checkout.error && <p role="alert" className="mt-3 text-xs text-red-600">{checkout.error}</p>}
             {hasAppliedVoucher && <p role="status" className="mt-3 flex items-center gap-1 text-xs text-green-700"><Check size={14} aria-hidden="true" />Đã áp dụng {appliedCode}: giảm {formatPrice(checkout.pricing.discount)}.</p>}
           </fieldset>
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
-            {!user ? <p className="py-12 text-center text-gray-500">Đăng nhập để xem voucher của bạn.</p>
-              : !currentWallet ? <p role="status" className="py-12 text-center text-gray-500">Đang tải voucher…</p>
+            {!user ? <p className="py-12 text-center text-gray-500">Đăng nhập để xem mã giảm giá của bạn.</p>
+              : !currentWallet ? <p role="status" className="py-12 text-center text-gray-500">Đang tải mã giảm giá…</p>
               : currentWallet.error ? <div role="alert" className="py-8 text-center text-gray-500">{currentWallet.error}
                 <button type="button" onClick={() => { setWallet(null); setAttempt((value) => value + 1); }} className="mt-3 block w-full cursor-pointer text-secondary underline">Thử lại</button>
               </div>
               : vouchers.length === 0 ? <div className="flex h-full min-h-40 flex-col items-center justify-center gap-3 text-center">
                 <Ticket size={52} strokeWidth={1} className="text-gray-300" aria-hidden="true" />
-                <p>Chưa có voucher có thể sử dụng</p>
+                <p>Chưa có mã giảm giá có thể sử dụng</p>
                 <p className="max-w-64 text-xs text-gray-500">Chỉ hiển thị mã đang có hiệu lực, còn lượt và bạn chưa sử dụng. Bạn có thể nhập mã ở trên để kiểm tra.</p>
               </div>
               : <div className="space-y-3">{vouchers.map((voucher) => {

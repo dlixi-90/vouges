@@ -48,13 +48,13 @@ const AddressBookDialog = ({ addresses, selectedId, user, onSelect, onSave, onUp
         if (pendingId === editingAddress._id) setPendingId(saved._id);
         setMode("list");
         setEditingAddress(null);
-        toast.success("Address updated");
+        toast.success("Đã cập nhật địa chỉ");
       } else {
         const saved = await onSave({ ...draft, phone: phone.normalized }, makeDefault);
         onSelect(saved);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message || "Unable to save address");
+      toast.error(error.response?.data?.message || error.message || "Không thể lưu địa chỉ");
     } finally {
       busyRef.current = false;
       setIsSaving(false);
@@ -68,7 +68,7 @@ const AddressBookDialog = ({ addresses, selectedId, user, onSelect, onSave, onUp
     try {
       await onMakeDefault(entry._id);
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message || "Unable to update default address");
+      toast.error(error.response?.data?.message || error.message || "Không thể cập nhật địa chỉ mặc định");
     } finally {
       busyRef.current = false;
       setIsSaving(false);
@@ -106,9 +106,9 @@ const AddressBookDialog = ({ addresses, selectedId, user, onSelect, onSave, onUp
         setPendingId(remaining.find((address) => address.isDefault)?._id || remaining[0]?._id || "");
       }
       setDeleteId(null);
-      toast.success("Address deleted");
+      toast.success("Đã xóa địa chỉ");
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message || "Unable to delete address");
+      toast.error(error.response?.data?.message || error.message || "Không thể xóa địa chỉ");
     } finally {
       busyRef.current = false;
       setIsSaving(false);
@@ -126,13 +126,13 @@ const AddressBookDialog = ({ addresses, selectedId, user, onSelect, onSave, onUp
     >
       <div>
         <div className="flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-5">
-          <h3 id={titleId} className="text-xl font-semibold">{mode === "list" ? "My Addresses" : mode === "edit" ? "Edit Address" : "Add New Address"}</h3>
-          <button type="button" onClick={onClose} disabled={isSaving} aria-label="Close addresses" className="cursor-pointer rounded-md p-2 hover:bg-primary disabled:opacity-40"><X size={21} /></button>
+          <h3 id={titleId} className="text-xl font-semibold">{mode === "list" ? "Địa chỉ của tôi" : mode === "edit" ? "Chỉnh sửa địa chỉ" : "Thêm địa chỉ mới"}</h3>
+          <button type="button" onClick={onClose} disabled={isSaving} aria-label="Đóng sổ địa chỉ" className="cursor-pointer rounded-md p-2 hover:bg-primary disabled:opacity-40"><X size={21} /></button>
         </div>
         {mode === "list" ? (
           <>
-            <div className="divide-y divide-gray-200 px-6" role="radiogroup" aria-label="Delivery address">
-              {addresses.length === 0 && <p className="py-8 text-center">No saved addresses yet.</p>}
+            <div className="divide-y divide-gray-200 px-6" role="radiogroup" aria-label="Địa chỉ giao hàng">
+              {addresses.length === 0 && <p className="py-8 text-center">Bạn chưa lưu địa chỉ nào.</p>}
               {addresses.map((entry) => (
                 <div key={entry._id} className="py-5">
                   <label className="flex cursor-pointer items-start gap-3">
@@ -143,20 +143,20 @@ const AddressBookDialog = ({ addresses, selectedId, user, onSelect, onSave, onUp
                         <span className="text-sm text-gray-500">{validateDeliveryPhone(entry.phone).normalized || entry.phone}</span>
                       </span>
                       <span className="mt-2 block break-words text-sm leading-relaxed text-gray-500">{[entry.street, entry.state, entry.city, entry.country].filter(Boolean).join(", ")}</span>
-                      {entry.isDefault && <span className="mt-2 inline-block rounded border border-secondary/25 bg-secondary/5 px-2 py-0.5 text-xs text-secondary">Default</span>}
+                      {entry.isDefault && <span className="mt-2 inline-block rounded border border-secondary/25 bg-secondary/5 px-2 py-0.5 text-xs text-secondary">Mặc định</span>}
                     </span>
                   </label>
                   <div className="ml-7 mt-3 flex flex-wrap items-center gap-4">
-                    <button type="button" disabled={isSaving} onClick={() => editAddress(entry)} aria-label={`Edit address at ${entry.street}`} className="cursor-pointer text-xs font-medium text-secondary underline underline-offset-4 disabled:opacity-40">Edit</button>
-                    {!entry.isDefault && <button type="button" disabled={isSaving} onClick={() => setDefault(entry)} className="cursor-pointer text-xs font-medium text-secondary underline underline-offset-4 disabled:opacity-40">Set as default</button>}
-                    <button type="button" disabled={isSaving} onClick={() => setDeleteId(entry._id)} aria-label={`Delete address at ${entry.street}`} className="cursor-pointer text-xs font-medium text-red-600 underline underline-offset-4 disabled:opacity-40">Delete</button>
+                    <button type="button" disabled={isSaving} onClick={() => editAddress(entry)} aria-label={`Chỉnh sửa địa chỉ tại ${entry.street}`} className="cursor-pointer text-xs font-medium text-secondary underline underline-offset-4 disabled:opacity-40">Chỉnh sửa</button>
+                    {!entry.isDefault && <button type="button" disabled={isSaving} onClick={() => setDefault(entry)} className="cursor-pointer text-xs font-medium text-secondary underline underline-offset-4 disabled:opacity-40">Đặt làm mặc định</button>}
+                    <button type="button" disabled={isSaving} onClick={() => setDeleteId(entry._id)} aria-label={`Xóa địa chỉ tại ${entry.street}`} className="cursor-pointer text-xs font-medium text-red-600 underline underline-offset-4 disabled:opacity-40">Xóa</button>
                   </div>
                   {deleteId === entry._id && (
                     <div className="ml-7 mt-3 rounded-md border border-gray-200 bg-primary p-3">
-                      <p className="text-sm">Delete this saved address?</p>
+                      <p className="text-sm">Xóa địa chỉ đã lưu này?</p>
                       <div className="mt-3 flex flex-wrap gap-3">
-                        <button type="button" disabled={isSaving} onClick={() => setDeleteId(null)} className="btn-outline !rounded-full !px-4 !py-2 disabled:opacity-40">Cancel</button>
-                        <button type="button" disabled={isSaving} onClick={() => removeAddress(entry)} className="btn-dark !rounded-full !px-4 !py-2 disabled:opacity-40">{isSaving ? "Deleting..." : "Delete Address"}</button>
+                        <button type="button" disabled={isSaving} onClick={() => setDeleteId(null)} className="btn-outline !rounded-full !px-4 !py-2 disabled:opacity-40">Hủy</button>
+                        <button type="button" disabled={isSaving} onClick={() => removeAddress(entry)} className="btn-dark !rounded-full !px-4 !py-2 disabled:opacity-40">{isSaving ? "Đang xóa…" : "Xóa địa chỉ"}</button>
                       </div>
                     </div>
                   )}
@@ -164,20 +164,20 @@ const AddressBookDialog = ({ addresses, selectedId, user, onSelect, onSave, onUp
               ))}
             </div>
             <div className="flex flex-wrap justify-between gap-3 border-t border-gray-200 p-6">
-              <button type="button" onClick={addNewAddress} disabled={isSaving} className="btn-outline inline-flex items-center gap-2 !rounded-full disabled:opacity-40"><Plus size={17} />Add New Address</button>
+              <button type="button" onClick={addNewAddress} disabled={isSaving} className="btn-outline inline-flex items-center gap-2 !rounded-full disabled:opacity-40"><Plus size={17} />Thêm địa chỉ mới</button>
               <button type="button" disabled={isSaving || !addresses.some((entry) => entry._id === pendingId)} onClick={() => {
                 const selected = addresses.find((entry) => entry._id === pendingId);
                 if (selected) onSelect(selected);
-              }} className="btn-dark !rounded-full disabled:opacity-40">Confirm</button>
+              }} className="btn-dark !rounded-full disabled:opacity-40">Xác nhận</button>
             </div>
           </>
         ) : (
           <form onSubmit={save} className="px-6 pb-6">
             <DeliveryAddressFields key={editingAddress?._id || "new"} address={draft} setAddress={setDraft} disabled={isSaving} />
-            <label className="mt-5 flex cursor-pointer items-center gap-2 text-sm"><input type="checkbox" checked={makeDefault} onChange={(event) => setMakeDefault(event.target.checked)} disabled={isSaving || Boolean(editingAddress?.isDefault)} className="h-4 w-4 accent-secondary" />Set as default address</label>
+            <label className="mt-5 flex cursor-pointer items-center gap-2 text-sm"><input type="checkbox" checked={makeDefault} onChange={(event) => setMakeDefault(event.target.checked)} disabled={isSaving || Boolean(editingAddress?.isDefault)} className="h-4 w-4 accent-secondary" />Đặt làm địa chỉ mặc định</label>
             <div className="mt-6 flex justify-end gap-3">
-              <button type="button" disabled={isSaving} onClick={() => addresses.length ? setMode("list") : onClose()} className="btn-outline !rounded-full disabled:opacity-40">Back</button>
-              <button type="submit" disabled={isSaving} className="btn-dark !rounded-full disabled:opacity-40">{isSaving ? "Saving..." : mode === "edit" ? "Save Changes" : "Save Address"}</button>
+              <button type="button" disabled={isSaving} onClick={() => addresses.length ? setMode("list") : onClose()} className="btn-outline !rounded-full disabled:opacity-40">Quay lại</button>
+              <button type="submit" disabled={isSaving} className="btn-dark !rounded-full disabled:opacity-40">{isSaving ? "Đang lưu…" : mode === "edit" ? "Lưu thay đổi" : "Lưu địa chỉ"}</button>
             </div>
           </form>
         )}

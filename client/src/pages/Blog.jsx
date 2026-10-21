@@ -22,7 +22,7 @@ const Blog = () => {
               <p>{blog.description}</p>
 
               <button className="underline mt-2 bold-14 line-clamp-2">
-                Continue reading
+                Đọc tiếp
               </button>
             </div>
           ))}

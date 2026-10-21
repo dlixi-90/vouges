@@ -1,3 +1,4 @@
+import { translateCatalogText } from "../utils/localization.js";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Check } from "lucide-react";
@@ -292,11 +293,11 @@ const Cart = () => {
   const handleCheckout = () => {
     if (cartUpdateRef.current || hasPendingCartUpdates()) return;
     if (selectedItemKeys.size === 0) {
-      return toast.error("Please select at least one product");
+      return toast.error("Vui lòng chọn ít nhất một sản phẩm");
     }
 
     if (!user) {
-      return toast.error("Please login before checkout");
+      return toast.error("Vui lòng đăng nhập trước khi thanh toán");
     }
 
     setCurrentStep(2);
@@ -334,7 +335,7 @@ const Cart = () => {
       {/* STEP 1 */}
       {currentStep === 1 && (
         <section className="min-w-0 text-[95%]">
-          <Title title1="Cart" title2="Overview" titleStyles="pb-10" />
+          <Title title1="Giỏ hàng" title2="Tổng quan" titleStyles="pb-10" />
           {cartData.length > 0 ? (
             <div ref={cartContentRef}>
               <div className="hidden shrink-0 grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] items-center gap-3 rounded-xl bg-white px-4 py-3 lg:grid">
@@ -344,18 +345,18 @@ const Cart = () => {
                   checked={allItemsSelected}
                   onChange={toggleAllItems}
                   indeterminate={someItemsSelected}
-                  label="Select all products"
+                  label="Chọn tất cả sản phẩm"
                 />
-                <h5 className="h5">Product</h5>
-                <h5 className="h5 text-center">Unit Price</h5>
-                <h5 className="h5 text-center">Quantity</h5>
-                <h5 className="h5 text-center">Subtotal</h5>
-                <h5 className="h5 text-center">Action</h5>
+                <h5 className="h5">Sản phẩm</h5>
+                <h5 className="h5 text-center">Đơn giá</h5>
+                <h5 className="h5 text-center">Số lượng</h5>
+                <h5 className="h5 text-center">Thành tiền</h5>
+                <h5 className="h5 text-center">Thao tác</h5>
               </div>
 
               <div
                 role="region"
-                aria-label="Cart products"
+                aria-label="Sản phẩm trong giỏ hàng"
                 className="mt-3 space-y-3"
               >
                 {cartData.map((item) => {
@@ -381,7 +382,7 @@ const Cart = () => {
                           disabled={isChangingSize || isUnavailable}
                           checked={isSelected}
                           onChange={() => toggleItemSelection(itemKey)}
-                          label={`Select ${product.title}, size ${item.size}`}
+                          label={`Chọn ${product.title}, dung tích ${item.size}`}
                         />
                       </div>
                       <div className="col-start-2 row-start-1 flex min-w-0 flex-wrap items-center gap-3 xl:flex-nowrap xl:gap-5">
@@ -393,13 +394,13 @@ const Cart = () => {
                             className="h-20 w-16 shrink-0 rounded-xl bg-primary object-cover sm:h-24 sm:w-20"
                           />
                           <div className="min-w-0">
-                            <h5 className="h5 line-clamp-2">{product.title}</h5>
+                            <h5 className="h5 line-clamp-2">{translateCatalogText(product.title)}</h5>
                             {isUnavailable && (
                               <p
                                 className="mt-2 text-sm font-medium text-secondary"
                                 role="status"
                               >
-                                Out of stock - remove from cart
+                                Đã hết hàng — vui lòng xóa khỏi giỏ hàng
                               </p>
                             )}
                           </div>
@@ -419,7 +420,7 @@ const Cart = () => {
                       </div>
                       <div className="col-start-2 row-start-2 flex items-center justify-between gap-2 text-sm lg:col-start-3 lg:row-start-1 lg:block lg:text-center">
                         <span className="text-gray-500 lg:hidden">
-                          Unit Price
+                          Đơn giá
                         </span>
                         <span className="whitespace-nowrap">
                           {formatThousandsVnd(
@@ -430,12 +431,12 @@ const Cart = () => {
                       </div>
                       <div className="col-start-2 row-start-3 flex items-center justify-between gap-2 lg:col-start-4 lg:row-start-1 lg:justify-center">
                         <span className="text-sm text-gray-500 lg:hidden">
-                          Quantity
+                          Số lượng
                         </span>
                         <div className="inline-flex items-center overflow-hidden rounded-full bg-primary ring-1 ring-slate-900/15">
                           <button
                             type="button"
-                            aria-label={`Decrease quantity of ${product.title}, size ${item.size}`}
+                            aria-label={`Giảm số lượng ${product.title}, dung tích ${item.size}`}
                             onClick={() => decrement(item._id, item.size)}
                             disabled={
                               isChangingSize || isUnavailable || quantity <= 1
@@ -454,7 +455,7 @@ const Cart = () => {
                           </span>
                           <button
                             type="button"
-                            aria-label={`Increase quantity of ${product.title}, size ${item.size}`}
+                            aria-label={`Tăng số lượng ${product.title}, dung tích ${item.size}`}
                             onClick={() => increment(item._id, item.size)}
                             disabled={
                               isChangingSize ||
@@ -474,7 +475,7 @@ const Cart = () => {
                       </div>
                       <div className="col-start-2 row-start-4 flex items-center justify-between gap-2 lg:col-start-5 lg:row-start-1 lg:block lg:text-center">
                         <span className="text-sm text-gray-500 lg:hidden">
-                          Subtotal
+                          Thành tiền
                         </span>
                         <span className="whitespace-nowrap bold-16 text-secondary">
                           {formatThousandsVnd(
@@ -485,7 +486,7 @@ const Cart = () => {
                       </div>
                       <button
                         type="button"
-                        aria-label={`Remove ${product.title}, size ${item.size}`}
+                        aria-label={`Xóa ${product.title}, dung tích ${item.size}`}
                         onClick={() =>
                           updateQuantity(item._id, item.size, 0)
                         }
@@ -510,10 +511,10 @@ const Cart = () => {
                       checked={allItemsSelected}
                       onChange={toggleAllItems}
                       indeterminate={someItemsSelected}
-                      label="Select all products"
+                      label="Chọn tất cả sản phẩm"
                     />
                     <span className="text-sm">
-                      Select All ({availableCartData.length})
+                      Chọn tất cả ({availableCartData.length})
                     </span>
                   </div>
                   <button
@@ -522,7 +523,7 @@ const Cart = () => {
                     disabled={isUpdatingCart || selectedItemKeys.size === 0}
                     className="cursor-pointer rounded-md px-2 py-2 text-sm text-gray-500 transition hover:bg-primary hover:text-secondary disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    Remove All
+                    Xóa tất cả
                   </button>
                   <button
                     type="button"
@@ -530,14 +531,14 @@ const Cart = () => {
                     disabled={isUpdatingCart || unavailableCartData.length === 0}
                     className="cursor-pointer rounded-md px-2 py-2 text-sm text-gray-500 transition hover:bg-primary hover:text-secondary disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    Remove Out of Stock
+                    Xóa sản phẩm hết hàng
                   </button>
                 </div>
                 <div className="flex w-full flex-wrap items-center justify-between gap-4 lg:w-auto lg:justify-end lg:gap-6">
                   <div>
                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                       <span className="text-sm">
-                        Total ({selectedCount} items):
+                        Tổng cộng ({selectedCount} sản phẩm):
                       </span>
                       <span className="text-xl font-bold text-secondary">
                         {formatThousandsVnd(subtotal, currency)}
@@ -550,23 +551,23 @@ const Cart = () => {
                     disabled={selectedItemKeys.size === 0 || isUpdatingCart}
                     className="btn-dark w-full !rounded-full disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-48"
                   >
-                    {isUpdatingCart ? "Saving changes..." : "Proceed to Checkout"}
+                    {isUpdatingCart ? "Đang lưu thay đổi…" : "Tiến hành thanh toán"}
                   </button>
                 </div>
               </CartActionBar>
             </div>
           ) : (
             <div className="rounded-xl bg-white px-6 py-16 text-center">
-              <h2 className="text-xl font-semibold">Your cart is empty</h2>
+              <h2 className="text-xl font-semibold">Giỏ hàng của bạn đang trống</h2>
               <p className="mt-2 text-gray-500">
-                Add some products before checking out.
+                Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán.
               </p>
               <button
                 type="button"
                 onClick={() => navigate("/collection")}
                 className="btn-dark mt-6 !rounded-full"
               >
-                Continue Shopping
+                Tiếp tục mua sắm
               </button>
             </div>
           )}
@@ -576,7 +577,7 @@ const Cart = () => {
       {/* STEP 2 */}
       {currentStep === 2 && <CheckoutBackGuard onBack={handleBackToCart} isSubmitting={isSubmitting} />}
       {currentStep === 2 && (
-        <Suspense fallback={<p role="status" className="py-12 text-center">Loading checkout...</p>}>
+        <Suspense fallback={<p role="status" className="py-12 text-center">Đang tải thông tin thanh toán…</p>}>
           <div ref={checkoutContentRef} className="space-y-4 text-[95%]">
             <CheckoutAddressForm
               checkout={checkout}
@@ -603,7 +604,7 @@ const Cart = () => {
 
       {/* STEP 3 QR */}
       {currentStep === 3 && createdOrder?.paymentMethod === "QR" && (
-        <Suspense fallback={<p role="status" className="py-12 text-center">Loading payment...</p>}>
+        <Suspense fallback={<p role="status" className="py-12 text-center">Đang tải thông tin thanh toán…</p>}>
         <QrPaymentStatus
           initialOrder={createdOrder}
           onExpired={handleQrExpired}
@@ -620,11 +621,11 @@ const Cart = () => {
           </div>
 
           <h2 className="mt-5 text-2xl font-semibold">
-            Order placed successfully
+            Đặt hàng thành công
           </h2>
 
           <p className="mt-3 text-gray-500">
-            Your order has been created. You will pay when it is delivered.
+            Đơn hàng của bạn đã được tạo. Bạn sẽ thanh toán khi nhận hàng.
           </p>
           {createdOrder.shippingMethod === "urgent" && <p className="mt-3 text-sm text-gray-500">{URGENT_SHIPPING_NOTE}</p>}
 
@@ -633,7 +634,7 @@ const Cart = () => {
             onClick={() => navigate("/my-orders")}
             className="btn-dark mt-8 !rounded-full"
           >
-            View My Orders
+            Xem đơn hàng của tôi
           </button>
         </div>
       )}

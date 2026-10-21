@@ -132,7 +132,7 @@ export const AppContextProvider = ({ children }) => {
         signal,
         timeout: 15000,
       });
-      if (!data.success) throw new Error(data.message || "Unable to load user profile");
+      if (!data.success) throw new Error(data.message || "Không thể tải thông tin người dùng");
       return data;
     },
     onSuccess: (userId, data) => {
@@ -141,7 +141,7 @@ export const AppContextProvider = ({ children }) => {
       setCartAddedAt(data.cartAddedAt || {});
     },
     onError: (userId, error) => {
-      const message = getRequestErrorMessage(error, "Unable to verify account");
+      const message = getRequestErrorMessage(error, "Không thể xác minh tài khoản");
       setProfileResult({ userId, role: null, error: message });
       toast.error(message);
     },
@@ -174,13 +174,13 @@ export const AppContextProvider = ({ children }) => {
       try {
         const { data } = await axios.get("/api/products/popular");
         if (!data.success) {
-          throw new Error(data.message || "Unable to load popular products");
+          throw new Error(data.message || "Không thể tải sản phẩm bán chạy");
         }
         setPopularProducts(data.products);
         setPopularProductsError("");
       } catch (error) {
         setPopularProductsError(
-          getRequestErrorMessage(error, "Unable to load popular products"),
+          getRequestErrorMessage(error, "Không thể tải sản phẩm bán chạy"),
         );
       } finally {
         setPopularProductsLoading(false);
@@ -195,10 +195,10 @@ export const AppContextProvider = ({ children }) => {
     setCategoriesError("");
     try {
       const { data } = await axios.get("/api/categories");
-      if (!data.success) throw new Error(data.message || "Unable to load categories");
+      if (!data.success) throw new Error(data.message || "Không thể tải danh mục");
       setCategories(data.categories);
     } catch (error) {
-      setCategoriesError(getRequestErrorMessage(error, "Unable to load categories"));
+      setCategoriesError(getRequestErrorMessage(error, "Không thể tải danh mục"));
     } finally {
       setCategoriesLoading(false);
     }
@@ -242,13 +242,13 @@ export const AppContextProvider = ({ children }) => {
   ) => {
     if (!requireCartLogin()) return { success: false, requiresLogin: true };
     if (changingSizeRef.current || quantityQueue.hasPending()) {
-      toast.error("Please wait for the cart update to finish");
+      toast.error("Vui lòng chờ giỏ hàng cập nhật xong");
       return { success: false };
     }
     const addedQuantity = Number(quantity);
 
     if (!size) {
-      const message = "Please select a size first";
+      const message = "Vui lòng chọn dung tích trước";
       toast.error(message);
       return { success: false, message };
     }
@@ -258,7 +258,7 @@ export const AppContextProvider = ({ children }) => {
       addedQuantity < 1 ||
       addedQuantity > MAX_CART_ADD_QUANTITY
     ) {
-      const message = `Quantity must be between 1 and ${MAX_CART_ADD_QUANTITY}`;
+      const message = `Số lượng phải từ 1 đến ${MAX_CART_ADD_QUANTITY}`;
       toast.error(message);
       return { success: false, message };
     }
@@ -266,13 +266,13 @@ export const AppContextProvider = ({ children }) => {
     const product = products.find((item) => item._id === itemId);
 
     if (!product || !product.sizes?.includes(size)) {
-      const message = "Product or size not found";
+      const message = "Không tìm thấy sản phẩm hoặc dung tích";
       toast.error(message);
       return { success: false, message };
     }
 
     if (!isSizeAvailable(product, size)) {
-      const message = "This product size is out of stock";
+      const message = "Sản phẩm có dung tích này đã hết hàng";
       toast.error(message);
       return { success: false, message };
     }
@@ -282,7 +282,7 @@ export const AppContextProvider = ({ children }) => {
     const stockQuantity = getSizeQuantity(product, size);
 
     if (nextQuantity > stockQuantity) {
-      const message = `Only ${stockQuantity} items are available for size ${size}`;
+      const message = `Chỉ còn ${stockQuantity} sản phẩm có dung tích ${size}`;
       toast.error(message);
       return { success: false, message };
     }
@@ -307,7 +307,7 @@ export const AppContextProvider = ({ children }) => {
       );
 
       if (!data.success) {
-        throw new Error(data.message || "Unable to add item to cart");
+        throw new Error(data.message || "Không thể thêm sản phẩm vào giỏ hàng");
       }
       if (data.addedAt) {
         setCartAddedAt((current) => setCartLineAddedAt(current, itemId, size, data.addedAt));
@@ -342,7 +342,7 @@ export const AppContextProvider = ({ children }) => {
 
       const message = getRequestErrorMessage(
         error,
-        "Unable to add item to cart",
+        "Không thể thêm sản phẩm vào giỏ hàng",
       );
       toast.error(message);
       return { success: false, message };
@@ -366,13 +366,13 @@ export const AppContextProvider = ({ children }) => {
   const updateQuantity = async (itemId, size, quantity) => {
     if (!requireCartLogin()) return { success: false, requiresLogin: true };
     if (changingSizeRef.current) {
-      toast.error("Please wait for the size change to finish");
+      toast.error("Vui lòng chờ thay đổi dung tích hoàn tất");
       return { success: false };
     }
     const nextQuantity = Number(quantity);
 
     if (!Number.isInteger(nextQuantity) || nextQuantity < 0) {
-      const message = "Quantity must be a non-negative integer";
+      const message = "Số lượng phải là số nguyên không âm";
       toast.error(message);
       return { success: false, message };
     }
@@ -383,13 +383,13 @@ export const AppContextProvider = ({ children }) => {
       const product = products.find((item) => item._id === itemId);
 
       if (!product || !product.sizes?.includes(size)) {
-        const message = "Product or size not found";
+        const message = "Không tìm thấy sản phẩm hoặc dung tích";
         toast.error(message);
         return { success: false, message };
       }
 
       if (!isSizeAvailable(product, size)) {
-        const message = "This product size is out of stock";
+        const message = "Sản phẩm có dung tích này đã hết hàng";
         toast.error(message);
         return { success: false, message };
       }
@@ -397,14 +397,14 @@ export const AppContextProvider = ({ children }) => {
       const stockQuantity = getSizeQuantity(product, size);
 
       if (nextQuantity > stockQuantity) {
-        const message = `Only ${stockQuantity} items are available for size ${size}`;
+        const message = `Chỉ còn ${stockQuantity} sản phẩm có dung tích ${size}`;
         toast.error(message);
         return { success: false, message };
       }
     }
 
     if (cartWritesRef.current > 0) {
-      return { success: false, message: "Please wait for the cart update to finish" };
+      return { success: false, message: "Vui lòng chờ giỏ hàng cập nhật xong" };
     }
 
     return quantityQueue.enqueue({
@@ -415,7 +415,7 @@ export const AppContextProvider = ({ children }) => {
       onAcknowledged: (data) => {
         if (data.addedAt) setCartAddedAt((current) => setCartLineAddedAt(current, itemId, size, data.addedAt));
       },
-      onError: (error) => toast.error(getRequestErrorMessage(error, "Unable to update cart")),
+      onError: (error) => toast.error(getRequestErrorMessage(error, "Không thể cập nhật giỏ hàng")),
       send: async (savedQuantity, signal) => {
         const token = await getToken();
         signal.throwIfAborted();
@@ -424,7 +424,7 @@ export const AppContextProvider = ({ children }) => {
           { itemId, size, quantity: savedQuantity },
           { headers: { Authorization: `Bearer ${token}` }, signal, timeout: 15000 },
         );
-        if (!data.success) throw new Error(data.message || "Unable to update cart");
+        if (!data.success) throw new Error(data.message || "Không thể cập nhật giỏ hàng");
         return data;
       },
     });
@@ -433,7 +433,7 @@ export const AppContextProvider = ({ children }) => {
   const changeCartSize = async (itemId, fromSize, toSize) => {
     if (!requireCartLogin()) return { success: false, requiresLogin: true };
     if (changingSizeRef.current || cartWritesRef.current > 0 || quantityQueue.hasPending()) {
-      toast.error("Please wait for the cart update to finish");
+      toast.error("Vui lòng chờ giỏ hàng cập nhật xong");
       return { success: false };
     }
     const fromQuantity = Number(cartItems[itemId]?.[fromSize] ?? 0);
@@ -445,16 +445,16 @@ export const AppContextProvider = ({ children }) => {
     sizeRequestRef.current = controller;
     try {
       if (!product?.sizes?.includes(toSize) || !isSizeAvailable(product, toSize)) {
-        throw new Error("This product size is unavailable");
+        throw new Error("Dung tích này hiện không có sẵn");
       }
       const quantity = fromQuantity + toQuantity;
       const addedAt = getOrderedCartItems(cartItems, cartAddedAt)
         .find((item) => item._id === itemId && item.size === fromSize)?.addedAt;
       if (fromQuantity < 1 || !Number.isSafeInteger(quantity)) {
-        throw new Error("Invalid cart quantity");
+        throw new Error("Số lượng trong giỏ hàng không hợp lệ");
       }
       if (quantity > getSizeQuantity(product, toSize)) {
-        throw new Error(`Only ${getSizeQuantity(product, toSize)} items are available for size ${toSize}`);
+        throw new Error(`Chỉ còn ${getSizeQuantity(product, toSize)} sản phẩm có dung tích ${toSize}`);
       }
       await persistCartSizeChange({
         itemId, fromSize, toSize, cartItems, cartAddedAt, addedAt,
@@ -471,7 +471,7 @@ export const AppContextProvider = ({ children }) => {
             { itemId, fromSize, toSize, fromQuantity, toQuantity },
             { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal, timeout: 15000 },
           );
-          if (!data.success) throw new Error(data.message || "Unable to change size");
+          if (!data.success) throw new Error(data.message || "Không thể thay đổi dung tích");
           return data;
         },
       });
@@ -479,7 +479,7 @@ export const AppContextProvider = ({ children }) => {
     } catch (error) {
       if (controller.signal.aborted) return { success: false, cancelled: true };
       if (error.response?.status === 409) await getUser();
-      toast.error(getRequestErrorMessage(error, "Unable to change size"));
+      toast.error(getRequestErrorMessage(error, "Không thể thay đổi dung tích"));
       return { success: false };
     } finally {
       if (sizeRequestRef.current === controller) {

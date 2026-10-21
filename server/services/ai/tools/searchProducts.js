@@ -61,7 +61,7 @@ export const searchProductsToolDefinition = {
   function: {
     name: "searchProducts",
     description:
-      "Tìm sản phẩm thật trong toàn bộ catalog Velours, bao gồm cả sản phẩm hết hàng. Dùng tool này khi người dùng hỏi về tên sản phẩm, loại, danh mục, giá, size, tình trạng còn hàng hoặc cần gợi ý sản phẩm đang bán.",
+      "Tìm sản phẩm thật trong toàn bộ danh mục sản phẩm Velours, bao gồm cả sản phẩm hết hàng. Dùng tool này khi người dùng hỏi về tên sản phẩm, loại, danh mục, giá, size, tình trạng còn hàng hoặc cần gợi ý sản phẩm đang bán.",
     parameters: {
       type: "object",
       additionalProperties: false,
@@ -104,7 +104,7 @@ export const searchProductsToolDefinition = {
           type: "string",
           enum: ALLOWED_AVAILABILITY,
           description:
-            "Lọc theo tồn kho: all để tra cứu toàn bộ catalog, available cho sản phẩm mua được, out_of_stock cho sản phẩm đã hết hàng. Mặc định là all.",
+            "Lọc theo tồn kho: all để tra cứu toàn bộ danh mục sản phẩm, available cho sản phẩm mua được, out_of_stock cho sản phẩm đã hết hàng. Mặc định là all.",
         },
         limit: {
           type: "integer",
@@ -254,7 +254,7 @@ export const searchProducts = async (argumentsValue = {}) => {
     },
     message:
       products.length > 0
-        ? "Các sản phẩm này được lấy trực tiếp từ catalog Velours; hãy kiểm tra isAvailable trước khi tư vấn mua hàng."
+        ? "Các sản phẩm này được lấy trực tiếp từ danh mục sản phẩm Velours; hãy kiểm tra isAvailable trước khi tư vấn mua hàng."
         : "Không tìm thấy sản phẩm phù hợp với điều kiện.",
   };
 };

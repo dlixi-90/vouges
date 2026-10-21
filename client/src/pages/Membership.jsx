@@ -67,9 +67,9 @@ export default function Membership() {
         <header className="mb-8 flex flex-col gap-5 border-b border-secondary/10 pb-7 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#82738d]">
-              <Sparkles size={15} aria-hidden="true" />Velours membership
+              <Sparkles size={15} aria-hidden="true" />Chương trình thành viên Velours
             </p>
-            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Thành viên & voucher</h1>
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Thành viên & mã giảm giá</h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-gray-500">Góc nhỏ dành riêng cho bạn. Lưu giữ thông tin và khám phá những ưu đãi từ Velours.</p>
           </div>
           <Link to="/collection" className={`inline-flex w-fit shrink-0 items-center gap-2 rounded-full border border-secondary/15 bg-white px-5 py-3 text-sm font-medium transition hover:bg-secondary/5 ${focusStyles}`}>
@@ -81,7 +81,7 @@ export default function Membership() {
           <section className="flex flex-col items-center rounded-3xl border border-secondary/10 bg-white px-6 py-16 text-center">
             <span className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f1edf4]"><Ticket size={30} strokeWidth={1.5} aria-hidden="true" /></span>
             <h2 className="text-xl font-semibold">Ưu đãi của bạn đang chờ</h2>
-            <p className="mt-3 max-w-sm text-sm leading-6 text-gray-500">Đăng nhập để xem ví voucher và lưu ngày sinh nhận quà hằng năm.</p>
+            <p className="mt-3 max-w-sm text-sm leading-6 text-gray-500">Đăng nhập để xem ví mã giảm giá và lưu ngày sinh nhận quà hằng năm.</p>
             <button type="button" onClick={requireCartLogin} className={`mt-6 inline-flex cursor-pointer items-center gap-2 rounded-full bg-secondary px-6 py-3 text-sm font-medium text-white transition hover:bg-secondary/90 ${focusStyles}`}>
               Đăng nhập<ArrowRight size={16} aria-hidden="true" />
             </button>
@@ -107,7 +107,7 @@ export default function Membership() {
                   <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 -right-8 -z-10 h-56 w-56 rounded-full border border-white/10" />
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-[10px] font-semibold uppercase tracking-[0.23em] text-white/70">Velours</span>
-                    <button type="button" onClick={() => openUserProfile()} aria-label="Manage account" title="Quản lý tài khoản"
+                    <button type="button" onClick={() => openUserProfile()} aria-label="Quản lý tài khoản" title="Quản lý tài khoản"
                       className="-m-2 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
                       <Settings size={20} strokeWidth={1.5} aria-hidden="true" />
                     </button>
@@ -122,7 +122,7 @@ export default function Membership() {
                 <dl className="space-y-5 p-6 sm:p-7">
                   <div className="flex items-start gap-3">
                     <Mail size={17} className="mt-1 shrink-0 text-[#998ca2]" aria-hidden="true" />
-                    <div className="min-w-0"><dt className="text-xs text-gray-500">Email</dt><dd className="mt-1 break-all text-sm">{current.profile.email || "Chưa cập nhật"}</dd></div>
+                    <div className="min-w-0"><dt className="text-xs text-gray-500">Thư điện tử</dt><dd className="mt-1 break-all text-sm">{current.profile.email || "Chưa cập nhật"}</dd></div>
                   </div>
                   <div className="flex items-start gap-3">
                     <Phone size={17} className="mt-1 shrink-0 text-[#998ca2]" aria-hidden="true" />
@@ -171,14 +171,14 @@ export default function Membership() {
 
               <section aria-labelledby="member-wallet-title" className="overflow-hidden rounded-3xl border border-secondary/10 bg-white">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-secondary/10 px-6 py-5 sm:px-8">
-                  <h2 id="member-wallet-title" className="flex items-center gap-2.5 text-lg font-semibold"><Ticket size={21} strokeWidth={1.7} aria-hidden="true" />Ví voucher</h2>
+                  <h2 id="member-wallet-title" className="flex items-center gap-2.5 text-lg font-semibold"><Ticket size={21} strokeWidth={1.7} aria-hidden="true" />Ví mã giảm giá</h2>
                   <span className="rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-[#557b5e]">{vouchers.length} mã khả dụng</span>
                 </div>
                 {vouchers.length === 0 ? (
                   <div className="flex flex-col items-center px-6 py-12 text-center sm:py-14">
                     <span className="mb-5 flex h-16 w-16 -rotate-6 items-center justify-center rounded-2xl bg-[#f4f1f6] text-[#998ca2]"><Ticket size={32} strokeWidth={1.3} aria-hidden="true" /></span>
                     <h3 className="text-base font-semibold">Hẹn bạn ở ưu đãi tiếp theo</h3>
-                    <p className="mt-2 max-w-xs text-sm leading-6 text-gray-500">Voucher còn hiệu lực và bạn chưa sử dụng sẽ xuất hiện tại đây.</p>
+                    <p className="mt-2 max-w-xs text-sm leading-6 text-gray-500">Mã giảm giá còn hiệu lực và bạn chưa sử dụng sẽ xuất hiện tại đây.</p>
                     <Link to="/collection" className={`mt-5 inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm font-medium underline decoration-secondary/25 underline-offset-4 ${focusStyles}`}>
                       Tìm sản phẩm yêu thích<ArrowRight size={15} aria-hidden="true" />
                     </Link>

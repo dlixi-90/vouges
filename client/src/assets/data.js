@@ -159,11 +159,11 @@ export const assets = {
 export const dummyProducts = [
   {
     _id: "1",
-    title: "Argan Hair Oil",
+    title: "Dầu dưỡng tóc argan",
     images: [product_1],
     price: { "50ml": 15, "100ml": 25, "200ml": 40 },
     description:
-      "Nourish your hair with our Argan Hair Oil, rich in vitamins for shiny and healthy locks. This lightweight formula absorbs quickly without leaving a greasy residue.",
+      "Dầu dưỡng tóc argan giàu vitamin giúp nuôi dưỡng mái tóc khỏe mạnh, óng mượt. Kết cấu nhẹ thẩm thấu nhanh, không để lại cảm giác nhờn rít.",
     category: "Hair Care",
     type: "Oil",
     sizes: ["50ml", "100ml", "200ml"],
@@ -173,11 +173,11 @@ export const dummyProducts = [
   },
   {
     _id: "2",
-    title: "Coconut Body Oil",
+    title: "Dầu dưỡng thể dừa",
     images: [product_2_1, product_2_2, product_2_3, product_2_4],
     price: { "100ml": 20, "200ml": 35, "400ml": 50 },
     description:
-      "Hydrate your skin with our Coconut Body Oil, providing deep moisture and a tropical scent. It helps improve skin elasticity and leaves you feeling soft all day.",
+      "Dầu dưỡng thể dừa cấp ẩm sâu cho da, mang hương thơm nhiệt đới dễ chịu. Sản phẩm giúp cải thiện độ đàn hồi và giữ da mềm mại suốt ngày dài.",
     category: "Body Care",
     type: "Oil",
     sizes: ["100ml", "200ml", "400ml"],
@@ -187,11 +187,11 @@ export const dummyProducts = [
   },
   {
     _id: "3",
-    title: "Jojoba Face Oil",
+    title: "Dầu dưỡng da mặt jojoba",
     images: [product_3],
     price: { "30ml": 25, "50ml": 40, "100ml": 60 },
     description:
-      "Balance your skin with our Jojoba Face Oil, ideal for all skin types with natural mimicking properties. It regulates sebum production while providing essential hydration.",
+      "Dầu dưỡng da mặt jojoba có đặc tính tương đồng với dầu tự nhiên trên da, phù hợp với mọi loại da. Sản phẩm giúp cân bằng lượng dầu và bổ sung độ ẩm cần thiết.",
     category: "Face Care",
     type: "Oil",
     sizes: ["30ml", "50ml", "100ml"],
@@ -201,11 +201,11 @@ export const dummyProducts = [
   },
   {
     _id: "4",
-    title: "Tea Tree Hair Oil",
+    title: "Dầu dưỡng tóc tràm trà",
     images: [product_4],
     price: { "50ml": 18, "100ml": 30, "200ml": 45 },
     description:
-      "Purify your scalp with our Tea Tree Hair Oil, helping to reduce dandruff and promote growth. Its antimicrobial properties keep your scalp healthy and clean.",
+      "Dầu dưỡng tóc tràm trà giúp làm sạch da đầu, giảm gàu và hỗ trợ tóc phát triển. Đặc tính kháng khuẩn giúp duy trì da đầu sạch, khỏe.",
     category: "Hair Care",
     type: "Oil",
     sizes: ["50ml", "100ml", "200ml"],
@@ -215,11 +215,11 @@ export const dummyProducts = [
   },
   {
     _id: "5",
-    title: "Almond Body Oil",
+    title: "Dầu dưỡng thể hạnh nhân",
     images: [product_5],
     price: { "100ml": 22, "200ml": 38, "400ml": 55 },
     description:
-      "Soften your skin with our Almond Body Oil, enriched with vitamin E for nourishment. This gentle formula is perfect for sensitive skin and improves skin texture.",
+      "Dầu dưỡng thể hạnh nhân bổ sung vitamin E, giúp nuôi dưỡng và làm mềm da. Công thức dịu nhẹ phù hợp với da nhạy cảm, giúp cải thiện bề mặt da.",
     category: "Body Care",
     type: "Oil",
     sizes: ["100ml", "200ml", "400ml"],
@@ -229,11 +229,11 @@ export const dummyProducts = [
   },
   {
     _id: "6",
-    title: "Rosehip Face Oil",
+    title: "Dầu dưỡng da mặt tầm xuân",
     images: [product_6],
     price: { "30ml": 28, "50ml": 45, "100ml": 65 },
     description:
-      "Rejuvenate your complexion with our Rosehip Face Oil, packed with antioxidants for glowing skin. It helps reduce the appearance of fine lines and scars.",
+      "Dầu dưỡng da mặt tầm xuân giàu chất chống oxy hóa giúp làn da tươi sáng hơn. Sản phẩm hỗ trợ làm mờ các nếp nhăn nhỏ và sẹo.",
     category: "Face Care",
     type: "Oil",
     sizes: ["30ml", "50ml", "100ml"],
@@ -243,11 +243,11 @@ export const dummyProducts = [
   },
   {
     _id: "7",
-    title: "Castor Hair Oil",
+    title: "Dầu dưỡng tóc thầu dầu",
     images: [product_7],
     price: { "50ml": 12, "100ml": 20, "200ml": 35 },
     description:
-      "Strengthen your hair with our Castor Hair Oil, known for promoting thickness and shine. This rich formula helps prevent split ends and breakage.",
+      "Dầu dưỡng tóc thầu dầu giúp tóc chắc khỏe, dày và bóng mượt hơn. Công thức giàu dưỡng chất hỗ trợ ngăn ngừa tóc chẻ ngọn, gãy rụng.",
     category: "Hair Care",
     type: "Oil",
     sizes: ["50ml", "100ml", "200ml"],
@@ -257,11 +257,11 @@ export const dummyProducts = [
   },
   {
     _id: "8",
-    title: "Lavender Body Oil",
+    title: "Dầu dưỡng thể oải hương",
     images: [product_8],
     price: { "100ml": 25, "200ml": 40, "400ml": 60 },
     description:
-      "Relax your body with our Lavender Body Oil, offering calming aromatherapy benefits. Perfect for evening use to promote restful sleep and relaxation.",
+      "Dầu dưỡng thể oải hương mang hương thơm dịu nhẹ, giúp thư giãn cơ thể. Sản phẩm phù hợp sử dụng vào buổi tối để tạo cảm giác thư thái và hỗ trợ giấc ngủ.",
     category: "Body Care",
     type: "Oil",
     sizes: ["100ml", "200ml", "400ml"],
@@ -271,11 +271,11 @@ export const dummyProducts = [
   },
   {
     _id: "9",
-    title: "Vitamin C Face Oil",
+    title: "Dầu dưỡng da mặt vitamin C",
     images: [product_9],
     price: { "30ml": 30, "50ml": 50, "100ml": 75 },
     description:
-      "Brighten your skin with our Vitamin C Face Oil, helping to reduce dark spots and even tone. This antioxidant-rich formula protects against environmental damage.",
+      "Dầu dưỡng da mặt vitamin C giúp làm sáng da, giảm đốm thâm và cải thiện sắc da không đều. Công thức giàu chất chống oxy hóa hỗ trợ bảo vệ da trước tác động từ môi trường.",
     category: "Face Care",
     type: "Oil",
     sizes: ["30ml", "50ml", "100ml"],
@@ -285,11 +285,11 @@ export const dummyProducts = [
   },
   {
     _id: "10",
-    title: "Citrus Burst Perfume",
+    title: "Nước hoa hương cam chanh",
     images: [product_10],
     price: { "50ml": 40, "100ml": 60, "200ml": 85 },
     description:
-      "Invigorate your senses with our Citrus Burst Perfume, featuring fresh lemon and orange notes. This energizing fragrance lasts throughout the day.",
+      "Nước hoa hương cam chanh đánh thức các giác quan với nốt hương chanh và cam tươi mát. Hương thơm đầy sức sống lưu lại suốt ngày dài.",
     category: "Body Care",
     type: "Perfume",
     sizes: ["50ml", "100ml", "200ml"],
@@ -299,11 +299,11 @@ export const dummyProducts = [
   },
   {
     _id: "11",
-    title: "Floral Dream Perfume",
+    title: "Nước hoa hương hoa dịu dàng",
     images: [product_11],
     price: { "50ml": 45, "100ml": 65, "200ml": 90 },
     description:
-      "Embrace elegance with our Floral Dream Perfume, blending rose and jasmine essences. A timeless fragrance that's perfect for special occasions.",
+      "Nước hoa hương hoa dịu dàng kết hợp tinh chất hoa hồng và hoa nhài, mang đến nét thanh lịch. Hương thơm vượt thời gian, phù hợp cho những dịp đặc biệt.",
     category: "Body Care",
     type: "Perfume",
     sizes: ["50ml", "100ml", "200ml"],
@@ -313,11 +313,11 @@ export const dummyProducts = [
   },
   {
     _id: "12",
-    title: "Woody Spice Perfume",
+    title: "Nước hoa hương gỗ ấm",
     images: [product_12],
     price: { "50ml": 35, "100ml": 55, "200ml": 80 },
     description:
-      "Discover depth with our Woody Spice Perfume, combining sandalwood and cinnamon. This warm, earthy scent is perfect for evening wear.",
+      "Nước hoa hương gỗ ấm kết hợp gỗ đàn hương và quế, tạo chiều sâu cuốn hút. Hương thơm ấm áp, trầm lắng, phù hợp sử dụng vào buổi tối.",
     category: "Body Care",
     type: "Perfume",
     sizes: ["50ml", "100ml", "200ml"],
@@ -327,11 +327,11 @@ export const dummyProducts = [
   },
   {
     _id: "13",
-    title: "Ocean Breeze Perfume",
+    title: "Nước hoa hương gió biển",
     images: [product_13],
     price: { "50ml": 42, "100ml": 62, "200ml": 88 },
     description:
-      "Feel refreshed with our Ocean Breeze Perfume, evoking sea salt and aquatic notes. This crisp, clean fragrance is ideal for everyday wear.",
+      "Nước hoa hương gió biển mang đến cảm giác sảng khoái với nốt hương muối biển và nước mát. Hương thơm trong trẻo, phù hợp sử dụng hằng ngày.",
     category: "Body Care",
     type: "Perfume",
     sizes: ["50ml", "100ml", "200ml"],
@@ -341,11 +341,11 @@ export const dummyProducts = [
   },
   {
     _id: "14",
-    title: "Vanilla Musk Perfume",
+    title: "Nước hoa hương vani và xạ hương",
     images: [product_14],
     price: { "50ml": 38, "100ml": 58, "200ml": 82 },
     description:
-      "Indulge in sweetness with our Vanilla Musk Perfume, a warm and inviting fragrance. This comforting scent is perfect for cozy evenings.",
+      "Nước hoa hương vani và xạ hương mang nét ngọt ngào, ấm áp đầy lôi cuốn. Hương thơm dễ chịu, phù hợp cho những buổi tối thư giãn.",
     category: "Body Care",
     type: "Perfume",
     sizes: ["50ml", "100ml", "200ml"],
@@ -355,11 +355,11 @@ export const dummyProducts = [
   },
   {
     _id: "15",
-    title: "Spicy Amber Perfume",
+    title: "Nước hoa hương hổ phách nồng ấm",
     images: [product_15],
     price: { "50ml": 44, "100ml": 64, "200ml": 89 },
     description:
-      "Ignite passion with our Spicy Amber Perfume, featuring rich amber and spicy notes for a captivating scent. This bold fragrance makes a statement.",
+      "Nước hoa hương hổ phách nồng ấm kết hợp hổ phách đậm đà và các nốt hương gia vị cuốn hút. Hương thơm mạnh mẽ giúp bạn thể hiện dấu ấn riêng.",
     category: "Body Care",
     type: "Perfume",
     sizes: ["50ml", "100ml", "200ml"],
@@ -369,11 +369,11 @@ export const dummyProducts = [
   },
   {
     _id: "16",
-    title: "Fresh Mint Perfume",
+    title: "Nước hoa hương bạc hà tươi mát",
     images: [product_16],
     price: { "50ml": 36, "100ml": 56, "200ml": 81 },
     description:
-      "Awaken your day with our Fresh Mint Perfume, blending mint and green tea. This revitalizing scent provides an energizing start to your morning.",
+      "Nước hoa hương bạc hà tươi mát kết hợp bạc hà và trà xanh. Hương thơm sảng khoái mang đến khởi đầu buổi sáng đầy năng lượng.",
     category: "Body Care",
     type: "Perfume",
     sizes: ["50ml", "100ml", "200ml"],
@@ -383,11 +383,11 @@ export const dummyProducts = [
   },
   {
     _id: "17",
-    title: "Exotic Oud Perfume",
+    title: "Nước hoa hương trầm quyến rũ",
     images: [product_17],
     price: { "50ml": 48, "100ml": 70, "200ml": 95 },
     description:
-      "Experience luxury with our Exotic Oud Perfume, rich in oud wood and incense. This opulent fragrance is perfect for making a lasting impression.",
+      "Nước hoa hương trầm quyến rũ mang nốt hương trầm hương và nhang thơm đậm đà. Hương thơm sang trọng giúp bạn để lại ấn tượng khó quên.",
     category: "Body Care",
     type: "Perfume",
     sizes: ["50ml", "100ml", "200ml"],
@@ -397,11 +397,11 @@ export const dummyProducts = [
   },
   {
     _id: "18",
-    title: "Berry Bliss Perfume",
+    title: "Nước hoa hương quả mọng",
     images: [product_18],
     price: { "50ml": 39, "100ml": 59, "200ml": 84 },
     description:
-      "Delight in fruitiness with our Berry Bliss Perfume, mixing berries and floral hints. This playful fragrance is perfect for daytime adventures.",
+      "Nước hoa hương quả mọng kết hợp nét ngọt dịu của trái cây và thoang thoảng hương hoa. Hương thơm tươi vui, phù hợp cho những hoạt động ban ngày.",
     category: "Body Care",
     type: "Perfume",
     sizes: ["50ml", "100ml", "200ml"],
@@ -411,11 +411,11 @@ export const dummyProducts = [
   },
   {
     _id: "19",
-    title: "Hyaluronic Acid Serum",
+    title: "Tinh chất cấp ẩm axit hyaluronic",
     images: [product_19],
     price: { "30ml": 25, "50ml": 40, "100ml": 60 },
     description:
-      "Hydrate deeply with our Hyaluronic Acid Serum, locking in moisture for plump skin. This lightweight formula works for all skin types.",
+      "Tinh chất axit hyaluronic cấp ẩm sâu và giữ ẩm, giúp da căng mọng. Kết cấu nhẹ phù hợp với mọi loại da.",
     category: "Face Care",
     type: "Serum",
     sizes: ["30ml", "50ml", "100ml"],
@@ -425,11 +425,11 @@ export const dummyProducts = [
   },
   {
     _id: "20",
-    title: "Vitamin C Brightening Serum",
+    title: "Tinh chất làm sáng da vitamin C",
     images: [product_20],
     price: { "30ml": 28, "50ml": 45, "100ml": 65 },
     description:
-      "Illuminate your complexion with our Vitamin C Brightening Serum, reducing dark spots. This powerful antioxidant helps revive dull skin.",
+      "Tinh chất vitamin C giúp làm sáng da và giảm đốm thâm. Khả năng chống oxy hóa giúp cải thiện làn da xỉn màu.",
     category: "Face Care",
     type: "Serum",
     sizes: ["30ml", "50ml", "100ml"],
@@ -439,11 +439,11 @@ export const dummyProducts = [
   },
   {
     _id: "21",
-    title: "Retinol Anti-Aging Serum",
+    title: "Tinh chất retinol chống lão hóa",
     images: [product_21],
     price: { "30ml": 30, "50ml": 50, "100ml": 70 },
     description:
-      "Smooth wrinkles with our Retinol Anti-Aging Serum, promoting youthful skin. This advanced formula boosts collagen production overnight.",
+      "Tinh chất retinol chống lão hóa giúp làm mờ nếp nhăn, mang lại làn da trẻ trung hơn. Công thức hỗ trợ quá trình sản sinh collagen trong đêm.",
     category: "Face Care",
     type: "Serum",
     sizes: ["30ml", "50ml", "100ml"],
@@ -453,11 +453,11 @@ export const dummyProducts = [
   },
   {
     _id: "22",
-    title: "Niacinamide Balancing Serum",
+    title: "Tinh chất niacinamide cân bằng da",
     images: [product_22],
     price: { "30ml": 22, "50ml": 35, "100ml": 55 },
     description:
-      "Control oil with our Niacinamide Balancing Serum, refining pores and texture. This multitasking serum helps calm inflammation and redness.",
+      "Tinh chất niacinamide giúp kiểm soát dầu, cải thiện lỗ chân lông và bề mặt da. Sản phẩm đồng thời hỗ trợ làm dịu tình trạng viêm, mẩn đỏ.",
     category: "Face Care",
     type: "Serum",
     sizes: ["30ml", "50ml", "100ml"],
@@ -467,11 +467,11 @@ export const dummyProducts = [
   },
   {
     _id: "23",
-    title: "Peptide Firming Serum",
+    title: "Tinh chất peptide làm săn chắc da",
     images: [product_23],
     price: { "30ml": 32, "50ml": 52, "100ml": 75 },
     description:
-      "Firm and lift with our Peptide Firming Serum, boosting collagen production. This targeted treatment helps restore skin's elasticity.",
+      "Tinh chất peptide hỗ trợ sản sinh collagen, giúp da săn chắc hơn. Công thức chuyên biệt giúp phục hồi độ đàn hồi của da.",
     category: "Face Care",
     type: "Serum",
     sizes: ["30ml", "50ml", "100ml"],
@@ -481,11 +481,11 @@ export const dummyProducts = [
   },
   {
     _id: "24",
-    title: "Volumizing Shampoo",
+    title: "Dầu gội tạo độ phồng",
     images: [product_24],
     price: { "200ml": 15, "400ml": 25, "750ml": 40 },
     description:
-      "Boost volume with our Volumizing Shampoo, adding body to fine hair. This formula gently cleanses while providing lift at the roots.",
+      "Dầu gội tạo độ phồng giúp mái tóc mảnh trông bồng bềnh hơn. Công thức làm sạch dịu nhẹ, đồng thời tạo độ phồng từ chân tóc.",
     category: "Hair Care",
     type: "Shampoo",
     sizes: ["200ml", "400ml", "750ml"],
@@ -495,11 +495,11 @@ export const dummyProducts = [
   },
   {
     _id: "25",
-    title: "Moisturizing Shampoo",
+    title: "Dầu gội dưỡng ẩm",
     images: [product_25],
     price: { "200ml": 18, "400ml": 30, "750ml": 45 },
     description:
-      "Hydrate dry hair with our Moisturizing Shampoo, infused with natural oils. This nourishing formula helps restore moisture to parched strands.",
+      "Dầu gội dưỡng ẩm bổ sung dầu tự nhiên, giúp cấp ẩm cho tóc khô. Công thức giàu dưỡng chất giúp phục hồi độ ẩm cho mái tóc thiếu sức sống.",
     category: "Hair Care",
     type: "Shampoo",
     sizes: ["200ml", "400ml", "750ml"],
@@ -509,11 +509,11 @@ export const dummyProducts = [
   },
   {
     _id: "26",
-    title: "Clarifying Shampoo",
+    title: "Dầu gội làm sạch sâu",
     images: [product_26],
     price: { "200ml": 20, "400ml": 35, "750ml": 50 },
     description:
-      "Deep clean with our Clarifying Shampoo, removing buildup for fresh hair. This weekly treatment revitalizes your scalp and hair.",
+      "Dầu gội làm sạch sâu giúp loại bỏ cặn tích tụ, mang lại mái tóc sạch thoáng. Sử dụng hằng tuần để chăm sóc da đầu và làm mới mái tóc.",
     category: "Hair Care",
     type: "Shampoo",
     sizes: ["200ml", "400ml", "750ml"],
@@ -523,11 +523,11 @@ export const dummyProducts = [
   },
   {
     _id: "27",
-    title: "Anti-Dandruff Shampoo",
+    title: "Dầu gội giảm gàu",
     images: [product_27],
     price: { "200ml": 16, "400ml": 28, "750ml": 42 },
     description:
-      "Combat flakes with our Anti-Dandruff Shampoo, soothing the scalp. This medicated formula helps control itching and flaking.",
+      "Dầu gội giảm gàu giúp làm dịu da đầu. Công thức chuyên biệt hỗ trợ kiểm soát tình trạng ngứa và bong tróc.",
     category: "Hair Care",
     type: "Shampoo",
     sizes: ["200ml", "400ml", "750ml"],
@@ -537,11 +537,11 @@ export const dummyProducts = [
   },
   {
     _id: "28",
-    title: "Color-Protect Shampoo",
+    title: "Dầu gội bảo vệ màu nhuộm",
     images: [product_28],
     price: { "200ml": 19, "400ml": 32, "750ml": 48 },
     description:
-      "Preserve color with our Color-Protect Shampoo, for vibrant dyed hair. This sulfate-free formula helps extend the life of your color treatment.",
+      "Dầu gội bảo vệ màu nhuộm giúp giữ màu tóc rực rỡ. Công thức không chứa sulfat giúp màu nhuộm bền lâu hơn.",
     category: "Hair Care",
     type: "Shampoo",
     sizes: ["200ml", "400ml", "750ml"],
@@ -551,11 +551,11 @@ export const dummyProducts = [
   },
   {
     _id: "29",
-    title: "Fresh Citrus Body Spray",
+    title: "Xịt thơm toàn thân hương cam chanh",
     images: [product_29],
     price: { "150ml": 12, "250ml": 20, "500ml": 35 },
     description:
-      "Refresh instantly with our Fresh Citrus Body Spray, light and zesty. This invigorating mist is perfect for a quick pick-me-up throughout the day.",
+      "Xịt thơm toàn thân hương cam chanh mang đến cảm giác tươi mát tức thì. Làn sương nhẹ với hương thơm sảng khoái giúp bạn lấy lại năng lượng trong ngày.",
     category: "Body Care",
     type: "Body-Spray",
     sizes: ["150ml", "250ml", "500ml"],
@@ -565,11 +565,11 @@ export const dummyProducts = [
   },
   {
     _id: "30",
-    title: "Cool Mint Body Spray",
+    title: "Xịt thơm toàn thân hương bạc hà",
     images: [product_30],
     price: { "150ml": 14, "250ml": 22, "500ml": 38 },
     description:
-      "Energize with our Cool Mint Body Spray, providing a cooling sensation. This refreshing formula awakens your senses and revitalizes your skin.",
+      "Xịt thơm toàn thân hương bạc hà mang lại cảm giác mát dịu, đầy sức sống. Công thức tươi mát đánh thức các giác quan và làm dịu làn da.",
     category: "Body Care",
     type: "Body-Spray",
     sizes: ["150ml", "250ml", "500ml"],
@@ -579,11 +579,11 @@ export const dummyProducts = [
   },
   {
     _id: "31",
-    title: "Vanilla Dream Body Spray",
+    title: "Xịt thơm toàn thân hương vani",
     images: [product_31],
     price: { "150ml": 13, "250ml": 21, "500ml": 36 },
     description:
-      "Sweeten your day with our Vanilla Dream Body Spray, warm and comforting. This cozy fragrance wraps you in a soothing vanilla embrace.",
+      "Xịt thơm toàn thân hương vani mang đến nét ngọt ngào, ấm áp cho ngày mới. Hương vani dịu nhẹ bao bọc cơ thể, tạo cảm giác thư thái.",
     category: "Body Care",
     type: "Body-Spray",
     sizes: ["150ml", "250ml", "500ml"],
@@ -593,11 +593,11 @@ export const dummyProducts = [
   },
   {
     _id: "32",
-    title: "Ocean Wave Body Spray",
+    title: "Xịt thơm toàn thân hương sóng biển",
     images: [product_32],
     price: { "150ml": 15, "250ml": 25, "500ml": 40 },
     description:
-      "Evoke the sea with our Ocean Wave Body Spray, fresh and aquatic. This breezy scent transports you to a coastal paradise with every spritz.",
+      "Xịt thơm toàn thân hương sóng biển mang nốt hương nước mát trong trẻo. Mỗi lần xịt gợi cảm giác thư thái như đang tận hưởng kỳ nghỉ bên bờ biển.",
     category: "Body Care",
     type: "Body-Spray",
     sizes: ["150ml", "250ml", "500ml"],
@@ -607,11 +607,11 @@ export const dummyProducts = [
   },
   {
     _id: "33",
-    title: "Berry Fresh Body Spray",
+    title: "Xịt thơm toàn thân hương quả mọng",
     images: [product_33],
     price: { "150ml": 11, "250ml": 18, "500ml": 32 },
     description:
-      "Burst with fruitiness using our Berry Fresh Body Spray, lively and sweet. This playful fragrance combines mixed berries for a delightful experience.",
+      "Xịt thơm toàn thân hương quả mọng mang hương trái cây ngọt ngào, tươi vui. Sự kết hợp của nhiều loại quả mọng tạo nên trải nghiệm hương thơm thú vị.",
     category: "Body Care",
     type: "Body-Spray",
     sizes: ["150ml", "250ml", "500ml"],
@@ -621,11 +621,11 @@ export const dummyProducts = [
   },
   {
     _id: "34",
-    title: "Gentle Foaming Cleanser",
+    title: "Sữa rửa mặt tạo bọt dịu nhẹ",
     images: [product_34],
     price: { "100ml": 15, "200ml": 25, "400ml": 40 },
     description:
-      "Cleanse softly with our Gentle Foaming Cleanser, suitable for sensitive skin. This pH-balanced formula removes impurities without stripping natural oils.",
+      "Sữa rửa mặt tạo bọt dịu nhẹ phù hợp với da nhạy cảm. Công thức cân bằng độ pH giúp loại bỏ bụi bẩn mà vẫn giữ lớp dầu tự nhiên trên da.",
     category: "Face Care",
     type: "Cleanser",
     sizes: ["100ml", "200ml", "400ml"],
@@ -635,11 +635,11 @@ export const dummyProducts = [
   },
   {
     _id: "35",
-    title: "Oil-Control Cleanser",
+    title: "Sữa rửa mặt kiểm soát dầu",
     images: [product_35],
     price: { "100ml": 18, "200ml": 30, "400ml": 45 },
     description:
-      "Mattify with our Oil-Control Cleanser, reducing excess sebum. This deep-cleansing formula helps minimize shine throughout the day.",
+      "Sữa rửa mặt kiểm soát dầu giúp giảm bã nhờn dư thừa. Công thức làm sạch sâu hỗ trợ hạn chế bóng dầu suốt ngày dài.",
     category: "Face Care",
     type: "Cleanser",
     sizes: ["100ml", "200ml", "400ml"],
@@ -649,11 +649,11 @@ export const dummyProducts = [
   },
   {
     _id: "36",
-    title: "Hydrating Milk Cleanser",
+    title: "Sữa rửa mặt dưỡng ẩm",
     images: [product_36],
     price: { "100ml": 20, "200ml": 35, "400ml": 50 },
     description:
-      "Moisturize while cleaning with our Hydrating Milk Cleanser, creamy and nourishing. This gentle formula is perfect for dry or dehydrated skin types.",
+      "Sữa rửa mặt dưỡng ẩm có kết cấu dạng sữa, giúp làm sạch đồng thời nuôi dưỡng da. Công thức dịu nhẹ phù hợp với da khô hoặc thiếu nước.",
     category: "Face Care",
     type: "Cleanser",
     sizes: ["100ml", "200ml", "400ml"],
@@ -663,11 +663,11 @@ export const dummyProducts = [
   },
   {
     _id: "37",
-    title: "Exfoliating Gel Cleanser",
+    title: "Gel rửa mặt tẩy tế bào chết",
     images: [product_37],
     price: { "100ml": 22, "200ml": 38, "400ml": 55 },
     description:
-      "Renew skin with our Exfoliating Gel Cleanser, gently removing dead cells. This daily formula reveals brighter, smoother skin without irritation.",
+      "Gel rửa mặt tẩy tế bào chết nhẹ nhàng loại bỏ lớp tế bào già cỗi. Công thức dùng hằng ngày giúp da sáng, mịn hơn mà không gây kích ứng.",
     category: "Face Care",
     type: "Cleanser",
     sizes: ["100ml", "200ml", "400ml"],
@@ -677,11 +677,11 @@ export const dummyProducts = [
   },
   {
     _id: "38",
-    title: "Micellar Water Cleanser",
+    title: "Nước tẩy trang micellar",
     images: [product_38],
     price: { "100ml": 16, "200ml": 28, "400ml": 42 },
     description:
-      "Remove makeup easily with our Micellar Water Cleanser, no-rinse formula. This multitasking water cleanses, tones, and refreshes in one step.",
+      "Nước tẩy trang micellar giúp loại bỏ lớp trang điểm dễ dàng mà không cần rửa lại. Sản phẩm kết hợp làm sạch, cân bằng và làm tươi mát da trong một bước.",
     category: "Face Care",
     type: "Cleanser",
     sizes: ["100ml", "200ml", "400ml"],
@@ -691,11 +691,11 @@ export const dummyProducts = [
   },
   {
     _id: "39",
-    title: "Antibacterial Hand Wash",
+    title: "Nước rửa tay kháng khuẩn",
     images: [product_39],
     price: { "250ml": 10, "500ml": 18, "1000ml": 30 },
     description:
-      "Protect with our Antibacterial Hand Wash, killing germs while being gentle. This effective formula eliminates 99.9% of bacteria without drying hands.",
+      "Nước rửa tay kháng khuẩn giúp làm sạch và bảo vệ đôi tay một cách dịu nhẹ. Công thức loại bỏ 99,9% vi khuẩn mà không làm khô da tay.",
     category: "Body Care",
     type: "Hand-Wash",
     sizes: ["250ml", "500ml", "1000ml"],
@@ -705,11 +705,11 @@ export const dummyProducts = [
   },
   {
     _id: "40",
-    title: "Moisturizing Hand Wash",
+    title: "Nước rửa tay dưỡng ẩm",
     images: [product_40],
     price: { "250ml": 12, "500ml": 20, "1000ml": 35 },
     description:
-      "Hydrate hands with our Moisturizing Hand Wash, infused with aloe vera. This nourishing formula cleanses while maintaining your skin's natural moisture barrier.",
+      "Nước rửa tay dưỡng ẩm bổ sung nha đam giúp chăm sóc đôi tay. Công thức làm sạch đồng thời duy trì hàng rào giữ ẩm tự nhiên của da.",
     category: "Body Care",
     type: "Hand-Wash",
     sizes: ["250ml", "500ml", "1000ml"],
@@ -719,11 +719,11 @@ export const dummyProducts = [
   },
   {
     _id: "41",
-    title: "Citrus Scented Hand Wash",
+    title: "Nước rửa tay hương cam chanh",
     images: [product_41],
     price: { "250ml": 11, "500ml": 19, "1000ml": 32 },
     description:
-      "Refresh with our Citrus Scented Hand Wash, zesty and invigorating. This uplifting formula leaves hands clean and smelling like fresh citrus fruits.",
+      "Nước rửa tay hương cam chanh mang đến cảm giác tươi mát, sảng khoái. Đôi tay được làm sạch và lưu lại hương cam chanh dễ chịu.",
     category: "Body Care",
     type: "Hand-Wash",
     sizes: ["250ml", "500ml", "1000ml"],
@@ -733,11 +733,11 @@ export const dummyProducts = [
   },
   {
     _id: "42",
-    title: "Lavender Calming Hand Wash",
+    title: "Nước rửa tay hương oải hương",
     images: [product_42],
     price: { "250ml": 13, "500ml": 22, "1000ml": 38 },
     description:
-      "Soothe with our Lavender Calming Hand Wash, relaxing and mild. This gentle formula features lavender essential oil for a calming handwashing experience.",
+      "Nước rửa tay hương oải hương có công thức dịu nhẹ, giúp làm dịu da. Tinh dầu oải hương mang đến cảm giác thư giãn mỗi khi rửa tay.",
     category: "Body Care",
     type: "Hand-Wash",
     sizes: ["250ml", "500ml", "1000ml"],
@@ -747,11 +747,11 @@ export const dummyProducts = [
   },
   {
     _id: "43",
-    title: "Tea Tree Purifying Hand Wash",
+    title: "Nước rửa tay tràm trà",
     images: [product_43],
     price: { "250ml": 14, "500ml": 24, "1000ml": 40 },
     description:
-      "Purify with our Tea Tree Purifying Hand Wash, natural and effective. This formula uses tea tree oil's natural antiseptic properties for thorough cleansing.",
+      "Nước rửa tay tràm trà giúp làm sạch hiệu quả với thành phần tự nhiên. Đặc tính kháng khuẩn của dầu tràm trà hỗ trợ làm sạch đôi tay.",
     category: "Body Care",
     type: "Hand-Wash",
     sizes: ["250ml", "500ml", "1000ml"],
@@ -761,11 +761,11 @@ export const dummyProducts = [
   },
   {
     _id: "44",
-    title: "Matte Red Lipstick",
+    title: "Son lì màu đỏ",
     images: [product_44],
     price: { "3g": 15, "5g": 25 },
     description:
-      "Achieve bold lips with our Matte Red Lipstick, long-lasting and velvety. This highly pigmented formula provides full coverage with a comfortable wear.",
+      "Son lì màu đỏ mang đến đôi môi nổi bật với sắc son bền màu, mịn như nhung. Công thức giàu sắc tố cho độ che phủ cao mà vẫn dễ chịu khi sử dụng.",
     category: "Face Care",
     type: "Lip-Product",
     sizes: ["3g", "5g"],
@@ -775,11 +775,11 @@ export const dummyProducts = [
   },
   {
     _id: "45",
-    title: "Hydrating Lip Balm",
+    title: "Son dưỡng ẩm",
     images: [product_45],
     price: { "4g": 10, "8g": 18 },
     description:
-      "Moisturize with our Hydrating Lip Balm, enriched with shea butter for soft lips. This nourishing formula provides instant relief for dry, chapped lips.",
+      "Son dưỡng ẩm bổ sung bơ hạt mỡ giúp đôi môi mềm mại. Công thức giàu dưỡng chất làm dịu tức thì tình trạng môi khô, nứt nẻ.",
     category: "Face Care",
     type: "Lip-Product",
     sizes: ["4g", "8g"],
@@ -789,11 +789,11 @@ export const dummyProducts = [
   },
   {
     _id: "46",
-    title: "Glossy Pink Lip Gloss",
+    title: "Son bóng màu hồng",
     images: [product_46],
     price: { "5ml": 12, "10ml": 20 },
     description:
-      "Shine bright with our Glossy Pink Lip Gloss, non-sticky and plumping. This formula gives you a high-shine finish with a subtle hint of color.",
+      "Son bóng màu hồng giúp đôi môi căng mọng, rạng rỡ mà không gây bết dính. Lớp son bóng nổi bật kết hợp sắc hồng nhẹ nhàng, tự nhiên.",
     category: "Face Care",
     type: "Lip-Product",
     sizes: ["5ml", "10ml"],
@@ -803,11 +803,11 @@ export const dummyProducts = [
   },
   {
     _id: "47",
-    title: "Vitamin E Lip Serum",
+    title: "Tinh chất dưỡng môi vitamin E",
     images: [product_47],
     price: { "10ml": 18, "20ml": 30 },
     description:
-      "Repair and nourish with our Vitamin E Lip Serum, for smoother lips. This intensive treatment helps restore softness and suppleness to your lips.",
+      "Tinh chất dưỡng môi vitamin E giúp phục hồi và nuôi dưỡng đôi môi mịn màng. Công thức chăm sóc chuyên sâu hỗ trợ lấy lại độ mềm mại, đàn hồi cho môi.",
     category: "Face Care",
     type: "Lip-Product",
     sizes: ["10ml", "20ml"],
@@ -817,11 +817,11 @@ export const dummyProducts = [
   },
   {
     _id: "48",
-    title: "Nude Matte Lipstick",
+    title: "Son lì màu da",
     images: [product_48],
     price: { "3g": 14, "5g": 24 },
     description:
-      "Go natural with our Nude Matte Lipstick, perfect for everyday wear. This versatile shade complements all skin tones with a sophisticated matte finish.",
+      "Son lì màu da mang đến vẻ đẹp tự nhiên, phù hợp sử dụng hằng ngày. Sắc son dễ phối, hài hòa với mọi tông da và có lớp màu lì thanh lịch.",
     category: "Face Care",
     type: "Lip-Product",
     sizes: ["3g", "5g"],
@@ -831,11 +831,11 @@ export const dummyProducts = [
   },
   {
     _id: "49",
-    title: "Aloe Vera Body Lotion",
+    title: "Sữa dưỡng thể nha đam",
     images: [product_49],
     price: { "200ml": 15, "400ml": 25, "750ml": 40 },
     description:
-      "Soothe skin with our Aloe Vera Body Lotion, cooling and hydrating. This lightweight formula absorbs quickly to provide instant relief for dry skin.",
+      "Sữa dưỡng thể nha đam giúp làm dịu, làm mát và cấp ẩm cho da. Kết cấu nhẹ thẩm thấu nhanh, làm dịu tức thì làn da khô.",
     category: "Body Care",
     type: "Lotion",
     sizes: ["200ml", "400ml", "750ml"],
@@ -845,11 +845,11 @@ export const dummyProducts = [
   },
   {
     _id: "50",
-    title: "Shea Butter Hand Lotion",
+    title: "Kem dưỡng tay bơ hạt mỡ",
     images: [product_50],
     price: { "100ml": 12, "200ml": 20, "400ml": 35 },
     description:
-      "Nourish hands with our Shea Butter Hand Lotion, rich and creamy. This intensive formula provides long-lasting moisture for overworked hands.",
+      "Kem dưỡng tay bơ hạt mỡ có kết cấu giàu dưỡng chất, giúp nuôi dưỡng da tay. Công thức chuyên sâu duy trì độ ẩm lâu dài cho đôi tay thường xuyên hoạt động.",
     category: "Body Care",
     type: "Lotion",
     sizes: ["100ml", "200ml", "400ml"],
@@ -859,11 +859,11 @@ export const dummyProducts = [
   },
   {
     _id: "51",
-    title: "Coconut Moisturizing Lotion",
+    title: "Sữa dưỡng thể dừa cấp ẩm",
     images: [product_51],
     price: { "200ml": 18, "400ml": 30, "750ml": 45 },
     description:
-      "Hydrate deeply with our Coconut Moisturizing Lotion, tropical and light. Hydrate deeply with our Coconut Moisturizing Lotion, tropical and light.",
+      "Sữa dưỡng thể dừa cấp ẩm sâu cho da với kết cấu nhẹ và hương thơm nhiệt đới.",
     category: "Body Care",
     type: "Lotion",
     sizes: ["200ml", "400ml", "750ml"],
@@ -873,11 +873,11 @@ export const dummyProducts = [
   },
   {
     _id: "52",
-    title: "Lavender Relaxing Lotion",
+    title: "Sữa dưỡng thể oải hương thư giãn",
     images: [product_52],
     price: { "100ml": 14, "200ml": 22, "400ml": 38 },
     description:
-      "Calm your skin with our Lavender Relaxing Lotion, aromatic and soothing. Calm your skin with our Lavender Relaxing Lotion, aromatic and soothing.",
+      "Sữa dưỡng thể oải hương có hương thơm dịu nhẹ, giúp làm dịu da và mang lại cảm giác thư giãn.",
     category: "Body Care",
     type: "Lotion",
     sizes: ["100ml", "200ml", "400ml"],
@@ -887,11 +887,11 @@ export const dummyProducts = [
   },
   {
     _id: "53",
-    title: "Vitamin E Enriched Lotion",
+    title: "Sữa dưỡng thể bổ sung vitamin E",
     images: [product_53],
     price: { "200ml": 20, "400ml": 35, "750ml": 50 },
     description:
-      "Protect and repair with our Vitamin E Enriched Lotion, antioxidant-rich. Protect and repair with our Vitamin E Enriched Lotion, antioxidant-rich.",
+      "Sữa dưỡng thể bổ sung vitamin E giàu chất chống oxy hóa, giúp bảo vệ và phục hồi da.",
     category: "Body Care",
     type: "Lotion",
     sizes: ["200ml", "400ml", "750ml"],
@@ -901,11 +901,11 @@ export const dummyProducts = [
   },
   {
     _id: "54",
-    title: "Unscented Sensitive Lotion",
+    title: "Sữa dưỡng thể không mùi cho da nhạy cảm",
     images: [product_54],
     price: { "100ml": 16, "200ml": 28, "400ml": 42 },
     description:
-      "Gentle care with our Unscented Sensitive Lotion, for delicate skin. Gentle care with our Unscented Sensitive Lotion, for delicate skin.",
+      "Sữa dưỡng thể không mùi mang đến sự chăm sóc dịu nhẹ cho làn da nhạy cảm.",
     category: "Body Care",
     type: "Lotion",
     sizes: ["100ml", "200ml", "400ml"],
@@ -919,60 +919,60 @@ export const dummyProducts = [
 // Blogs Dummy Data 
 export const blogs = [
   {
-    title: "Top 10 Skincare Must-Haves for 2026",
-    category: "Skincare Tips",
+    title: "10 sản phẩm chăm sóc da nên có trong năm 2026",
+    category: "Bí quyết chăm sóc da",
     image: blog1,
     description:
-      "Discover the essential skincare products you need in your routine for glowing, healthy skin in 2026.",
+      "Khám phá các sản phẩm thiết yếu trong quy trình chăm sóc da để có làn da khỏe mạnh, rạng rỡ trong năm 2026.",
   },
   {
-    title: "How to Choose the Perfect Foundation Shade",
-    category: "Makeup Guide",
+    title: "Cách chọn màu kem nền phù hợp",
+    category: "Hướng dẫn trang điểm",
     image: blog2,
     description:
-      "A step-by-step guide to finding your exact foundation match for a flawless and natural look.",
+      "Hướng dẫn từng bước chọn màu kem nền phù hợp với làn da, giúp lớp trang điểm mịn đẹp và tự nhiên.",
   },
   {
-    title: "Hair Care Trends Every Woman Should Try",
+    title: "Xu hướng chăm sóc tóc phái đẹp nên thử",
     category: "Hair Care",
     image: blog3,
     description:
-      "Explore the latest hair care tips and product trends that help strengthen, style, and shine.",
+      "Khám phá những bí quyết và xu hướng sản phẩm chăm sóc tóc mới nhất để mái tóc chắc khỏe, dễ tạo kiểu và óng mượt.",
   },
   {
-    title: "Beginner’s Guide to Building a Makeup Kit",
-    category: "Beauty Basics",
+    title: "Cách chuẩn bị bộ trang điểm cho người mới bắt đầu",
+    category: "Kiến thức làm đẹp cơ bản",
     image: blog4,
     description:
-      "A complete checklist of makeup essentials every beginner should own for daily and special looks.",
+      "Danh sách đầy đủ các món trang điểm thiết yếu cho người mới bắt đầu, phù hợp với nhu cầu hằng ngày và những dịp đặc biệt.",
   },
   {
-    title: "Maximizing Results with Your Night Skincare Routine",
-    category: "Skincare Routine",
+    title: "Tối ưu hiệu quả chăm sóc da ban đêm",
+    category: "Quy trình chăm sóc da",
     image: blog5,
     description:
-      "Learn how to create the perfect nighttime skincare routine for better hydration and anti-aging benefits.",
+      "Tìm hiểu cách xây dựng quy trình chăm sóc da ban đêm phù hợp để tăng cường độ ẩm và hỗ trợ chống lão hóa.",
   },
   {
-    title: "The Benefits of Organic and Natural Cosmetics",
-    category: "Lifestyle",
+    title: "Lợi ích của mỹ phẩm hữu cơ và tự nhiên",
+    category: "Phong cách sống",
     image: blog6,
     description:
-      "Understand why more people are switching to natural cosmetics and the long-term skin benefits.",
+      "Tìm hiểu lý do ngày càng nhiều người chọn mỹ phẩm tự nhiên và những lợi ích lâu dài đối với làn da.",
   },
   {
-    title: "Tips to Make Your Lipstick Last All Day",
-    category: "Makeup Tips",
+    title: "Bí quyết giữ màu son suốt ngày dài",
+    category: "Bí quyết trang điểm",
     image: blog7,
     description:
-      "Simple but effective hacks to keep your lipstick fresh and vibrant from morning to evening.",
+      "Những mẹo đơn giản mà hiệu quả giúp màu son luôn tươi tắn, rạng rỡ từ sáng đến tối.",
   },
   {
-    title: "2026 Beauty Forecast: Makeup and Skincare Trends",
-    category: "Beauty Trends",
+    title: "Dự báo xu hướng trang điểm và chăm sóc da năm 2026",
+    category: "Xu hướng làm đẹp",
     image: blog8,
     description:
-      "An expert look at the upcoming beauty and skincare trends that will define style in 2026.",
+      "Góc nhìn chuyên gia về những xu hướng trang điểm và chăm sóc da nổi bật, định hình phong cách làm đẹp năm 2026.",
   },
 ];
 

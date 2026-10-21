@@ -14,11 +14,9 @@ const ProductFeatures = () => {
             />
           </div>
           <div>
-            <h5 className="h4 capitalize mb-2">Easy Return</h5>
+            <h5 className="h4 mb-2">Đổi trả dễ dàng</h5>
             <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Voluptatem eaque corrupti asperiores animi, praesentium
-              temporibus!
+              Liên hệ bộ phận chăm sóc khách hàng để được hướng dẫn đổi trả.
             </p>
           </div>
         </div>
@@ -33,11 +31,9 @@ const ProductFeatures = () => {
             />
           </div>
           <div>
-            <h5 className="h4 capitalize mb-2">secure payment</h5>
+            <h5 className="h4 mb-2">Thanh toán an toàn</h5>
             <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Voluptatem eaque corrupti asperiores animi, praesentium
-              temporibus!
+              Lựa chọn phương thức thanh toán phù hợp khi đặt hàng.
             </p>
           </div>
         </div>
@@ -47,11 +43,9 @@ const ProductFeatures = () => {
             <img src={assets.delivery} alt="" width={77} className="mb-3" />
           </div>
           <div>
-            <h5 className="h4 capitalize mb-2">Fast Delivery</h5>
+            <h5 className="h4 mb-2">Giao hàng nhanh chóng</h5>
             <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Voluptatem eaque corrupti asperiores animi, praesentium
-              temporibus!
+              Theo dõi tình trạng giao hàng trong mục Đơn hàng của tôi.
             </p>
           </div>
         </div>

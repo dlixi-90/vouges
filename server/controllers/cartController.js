@@ -21,11 +21,11 @@ const findAvailableProduct = async (itemId) => {
 
 const validateProductSize = (product, size) => {
   if (!product.sizes.includes(size)) {
-    return "Invalid product size";
+    return "Dung tích sản phẩm không hợp lệ";
   }
 
   if (!isSizeAvailable(product, size)) {
-    return "This product size is out of stock";
+    return "Sản phẩm có dung tích này đã hết hàng";
   }
 
   return null;
@@ -42,14 +42,14 @@ export const addToCart = async (req, res) => {
     if (!isObjectIdOrHexString(itemId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid product ID",
+        message: "Mã sản phẩm không hợp lệ",
       });
     }
 
     if (!isSafePathSegment(size)) {
       return res.status(400).json({
         success: false,
-        message: "Please select a product size",
+        message: "Vui lòng chọn dung tích sản phẩm",
       });
     }
 
@@ -60,7 +60,7 @@ export const addToCart = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: `Quantity must be between 1 and ${MAX_ADD_QUANTITY}`,
+        message: `Số lượng phải từ 1 đến ${MAX_ADD_QUANTITY}`,
       });
     }
 
@@ -72,14 +72,14 @@ export const addToCart = async (req, res) => {
     if (!userData) {
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        message: "Không tìm thấy người dùng",
       });
     }
 
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found",
+        message: "Không tìm thấy sản phẩm",
       });
     }
 
@@ -97,7 +97,7 @@ export const addToCart = async (req, res) => {
     if (quantity > stockQuantity) {
       return res.status(400).json({
         success: false,
-        message: `Only ${stockQuantity} items are available for size ${size}`,
+        message: `Chỉ còn ${stockQuantity} sản phẩm có dung tích ${size}`,
       });
     }
 
@@ -127,7 +127,7 @@ export const addToCart = async (req, res) => {
     if (!updatedUser) {
       return res.status(400).json({
         success: false,
-        message: `Only ${stockQuantity} items are available for size ${size}`,
+        message: `Chỉ còn ${stockQuantity} sản phẩm có dung tích ${size}`,
       });
     }
 
@@ -135,7 +135,7 @@ export const addToCart = async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Added to Cart",
+      message: "Đã thêm vào giỏ hàng",
       addedQuantity: quantity,
       quantity: nextQuantity,
       addedAt,
@@ -145,7 +145,7 @@ export const addToCart = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Unable to add item to cart",
+      message: "Không thể thêm sản phẩm vào giỏ hàng",
     });
   }
 };
@@ -160,12 +160,12 @@ export const changeCartSize = async (req, res) => {
         fromSize === toSize ||
         !Number.isSafeInteger(fromQuantity) || fromQuantity < 1 ||
         !Number.isSafeInteger(toQuantity) || toQuantity < 0) {
-      return res.status(400).json({ success: false, message: "Invalid size change" });
+      return res.status(400).json({ success: false, message: "Thay đổi dung tích không hợp lệ" });
     }
 
     const product = await findAvailableProduct(itemId);
     if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
+      return res.status(404).json({ success: false, message: "Không tìm thấy sản phẩm" });
     }
     const sizeError = validateProductSize(product, toSize);
     if (sizeError) {
@@ -176,7 +176,7 @@ export const changeCartSize = async (req, res) => {
     if (!Number.isSafeInteger(quantity) || quantity > stock) {
       return res.status(400).json({
         success: false,
-        message: `Only ${stock} items are available for size ${toSize}`,
+        message: `Chỉ còn ${stock} sản phẩm có dung tích ${toSize}`,
       });
     }
 
@@ -186,7 +186,7 @@ export const changeCartSize = async (req, res) => {
     const timestamps = getCartAddedAt(userData.cartData, userData.cartAddedAt);
     const addedAt = timestamps[itemId]?.[fromSize];
     if (!addedAt) {
-      return res.status(409).json({ success: false, message: "Your cart changed. Please reload it." });
+      return res.status(409).json({ success: false, message: "Giỏ hàng của bạn đã thay đổi. Vui lòng tải lại." });
     }
     const timestampUpdates = getMissingCartAddedAtUpdates(userData.cartData, userData.cartAddedAt);
     delete timestampUpdates[`cartAddedAt.${itemId}.${fromSize}`];
@@ -207,13 +207,13 @@ export const changeCartSize = async (req, res) => {
     if (!updatedUser) {
       return res.status(409).json({
         success: false,
-        message: "Your cart changed. Please try again with the updated cart.",
+        message: "Giỏ hàng của bạn đã thay đổi. Vui lòng thử lại với giỏ hàng đã cập nhật.",
       });
     }
-    return res.json({ success: true, quantity, addedAt, message: "Size updated" });
+    return res.json({ success: true, quantity, addedAt, message: "Đã cập nhật dung tích" });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ success: false, message: "Unable to change size" });
+    return res.status(500).json({ success: false, message: "Không thể thay đổi dung tích" });
   }
 };
 
@@ -227,21 +227,21 @@ export const updateCart = async (req, res) => {
     if (!isObjectIdOrHexString(itemId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid product ID",
+        message: "Mã sản phẩm không hợp lệ",
       });
     }
 
     if (!isSafePathSegment(size)) {
       return res.status(400).json({
         success: false,
-        message: "Please select a product size",
+        message: "Vui lòng chọn dung tích sản phẩm",
       });
     }
 
     if (!Number.isInteger(quantity) || quantity < 0) {
       return res.status(400).json({
         success: false,
-        message: "Quantity must be a non-negative integer",
+        message: "Số lượng phải là số nguyên không âm",
       });
     }
 
@@ -250,7 +250,7 @@ export const updateCart = async (req, res) => {
     if (!userData) {
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        message: "Không tìm thấy người dùng",
       });
     }
 
@@ -270,7 +270,7 @@ export const updateCart = async (req, res) => {
 
       return res.json({
         success: true,
-        message: "Cart Updated",
+        message: "Đã cập nhật giỏ hàng",
         quantity: 0,
       });
     }
@@ -280,7 +280,7 @@ export const updateCart = async (req, res) => {
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found",
+        message: "Không tìm thấy sản phẩm",
       });
     }
 
@@ -298,7 +298,7 @@ export const updateCart = async (req, res) => {
     if (quantity > stockQuantity) {
       return res.status(400).json({
         success: false,
-        message: `Only ${stockQuantity} items are available for size ${size}`,
+        message: `Chỉ còn ${stockQuantity} sản phẩm có dung tích ${size}`,
       });
     }
 
@@ -315,7 +315,7 @@ export const updateCart = async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Cart Updated",
+      message: "Đã cập nhật giỏ hàng",
       quantity,
       addedAt,
     });
@@ -324,7 +324,7 @@ export const updateCart = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Unable to update cart",
+      message: "Không thể cập nhật giỏ hàng",
     });
   }
 };

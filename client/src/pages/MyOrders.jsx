@@ -1,3 +1,4 @@
+import { getOrderStatusLabel, getPaymentMethodLabel, translateCatalogText } from "../utils/localization.js";
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Package, Star } from "lucide-react";
 import Title from "../components/Title";
@@ -46,7 +47,7 @@ const MyOrders = () => {
 
   return (
     <main className="net-orders max-padd-container min-h-screen bg-primary py-16 pt-28">
-      <Title title1="My" title2="Orders List" titleStyles="pb-10" />
+      <Title title1="Đơn hàng" title2="của tôi" titleStyles="pb-10" />
 
       <div className="space-y-4">
         {orders.map((order) => (
@@ -60,7 +61,7 @@ const MyOrders = () => {
 
         {!orders.length && (
           <div className="rounded-xl border border-[#e2e7eb] bg-white py-16 text-center text-sm text-[#8b949c] shadow-sm">
-            No orders found
+            Chưa có đơn hàng nào
           </div>
         )}
       </div>
@@ -100,7 +101,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
       <header className="flex flex-col gap-3 border-b border-[#edf0f2] bg-[#fafbfb] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8b949c]">
-            Order
+            Đơn hàng
           </p>
           <h3
             className="mt-1 truncate font-mono text-sm font-semibold text-[#263b4a]"
@@ -109,7 +110,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
             #{String(order._id).slice(-8).toUpperCase()}
           </h3>
           <p className="mt-1 text-xs text-[#8b949c]">
-            Placed on {formattedDate}
+            Đặt ngày {formattedDate}
           </p>
         </div>
 
@@ -122,14 +123,14 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
             }`}
           >
             {order.isPaid
-              ? "Paid"
+              ? "Đã thanh toán"
               : order.paymentMethod === "COD"
-                ? "Pay on delivery"
-                : "Pending"}
+                ? "Thanh toán khi nhận hàng"
+                : "Chờ thanh toán"}
           </span>
           <div className="text-right">
             <p className="text-[11px] uppercase tracking-wide text-[#8b949c]">
-              Total
+              Tổng cộng
             </p>
             <p className="mt-0.5 text-base font-semibold text-[#263b4a]">
               {formatThousandsVnd(order.amount, currency)}
@@ -141,9 +142,9 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
       <div className="grid lg:grid-cols-[minmax(0,1.55fr)_minmax(260px,0.75fr)]">
         <section className="p-4 sm:p-5 lg:border-r lg:border-[#edf0f2]">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-[#263b4a]">Products</h4>
+            <h4 className="text-sm font-semibold text-[#263b4a]">Sản phẩm</h4>
             <span className="text-xs text-[#8b949c]">
-              {items.length} {items.length === 1 ? "item" : "items"}
+              {items.length} {"sản phẩm"}
             </span>
           </div>
 
@@ -155,7 +156,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
                   : {};
               const productImage = item.image || product.images?.[0];
               const productTitle =
-                item.title || product.title || "Unavailable product";
+                item.title || product.title || "Sản phẩm không còn có sẵn";
               const productId = product._id || (typeof item.product === "string" ? item.product : null);
 
               return (
@@ -178,14 +179,14 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
 
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-[#263b4a]">
-                        {productTitle}
+                        {translateCatalogText(productTitle)}
                       </p>
                       <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px] text-[#69747e]">
                         <span className="rounded-md bg-[#f1f4f2] px-2 py-1">
-                          Size: <b className="text-[#263b4a]">{item.size}</b>
+                          Dung tích: <b className="text-[#263b4a]">{item.size}</b>
                         </span>
                         <span className="rounded-md bg-[#f1f4f2] px-2 py-1">
-                          Qty: <b className="text-[#263b4a]">{item.quantity}</b>
+                          Số lượng: <b className="text-[#263b4a]">{item.quantity}</b>
                         </span>
                       </div>
                     </div>
@@ -213,7 +214,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
 
         <aside className="border-t border-[#edf0f2] bg-[#fcfdfc] p-4 sm:p-5 lg:border-t-0">
           <h4 className="text-sm font-semibold text-[#263b4a]">
-            Customer details
+            Thông tin khách hàng
           </h4>
 
           <dl className="mt-4 space-y-4">
@@ -227,12 +228,12 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
               {order.shippingMethod === "urgent" && <dd className="mt-1 text-xs text-gray-500">{URGENT_SHIPPING_NOTE}</dd>}
             </div>}
             {order.discount > 0 && <div>
-              <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Voucher {order.voucherCode}</dt>
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Mã giảm giá {order.voucherCode}</dt>
               <dd className="mt-1 text-sm text-green-700">−{formatThousandsVnd(order.discount, currency)}</dd>
             </div>}
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
-                Customer
+                Khách hàng
               </dt>
               <dd className="mt-1 text-sm font-medium text-[#263b4a]">
                 {customerName || "—"}
@@ -240,7 +241,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
             </div>
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
-                Phone
+                Số điện thoại
               </dt>
               <dd className="mt-1 text-sm text-[#52616b]">
                 {address.phone || "—"}
@@ -248,7 +249,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
             </div>
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
-                Shipping address
+                Địa chỉ giao hàng
               </dt>
               <dd className="mt-1 text-sm leading-5 text-[#52616b]">
                 {fullAddress || "—"}
@@ -256,7 +257,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
             </div>
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
-                ZIP code
+                Mã bưu chính
               </dt>
               <dd className="mt-1 text-sm font-medium text-[#263b4a]">
                 {zipcode}
@@ -264,10 +265,10 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
             </div>
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
-                Payment method
+                Phương thức thanh toán
               </dt>
               <dd className="mt-1 text-sm font-medium text-[#263b4a]">
-                {order.paymentMethod || "—"}
+                {getPaymentMethodLabel(order.paymentMethod)}
               </dd>
             </div>
           </dl>
@@ -275,10 +276,10 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
       </div>
 
       <footer className="flex items-center justify-end gap-3 border-t border-[#edf0f2] bg-[#fafbfb] px-4 py-3 sm:px-5">
-        <span className="text-xs font-medium text-[#69747e]">Order status</span>
+        <span className="text-xs font-medium text-[#69747e]">Trạng thái đơn hàng</span>
         <span className="inline-flex items-center gap-2 rounded-md border border-[#dfe5e8] bg-white px-3 py-2 text-xs font-semibold text-[#263b4a]">
           <i className="h-2 w-2 rounded-full bg-[#78a782]" />
-          {order.status === "Delivery" ? "Delivered" : order.status}
+          {getOrderStatusLabel(order.status)}
         </span>
       </footer>
     </article>

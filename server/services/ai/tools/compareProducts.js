@@ -16,7 +16,7 @@ export const compareProductsToolDefinition = {
   function: {
     name: "compareProducts",
     description:
-      "So sánh từ 2 đến 4 sản phẩm thật trong catalog Velours khi đã biết productId. Trả dữ liệu khách quan về giá, size khả dụng, danh mục, loại và tình trạng bán; không tự quyết định sản phẩm tốt nhất thay người dùng.",
+      "So sánh từ 2 đến 4 sản phẩm thật trong danh mục sản phẩm Velours khi đã biết productId. Trả dữ liệu khách quan về giá, size khả dụng, danh mục, loại và tình trạng bán; không tự quyết định sản phẩm tốt nhất thay người dùng.",
     parameters: {
       type: "object",
       additionalProperties: false,
@@ -169,7 +169,7 @@ export const compareProducts = async (argumentsValue = {}) => {
     },
     message:
       products.length >= MIN_PRODUCTS
-        ? "Dữ liệu so sánh được lấy trực tiếp từ catalog Velours. Hãy dựa vào nhu cầu của người dùng để giải thích khác biệt."
+        ? "Dữ liệu so sánh được lấy trực tiếp từ danh mục sản phẩm Velours. Hãy dựa vào nhu cầu của người dùng để giải thích khác biệt."
         : "Không tìm thấy đủ sản phẩm đang bán để thực hiện so sánh.",
   };
 };

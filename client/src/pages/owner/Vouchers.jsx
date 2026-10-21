@@ -28,7 +28,7 @@ export default function Vouchers() {
   const visibleVouchers = vouchers.filter((voucher) => voucher.code.toLowerCase().includes(query));
   const load = useCallback(async (signal) => {
     const { data } = await axios.get("/api/vouchers", { headers: { Authorization: `Bearer ${await getToken()}` }, signal });
-    if (!data.success) throw new Error(data.message || "Không thể tải voucher.");
+    if (!data.success) throw new Error(data.message || "Không thể tải mã giảm giá.");
     return data.vouchers;
   }, [axios, getToken]);
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function Vouchers() {
         ...getVoucherValidityPeriod(draft.startsAt, draft.expiresAt),
       }, { headers: { Authorization: `Bearer ${await getToken()}` } });
       storeResources.invalidateMembership();
-      setDraft(initial); setVouchers(await load()); toast.success("Đã tạo voucher.");
+      setDraft(initial); setVouchers(await load()); toast.success("Đã tạo mã giảm giá.");
     } catch (err) { toast.error(err.response?.data?.message || err.message); }
     finally { setBusy(false); }
   };
@@ -74,11 +74,11 @@ export default function Vouchers() {
       const { data } = await axios.delete(`/api/vouchers/${deleteTarget._id}`, {
         headers: { Authorization: `Bearer ${await getToken()}` },
       });
-      if (!data.success) throw new Error(data.message || "Không thể xóa voucher.");
+      if (!data.success) throw new Error(data.message || "Không thể xóa mã giảm giá.");
       setVouchers((current) => current.filter((voucher) => voucher._id !== deleteTarget._id));
       storeResources.invalidateMembership();
       setDeleteTarget(null);
-      toast.success("Đã xóa voucher.");
+      toast.success("Đã xóa mã giảm giá.");
     } catch (err) {
       setDeleteError(err.response?.data?.message || err.message);
     } finally { setBusy(false); }
@@ -97,22 +97,22 @@ export default function Vouchers() {
         <header className="mb-6 flex flex-col gap-4 border-b border-[#e1e6e3] pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#6f9a79]">Ưu đãi cửa hàng</p>
-            <h1 className="text-2xl font-semibold tracking-tight text-[#263b4a] sm:text-3xl">Quản lý voucher</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-[#263b4a] sm:text-3xl">Quản lý mã giảm giá</h1>
           </div>
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[#d8e5da] bg-[#edf6ee] px-3 py-1.5 text-xs font-medium text-[#557b5e]">
-            <Ticket size={15} aria-hidden="true" />{loading ? "—" : vouchers.length} voucher
+            <Ticket size={15} aria-hidden="true" />{loading ? "—" : vouchers.length} mã giảm giá
           </span>
         </header>
 
         <div className="space-y-6">
           <section aria-labelledby="voucher-details-title" className="rounded-2xl border border-[#e2e7e4] bg-white p-5 shadow-sm sm:p-6">
-            <h2 id="voucher-details-title" className="text-lg font-semibold text-[#263b4a]">Tạo voucher mới</h2>
+            <h2 id="voucher-details-title" className="text-lg font-semibold text-[#263b4a]">Tạo mã giảm giá mới</h2>
             <p className="mt-2 text-sm text-[#839099]">Mỗi đơn áp dụng 1 mã. Mỗi khách dùng một lần cho mỗi mã.</p>
             <form onSubmit={create} className="mt-5">
               <fieldset disabled={busy} className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
-                <legend className="sr-only">Thông tin voucher</legend>
+                <legend className="sr-only">Thông tin mã giảm giá</legend>
                 <label className="block min-w-0">
-                  <span className="mb-2 block text-sm font-medium text-[#334957]">Mã voucher <span className="text-[#b55f5f]">*</span></span>
+                  <span className="mb-2 block text-sm font-medium text-[#334957]">mã giảm giá <span className="text-[#b55f5f]">*</span></span>
                   <input type="text" required maxLength={40} pattern="[A-Za-z0-9-]{3,40}" value={draft.code}
                     onChange={(event) => field("code", event.target.value.toUpperCase())} placeholder="VD: VELOURS10" autoComplete="off"
                     className="admin-input font-mono" />
@@ -142,10 +142,10 @@ export default function Vouchers() {
                 ))}
               </fieldset>
               <div className="mt-6 flex flex-col gap-4 border-t border-[#edf0f2] pt-5 sm:flex-row sm:items-center sm:justify-between">
-                <p className="max-w-md text-xs leading-relaxed text-[#839099]">Voucher có hiệu lực từ ngày bắt đầu đến hết ngày hết hạn theo giờ Việt Nam.</p>
+                <p className="max-w-md text-xs leading-relaxed text-[#839099]">Mã giảm giá có hiệu lực từ ngày bắt đầu đến hết ngày hết hạn theo giờ Việt Nam.</p>
                 <button type="submit" disabled={busy} className="admin-primary-button shrink-0 cursor-pointer justify-center">
                   {busy ? <LoaderCircle size={17} className="animate-spin" aria-hidden="true" /> : <Plus size={17} aria-hidden="true" />}
-                  {busy ? "Đang xử lý…" : "Tạo voucher"}
+                  {busy ? "Đang xử lý…" : "Tạo mã giảm giá"}
                 </button>
               </div>
             </form>
@@ -154,31 +154,31 @@ export default function Vouchers() {
           <section aria-labelledby="voucher-list-title" className="min-w-0 overflow-hidden rounded-2xl border border-[#e2e7e4] bg-white shadow-sm">
             <div className="flex flex-col gap-4 border-b border-[#edf0f2] p-5 sm:p-6">
               <div className="flex items-center justify-between gap-3">
-                <h2 id="voucher-list-title" className="text-lg font-semibold text-[#263b4a]">Danh sách voucher</h2>
-                <span className="rounded-full bg-[#edf6ee] px-3 py-1 text-xs font-medium text-[#557b5e]">{loading ? "—" : visibleVouchers.length} voucher</span>
+                <h2 id="voucher-list-title" className="text-lg font-semibold text-[#263b4a]">Danh sách mã giảm giá</h2>
+                <span className="rounded-full bg-[#edf6ee] px-3 py-1 text-xs font-medium text-[#557b5e]">{loading ? "—" : visibleVouchers.length} mã giảm giá</span>
               </div>
               <label className="relative block w-full sm:max-w-sm">
                 <Search size={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#839099]" aria-hidden="true" />
-                <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Tìm mã voucher…"
-                  aria-label="Tìm mã voucher" className="admin-input !pl-10" />
+                <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Tìm mã giảm giá…"
+                  aria-label="Tìm mã giảm giá" className="admin-input !pl-10" />
               </label>
             </div>
             <div aria-busy={loading}>
-              {loading ? <p role="status" className="py-12 text-center text-sm text-[#839099]">Đang tải voucher…</p>
+              {loading ? <p role="status" className="py-12 text-center text-sm text-[#839099]">Đang tải mã giảm giá…</p>
                 : error ? <div role="alert" className="px-5 py-8 text-center text-sm text-[#b55f5f]">
                   {error}<button type="button" onClick={retry} className="ml-3 cursor-pointer font-medium underline">Thử lại</button>
                 </div>
                 : !visibleVouchers.length ? <div className="flex flex-col items-center gap-3 px-5 py-12 text-center">
                   <Ticket size={36} strokeWidth={1.5} className="text-[#a2b6a7]" aria-hidden="true" />
-                  <p className="text-sm font-medium text-[#52616b]">{query ? "Không tìm thấy mã voucher phù hợp." : "Chưa có voucher nào."}</p>
-                  <p className="text-xs text-[#839099]">{query ? "Thử tìm bằng mã khác." : "Tạo voucher đầu tiên bằng biểu mẫu phía trên."}</p>
+                  <p className="text-sm font-medium text-[#52616b]">{query ? "Không tìm thấy mã giảm giá phù hợp." : "Chưa có mã giảm giá nào."}</p>
+                  <p className="text-xs text-[#839099]">{query ? "Thử tìm bằng mã khác." : "Tạo mã giảm giá đầu tiên bằng biểu mẫu phía trên."}</p>
                 </div>
                 : <div className="overflow-x-auto">
                   <table className="w-full min-w-[860px] text-left text-sm">
-                    <caption className="sr-only">Voucher cửa hàng và trạng thái sử dụng</caption>
+                    <caption className="sr-only">Mã giảm giá cửa hàng và trạng thái sử dụng</caption>
                     <thead>
                       <tr className="border-b border-[#edf0f2] bg-[#fafbfb] text-[#69747e]">
-                        {["Mã voucher", "Ưu đãi", "Đơn tối thiểu", "Thời hạn", "Lượt dùng", "Trạng thái", "Thao tác"].map((label) => (
+                        {["mã giảm giá", "Ưu đãi", "Đơn tối thiểu", "Thời hạn", "Lượt dùng", "Trạng thái", "Thao tác"].map((label) => (
                           <th key={label} scope="col" className="px-5 py-3 font-medium">{label}</th>
                         ))}
                       </tr>
@@ -207,7 +207,7 @@ export default function Vouchers() {
                             <div className="flex items-center gap-3">
                               <label className={`relative inline-flex shrink-0 items-center ${busy ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}>
                                 <input type="checkbox" role="switch" className="peer sr-only" checked={voucher.active} disabled={busy}
-                                  onChange={() => toggle(voucher)} aria-label={`${voucher.active ? "Tắt" : "Bật"} mã voucher ${voucher.code}`} />
+                                  onChange={() => toggle(voucher)} aria-label={`${voucher.active ? "Tắt" : "Bật"} mã giảm giá ${voucher.code}`} />
                                 <span className="h-5 w-9 rounded-full bg-[#d6dde0] transition peer-checked:bg-[#78a782] peer-focus-visible:ring-2 peer-focus-visible:ring-[#b8d2be]" />
                                 <span className="absolute left-1 h-3.5 w-3.5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-4" />
                               </label>
@@ -219,7 +219,7 @@ export default function Vouchers() {
                           <td className="px-5 py-4">
                             <button type="button" disabled={busy}
                               onClick={() => { setDeleteError(""); setDeleteTarget(voucher); }}
-                              aria-label={`Xóa voucher ${voucher.code}`}
+                              aria-label={`Xóa mã giảm giá ${voucher.code}`}
                               className="inline-flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-red-600 transition hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:cursor-not-allowed disabled:opacity-50">
                               <Trash2 size={16} aria-hidden="true" />Xóa
                             </button>

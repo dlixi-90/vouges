@@ -1,3 +1,4 @@
+import { translateCatalogText } from "../../utils/localization.js";
 import { useMemo, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
@@ -157,20 +158,20 @@ const ListProduct = () => {
       );
 
       if (!data.success) {
-        throw new Error(data.message || "Unable to update stock status");
+        throw new Error(data.message || "Không thể cập nhật trạng thái tồn kho");
       }
 
       if (data.product) {
         replaceProduct(data.product);
       }
 
-      toast.success(data.message || "Stock status updated");
+      toast.success(data.message || "Đã cập nhật trạng thái tồn kho");
     } catch (error) {
       replaceProduct(previousProduct);
       toast.error(
         error.response?.data?.message ||
           error.message ||
-          "Unable to update stock status",
+          "Không thể cập nhật trạng thái tồn kho",
       );
     } finally {
       setUpdatingStockId(null);
@@ -179,7 +180,7 @@ const ListProduct = () => {
 
   const deleteProduct = async (product) => {
     const confirmed = window.confirm(
-      `Are you sure you want to delete "${product.title}"?\n\nThis product will be removed from the catalog.`,
+      `Bạn có chắc muốn xóa "${product.title}"?\n\nSản phẩm này sẽ bị xóa khỏi danh mục.`,
     );
 
     if (!confirmed) {
@@ -200,15 +201,15 @@ const ListProduct = () => {
       if (data.success) {
         await fetchProducts();
 
-        toast.success(data.message || "Product deleted successfully");
+        toast.success(data.message || "Đã xóa sản phẩm thành công");
       } else {
-        toast.error(data.message || "Unable to delete product");
+        toast.error(data.message || "Không thể xóa sản phẩm");
       }
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
           error.message ||
-          "Unable to delete product",
+          "Không thể xóa sản phẩm",
       );
     } finally {
       setDeletingProductId(null);
@@ -222,17 +223,17 @@ const ListProduct = () => {
         <header className="mb-6 flex flex-col gap-4 border-b border-[#e1e6e3] pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#6f9a79]">
-              Catalog
+              Danh mục sản phẩm
             </p>
 
             <h1 className="mt-2 text-2xl font-semibold text-[#263b4a] sm:text-3xl">
-              Product List
+              Danh sách sản phẩm
             </h1>
           </div>
 
           <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#d8e5da] bg-[#edf6ee] px-3 py-1.5 text-xs font-medium text-[#557b5e]">
             <Package size={15} />
-            {(products || []).length} products
+            {(products || []).length} sản phẩm
           </div>
         </header>
 
@@ -249,7 +250,7 @@ const ListProduct = () => {
                   setQuery(event.target.value);
                   setPage(0);
                 }}
-                placeholder="Filter products..."
+                placeholder="Lọc sản phẩm…"
                 className="admin-input pl-10"
               />
             </div>
@@ -259,29 +260,29 @@ const ListProduct = () => {
             <table className="w-full min-w-[760px] caption-bottom text-sm">
               <thead>
                 <tr className="border-b border-[#edf0f2] text-left text-[#69747e]">
-                  <th className="px-4 py-3 font-medium">Image</th>
+                  <th className="px-4 py-3 font-medium">Hình ảnh</th>
 
                   <SortableHeader
-                    label="Product"
+                    label="Sản phẩm"
                     active={sort.key === "title"}
                     direction={sort.direction}
                     onClick={() => changeSort("title")}
                   />
 
                   <SortableHeader
-                    label="Category"
+                    label="Danh mục"
                     active={sort.key === "category"}
                     direction={sort.direction}
                     onClick={() => changeSort("category")}
                   />
 
-                  <th className="px-4 py-3 font-medium">Instock</th>
+                  <th className="px-4 py-3 font-medium">Còn hàng</th>
 
-                  <th className="px-4 py-3 font-medium">Size</th>
+                  <th className="px-4 py-3 font-medium">Dung tích</th>
 
-                  <th className="px-4 py-3 font-medium">Price</th>
+                  <th className="px-4 py-3 font-medium">Giá</th>
 
-                  <th className="px-4 py-3 font-medium">Quantity</th>
+                  <th className="px-4 py-3 font-medium">Số lượng</th>
                 </tr>
               </thead>
               <tbody>
@@ -399,16 +400,16 @@ const ListProduct = () => {
                               className="max-w-[240px] border-b border-[#dfe5e8] px-4 py-4 align-top font-medium text-[#263b4a]"
                             >
                               <span className="block truncate">
-                                {product.title}
+                                {translateCatalogText(product.title)}
                               </span>
 
                               <span className="mt-1 block text-xs font-normal text-[#8b949c]">
-                                {product.type || "Product"}
+                                {translateCatalogText(product.type || "Sản phẩm")}
                               </span>
 
                               <span className="mt-2 inline-flex rounded-full bg-[#f2f5f3] px-2 py-0.5 text-[11px] font-normal text-[#71808a]">
                                 {variants.length}{" "}
-                                {variants.length === 1 ? "size" : "sizes"}
+                                {"dung tích"}
                               </span>
                             </td>
                           )}
@@ -419,7 +420,7 @@ const ListProduct = () => {
                               rowSpan={rowSpan}
                               className="border-b border-[#dfe5e8] px-4 py-4 align-top text-[#69747e]"
                             >
-                              {product.category || "—"}
+                              {translateCatalogText(product.category || "—")}
                             </td>
                           )}
 
@@ -439,8 +440,8 @@ const ListProduct = () => {
                                 }`}
                                 title={
                                   hasStock
-                                    ? "Toggle product availability"
-                                    : "This product has no stock"
+                                    ? "Bật/tắt trạng thái bán sản phẩm"
+                                    : "Sản phẩm này đã hết hàng"
                                 }
                               >
                                 <input
@@ -458,7 +459,7 @@ const ListProduct = () => {
                                       inStock: event.target.checked,
                                     })
                                   }
-                                  aria-label={`Change product status for ${product.title}`}
+                                  aria-label={`Thay đổi trạng thái bán của ${product.title}`}
                                 />
 
                                 <span className="h-5 w-9 rounded-full bg-[#d6dde0] transition peer-checked:bg-[#78a782] peer-focus-visible:ring-2 peer-focus-visible:ring-[#b8d2be]" />
@@ -477,8 +478,8 @@ const ListProduct = () => {
                                 type="button"
                                 onClick={() => navigate(`/owner/edit-product/${product._id}`, { state: { editSize: size } })}
                                 disabled={isProductUpdating || deletingProductId === product._id}
-                                aria-label={`Edit size ${size} for ${product.title}`}
-                                title="Edit size"
+                                aria-label={`Chỉnh sửa dung tích ${size} của ${product.title}`}
+                                title="Chỉnh sửa dung tích"
                                 className="inline-flex items-center gap-2 rounded-md border border-[#dfe5e8] bg-[#f8faf9] px-2.5 py-1 text-xs font-semibold text-[#52616b] hover:bg-[#edf5ef] disabled:opacity-50"
                               >
                                 {size}
@@ -486,7 +487,7 @@ const ListProduct = () => {
                               </button>
                             ) : (
                               <span className="text-xs text-[#9aa3aa]">
-                                No size
+                                Chưa có dung tích
                               </span>
                             )}
                           </td>
@@ -532,8 +533,8 @@ const ListProduct = () => {
                               }`}
                               title={
                                 quantity <= 0
-                                  ? "This size has no stock"
-                                  : `Toggle availability for size ${size}`
+                                  ? "Dung tích này đã hết hàng"
+                                  : `Bật/tắt trạng thái bán của dung tích ${size}`
                               }
                             >
                               <input
@@ -555,8 +556,8 @@ const ListProduct = () => {
                                 }
                                 aria-label={
                                   size
-                                    ? `Change stock status for ${product.title}, size ${size}`
-                                    : `No size available for ${product.title}`
+                                    ? `Thay đổi trạng thái tồn kho của ${product.title}, dung tích ${size}`
+                                    : `Không có dung tích khả dụng cho ${product.title}`
                                 }
                               />
 
@@ -585,8 +586,8 @@ const ListProduct = () => {
                                     deletingProductId === product._id
                                   }
                                   className="inline-flex h-9 w-9 items-center justify-center rounded-md text-[#69747e] transition hover:bg-[#edf5ef] hover:text-[#42604a] disabled:cursor-not-allowed disabled:opacity-50"
-                                  aria-label={`Edit ${product.title}`}
-                                  title="Edit product"
+                                  aria-label={`Chỉnh sửa ${product.title}`}
+                                  title="Chỉnh sửa sản phẩm"
                                 >
                                   <Pencil size={16} />
                                 </button>
@@ -599,8 +600,8 @@ const ListProduct = () => {
                                     deletingProductId === product._id
                                   }
                                   className="inline-flex h-9 w-9 items-center justify-center rounded-md text-[#ac5c] transition hover:bg-[#fff0f0] hover:text-[#8f3f3f] disabled:cursor-wait disabled:opacity-50"
-                                  aria-label={`Delete ${product.title}`}
-                                  title="Delete product"
+                                  aria-label={`Xóa ${product.title}`}
+                                  title="Xóa sản phẩm"
                                 >
                                   {deletingProductId === product._id ? (
                                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#e4bcbc] border-t-[#a85c5c]" />
@@ -618,7 +619,7 @@ const ListProduct = () => {
                 ) : (
                   <tr>
                     <td colSpan="9" className="h-32 text-center text-[#8b949c]">
-                      No results.
+                      Không tìm thấy kết quả.
                     </td>
                   </tr>
                 )}
@@ -627,34 +628,34 @@ const ListProduct = () => {
           </div>
 
           <div className="flex flex-col items-center justify-between gap-4 px-4 py-4 text-sm text-[#69747e] sm:flex-row">
-            <span>Rows per page {PAGE_SIZE}</span>
+            <span>Số dòng mỗi trang {PAGE_SIZE}</span>
             <div className="flex items-center gap-2">
               <span>
-                Page {activePage + 1} of {pageCount}
+                Trang {activePage + 1} / {pageCount}
               </span>
               <PaginationButton
-                label="Go to first page"
+                label="Đến trang đầu"
                 disabled={activePage === 0}
                 onClick={() => setPage(0)}
               >
                 <ChevronsLeft size={16} />
               </PaginationButton>
               <PaginationButton
-                label="Go to previous page"
+                label="Đến trang trước"
                 disabled={activePage === 0}
                 onClick={() => setPage(activePage - 1)}
               >
                 <ChevronLeft size={16} />
               </PaginationButton>
               <PaginationButton
-                label="Go to next page"
+                label="Đến trang tiếp"
                 disabled={activePage >= pageCount - 1}
                 onClick={() => setPage(activePage + 1)}
               >
                 <ChevronRight size={16} />
               </PaginationButton>
               <PaginationButton
-                label="Go to last page"
+                label="Đến trang cuối"
                 disabled={activePage >= pageCount - 1}
                 onClick={() => setPage(pageCount - 1)}
               >

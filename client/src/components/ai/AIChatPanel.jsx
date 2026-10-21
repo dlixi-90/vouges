@@ -1,3 +1,4 @@
+import { getOrderStatusLabel, translateCatalogText } from "../../utils/localization.js";
 import { useClerk } from "@clerk/react";
 import { Link } from "react-router-dom";
 import {
@@ -52,7 +53,7 @@ const getToolActivityLabel = (toolsUsed = []) => {
     return "Đã so sánh dữ liệu sản phẩm";
   }
 
-  return "Đã tra cứu catalog Velours";
+  return "Đã tra cứu danh mục sản phẩm Velours";
 };
 
 const CART_ACTION_PRESENTATIONS = {
@@ -75,23 +76,14 @@ const CART_ACTION_PRESENTATIONS = {
 
 const getCartActionDescription = (action) => {
   if (action.type === "updateCart") {
-    return `Size ${action.size} · ${action.currentQuantity} → ${action.quantity}`;
+    return `Dung tích ${action.size} · ${action.currentQuantity} → ${action.quantity}`;
   }
 
   if (action.type === "removeFromCart") {
-    return `Size ${action.size} · Xóa ${action.currentQuantity} sản phẩm`;
+    return `Dung tích ${action.size} · Xóa ${action.currentQuantity} sản phẩm`;
   }
 
-  return `Size ${action.size} · Thêm ${action.quantity} sản phẩm`;
-};
-
-const ORDER_STATUS_LABELS = {
-  "Awaiting Payment": "Chờ thanh toán",
-  "Payment Review": "Đang xác minh",
-  "Order Placed": "Đã đặt hàng",
-  Packing: "Đang đóng gói",
-  Shipping: "Đang giao hàng",
-  Delivery: "Đã giao hàng",
+  return `Dung tích ${action.size} · Thêm ${action.quantity} sản phẩm`;
 };
 
 const getOrderStatusStyles = (status) => {
@@ -287,7 +279,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
   };
 
   if (!isOpen) return null;
-  if (chatMode === "support") return <Suspense fallback={<div role="status" className="fixed bottom-6 right-6 z-50 rounded-2xl bg-white p-6 text-sm shadow-xl">Đang mở chat CSKH…</div>}>
+  if (chatMode === "support") return <Suspense fallback={<div role="status" className="fixed bottom-6 right-6 z-50 rounded-2xl bg-white p-6 text-sm shadow-xl">Đang mở trò chuyện CSKH…</div>}>
     <SupportChatPanel onClose={onClose} onBack={() => setChatMode("ai")} aiMessages={messages} />
   </Suspense>;
 
@@ -473,10 +465,10 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <p className="truncate text-xs font-bold text-slate-900">
-                                    {product.title}
+                                    {translateCatalogText(product.title)}
                                   </p>
                                   <p className="mt-0.5 text-[11px] text-slate-500">
-                                    {product.type} ·{" "}
+                                    {translateCatalogText(product.type)} ·{" "}
                                     {formatProductPrice(product.priceRange)}
                                   </p>
                                   <div className="mt-1 flex flex-wrap gap-1">
@@ -526,9 +518,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                                     <span
                                       className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-semibold ${getOrderStatusStyles(order.status)}`}
                                     >
-                                      {ORDER_STATUS_LABELS[order.status] ||
-                                        order.status ||
-                                        "Chưa xác định"}
+                                      {getOrderStatusLabel(order.status)}
                                     </span>
                                   </div>
 
@@ -554,10 +544,10 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                                         </div>
                                         <div className="min-w-0 flex-1">
                                           <p className="truncate text-xs font-semibold text-slate-800">
-                                            {item.title || "Sản phẩm"}
+                                            {translateCatalogText(item.title || "Sản phẩm")}
                                           </p>
                                           <p className="mt-0.5 text-[10px] text-slate-500">
-                                            Size {item.size || "—"} · Số lượng{" "}
+                                            Dung tích {item.size || "—"} · Số lượng{" "}
                                             {item.quantity || 0}
                                           </p>
                                         </div>
@@ -573,7 +563,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
 
                                   <div className="flex items-center justify-between border-t border-slate-100 px-3 py-2.5">
                                     <span className="text-[10px] font-medium text-slate-500">
-                                      Xem trong My Orders
+                                      Xem trong đơn hàng của tôi
                                     </span>
                                     <span className="text-sm font-bold text-slate-900">
                                       {formatMoney(order.total)}
@@ -645,14 +635,14 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                                           <div className="min-w-0 flex-1">
                                             <div className="flex items-start justify-between gap-2">
                                               <p className="truncate text-xs font-semibold text-slate-800">
-                                                {item.title || "Sản phẩm"}
+                                                {translateCatalogText(item.title || "Sản phẩm")}
                                               </p>
                                               <span className="shrink-0 text-xs font-bold text-slate-900">
                                                 {formatMoney(item.lineTotal)}
                                               </span>
                                             </div>
                                             <p className="mt-0.5 text-[10px] text-slate-500">
-                                              Size {item.size || "—"} · Số lượng{" "}
+                                              Dung tích {item.size || "—"} · Số lượng{" "}
                                               {item.quantity || 0}
                                             </p>
                                             <p
@@ -744,7 +734,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                                 </span>
                                 <div>
                                   <p className="text-xs font-bold text-slate-900">
-                                    {cartActionPresentation.title}
+                                    {translateCatalogText(cartActionPresentation.title)}
                                   </p>
                                   <p
                                     className={`mt-0.5 text-[10px] ${
@@ -930,7 +920,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
           {user && <div className="shrink-0 border-t border-secondary/10 bg-primary/60 px-4 py-3">
             <p className="mb-2 text-[11px] text-gray-500">{error ? "AI chưa thể giải đáp? Nhân viên Velours có thể hỗ trợ thêm." : "Bạn muốn được nhân viên tư vấn trực tiếp?"}</p>
             <button type="button" onClick={() => { cancelRequest(); setChatMode("support"); }} className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-secondary/20 bg-white px-3 py-2.5 text-xs font-semibold text-secondary transition hover:bg-secondary/5">
-              <Headset size={16} aria-hidden="true" />Chat với nhân viên CSKH
+              <Headset size={16} aria-hidden="true" />Trò chuyện với nhân viên CSKH
             </button>
           </div>}
           <form

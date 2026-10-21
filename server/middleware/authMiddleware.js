@@ -18,7 +18,7 @@ export const authUser = async (req, res, next) => {
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: "Authentication required",
+        message: "Vui lòng đăng nhập để tiếp tục",
       });
     }
 
@@ -26,7 +26,7 @@ export const authUser = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Authentication required",
+        message: "Vui lòng đăng nhập để tiếp tục",
       });
     }
 
@@ -51,7 +51,7 @@ export const authUser = async (req, res, next) => {
     console.log(error);
     return res.status(500).json({
       success: false,
-      message: "Unable to authenticate user",
+      message: "Không thể xác thực người dùng",
     });
   }
 };
@@ -60,7 +60,7 @@ export const requireOwner = (req, res, next) => {
   if (req.user?.role !== "owner") {
     return res.status(403).json({
       success: false,
-      message: "Owner access required",
+      message: "Chỉ quản trị viên mới có quyền truy cập",
     });
   }
 

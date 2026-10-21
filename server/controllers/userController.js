@@ -16,7 +16,7 @@ export const getUserProfile = async (req, res)=>{
         console.log(error)
         return res.status(500).json({
             success:false,
-            message: "Unable to load user profile",
+            message: "Không thể tải thông tin người dùng",
         })
     }
 }

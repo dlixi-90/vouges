@@ -32,18 +32,18 @@ export const calculateDiscount = (voucher, subtotal) => {
 export const validateVoucher = async (code, userId, subtotal, session, now = new Date()) => {
   if (!code) return null;
   if (typeof code !== "string" || !/^[A-Z0-9-]{3,40}$/i.test(code.trim()))
-    throw new VoucherError("Mã voucher không hợp lệ.");
+    throw new VoucherError("mã giảm giá không hợp lệ.");
   const query = Voucher.findOne({ code: code.trim().toUpperCase(), active: true, deletedAt: null });
   const voucher = await (session ? query.session(session) : query);
   if (!voucher || (voucher.userId && voucher.userId !== userId))
-    throw new VoucherError("Voucher không tồn tại hoặc không dành cho tài khoản này.");
+    throw new VoucherError("Mã giảm giá không tồn tại hoặc không dành cho tài khoản này.");
   if (now < voucher.startsAt || now >= voucher.expiresAt)
-    throw new VoucherError("Voucher chưa có hiệu lực hoặc đã hết hạn.");
-  if (subtotal < voucher.minSubtotal) throw new VoucherError("Đơn hàng chưa đạt giá trị tối thiểu của voucher.");
-  if (voucher.usedCount >= voucher.maxUses) throw new VoucherError("Voucher đã hết lượt sử dụng.");
+    throw new VoucherError("Mã giảm giá chưa có hiệu lực hoặc đã hết hạn.");
+  if (subtotal < voucher.minSubtotal) throw new VoucherError("Đơn hàng chưa đạt giá trị tối thiểu của mã giảm giá.");
+  if (voucher.usedCount >= voucher.maxUses) throw new VoucherError("Mã giảm giá đã hết lượt sử dụng.");
   const usedQuery = VoucherUse.exists({ voucherId: voucher._id, userId });
   if (await (session ? usedQuery.session(session) : usedQuery))
-    throw new VoucherError("Bạn đã sử dụng voucher này.");
+    throw new VoucherError("Bạn đã sử dụng mã giảm giá này.");
   return voucher;
 };
 
@@ -52,11 +52,11 @@ export const reserveVoucher = async (voucher, userId, orderId, session) => {
   const result = await Voucher.updateOne({ _id: voucher._id,
     active: true, deletedAt: null, usedCount: { $lt: voucher.maxUses },
   }, { $inc: { usedCount: 1 } }, { session });
-  if (result.modifiedCount !== 1) throw new VoucherError("Voucher đã hết lượt sử dụng.", 409);
+  if (result.modifiedCount !== 1) throw new VoucherError("Mã giảm giá đã hết lượt sử dụng.", 409);
   try {
     await VoucherUse.create([{ voucherId: voucher._id, userId, orderId }], { session });
   } catch (error) {
-    if (error.code === 11000) throw new VoucherError("Bạn đã sử dụng voucher này.", 409);
+    if (error.code === 11000) throw new VoucherError("Bạn đã sử dụng mã giảm giá này.", 409);
     throw error;
   }
 };

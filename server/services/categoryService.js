@@ -15,7 +15,7 @@ export const categoryNamePattern = (name) => {
 export const validateProductCategory = async (productData) => {
   const hasTypeId = productData.typeId !== undefined;
   if (hasTypeId && !isObjectIdOrHexString(productData.typeId)) {
-    throw Object.assign(new Error("Please select a valid product type"), { statusCode: 400 });
+    throw Object.assign(new Error("Vui lòng chọn loại sản phẩm hợp lệ"), { statusCode: 400 });
   }
   // New forms select a type ID. Its owning category is resolved on the server.
   // Keep named category/type requests compatible with existing integrations.
@@ -27,7 +27,7 @@ export const validateProductCategory = async (productData) => {
     ? String(item._id) === String(productData.typeId)
     : item.nameKey === typeKey);
   if (!category || !type) {
-    throw Object.assign(new Error("Please select a valid type for this category"), {
+    throw Object.assign(new Error("Vui lòng chọn loại sản phẩm hợp lệ cho danh mục này"), {
       statusCode: 400,
     });
   }

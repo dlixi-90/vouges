@@ -57,7 +57,7 @@ const Header = () => {
           {/* Logo */}
           <div className="flex flex-1">
             <Link to={"/"} className="flex items-end">
-              <img src={assets.logoImg} alt="logoImg" className="h-11" />
+              <img src={assets.logoImg} alt="Biểu trưng Velours" className="h-11" />
               <span className="hidden sm:block bold-24 relative top-1 right-2">
                 elours
               </span>
@@ -70,23 +70,24 @@ const Header = () => {
               containerStyles={`${
                 menuOpened
                   ? "flex items-start flex-col gap-y-8 fixed top-16 right-6 p-5 bg-white rounded-xl shadow-md w-52 z-50"
-                  : "hidden lg:flex gap-x-5 xl:gap-x-10 medium-15 bg-secondary/10 rounded-full p-1"
+                  : "hidden xl:flex gap-x-5 xl:gap-x-10 medium-15 bg-secondary/10 rounded-full p-1"
               }`}
             />
           </div>
           {/* Buttons & Profile icon */}
-          <div className="flex flex-1 items-center sm:justify-end gap-x-4 sm:gap-x-8">
+          <div className="flex flex-1 items-center sm:justify-end gap-x-3 sm:gap-x-4 xl:gap-x-6">
             <div>
               <button
                 type="button"
                 onClick={toggleAIChat}
+                aria-label="Hỏi trợ lý AI"
                 aria-haspopup="dialog"
                 aria-expanded={isAIChatOpen}
                 aria-controls="vouges-ai-chat-panel"
                 className="btn-outline flex items-center px-2 py-2 gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-200/50 transition-all hover:from-amber-600 hover:to-orange-600 hover:shadow-lg hover:shadow-amber-300/50 dark:shadow-amber-900/30 dark:hover:shadow-amber-800/40"
               >
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
-                <span className="text-xs font-semibold">Ask AI</span>
+                <span className="hidden text-xs font-semibold sm:inline">Hỏi trợ lý AI</span>
               </button>
             </div>
             <div>
@@ -95,23 +96,23 @@ const Header = () => {
                   onClick={() => navigate("/owner")}
                   className="btn-outline px-2 py-2 text-xs font-semibold"
                 >
-                  Dashboard
+                  Tổng quan
                 </button>
               )}
             </div>
             {/* Menu Toggle */}
-            <div className="relative lg:hidden w-7 h-6">
+            <div className="relative xl:hidden w-7 h-6">
               <img
                 onClick={toggleMenu}
                 src={assets.menu}
                 alt=""
-                className={`absolute inset-0 lg:hidden cursor-pointer transition-opacity duration-700 ${menuOpened ? "opacity-0" : "opacity-100"}`}
+                className={`absolute inset-0 xl:hidden cursor-pointer transition-opacity duration-700 ${menuOpened ? "opacity-0" : "opacity-100"}`}
               />
               <img
                 onClick={toggleMenu}
                 src={assets.menuClose}
                 alt=""
-                className={`absolute inset-0 lg:hidden cursor-pointer transition-opacity duration-700 ${menuOpened ? "opacity-100" : "opacity-0"}`}
+                className={`absolute inset-0 xl:hidden cursor-pointer transition-opacity duration-700 ${menuOpened ? "opacity-100" : "opacity-0"}`}
               />
             </div>
             {/* Cart */}
@@ -119,7 +120,7 @@ const Header = () => {
               type="button"
               onClick={openCart}
               data-cart-target
-              aria-label={`Shopping cart with ${getCartCount()} items`}
+              aria-label={`Giỏ hàng có ${getCartCount()} sản phẩm`}
               className="relative cursor-pointer"
             >
               <img src={assets.cartAdded} alt="" className="min-w-7" />
@@ -142,20 +143,21 @@ const Header = () => {
                 >
                   <UserButton.MenuItems>
                     <UserButton.Action
-                      label="My Orders"
+                      label="Đơn hàng của tôi"
                       labelIcon={<OrdersIcon />}
                       onClick={() => navigate("/my-orders")}
                     />
-                    <UserButton.Action label="Thành viên & voucher" labelIcon={<Ticket size={16} aria-hidden="true" />}
+                    <UserButton.Action label="Thành viên & mã giảm giá" labelIcon={<Ticket size={16} aria-hidden="true" />}
                       onClick={() => navigate("/membership")} />
                   </UserButton.MenuItems>
                 </UserButton>
               ) : (
                 <button
+                  aria-label="Đăng nhập"
                   onClick={() => openSignIn()}
                   className="btn-secondary flexCenter gap-2 rofunded-full"
                 >
-                  Login
+                  <span className="hidden sm:inline">Đăng nhập</span>
                   <img src={assets.user} alt="" className="invert w-5" />
                 </button>
               )}
@@ -165,7 +167,7 @@ const Header = () => {
       </header>
 
       {hasOpenedAIChat && (
-        <Suspense fallback={isAIChatOpen ? <div role="status" className="fixed bottom-6 right-6 z-50 rounded-xl bg-white p-5 shadow-lg">Loading chat...</div> : null}>
+        <Suspense fallback={isAIChatOpen ? <div role="status" className="fixed bottom-6 right-6 z-50 rounded-xl bg-white p-5 shadow-lg">Đang tải cuộc trò chuyện…</div> : null}>
           <AIChatPanel
             key={user?.id || "guest"}
             isOpen={isAIChatOpen}

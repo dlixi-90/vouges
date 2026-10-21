@@ -22,7 +22,7 @@ const DeferredSection = ({ children, minHeight }) => {
   return (
     <div ref={containerRef} style={visible ? undefined : { minHeight }}>
       {visible && (
-        <Suspense fallback={<div style={{ minHeight }} role="status" aria-label="Loading section" />}>
+        <Suspense fallback={<div style={{ minHeight }} role="status" aria-label="Đang tải nội dung" />}>
           {children}
         </Suspense>
       )}

@@ -84,7 +84,7 @@ export const getProductDetails = async (argumentsValue = {}) => {
     },
     message:
       availableOptions.length > 0
-        ? "Thông tin được lấy trực tiếp từ catalog Velours."
+        ? "Thông tin được lấy trực tiếp từ danh mục sản phẩm Velours."
         : "Sản phẩm hiện không có size khả dụng.",
   };
 };

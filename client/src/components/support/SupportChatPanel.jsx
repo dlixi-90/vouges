@@ -41,13 +41,13 @@ export default function SupportChatPanel({ onClose, onBack, aiMessages }) {
     }
   };
   return <>
-    <button type="button" aria-label="Đóng chat CSKH" onClick={onClose} className="fixed inset-0 z-40 bg-black/25 sm:hidden" />
-    <section id="vouges-ai-chat-panel" role="dialog" aria-label="Chat với nhân viên CSKH" className="fixed inset-x-3 bottom-3 top-20 z-50 flex min-h-0 flex-col overflow-hidden rounded-3xl border border-secondary/15 bg-white text-secondary shadow-2xl sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[calc(100dvh-6rem)] sm:max-h-[680px] sm:w-[420px]">
+    <button type="button" aria-label="Đóng trò chuyện CSKH" onClick={onClose} className="fixed inset-0 z-40 bg-black/25 sm:hidden" />
+    <section id="vouges-ai-chat-panel" role="dialog" aria-label="Trò chuyện với nhân viên CSKH" className="fixed inset-x-3 bottom-3 top-20 z-50 flex min-h-0 flex-col overflow-hidden rounded-3xl border border-secondary/15 bg-white text-secondary shadow-2xl sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[calc(100dvh-6rem)] sm:max-h-[680px] sm:w-[420px]">
       <header className="flex shrink-0 items-center gap-3 border-b border-secondary/10 bg-[#f4f1f6] px-4 py-3">
         <button type="button" onClick={onBack} aria-label="Quay lại trợ lý AI" title="Quay lại AI" className="cursor-pointer rounded-xl p-2 hover:bg-white"><ArrowLeft size={18} /></button>
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-secondary text-white"><Headset size={21} aria-hidden="true" /></span>
         <div className="min-w-0 flex-1"><h2 className="text-sm font-semibold">Nhân viên CSKH</h2><p className="mt-0.5 text-xs text-gray-500">Velours luôn lắng nghe bạn</p></div>
-        <button type="button" onClick={onClose} aria-label="Đóng chat CSKH" className="cursor-pointer rounded-xl p-2 hover:bg-white"><X size={20} /></button>
+        <button type="button" onClick={onClose} aria-label="Đóng trò chuyện CSKH" className="cursor-pointer rounded-xl p-2 hover:bg-white"><X size={20} /></button>
       </header>
       {!user ? <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center"><Headset size={38} strokeWidth={1.5} aria-hidden="true" /><p className="text-sm leading-6 text-gray-500">Đăng nhập để gửi tin nhắn và xem lại phản hồi từ CSKH.</p><button type="button" onClick={requireCartLogin} className="btn-secondary">Đăng nhập</button></div>
         : snapshot?.conversation ? <>
@@ -63,7 +63,7 @@ export default function SupportChatPanel({ onClose, onBack, aiMessages }) {
             {context.length > 0 && <label className="mt-5 flex cursor-pointer items-start gap-2 rounded-xl bg-primary p-3 text-left text-xs leading-5 text-gray-600"><input type="checkbox" checked={shareContext} onChange={(event) => setShareContext(event.target.checked)} className="mt-1 accent-secondary" />Chia sẻ {context.length} tin nhắn gần nhất với AI cho nhân viên.</label>}
             {error && <p role="alert" className="mt-4 text-xs text-red-600">{error}</p>}
             {!snapshot ? <button type="button" onClick={() => { setError(""); setAttempt((value) => value + 1); }} className="btn-outline mt-5">Thử kết nối lại</button>
-              : <button type="button" disabled={starting} onClick={start} className="mt-6 inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-secondary px-6 py-3 text-sm font-medium text-white disabled:opacity-50">{starting ? <LoaderCircle size={17} className="animate-spin" aria-hidden="true" /> : <Headset size={17} aria-hidden="true" />}{starting ? "Đang gửi yêu cầu…" : "Bắt đầu chat với CSKH"}</button>}
+              : <button type="button" disabled={starting} onClick={start} className="mt-6 inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-secondary px-6 py-3 text-sm font-medium text-white disabled:opacity-50">{starting ? <LoaderCircle size={17} className="animate-spin" aria-hidden="true" /> : <Headset size={17} aria-hidden="true" />}{starting ? "Đang gửi yêu cầu…" : "Bắt đầu trò chuyện với CSKH"}</button>}
             <p className="mt-4 text-xs leading-5 text-gray-400">Nếu nhân viên chưa phản hồi ngay, bạn có thể để lại lời nhắn.</p>
           </>}
         </div>}

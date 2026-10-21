@@ -1,3 +1,4 @@
+import { translateCatalogText } from "../utils/localization.js";
 import { useEffect, useRef, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { getAvailableSizes } from "../utils/productStock";
@@ -63,16 +64,16 @@ const Item = ({ product, collectionLayout = false }) => {
               }}
               className="btn-secondary w-full !px-0 !py-2 !text-xs"
             >
-              View
+              Xem
             </button>
           </div>
         )}
         <p className="absolute right-2 top-2 rounded-full bg-white/50 px-5 ring-1 ring-slate-900/10">
-          {product.type}
+          {translateCatalogText(product.type)}
         </p>
         {!isAvailable && (
           <p className="absolute left-2 top-2 rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 ring-1 ring-red-200">
-            Out of stock
+            Hết hàng
           </p>
         )}
       </div>
@@ -88,7 +89,7 @@ const Item = ({ product, collectionLayout = false }) => {
         {collectionLayout ? (
           <>
             <h5 className="line-clamp-1 text-[10px] font-normal uppercase sm:text-xs">
-              {product.title}
+              {translateCatalogText(product.title)}
             </h5>
             <p className="mt-2 font-normal">
               {formatThousandsVnd(displayedPrice, currency)}
@@ -97,12 +98,12 @@ const Item = ({ product, collectionLayout = false }) => {
         ) : (
           <>
             <div className="flexBetween">
-              <h5 className="h5 line-clamp-1 uppercase">{product.title}</h5>
+              <h5 className="h5 line-clamp-1 uppercase">{translateCatalogText(product.title)}</h5>
               <p className="font-semibold">
                 {formatThousandsVnd(displayedPrice, currency)}
               </p>
             </div>
-            <p className="line-clamp-2 pt-1">{product.description}</p>
+            <p className="line-clamp-2 pt-1">{translateCatalogText(product.description)}</p>
           </>
         )}
       </div>
@@ -117,7 +118,7 @@ const Item = ({ product, collectionLayout = false }) => {
             }}
             className="pointer-events-auto w-full translate-y-5 rounded-full bg-white px-4 py-3 text-xs font-medium uppercase tracking-[0.12em] text-[#343434] opacity-0 shadow-lg transition duration-300 hover:bg-[#f5f5f2] group-hover:translate-y-0 group-hover:opacity-100"
           >
-            View product
+            Xem sản phẩm
           </button>
         </div>
       )}

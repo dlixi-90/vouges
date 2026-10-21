@@ -28,13 +28,13 @@ const cleanupUploadedFiles = async (files = []) => {
 
 const parseProductData = (rawProductData) => {
   if (typeof rawProductData !== "string") {
-    throw new ProductRequestError("Product data is required");
+    throw new ProductRequestError("Vui lòng cung cấp dữ liệu sản phẩm");
   }
 
   try {
     return JSON.parse(rawProductData);
   } catch {
-    throw new ProductRequestError("Invalid product data");
+    throw new ProductRequestError("Dữ liệu sản phẩm không hợp lệ");
   }
 };
 
@@ -58,7 +58,7 @@ const normalizeProductData = (productData, currentProduct = null) => {
   );
 
   if (!title || !description || (!typeId && (!category || !type)) || sizes.length === 0) {
-    throw new ProductRequestError("Invalid product data");
+    throw new ProductRequestError("Dữ liệu sản phẩm không hợp lệ");
   }
 
   if (
@@ -69,14 +69,14 @@ const normalizeProductData = (productData, currentProduct = null) => {
     type.length > 100 ||
     sizes.length > 50
   ) {
-    throw new ProductRequestError("Product data is too long");
+    throw new ProductRequestError("Dữ liệu sản phẩm vượt quá độ dài cho phép");
   }
 
   if (
     sizes.some((size) => !isValidSizeName(size)) ||
     new Set(sizes.map((size) => size.toLowerCase())).size !== sizes.length
   ) {
-    throw new ProductRequestError("Product sizes must be unique and valid");
+    throw new ProductRequestError("Các dung tích sản phẩm phải hợp lệ và không được trùng nhau");
   }
 
   const price = {};
@@ -93,11 +93,11 @@ const normalizeProductData = (productData, currentProduct = null) => {
       productPrice <= 0 ||
       productPrice > Number.MAX_SAFE_INTEGER / 1000
     ) {
-      throw new ProductRequestError(`Invalid price for size ${size}`);
+      throw new ProductRequestError(`Giá không hợp lệ cho dung tích ${size}`);
     }
 
     if (!Number.isSafeInteger(quantity) || quantity < 0) {
-      throw new ProductRequestError(`Invalid quantity for size ${size}`);
+      throw new ProductRequestError(`Số lượng không hợp lệ cho dung tích ${size}`);
     }
 
     const originalSize = renames.find((rename) => rename.to === size)?.from || size;
@@ -134,7 +134,7 @@ export const createProduct = async (req, res) => {
     const images = req.files || [];
 
     if (images.length === 0) {
-      throw new ProductRequestError("At least one image is required");
+      throw new ProductRequestError("Cần có ít nhất một ảnh");
     }
 
     await validateProductCategory(productData);
@@ -159,13 +159,13 @@ export const createProduct = async (req, res) => {
       inStock: hasStock,
     });
 
-    return res.status(201).json({ success: true, message: "Product Added" });
+    return res.status(201).json({ success: true, message: "Đã thêm sản phẩm" });
   } catch (error) {
     if (!error.statusCode) console.log(error);
     return res.status(error.statusCode || 500).json({
       success: false,
       message:
-        error.statusCode === 400 ? error.message : "Unable to create product",
+        error.statusCode === 400 ? error.message : "Không thể tạo sản phẩm",
     });
   } finally {
     await cleanupUploadedFiles(req.files);
@@ -187,7 +187,7 @@ export const listProduct = async (req, res) => {
     if (!error.statusCode) console.log(error);
     return res.status(500).json({
       success: false,
-      message: "Unable to load products",
+      message: "Không thể tải danh sách sản phẩm",
     });
   }
 };
@@ -201,7 +201,7 @@ export const listPopularProducts = async (_req, res) => {
     console.error(error);
     return res.status(500).json({
       success: false,
-      message: "Unable to load popular products",
+      message: "Không thể tải sản phẩm bán chạy",
     });
   }
 };
@@ -214,7 +214,7 @@ export const singleProduct = async (req, res) => {
     if (!isValidObjectId(productId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid product ID",
+        message: "Mã sản phẩm không hợp lệ",
       });
     }
 
@@ -226,7 +226,7 @@ export const singleProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found",
+        message: "Không tìm thấy sản phẩm",
       });
     }
 
@@ -235,7 +235,7 @@ export const singleProduct = async (req, res) => {
     console.log(error.message);
     return res.status(500).json({
       success: false,
-      message: "Unable to load product",
+      message: "Không thể tải sản phẩm",
     });
   }
 };
@@ -246,7 +246,7 @@ export const toggleStock = async (req, res) => {
     if (req.user?.role !== "owner") {
       return res.status(403).json({
         success: false,
-        message: "Not authorized",
+        message: "Bạn không có quyền thực hiện thao tác này",
       });
     }
 
@@ -255,14 +255,14 @@ export const toggleStock = async (req, res) => {
     if (!isValidObjectId(productId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid product ID",
+        message: "Mã sản phẩm không hợp lệ",
       });
     }
 
     if (typeof inStock !== "boolean") {
       return res.status(400).json({
         success: false,
-        message: "Invalid stock status",
+        message: "Trạng thái tồn kho không hợp lệ",
       });
     }
 
@@ -276,7 +276,7 @@ export const toggleStock = async (req, res) => {
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found",
+        message: "Không tìm thấy sản phẩm",
       });
     }
 
@@ -285,7 +285,7 @@ export const toggleStock = async (req, res) => {
       if (inStock && !hasAnyQuantity(product)) {
         return res.status(400).json({
           success: false,
-          message: "Cannot enable a product with no stock",
+          message: "Không thể mở bán sản phẩm đã hết hàng",
         });
       }
 
@@ -303,7 +303,7 @@ export const toggleStock = async (req, res) => {
 
       return res.json({
         success: true,
-        message: "Product status updated",
+        message: "Đã cập nhật trạng thái sản phẩm",
         product,
       });
     }
@@ -312,7 +312,7 @@ export const toggleStock = async (req, res) => {
     if (!product.sizes.includes(size)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid product size",
+        message: "Dung tích sản phẩm không hợp lệ",
       });
     }
 
@@ -321,7 +321,7 @@ export const toggleStock = async (req, res) => {
     if (inStock && quantity <= 0) {
       return res.status(400).json({
         success: false,
-        message: "Cannot enable a size with zero quantity",
+        message: "Không thể mở bán dung tích có số lượng bằng 0",
       });
     }
 
@@ -338,14 +338,14 @@ export const toggleStock = async (req, res) => {
 
     return res.json({
       success: true,
-      message: `Status for size ${size} updated`,
+      message: `Trạng thái của dung tích ${size} đã được cập nhật`,
       product,
     });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
       success: false,
-      message: "Unable to update stock status",
+      message: "Không thể cập nhật trạng thái tồn kho",
     });
   }
 };
@@ -355,7 +355,7 @@ export const updateProduct = async (req, res) => {
     const { productId } = req.params;
 
     if (!isValidObjectId(productId)) {
-      throw new ProductRequestError("Invalid product ID");
+      throw new ProductRequestError("Mã sản phẩm không hợp lệ");
     }
 
     const currentProduct = await Product.findOne({
@@ -368,7 +368,7 @@ export const updateProduct = async (req, res) => {
     if (!currentProduct) {
       return res.status(404).json({
         success: false,
-        message: "Product not found",
+        message: "Không tìm thấy sản phẩm",
       });
     }
 
@@ -377,7 +377,7 @@ export const updateProduct = async (req, res) => {
     const renames = getSizeRenames(rawProductData, currentProduct, productData.sizes);
     if (rawProductData.expectedUpdatedAt &&
         new Date(rawProductData.expectedUpdatedAt).getTime() !== new Date(currentProduct.updatedAt).getTime()) {
-      throw new ProductRequestError("Product changed. Reload it before saving to avoid overwriting stock changes.", 409);
+      throw new ProductRequestError("Sản phẩm đã thay đổi. Vui lòng tải lại trước khi lưu để tránh ghi đè các thay đổi về tồn kho.", 409);
     }
     await validateProductCategory(productData);
     const existingImages = Array.isArray(rawProductData.existingImages)
@@ -388,7 +388,7 @@ export const updateProduct = async (req, res) => {
     );
 
     if (safeExistingImages.length + (req.files || []).length > 4) {
-      throw new ProductRequestError("Only up to 4 images are allowed");
+      throw new ProductRequestError("Chỉ được tải lên tối đa 4 ảnh");
     }
 
     const uploadedImages = await Promise.all(
@@ -404,7 +404,7 @@ export const updateProduct = async (req, res) => {
     const images = [...safeExistingImages, ...uploadedImages];
 
     if (images.length === 0) {
-      throw new ProductRequestError("At least one image is required");
+      throw new ProductRequestError("Cần có ít nhất một ảnh");
     }
 
     const hasEnabledSize = productData.sizes.some(
@@ -421,7 +421,7 @@ export const updateProduct = async (req, res) => {
         status: "Awaiting Payment",
         items: { $elemMatch: { product: productId, size: { $in: changedSizes } } },
       }).session(session)) {
-        throw new ProductRequestError("This size is reserved by a pending QR payment. Try again after the payment finishes or is cancelled.", 409);
+        throw new ProductRequestError("Dung tích này đang được giữ chỗ cho một giao dịch thanh toán bằng mã QR. Vui lòng thử lại sau khi giao dịch hoàn tất hoặc bị hủy.", 409);
       }
       const updated = await Product.findOneAndUpdate(
         { _id: productId, isDeleted: { $ne: true }, updatedAt: currentProduct.updatedAt },
@@ -433,7 +433,7 @@ export const updateProduct = async (req, res) => {
         { new: true, runValidators: true, session },
       );
       if (!updated) {
-        throw new ProductRequestError("Product changed. Reload it before saving.", 409);
+        throw new ProductRequestError("Sản phẩm đã thay đổi. Vui lòng tải lại trước khi lưu.", 409);
       }
       if (renames.length) {
         const { filter, pipeline } = buildCartSizeRename(productId, renames);
@@ -444,7 +444,7 @@ export const updateProduct = async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Product updated successfully",
+      message: "Đã cập nhật sản phẩm thành công",
       product: updatedProduct,
     });
   } catch (error) {
@@ -452,7 +452,7 @@ export const updateProduct = async (req, res) => {
     return res.status(error.statusCode || 500).json({
       success: false,
       message:
-        error.statusCode ? error.message : "Unable to update product",
+        error.statusCode ? error.message : "Không thể cập nhật sản phẩm",
     });
   } finally {
     await cleanupUploadedFiles(req.files);
@@ -464,7 +464,7 @@ export const deleteProduct = async (req, res) => {
     if (req.user?.role !== "owner") {
       return res.status(403).json({
         success: false,
-        message: "Not authorized",
+        message: "Bạn không có quyền thực hiện thao tác này",
       });
     }
 
@@ -473,7 +473,7 @@ export const deleteProduct = async (req, res) => {
     if (!isValidObjectId(productId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid product ID",
+        message: "Mã sản phẩm không hợp lệ",
       });
     }
 
@@ -498,7 +498,7 @@ export const deleteProduct = async (req, res) => {
     if (!deletedProduct) {
       return res.status(404).json({
         success: false,
-        message: "Product not found or already deleted",
+        message: "Không tìm thấy sản phẩm hoặc sản phẩm đã bị xóa",
       });
     }
 
@@ -520,14 +520,14 @@ export const deleteProduct = async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Product deleted successfully",
+      message: "Đã xóa sản phẩm thành công",
     });
   } catch (error) {
     console.log(error);
 
     return res.status(500).json({
       success: false,
-      message: "Unable to delete product",
+      message: "Không thể xóa sản phẩm",
     });
   }
 };

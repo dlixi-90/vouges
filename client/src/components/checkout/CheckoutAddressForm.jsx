@@ -90,7 +90,7 @@ const CheckoutAddressForm = ({
           signal: controller.signal,
         });
         if (!data.success)
-          throw new Error(data.message || "Unable to load addresses");
+          throw new Error(data.message || "Không thể tải danh sách địa chỉ");
         if (controller.signal.aborted) return;
         const saved = data.addresses || [];
         setAddresses(saved);
@@ -100,7 +100,7 @@ const CheckoutAddressForm = ({
           setAddressLoadError(
             error.response?.data?.message ||
               error.message ||
-              "Unable to load addresses",
+              "Không thể tải danh sách địa chỉ",
           );
       } finally {
         if (!controller.signal.aborted) setIsLoadingAddresses(false);
@@ -127,7 +127,7 @@ const CheckoutAddressForm = ({
       { headers: { Authorization: `Bearer ${await getToken()}` } },
     );
     if (!data.success || !data.address?._id)
-      throw new Error(data.message || "Unable to save address");
+      throw new Error(data.message || "Không thể lưu địa chỉ");
     const saved = data.address;
     if (!saveToAddressBook) return saved;
     setAddresses((current) => [
@@ -151,7 +151,7 @@ const CheckoutAddressForm = ({
       },
     );
     if (!data.success)
-      throw new Error(data.message || "Unable to update default address");
+      throw new Error(data.message || "Không thể cập nhật địa chỉ mặc định");
     setAddresses((current) =>
       current.map((entry) => ({
         ...entry,
@@ -176,7 +176,7 @@ const CheckoutAddressForm = ({
       { headers: { Authorization: `Bearer ${await getToken()}` } },
     );
     if (!data.success || !data.address?._id)
-      throw new Error(data.message || "Unable to update address");
+      throw new Error(data.message || "Không thể cập nhật địa chỉ");
     const updated = data.address;
     setAddresses((current) => replaceSavedAddress(current, addressId, updated));
     setAddress((current) =>
@@ -194,7 +194,7 @@ const CheckoutAddressForm = ({
       headers: { Authorization: `Bearer ${await getToken()}` },
     });
     if (!data.success)
-      throw new Error(data.message || "Unable to delete address");
+      throw new Error(data.message || "Không thể xóa địa chỉ");
     const remaining = removeSavedAddress(addresses, addressId);
     setAddresses(remaining);
     setAddress((current) => resolveCheckoutAddress(current, remaining, user));
@@ -214,12 +214,12 @@ const CheckoutAddressForm = ({
     setIsSubmitting(true);
     try {
       await saveAddress(address, makeDefault);
-      toast.success("Address saved");
+      toast.success("Đã lưu địa chỉ");
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
           error.message ||
-          "Unable to save address",
+          "Không thể lưu địa chỉ",
       );
     } finally {
       submitRef.current = false;
@@ -230,21 +230,21 @@ const CheckoutAddressForm = ({
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (hasPendingCartUpdates()) return toast.error("Please wait for cart changes to finish saving");
+    if (hasPendingCartUpdates()) return toast.error("Vui lòng chờ lưu xong các thay đổi trong giỏ hàng");
 
     if (isSubmitting || submitRef.current) return;
-    if (!checkout.ready) return toast.error("Vui lòng chờ kiểm tra tổng tiền và voucher.");
+    if (!checkout.ready) return toast.error("Vui lòng chờ kiểm tra tổng tiền và mã giảm giá.");
     if (method === "QR" && checkout.pricing.amount === 0) return toast.error("Đơn 0đ: vui lòng chọn COD để đặt đơn.");
     if (isLoadingAddresses || addressLoadError)
-      return toast.error("Please load your saved addresses before checkout.");
+      return toast.error("Vui lòng tải danh sách địa chỉ đã lưu trước khi thanh toán.");
     if (isAddressBookOpen) return;
 
     if (!user) {
-      return toast.error("Please login before placing an order");
+      return toast.error("Vui lòng đăng nhập trước khi đặt hàng");
     }
 
     if (items.length === 0) {
-      return toast.error("Your cart is empty");
+      return toast.error("Giỏ hàng của bạn đang trống");
     }
 
     const phone = validateDeliveryPhone(address.phone);
@@ -308,7 +308,7 @@ const CheckoutAddressForm = ({
       toast.error(
         error.response?.data?.message ||
           error.message ||
-          "Could not place order",
+          "Không thể đặt hàng",
       );
       await fetchProducts();
     } finally {
@@ -331,12 +331,12 @@ const CheckoutAddressForm = ({
       />
       <h2 className="flex items-center gap-2 text-lg font-semibold text-secondary">
         <MapPin size={20} aria-hidden="true" />
-        Delivery Address
+        Địa chỉ giao hàng
       </h2>
 
       {isLoadingAddresses && !address._id ? (
         <p className="mt-8" role="status">
-          Loading your addresses...
+          Đang tải danh sách địa chỉ của bạn…
         </p>
       ) : addressLoadError ? (
         <div className="mt-6 rounded-md bg-primary p-4" role="alert">
@@ -346,7 +346,7 @@ const CheckoutAddressForm = ({
             onClick={() => setLoadAttempt((current) => current + 1)}
             className="mt-3 cursor-pointer text-sm font-semibold text-secondary underline"
           >
-            Try again
+            Thử lại
           </button>
         </div>
       ) : address._id ? (
@@ -366,7 +366,7 @@ const CheckoutAddressForm = ({
           </p>
           {address.isDefault && (
             <span className="inline-block rounded border border-secondary/25 bg-secondary/5 px-2 py-0.5 text-xs text-secondary">
-              Default
+              Mặc định
             </span>
           )}
           <button
@@ -375,7 +375,7 @@ const CheckoutAddressForm = ({
             onClick={() => setIsAddressBookOpen(true)}
             className="cursor-pointer rounded-md px-2 py-2 text-sm font-medium text-secondary underline underline-offset-4 disabled:opacity-40"
           >
-            Change Address
+            Thay đổi địa chỉ
           </button>
         </div>
       ) : (
@@ -393,7 +393,7 @@ const CheckoutAddressForm = ({
               disabled={isSubmitting}
               className="h-4 w-4 accent-secondary"
             />
-            Save as default address
+            Lưu làm địa chỉ mặc định
           </label>
           <button
             type="button"
@@ -401,7 +401,7 @@ const CheckoutAddressForm = ({
             onClick={saveInlineAddress}
             className="btn-dark mt-5 !rounded-full disabled:opacity-40"
           >
-            {isSubmitting ? "Saving..." : "Save Address"}
+            {isSubmitting ? "Đang lưu…" : "Lưu địa chỉ"}
           </button>
           {addresses.length > 0 && (
             <button
@@ -410,7 +410,7 @@ const CheckoutAddressForm = ({
               onClick={() => setIsAddressBookOpen(true)}
               className="btn-outline mt-5 !rounded-full"
             >
-              Choose Saved Address
+              Chọn địa chỉ đã lưu
             </button>
           )}
         </>

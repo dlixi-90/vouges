@@ -1,3 +1,4 @@
+import { translateCatalogText } from "../../utils/localization.js";
 import { useState } from "react";
 import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
 
@@ -25,7 +26,7 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
   return (
     <div>
       <h3 className="text-sm font-medium text-[#334957]">
-        Types ({types.length})
+        Loại sản phẩm ({types.length})
       </h3>
       <ul className="mt-3 divide-y divide-[#e2e7e4] overflow-hidden rounded-lg border border-[#e2e7e4] bg-white empty:hidden">
         {types.map((type) => (
@@ -37,7 +38,7 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
               >
                 <label className="block">
                   <span className="mb-2 block text-xs font-medium text-[#334957]">
-                    Type name
+                    Tên loại sản phẩm
                   </span>
                   <input
                     className="admin-input"
@@ -55,7 +56,7 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
                     className="admin-primary-button"
                     disabled={disabled}
                   >
-                    <Check size={15} /> Save
+                    <Check size={15} /> Lưu
                   </button>
                   <button
                     type="button"
@@ -63,21 +64,21 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
                     disabled={disabled}
                     onClick={() => setEditingId(null)}
                   >
-                    <X size={15} /> Cancel
+                    <X size={15} /> Hủy
                   </button>
                 </div>
               </form>
             ) : (
               <div className="flex items-center justify-between gap-3">
                 <span className="min-w-0 break-words text-sm text-[#52616a]">
-                  {type.name}
+                  {translateCatalogText(type.name)}
                 </span>
                 <div className="flex shrink-0 items-center gap-1">
                   <button
                     type="button"
                     className="inline-flex h-10 items-center gap-1.5 rounded-lg px-2.5 text-sm text-[#496852] hover:bg-[#edf6ee] disabled:opacity-60"
                     disabled={disabled}
-                    aria-label={`Edit type ${type.name} in ${category.name}`}
+                    aria-label={`Chỉnh sửa loại sản phẩm ${type.name} trong danh mục ${translateCatalogText(category.name)}`}
                     onClick={() => {
                       setEditingId(type._id);
                       setEditName(type.name);
@@ -89,7 +90,7 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
                     type="button"
                     disabled={disabled}
                     onClick={() => onDelete(category, type)}
-                    aria-label={`Delete type ${type.name} in ${category.name}`}
+                    aria-label={`Xóa loại sản phẩm ${type.name} trong danh mục ${translateCatalogText(category.name)}`}
                     className="inline-flex h-10 items-center gap-1.5 rounded-lg px-2.5 text-sm text-red-600 hover:bg-red-50 disabled:opacity-60"
                   >
                     <Trash2 size={14} />
@@ -102,7 +103,7 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
       </ul>
       {types.length === 0 && (
         <p className="mt-3 text-xs text-[#839099]">
-          No types yet. Add the first type below.
+          Chưa có loại sản phẩm nào. Hãy thêm loại đầu tiên bên dưới.
         </p>
       )}
       <form
@@ -111,11 +112,11 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
       >
         <label className="block min-w-0 flex-1">
           <span className="mb-2 block text-xs font-medium text-[#334957]">
-            New type
+            Loại sản phẩm mới
           </span>
           <input
             className="admin-input"
-            placeholder="e.g. Lotion"
+            placeholder="Ví dụ: Sữa dưỡng thể"
             value={name}
             onChange={(event) => setName(event.target.value)}
             maxLength={100}
@@ -128,7 +129,7 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
           className="admin-primary-button shrink-0 justify-center"
           disabled={disabled}
         >
-          <Plus size={15} /> Add type
+          <Plus size={15} /> Thêm loại sản phẩm
         </button>
       </form>
     </div>

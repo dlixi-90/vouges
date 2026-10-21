@@ -30,18 +30,18 @@ const Features = () => {
         </div>
         <div className="p-4">
           <BadgeCheck size={32} strokeWidth={1.6} className="mb-3 text-secondary" aria-hidden="true" />
-          <h4 className="h4 capitalize">Quality Product</h4>
-          <p>Luxury beauty products crafted with care excellence.</p>
+          <h4 className="h4 ">Sản phẩm chất lượng</h4>
+          <p>Sản phẩm làm đẹp cao cấp, được chăm chút trong từng công đoạn.</p>
         </div>
         <div className="p-4">
           <Truck size={32} strokeWidth={1.6} className="mb-3 text-secondary" aria-hidden="true" />
-          <h4 className="h4 capitalize">Fast Delivery</h4>
-          <p>Luxury beauty products crafted with care excellence.</p>
+          <h4 className="h4 ">Giao hàng nhanh chóng</h4>
+          <p>Sản phẩm làm đẹp cao cấp, được chăm chút trong từng công đoạn.</p>
         </div>
         <div className="p-4">
           <ShieldCheck size={32} strokeWidth={1.6} className="mb-3 text-secondary" aria-hidden="true" />
-          <h4 className="h4 capitalize">Secure Payment</h4>
-          <p>Luxury beauty products crafted with care excellence.</p>
+          <h4 className="h4 ">Thanh toán an toàn</h4>
+          <p>Sản phẩm làm đẹp cao cấp, được chăm chút trong từng công đoạn.</p>
         </div>
       </div>
     </section>

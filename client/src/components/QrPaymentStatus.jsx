@@ -74,7 +74,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
 
         if (data.order.status === "Payment Review") {
           if (!hasShownSuccess) {
-            toast("Payment received and awaiting manual confirmation.");
+            toast("Đã nhận được thanh toán và đang chờ nhân viên xác nhận.");
             setHasShownSuccess(true);
           }
         } else if (data.order.isPaid) {
@@ -88,7 +88,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
           }
 
           if (!hasShownSuccess) {
-            toast.success("Payment successful!");
+            toast.success("Thanh toán thành công!");
             setHasShownSuccess(true);
           }
         } else if (data.order.status === "Payment Expired") {
@@ -96,17 +96,17 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
           void fetchProducts();
 
           if (showError) {
-            toast.error("Payment time expired. Reserved stock was restored.");
+            toast.error("Đã hết thời gian thanh toán. Sản phẩm được giữ chỗ đã được hoàn lại kho.");
           }
         } else if (showError) {
-          toast("Payment has not been received yet!");
+          toast("Chưa nhận được thanh toán!");
         }
       } catch (error) {
         if (showError && !controller.signal.aborted) {
           toast.error(
             error.response?.data?.message ||
               error.message ||
-              "Could not check payment.",
+              "Không thể kiểm tra thanh toán.",
           );
         }
       } finally {
@@ -170,9 +170,9 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
   const copyPaymentCode = async () => {
     try {
       await navigator.clipboard.writeText(order.paymentCode);
-      toast.success("Payment code copied");
+      toast.success("Đã sao chép nội dung chuyển khoản");
     } catch {
-      toast.error("Could not copy payment code");
+      toast.error("Không thể sao chép nội dung chuyển khoản");
     }
   };
 
@@ -196,7 +196,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
         );
 
         if (!data.success) {
-          throw new Error(data.message || "Could not cancel QR payment");
+          throw new Error(data.message || "Không thể hủy thanh toán bằng mã QR");
         }
 
         storeResources.invalidateMembership();
@@ -207,7 +207,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
         toast.error(
           error.response?.data?.message ||
             error.message ||
-            "Could not cancel QR payment",
+            "Không thể hủy thanh toán bằng mã QR",
         );
         cancelRequestRef.current = false;
         void checkPayment(false);
@@ -248,11 +248,10 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
   if (order.status === "Payment Review") {
     return (
       <div className="mx-auto max-w-xl rounded-2xl bg-white px-6 py-16 text-center shadow-sm">
-        <h2 className="text-2xl font-semibold">Payment received</h2>
+        <h2 className="text-2xl font-semibold">Đã nhận thanh toán</h2>
 
         <p className="mt-3 text-gray-500">
-          Your payment arrived after the stock reservation expired. The order is
-          awaiting manual confirmation.
+          Khoản thanh toán được nhận sau khi hết thời gian giữ chỗ sản phẩm. Đơn hàng đang chờ nhân viên xác nhận.
         </p>
 
         <button
@@ -260,7 +259,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
           onClick={() => navigate("/my-orders")}
           className="btn-dark mt-8 !rounded-full"
         >
-          View My Orders
+          Xem đơn hàng của tôi
         </button>
       </div>
     );
@@ -273,21 +272,21 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
           {"\u2713"}
         </div>
 
-        <h2 className="mt-5 text-2xl font-semibold">Payment successful</h2>
+        <h2 className="mt-5 text-2xl font-semibold">Thanh toán thành công</h2>
 
         <p className="mt-3 text-gray-500">
-          Your payment has been confirmed and the order is being processed.
+          Thanh toán của bạn đã được xác nhận. Đơn hàng đang được xử lý.
         </p>
         {order.shippingMethod === "urgent" && <p className="mt-3 text-sm text-gray-500">{URGENT_SHIPPING_NOTE}</p>}
 
-        <p className="mt-2 text-sm text-gray-400">Order ID: {order._id}</p>
+        <p className="mt-2 text-sm text-gray-400">Mã đơn hàng: {order._id}</p>
 
         <button
           type="button"
           onClick={() => navigate("/my-orders")}
           className="btn-dark mt-8 !rounded-full"
         >
-          View My Orders
+          Xem đơn hàng của tôi
         </button>
       </div>
     );
@@ -296,11 +295,10 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
   if (order.status === "Payment Expired") {
     return (
       <div className="mx-auto max-w-xl rounded-2xl bg-white px-6 py-16 text-center shadow-sm">
-        <h2 className="text-2xl font-semibold">Payment time expired</h2>
+        <h2 className="text-2xl font-semibold">Đã hết thời gian thanh toán</h2>
 
         <p className="mt-3 text-gray-500">
-          The reserved products were returned to stock. Your cart was kept so
-          you can try again.
+          Sản phẩm được giữ chỗ đã được hoàn lại kho. Giỏ hàng của bạn vẫn được lưu để bạn có thể thử lại.
         </p>
 
         <button
@@ -308,7 +306,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
           onClick={onExpired}
           className="btn-dark mt-8 !rounded-full"
         >
-          Return to cart
+          Quay lại giỏ hàng
         </button>
       </div>
     );
@@ -318,20 +316,20 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
     <div className="mx-auto max-w-3xl rounded-2xl bg-white p-6 shadow-sm md:p-10">
       <div className="grid gap-8 md:grid-cols-2 md:items-center">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold">Scan QR to pay</h2>
+          <h2 className="text-2xl font-semibold">Quét mã QR để thanh toán</h2>
 
           <p className="mt-2 text-sm text-gray-500">
-            Open your banking application and scan this QR code.
+            Mở ứng dụng ngân hàng và quét mã QR này để thanh toán.
           </p>
 
           <div className="mx-auto mt-6 max-w-72 rounded-xl border border-gray-200 p-3">
-            <img src={order.qrUrl} alt="VietQR payment" className="w-full" />
+            <img src={order.qrUrl} alt="Mã thanh toán VietQR" className="w-full" />
           </div>
         </div>
 
         <div>
           <div className="rounded-xl  p-5">
-            <p className="text-sm text-gray-500">Amount</p>
+            <p className="text-sm text-gray-500">Số tiền</p>
 
             <p className="mt-1 text-2xl font-bold text-secondary">
               {Number(order.qrAmount).toLocaleString("vi-VN")} VND
@@ -340,7 +338,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
 
             <hr className="my-5 border-gray-200" />
 
-            <p className="text-sm text-gray-500">Transfer content</p>
+            <p className="text-sm text-gray-500">Nội dung chuyển khoản</p>
 
             <div className="mt-2 flex items-center justify-between gap-3">
               <p className="text-lg font-bold tracking-wider">
@@ -352,7 +350,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
                 onClick={copyPaymentCode}
                 className="rounded-md border border-gray-300 px-3 py-2 text-sm hover:bg-white"
               >
-                Copy
+                Sao chép
               </button>
             </div>
           </div>
@@ -361,11 +359,10 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
             <span className="h-3 w-3 animate-pulse rounded-full bg-yellow-500" />
 
             <div>
-              <p className="font-medium">Awaiting payment</p>
+              <p className="font-medium">Đang chờ thanh toán</p>
 
               <p className="text-sm text-gray-500">
-                QR expires in {formatRemainingTime(remainingSeconds)}. Status is
-                checked automatically.
+                Mã QR hết hạn sau {formatRemainingTime(remainingSeconds)}. Trạng thái được kiểm tra tự động.
               </p>
             </div>
           </div>
@@ -376,7 +373,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
             disabled={isChecking || isCancelling}
             className="btn-dark mt-5 w-full !rounded-full disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isChecking ? "Checking..." : "I Have Paid"}
+            {isChecking ? "Đang kiểm tra…" : "Tôi đã thanh toán"}
           </button>
 
           <button
@@ -385,7 +382,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
             disabled={isCancelling}
             className="btn-outline mt-3 w-full !rounded-full disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isCancelling ? "Cancelling..." : "Back to payment method"}
+            {isCancelling ? "Đang hủy…" : "Quay lại chọn phương thức thanh toán"}
           </button>
         </div>
       </div>

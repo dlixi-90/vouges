@@ -1,3 +1,4 @@
+import { translateCatalogText } from "../utils/localization.js";
 import { useMemo } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
@@ -52,13 +53,13 @@ const PairWithProducts = ({ product, productId }) => {
       <div className="mb-3 flex items-end justify-between gap-4">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8a8f8b]">
-            Complete your routine
+            Hoàn thiện quy trình chăm sóc
           </p>
           <h2 id="pair-with-title" className="mt-1 text-base font-medium">
-            Pair it with
+            Sản phẩm nên kết hợp
           </h2>
         </div>
-        <span className="text-xs text-[#8a8f8b]">Selected for you</span>
+        <span className="text-xs text-[#8a8f8b]">Dành riêng cho bạn</span>
       </div>
 
       <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-[#dededb]">
@@ -87,7 +88,7 @@ const PairWithProducts = ({ product, productId }) => {
 
               <div className="p-3">
                 <h3 className="truncate text-xs font-medium text-[#343434] sm:text-sm">
-                  {item.title}
+                  {translateCatalogText(item.title)}
                 </h3>
                 <p className="mt-1 text-xs text-[#858585]">
                   {formatThousandsVnd(item.price?.[firstSize], currency)}

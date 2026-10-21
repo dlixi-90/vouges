@@ -43,7 +43,7 @@ export const getDashboardData = async ({ page = 1, pageSize = 10, timezone = "UT
     const month = byMonth.get(key);
     return {
       key,
-      month: date.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" }),
+      month: date.toLocaleDateString("vi-VN", { month: "short", timeZone: "UTC" }),
       total: month?.total || 0,
       successful: month?.successful || 0,
     };

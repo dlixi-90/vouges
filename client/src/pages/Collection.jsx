@@ -1,3 +1,4 @@
+import { translateCatalogText } from "../utils/localization.js";
 import { useLayoutEffect, useMemo, useState } from "react";
 import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
@@ -67,7 +68,7 @@ const Collection = () => {
     if (searchQuery) {
       const normalizedSearch = searchQuery.toLowerCase();
       filtered = filtered.filter((product) =>
-        product.title.toLowerCase().includes(normalizedSearch),
+        translateCatalogText(product.title).toLowerCase().includes(normalizedSearch),
       );
     }
 
@@ -119,7 +120,7 @@ const Collection = () => {
           className="collection-filters max-h-[60dvh] overflow-y-auto overscroll-y-contain rounded-r-xl p-4 pl-6 focus-visible:outline-2 focus-visible:outline-secondary sm:absolute sm:inset-0 sm:max-h-none lg:pl-12">
           <SearchInput />
           <div className="px-4 py-3 mt-4 bg-white rounded-xl">
-            <h5 className="h5 mb-4">Sort By Price</h5>
+            <h5 className="h5 mb-4">Sắp xếp theo giá</h5>
             <select
               onChange={(e) => {
                 setSelectedSort(e.target.value);
@@ -127,9 +128,9 @@ const Collection = () => {
               }}
               className="border border-slate-900/10 outline-none text-gray-30 medium-14 h-8 w-full px-2 rounded-md"
             >
-              <option value="relevant">Relevant</option>
-              <option value="low">Low</option>
-              <option value="high">High</option>
+              <option value="relevant">Phù hợp nhất</option>
+              <option value="low">Giá tăng dần</option>
+              <option value="high">Giá giảm dần</option>
             </select>
           </div>
           <div className="px-4 py-4 mt-4 bg-white rounded-xl">
@@ -167,7 +168,7 @@ const Collection = () => {
             </p>
           </div>
           <div className="pl-5 py-3 mt-4 bg-white rounded-xl">
-            <h5 className="h5 mb-4">Categories</h5>
+            <h5 className="h5 mb-4">Danh mục</h5>
             <div className="flex flex-col gap-2 text-sm font-light">
               {allCategories.map((cat) => (
                 <label key={cat} className="flex gap-2 medium-14 text-gray-30">
@@ -178,13 +179,13 @@ const Collection = () => {
                     checked={category.includes(cat)}
                     className="w-3"
                   />
-                  {cat}
+                  {translateCatalogText(cat)}
                 </label>
               ))}
             </div>
           </div>
           <div className="pl-5 py-3 mt-4 bg-white rounded-xl">
-            <h5 className="h5 mb-4">Types</h5>
+            <h5 className="h5 mb-4">Loại sản phẩm</h5>
             <div className="flex flex-col gap-2 text-sm font-light">
               {availableTypes.map((typ) => (
                 <label key={typ} className="flex gap-2 medium-14 text-gray-30">
@@ -195,7 +196,7 @@ const Collection = () => {
                     checked={type.includes(typ)}
                     className="w-3"
                   />
-                  {typ}
+                  {translateCatalogText(typ)}
                 </label>
               ))}
             </div>
@@ -218,8 +219,8 @@ const Collection = () => {
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white text-secondary shadow-sm ring-1 ring-secondary/10">
                   <SearchX size={24} strokeWidth={1.8} />
                 </div>
-                <p className="capitalize text-base font-semibold text-secondary">
-                  No products found
+                <p className="text-base font-semibold text-secondary">
+                  Không tìm thấy sản phẩm
                 </p>
               </div>
             )}
@@ -234,7 +235,7 @@ const Collection = () => {
                   activePage === 1 && "opacity-50 cursor-not-allowed"
                 }`}
               >
-                Previous
+                Trước
               </button>
               {Array.from({ length: totalPages }, (_, index) => (
                 <button
@@ -254,7 +255,7 @@ const Collection = () => {
                   activePage === totalPages && "opacity-50 cursor-not-allowed"
                 }`}
               >
-                Next
+                Tiếp
               </button>
             </div>
           )}

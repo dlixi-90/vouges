@@ -7,12 +7,12 @@ export const dashboard = async (req, res) => {
   if (!Number.isSafeInteger(page) || page < 1 || page > 100000 ||
       !Number.isSafeInteger(pageSize) || pageSize < 1 || pageSize > 20 ||
       typeof timezone !== "string") {
-    return res.status(400).json({ success: false, message: "Invalid dashboard query" });
+    return res.status(400).json({ success: false, message: "Yêu cầu truy vấn dữ liệu tổng quan không hợp lệ" });
   }
   try {
     new Intl.DateTimeFormat("en-US", { timeZone: timezone });
   } catch {
-    return res.status(400).json({ success: false, message: "Invalid timezone" });
+    return res.status(400).json({ success: false, message: "Múi giờ không hợp lệ" });
   }
   try {
     const dashboardData = await getDashboardData({ page, pageSize, timezone });
@@ -20,6 +20,6 @@ export const dashboard = async (req, res) => {
     return res.json({ success: true, dashboardData });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ success: false, message: "Unable to load dashboard" });
+    return res.status(500).json({ success: false, message: "Không thể tải trang tổng quan" });
   }
 };

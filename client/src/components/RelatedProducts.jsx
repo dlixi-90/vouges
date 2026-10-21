@@ -19,7 +19,7 @@ const RelatedProducts = ({ product, productId }) => {
 
   return (
     <section className="mt-20 sm:mt-24">
-      <Title title1={isFallback ? "You may" : "Related"} title2={isFallback ? "also like" : "Products"} titleStyles="pb-10" />
+      <Title title1={isFallback ? "Có thể bạn" : "Sản phẩm"} title2={isFallback ? "sẽ thích" : "liên quan"} titleStyles="pb-10" />
 
       <Swiper
         spaceBetween={30}

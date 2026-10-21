@@ -5,34 +5,35 @@ import { validateDeliveryPhone } from "../../utils/deliveryPhone";
 const COUNTRIES_NOW_API = "https://countriesnow.space/api/v0.1";
 const VIETNAM_PROVINCES_API = "https://provinces.open-api.vn/api/v2/?depth=2";
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const countryDisplayNames = new Intl.DisplayNames(["vi"], { type: "region" });
 const getEmailError = (value) => {
-  if (!value.trim()) return "Vui lòng nhập email.";
-  if (!value.includes("@")) return "Email phải có dấu @, ví dụ: ten@gmail.com.";
-  return emailPattern.test(value.trim()) ? "" : "Email không đúng định dạng. Ví dụ: ten@gmail.com.";
+  if (!value.trim()) return "Vui lòng nhập địa chỉ thư điện tử.";
+  if (!value.includes("@")) return "Địa chỉ thư điện tử phải có dấu @, ví dụ: ten@gmail.com.";
+  return emailPattern.test(value.trim()) ? "" : "Địa chỉ thư điện tử không đúng định dạng. Ví dụ: ten@gmail.com.";
 };
 
 const contactFields = [
   {
     name: "firstName",
-    label: "First name",
+    label: "Tên",
   },
   {
     name: "lastName",
-    label: "Last name",
+    label: "Họ",
   },
   {
     name: "email",
-    label: "Email",
+    label: "Thư điện tử",
     type: "email",
   },
   {
     name: "phone",
-    label: "Phone",
+    label: "Số điện thoại",
     type: "tel",
   },
   {
     name: "street",
-    label: "Street address",
+    label: "Số nhà, tên đường",
     fullWidth: true,
   },
 ];
@@ -72,6 +73,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
   const [emailError, setEmailError] = useState("");
   const emailHelpId = useId();
   const [countries, setCountries] = useState([]);
+  const [countryCodes, setCountryCodes] = useState({ Vietnam: "VN" });
   const [cities, setCities] = useState([]);
   const [vietnamProvinces, setVietnamProvinces] = useState([]);
   const [isLoadingCountries, setIsLoadingCountries] = useState(true);
@@ -96,6 +98,9 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
             )
           : [];
 
+        if (Array.isArray(data?.data)) {
+          setCountryCodes(Object.fromEntries(data.data.map((country) => [country.name, country.Iso2])));
+        }
         setCountries(countryNames);
         setCountriesApiFailed(countryNames.length === 0);
       } catch (error) {
@@ -184,7 +189,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
 
     if (name === "phone") {
       if (!/^[\d\s()+]*$/.test(value)) {
-        const message = "Only digits, spaces and the +84 or (+84) prefix are accepted.";
+        const message = "Chỉ chấp nhận chữ số, khoảng trắng và tiền tố +84 hoặc (+84).";
         setPhoneError(message);
         event.target.setCustomValidity(message);
         return;
@@ -279,7 +284,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
             />
             {field.name === "email" && (
               <span id={emailHelpId} className={`mt-2 block text-xs ${emailError ? "text-red-600" : "text-gray-500"}`} aria-live="polite">
-                {emailError || "Email phải có dấu @, ví dụ: ten@gmail.com."}
+                {emailError || "Địa chỉ thư điện tử phải có dấu @, ví dụ: ten@gmail.com."}
               </span>
             )}
             {field.name === "phone" && (
@@ -292,7 +297,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
 
         <label>
           <span className="mb-2 block text-sm font-medium">
-            Country <span className="text-red-500" aria-hidden="true">*</span>
+            Quốc gia <span className="text-red-500" aria-hidden="true">*</span>
           </span>
 
           {countriesApiFailed ? (
@@ -316,14 +321,14 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
               className={`${inputClass} disabled:cursor-wait`}
             >
               <option value="">
-                {isLoadingCountries ? "Loading countries..." : "Select country"}
+                {isLoadingCountries ? "Đang tải danh sách quốc gia…" : "Chọn quốc gia"}
               </option>
               {address.country && !countries.includes(address.country) && (
-                <option value={address.country}>{address.country}</option>
+                <option value={address.country}>{countryCodes[address.country] ? countryDisplayNames.of(countryCodes[address.country]) : address.country}</option>
               )}
               {countries.map((country) => (
                 <option key={country} value={country}>
-                  {country}
+                  {countryCodes[country] ? countryDisplayNames.of(countryCodes[country]) : country}
                 </option>
               ))}
             </select>
@@ -332,7 +337,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
 
         <label>
           <span className="mb-2 block text-sm font-medium">
-            City <span className="text-red-500" aria-hidden="true">*</span>
+            Tỉnh/Thành phố <span className="text-red-500" aria-hidden="true">*</span>
           </span>
 
           {citiesApiFailed ? (
@@ -359,10 +364,10 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
             >
               <option value="">
                 {isLoadingCities
-                  ? "Loading cities..."
+                  ? "Đang tải danh sách tỉnh/thành phố…"
                   : address.country === "Vietnam"
-                    ? "Select city"
-                    : "Select city"}
+                    ? "Chọn tỉnh/thành phố"
+                    : "Chọn tỉnh/thành phố"}
               </option>
               {address.city && !cities.includes(address.city) && <option value={address.city}>{address.city}</option>}
               {cities.map((city) => (
@@ -377,8 +382,8 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
         <label>
           <span className="mb-2 block text-sm font-medium">
             {address.country === "Vietnam"
-              ? "Ward/ Commune"
-              : "State/ Province"}{" "}
+              ? "Phường/Xã"
+              : "Bang/Tỉnh"}{" "}
             <span className="text-red-500" aria-hidden="true">*</span>
           </span>
 
@@ -392,7 +397,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
               autoComplete="address-level2"
               className={`${inputClass} disabled:cursor-not-allowed`}
             >
-              <option value="">Select ward/ commune</option>
+              <option value="">Chọn phường/xã</option>
               {address.state && !wards.includes(address.state) && <option value={address.state}>{address.state}</option>}
               {wards.map((ward) => (
                 <option key={ward} value={ward}>
@@ -415,7 +420,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
 
         <label>
           <span className="mb-2 block text-sm font-medium">
-            ZIP code (optional)
+            Mã bưu chính (không bắt buộc)
           </span>
           <input
             type="text"

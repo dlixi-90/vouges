@@ -4,17 +4,17 @@ export const saveVariantEdit = (variants, id, draft) => {
   const quantity = Number(draft.quantity);
   if (!size || size.length > 50 || size.includes(".") || size.startsWith("$") ||
       ["__proto__", "constructor", "prototype"].includes(size)) {
-    throw new Error("Enter a valid size name (up to 50 characters, no dots or leading $).");
+    throw new Error("Nhập tên dung tích hợp lệ (tối đa 50 ký tự, không chứa dấu chấm hoặc bắt đầu bằng dấu $).");
   }
   if (variants.some((item) => item.id !== id && item.size.trim().toLowerCase() === size.toLowerCase())) {
-    throw new Error("Size already exists");
+    throw new Error("Dung tích này đã tồn tại");
   }
   if (!Number.isFinite(price) || price <= 0 || price > Number.MAX_SAFE_INTEGER / 1000) {
-    throw new Error("Price must be greater than 0 and within the supported range");
+    throw new Error("Giá phải lớn hơn 0 và nằm trong phạm vi cho phép");
   }
   if (draft.quantity == null || String(draft.quantity).trim() === "" ||
       !Number.isSafeInteger(quantity) || quantity < 0) {
-    throw new Error("Quantity must be a non-negative integer");
+    throw new Error("Số lượng phải là số nguyên không âm");
   }
   return variants.map((item) => item.id === id ? { ...item, size, price, quantity } : item);
 };

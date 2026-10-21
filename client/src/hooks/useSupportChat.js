@@ -12,7 +12,7 @@ export const useSupportApi = () => {
     async request(method, path, body, signal) {
       const token = await tokenRef.current();
       signal?.throwIfAborted();
-      if (!token) throw new Error("Vui lòng đăng nhập để chat với CSKH.");
+      if (!token) throw new Error("Vui lòng đăng nhập để trò chuyện với CSKH.");
       const { data } = await axios.request({ method, url: path, data: body, signal, timeout: 15000,
         headers: { Authorization: `Bearer ${token}` } });
       if (!data.success) throw new Error(data.message || "Không thể tải cuộc trò chuyện.");
@@ -53,7 +53,7 @@ export const useSupportFeed = (path, enabled, conversationFeed = false, initialD
         const response = await fetch(api.url(path), { signal: requestController.signal,
           headers: { Authorization: `Bearer ${token}`, Accept: "text/event-stream" }, cache: "no-store" });
         if (!response.ok || !response.body || !response.headers.get("content-type")?.includes("text/event-stream")) {
-          const error = new Error(response.status === 401 ? "Vui lòng đăng nhập lại để tiếp tục chat." : "Không thể kết nối chat. Đang thử lại…");
+          const error = new Error(response.status === 401 ? "Vui lòng đăng nhập lại để tiếp tục trò chuyện." : "Không thể kết nối trò chuyện. Đang thử lại…");
           error.terminal = [401, 403, 404].includes(response.status);
           throw error;
         }

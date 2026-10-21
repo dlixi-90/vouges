@@ -26,6 +26,17 @@ const addressFieldLimits = {
   zipcode: 20,
   country: 100,
 };
+const addressFieldLabels = {
+  firstName: "Tên",
+  lastName: "Họ",
+  email: "Địa chỉ thư điện tử",
+  phone: "Số điện thoại",
+  street: "Địa chỉ đường phố",
+  city: "Tỉnh/Thành phố",
+  state: "Phường/Xã hoặc bang/tỉnh",
+  zipcode: "Mã bưu chính",
+  country: "Quốc gia",
+};
 
 const normalizeAddress = (address) => {
   const invalid = (message) => { throw Object.assign(new Error(message), { statusCode: 400 }); };
@@ -38,11 +49,11 @@ const normalizeAddress = (address) => {
       value = phone.normalized;
     }
     if (field === "email") value = value.toLowerCase();
-    if (!value && field !== "zipcode") invalid(`${field} is required`);
-    if (value.length > addressFieldLimits[field]) invalid(`${field} is too long`);
+    if (!value && field !== "zipcode") invalid(`Vui lòng nhập ${addressFieldLabels[field].toLocaleLowerCase("vi-VN")}`);
+    if (value.length > addressFieldLimits[field]) invalid(`${addressFieldLabels[field]} vượt quá độ dài cho phép`);
     normalized[field] = value;
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized.email)) invalid("Invalid email address");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized.email)) invalid("Địa chỉ thư điện tử không hợp lệ");
   return normalized;
 };
 
@@ -80,7 +91,7 @@ export const addAddress = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Address created successfully",
+      message: "Đã tạo địa chỉ thành công",
       address: { ...createdAddress.toObject(), isDefault: Boolean(defaultUser) },
     });
   } catch (error) {
@@ -88,7 +99,7 @@ export const addAddress = async (req, res) => {
 
     return res.status(error.statusCode || 500).json({
       success: false,
-      message: error.statusCode ? error.message : "Unable to save address",
+      message: error.statusCode ? error.message : "Không thể lưu địa chỉ",
     });
   }
 };
@@ -120,7 +131,7 @@ export const getAddress = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Unable to load addresses",
+      message: "Không thể tải danh sách địa chỉ",
     });
   }
 };
@@ -130,15 +141,15 @@ export const setDefaultAddress = async (req, res) => {
     const { userId } = req.auth();
     const { addressId } = req.params;
     if (!isObjectIdOrHexString(addressId)) {
-      return res.status(400).json({ success: false, message: "Invalid address" });
+      return res.status(400).json({ success: false, message: "Địa chỉ không hợp lệ" });
     }
     const address = await Address.findOne({ _id: addressId, userId, savedAt: { $ne: null }, deletedAt: null });
-    if (!address) return res.status(404).json({ success: false, message: "Address not found" });
+    if (!address) return res.status(404).json({ success: false, message: "Không tìm thấy địa chỉ" });
     await User.updateOne({ _id: userId }, { $set: { defaultAddressId: address._id } });
-    return res.json({ success: true, message: "Default address updated", addressId });
+    return res.json({ success: true, message: "Đã cập nhật địa chỉ mặc định", addressId });
   } catch (error) {
     console.error(error.message);
-    return res.status(500).json({ success: false, message: "Unable to update default address" });
+    return res.status(500).json({ success: false, message: "Không thể cập nhật địa chỉ mặc định" });
   }
 };
 
@@ -147,7 +158,7 @@ export const deleteAddress = async (req, res) => {
     const { userId } = req.auth();
     const { addressId } = req.params;
     if (!isObjectIdOrHexString(addressId)) {
-      return res.status(400).json({ success: false, message: "Invalid address" });
+      return res.status(400).json({ success: false, message: "Địa chỉ không hợp lệ" });
     }
     // Keep the delivery record intact for orders that already reference it.
     const address = await Address.findOneAndUpdate(
@@ -155,7 +166,7 @@ export const deleteAddress = async (req, res) => {
       { $set: { deletedAt: new Date() } },
       { new: true },
     );
-    if (!address) return res.status(404).json({ success: false, message: "Saved address not found" });
+    if (!address) return res.status(404).json({ success: false, message: "Không tìm thấy địa chỉ đã lưu" });
     const nextDefault = await Address.findOne({
       userId, savedAt: { $ne: null }, deletedAt: null,
     }).sort({ createdAt: -1, _id: -1 });
@@ -163,10 +174,10 @@ export const deleteAddress = async (req, res) => {
       { _id: userId, defaultAddressId: address._id },
       { $set: { defaultAddressId: nextDefault?._id || null } },
     );
-    return res.json({ success: true, message: "Address deleted", addressId });
+    return res.json({ success: true, message: "Đã xóa địa chỉ", addressId });
   } catch (error) {
     console.error(error.message);
-    return res.status(500).json({ success: false, message: "Unable to delete address" });
+    return res.status(500).json({ success: false, message: "Không thể xóa địa chỉ" });
   }
 };
 
@@ -175,7 +186,7 @@ export const updateAddress = async (req, res) => {
     const { userId } = req.auth();
     const { addressId } = req.params;
     if (!isObjectIdOrHexString(addressId)) {
-      return res.status(400).json({ success: false, message: "Invalid address" });
+      return res.status(400).json({ success: false, message: "Địa chỉ không hợp lệ" });
     }
     const normalized = normalizeAddress(req.body.address);
     const result = await mongoose.connection.transaction(async (session) => {
@@ -183,7 +194,7 @@ export const updateAddress = async (req, res) => {
         _id: addressId, userId, savedAt: { $ne: null }, deletedAt: null,
       }).session(session);
       if (!current) {
-        throw Object.assign(new Error("Saved address not found. Please reload your addresses."), { statusCode: 404 });
+        throw Object.assign(new Error("Không tìm thấy địa chỉ đã lưu. Vui lòng tải lại danh sách địa chỉ."), { statusCode: 404 });
       }
 
       let saved = current;
@@ -203,7 +214,7 @@ export const updateAddress = async (req, res) => {
           { session },
         );
         if (retired.matchedCount !== 1) {
-          throw Object.assign(new Error("Address changed. Please reload and try again."), { statusCode: 409 });
+          throw Object.assign(new Error("Địa chỉ đã thay đổi. Vui lòng tải lại và thử lại."), { statusCode: 409 });
         }
       }
       const defaultUser = await User.findOneAndUpdate(
@@ -216,11 +227,11 @@ export const updateAddress = async (req, res) => {
       );
       return { ...saved.toObject(), isDefault: Boolean(defaultUser) };
     });
-    return res.json({ success: true, message: "Address updated", address: result, replacedAddressId: addressId });
+    return res.json({ success: true, message: "Đã cập nhật địa chỉ", address: result, replacedAddressId: addressId });
   } catch (error) {
     if (!error.statusCode) console.error(error.message);
     return res.status(error.statusCode || 500).json({
-      success: false, message: error.statusCode ? error.message : "Unable to update address",
+      success: false, message: error.statusCode ? error.message : "Không thể cập nhật địa chỉ",
     });
   }
 };

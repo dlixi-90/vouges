@@ -97,6 +97,6 @@ test("invalid variant edits leave the confirmed values unchanged", () => {
 
 test("saving rejects duplicate size names without treating the edited row as a duplicate of itself", () => {
   const rows = [...makeDraft().sizePrices, { id: "second", size: "Small", price: 70, quantity: 3 }];
-  assert.throws(() => saveVariantEdit(rows, "row", { ...rows[0], size: " small " }), /already exists/);
+  assert.throws(() => saveVariantEdit(rows, "row", { ...rows[0], size: " small " }), /đã tồn tại/);
   assert.doesNotThrow(() => saveVariantEdit(rows, "row", { ...rows[0], size: "Large" }));
 });

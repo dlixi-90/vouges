@@ -51,6 +51,6 @@ test("no sales is a successful empty result; database failures are not reported 
   await listPopularProducts({}, failure);
   assert.equal(failure.statusCode, 500);
   assert.equal(failure.body.success, false);
-  assert.equal(failure.body.message, "Unable to load popular products");
+  assert.equal(failure.body.message, "Không thể tải sản phẩm bán chạy");
   assert.equal(JSON.stringify(failure.body).includes("private database"), false);
 });

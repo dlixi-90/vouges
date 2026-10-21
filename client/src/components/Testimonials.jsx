@@ -6,25 +6,25 @@ const Testimonial = () => {
       image: assets.user1,
       name: "Briar Martin",
       handle: "@neilstellar",
-      date: "April 20, 2026",
+      date: "20 tháng 4, 2026",
     },
     {
       image: assets.user2,
       name: "Avery Johnson",
       handle: "@averywrites",
-      date: "May 10, 2026",
+      date: "10 tháng 5, 2026",
     },
     {
       image: assets.user3,
       name: "Jordan Lee",
       handle: "@jordantalks",
-      date: "June 5, 2026",
+      date: "5 tháng 6, 2026",
     },
     {
       image: assets.user4,
       name: "Avery Johnson",
       handle: "@averywrites",
-      date: "May 10, 2026",
+      date: "10 tháng 5, 2026",
     },
   ];
 
@@ -36,7 +36,7 @@ const Testimonial = () => {
           src={card.image}
           loading="lazy"
           decoding="async"
-          alt="User Image"
+          alt="Ảnh đại diện người dùng"
         />
         <div className="flex flex-col">
           <div className="flex items-center gap-1">
@@ -47,11 +47,11 @@ const Testimonial = () => {
         </div>
       </div>
       <p className="text-sm py-4 text-gray-800">
-        Radiant made undercutting all of our competitors an absolute breeze.
+        Radiant giúp chúng tôi dễ dàng đưa ra mức giá cạnh tranh hơn các đối thủ.
       </p>
       <div className="flex items-center justify-between text-slate-500 text-xs">
         <div className="flex items-center gap-1">
-          <span>Posted on</span>
+          <span>Đăng trên</span>
           <a
             href="https://x.com"
             target="_blank"

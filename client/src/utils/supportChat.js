@@ -23,7 +23,7 @@ export const createSupportEventParser = (onSnapshot) => {
   let data = [];
   return (chunk) => {
     buffer += chunk;
-    if (buffer.length > 1000000) throw new Error("Phản hồi chat quá lớn.");
+    if (buffer.length > 1000000) throw new Error("Phản hồi trò chuyện quá lớn.");
     let newline;
     while ((newline = buffer.indexOf("\n")) >= 0) {
       const line = buffer.slice(0, newline).replace(/\r$/, "");
@@ -31,7 +31,7 @@ export const createSupportEventParser = (onSnapshot) => {
       if (!line) {
         if (data.length) {
           const payload = JSON.parse(data.join("\n"));
-          if (event === "error") throw new Error(payload.message || "Kết nối chat bị gián đoạn.");
+          if (event === "error") throw new Error(payload.message || "Kết nối trò chuyện bị gián đoạn.");
           if (event === "snapshot") onSnapshot(payload);
         }
         event = "message";

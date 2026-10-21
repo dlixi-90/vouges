@@ -11,18 +11,18 @@ const PopularProducts = () => {
   } = usePopularProducts();
   return (
     <section className="net-popular-products max-padd-container">
-      <Title title1={"Popular"} title2={"Products"} titleStyles={"pb-10"} />
+      <Title title1={"Sản phẩm"} title2={"bán chạy"} titleStyles={"pb-10"} />
       {popularProductsError && (
         <p role="alert" className="mb-4 text-sm text-red-600">
           {popularProductsError}{" "}
           <button type="button" onClick={fetchPopularProducts} className="underline">
-            Retry
+            Thử lại
           </button>
         </p>
       )}
-      {popularProductsLoading && <p role="status">Loading popular products...</p>}
+      {popularProductsLoading && <p role="status">Đang tải sản phẩm bán chạy…</p>}
       {!popularProductsLoading && !popularProductsError && !popularProducts.length && (
-        <p className="text-sm text-gray-500">No sales yet.</p>
+        <p className="text-sm text-gray-500">Chưa có sản phẩm nào được bán.</p>
       )}
       {popularProducts.length > 0 && <ProductCarousel products={popularProducts} showSoldCount />}
     </section>

@@ -55,7 +55,7 @@ test("a category cannot be created without a valid product type", async (t) => {
     const res = response();
     await createCategory({ body: { name: "Hand Care", typeName } }, res);
     assert.equal(res.statusCode, 400);
-    assert.match(res.body.message, /Type name/);
+    assert.match(res.body.message, /Tên loại sản phẩm/);
   }
   assert.equal(create.mock.callCount(), 0);
 });
@@ -305,7 +305,7 @@ test("deletion is blocked when a category still has catalog products", async (t)
   const res = response();
   await deleteCategory({ params: { categoryId } }, res);
   assert.equal(res.statusCode, 409);
-  assert.match(res.body.message, /Move them/);
+  assert.match(res.body.message, /Hãy chuyển các sản phẩm/);
   assert.equal(remove.mock.callCount(), 0);
 });
 

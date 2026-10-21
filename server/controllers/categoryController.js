@@ -11,19 +11,19 @@ const serializeCategory = (category) => ({
 
 const sendError = (res, error) => {
   if (error.code === 11000) {
-    return res.status(409).json({ success: false, message: "Category name already exists" });
+    return res.status(409).json({ success: false, message: "Tên danh mục đã tồn tại" });
   }
   if (!error.statusCode) console.error(error);
   return res.status(error.statusCode || 500).json({
     success: false,
-    message: error.statusCode ? error.message : "Unable to save category",
+    message: error.statusCode ? error.message : "Không thể lưu danh mục",
   });
 };
 
-const readName = (req, label = "Category", field = "name") => {
+const readName = (req, label = "Tên danh mục", field = "name") => {
   const name = normalizeCategoryName(req.body?.[field]);
   if (!name || name.length > 100) {
-    throw Object.assign(new Error(`${label} name must contain 1 to 100 characters`), {
+    throw Object.assign(new Error(`${label} phải có từ 1 đến 100 ký tự`), {
       statusCode: 400,
     });
   }
@@ -38,14 +38,14 @@ export const listCategories = async (_req, res) => {
     return res.json({ success: true, categories });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ success: false, message: "Unable to load categories" });
+    return res.status(500).json({ success: false, message: "Không thể tải danh mục" });
   }
 };
 
 export const createCategory = async (req, res) => {
   try {
     const name = readName(req);
-    const typeName = readName(req, "Type", "typeName");
+    const typeName = readName(req, "Tên loại sản phẩm", "typeName");
     const category = await Category.create({
       name,
       nameKey: name.toLowerCase(),
@@ -53,7 +53,7 @@ export const createCategory = async (req, res) => {
     });
     return res.status(201).json({
       success: true,
-      message: "Category added successfully",
+      message: "Đã thêm danh mục thành công",
       category: serializeCategory(category),
     });
   } catch (error) {
@@ -66,14 +66,14 @@ export const updateCategory = async (req, res) => {
     const name = readName(req);
     const { categoryId } = req.params;
     if (!mongoose.isValidObjectId(categoryId)) {
-      return res.status(400).json({ success: false, message: "Invalid category ID" });
+      return res.status(400).json({ success: false, message: "Mã danh mục không hợp lệ" });
     }
 
     // Keep the category and existing products consistent if either write fails.
     const category = await mongoose.connection.transaction(async (session) => {
       const current = await Category.findById(categoryId).session(session);
       if (!current) {
-        throw Object.assign(new Error("Category not found"), { statusCode: 404 });
+        throw Object.assign(new Error("Không tìm thấy danh mục"), { statusCode: 404 });
       }
       const oldName = current.name;
       current.name = name;
@@ -89,7 +89,7 @@ export const updateCategory = async (req, res) => {
       return serializeCategory(current);
     });
 
-    return res.json({ success: true, message: "Category updated successfully", category });
+    return res.json({ success: true, message: "Đã cập nhật danh mục thành công", category });
   } catch (error) {
     return sendError(res, error);
   }
@@ -97,25 +97,25 @@ export const updateCategory = async (req, res) => {
 
 const saveCategoryType = async (req, res, isEditing) => {
   try {
-    const name = readName(req, "Type");
+    const name = readName(req, "Tên loại sản phẩm");
     const { categoryId, typeId } = req.params;
     if (!mongoose.isValidObjectId(categoryId) ||
       (isEditing && !mongoose.isValidObjectId(typeId))) {
-      return res.status(400).json({ success: false, message: "Invalid category or type ID" });
+      return res.status(400).json({ success: false, message: "Mã danh mục hoặc mã loại sản phẩm không hợp lệ" });
     }
     const category = await mongoose.connection.transaction(async (session) => {
       const current = await Category.findById(categoryId).session(session);
       if (!current) {
-        throw Object.assign(new Error("Category not found"), { statusCode: 404 });
+        throw Object.assign(new Error("Không tìm thấy danh mục"), { statusCode: 404 });
       }
       const type = isEditing ? current.types.id(typeId) : null;
       if (isEditing && !type) {
-        throw Object.assign(new Error("Type not found in this category"), { statusCode: 404 });
+        throw Object.assign(new Error("Không tìm thấy loại sản phẩm trong danh mục này"), { statusCode: 404 });
       }
       const nameKey = name.toLowerCase();
       if (current.types.some((item) => item.nameKey === nameKey &&
         String(item._id) !== typeId)) {
-        throw Object.assign(new Error("Type name already exists in this category"), { statusCode: 409 });
+        throw Object.assign(new Error("Tên loại sản phẩm đã tồn tại trong danh mục này"), { statusCode: 409 });
       }
       const oldName = type?.name;
       if (type) {
@@ -136,7 +136,7 @@ const saveCategoryType = async (req, res, isEditing) => {
     });
     return res.status(isEditing ? 200 : 201).json({
       success: true,
-      message: isEditing ? "Type updated successfully" : "Type added successfully",
+      message: isEditing ? "Đã cập nhật loại sản phẩm thành công" : "Đã thêm loại sản phẩm thành công",
       category,
     });
   } catch (error) {
@@ -152,16 +152,16 @@ const removeCategoryEntry = async (req, res, isType) => {
     const { categoryId, typeId } = req.params;
     if (!mongoose.isValidObjectId(categoryId) ||
       (isType && !mongoose.isValidObjectId(typeId))) {
-      return res.status(400).json({ success: false, message: "Invalid category or type ID" });
+      return res.status(400).json({ success: false, message: "Mã danh mục hoặc mã loại sản phẩm không hợp lệ" });
     }
     const category = await mongoose.connection.transaction(async (session) => {
       const current = await Category.findById(categoryId).session(session);
       if (!current) {
-        throw Object.assign(new Error("Category not found"), { statusCode: 404 });
+        throw Object.assign(new Error("Không tìm thấy danh mục"), { statusCode: 404 });
       }
       const type = isType ? current.types.id(typeId) : null;
       if (isType && !type) {
-        throw Object.assign(new Error("Type not found in this category"), { statusCode: 404 });
+        throw Object.assign(new Error("Không tìm thấy loại sản phẩm trong danh mục này"), { statusCode: 404 });
       }
       const used = await Product.exists({
         isDeleted: { $ne: true },
@@ -171,8 +171,8 @@ const removeCategoryEntry = async (req, res, isType) => {
       if (used) {
         throw Object.assign(new Error(
           isType
-            ? "This type is used by products. Change their type in List Product before deleting it."
-            : "This category is used by products. Move them to another category in List Product before deleting it.",
+            ? "Có sản phẩm đang sử dụng loại này. Hãy đổi loại của các sản phẩm đó trong Danh sách sản phẩm trước khi xóa."
+            : "Có sản phẩm thuộc danh mục này. Hãy chuyển các sản phẩm đó sang danh mục khác trong Danh sách sản phẩm trước khi xóa.",
         ), { statusCode: 409 });
       }
       if (isType) {
@@ -185,14 +185,14 @@ const removeCategoryEntry = async (req, res, isType) => {
     });
     return res.json({
       success: true,
-      message: isType ? "Type deleted successfully" : "Category deleted successfully",
+      message: isType ? "Đã xóa loại sản phẩm thành công" : "Đã xóa danh mục thành công",
       ...(isType ? { category } : { categoryId: req.params.categoryId }),
     });
   } catch (error) {
     if (!error.statusCode) console.error(error);
     return res.status(error.statusCode || 500).json({
       success: false,
-      message: error.statusCode ? error.message : "Unable to delete category or type",
+      message: error.statusCode ? error.message : "Không thể xóa danh mục hoặc loại sản phẩm",
     });
   }
 };

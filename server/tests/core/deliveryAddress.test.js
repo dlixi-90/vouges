@@ -294,7 +294,7 @@ test("COD and QR checkout reject legacy saved addresses with invalid phone numbe
     const res = response();
     await handler(request({ address: firstId, items: [] }), res);
     assert.equal(res.statusCode, 400);
-    assert.match(res.body.message, /00 or 01/);
+    assert.match(res.body.message, /00 hoặc 01/);
   }
   assert.equal(write.mock.callCount(), 0);
 });

@@ -4,9 +4,9 @@ const ProductVariantRow = ({ item, draft, loading, onEdit, onChange, onSave, onC
   const editing = Boolean(draft);
   const values = draft || item;
   const fields = [
-    { name: "size", label: "Size", type: "text", maxLength: 50 },
-    { name: "price", label: "Price (thousand VND)", type: "number", min: "0.01", step: "0.01" },
-    { name: "quantity", label: "Quantity", type: "number", min: "0", step: "1" },
+    { name: "size", label: "Dung tích", type: "text", maxLength: 50 },
+    { name: "price", label: "Giá (nghìn đồng)", type: "number", min: "0.01", step: "0.01" },
+    { name: "quantity", label: "Số lượng", type: "number", min: "0", step: "1" },
   ];
   const buttonStyle = "inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#cfdad2] px-3 py-2 text-sm font-medium text-[#496852] hover:bg-[#f2f7f3] disabled:opacity-50";
 
@@ -37,7 +37,7 @@ const ProductVariantRow = ({ item, draft, loading, onEdit, onChange, onSave, onC
                 }
               }}
               className={`admin-input ${editing ? "" : "!bg-[#f8faf8] text-[#52616b]"}`}
-              aria-label={`${label} for size ${item.size}`}
+              aria-label={`${label} cho dung tích ${item.size}`}
             />
           </label>
         ))}
@@ -46,15 +46,15 @@ const ProductVariantRow = ({ item, draft, loading, onEdit, onChange, onSave, onC
         {editing ? (
           <>
             <button type="button" onClick={onCancel} disabled={loading} className={buttonStyle}>
-              <X size={15} /> Cancel
+              <X size={15} /> Hủy
             </button>
             <button type="button" onClick={onSave} disabled={loading} className="admin-primary-button">
-              <Check size={15} /> Save
+              <Check size={15} /> Lưu
             </button>
           </>
         ) : (
           <button type="button" onClick={onEdit} disabled={loading} className={buttonStyle}>
-            <Pencil size={15} /> Edit
+            <Pencil size={15} /> Chỉnh sửa
           </button>
         )}
         <button
@@ -62,9 +62,9 @@ const ProductVariantRow = ({ item, draft, loading, onEdit, onChange, onSave, onC
           onClick={onRemove}
           disabled={loading}
           className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-[#a85c5c] hover:bg-[#fff0f0] disabled:opacity-50"
-          aria-label={`Remove size ${item.size}`}
+          aria-label={`Xóa dung tích ${item.size}`}
         >
-          <Trash2 size={15} /> Delete
+          <Trash2 size={15} /> Xóa
         </button>
       </div>
     </div>
