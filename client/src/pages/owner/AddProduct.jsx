@@ -1,7 +1,6 @@
-import { translateCatalogText } from "../../utils/localization.js";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { ImagePlus, PackagePlus, Plus, X } from "lucide-react";
+import { ArrowLeft, ImagePlus, PackagePlus, Plus, X } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import { useLocation, useParams } from "react-router-dom";
 import {
@@ -163,8 +162,8 @@ const ProductForm = () => {
     // Seed the editable form once after the product arrives from context.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setInputs({
-      title: translateCatalogText(product.title) || "",
-      description: translateCatalogText(product.description) || "",
+      title: product.title || "",
+      description: product.description || "",
       ingredients: product.ingredients || "",
       category: product.category || "",
       type: product.type || "",
@@ -490,6 +489,15 @@ const ProductForm = () => {
               {isEditMode ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm"}
             </h1>
           </div>
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => navigate("/owner/list-product")}
+            className="btn-outline inline-flex w-fit items-center gap-2 px-4 py-2.5 text-sm disabled:opacity-50"
+          >
+            <ArrowLeft size={17} aria-hidden="true" />
+            Quay lại sản phẩm
+          </button>
         </header>
 
         <form
@@ -569,7 +577,7 @@ const ProductForm = () => {
                         <optgroup key={category._id} label={category.name}>
                           {category.types.map((type) => (
                             <option key={type._id} value={type._id}>
-                              {translateCatalogText(type.name)}
+                              {type.name}
                             </option>
                           ))}
                         </optgroup>
@@ -604,7 +612,7 @@ const ProductForm = () => {
                 <Field label="Danh mục">
                   <input
                     type="text"
-                    value={translateCatalogText(selectedCategory?.name) || ""}
+                    value={selectedCategory?.name || ""}
                     placeholder="Vui lòng chọn loại sản phẩm trước"
                     readOnly
                     className="admin-input bg-[#f8faf8]"

@@ -1,9 +1,7 @@
-import { translateCatalogText } from "../utils/localization.js";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Check } from "lucide-react";
 import { useBlocker } from "react-router-dom";
-import Title from "../components/Title";
 import CartSizePicker from "../components/CartSizePicker";
 import CartActionBar from "../components/CartActionBar";
 import ProductImage from "../components/ProductImage";
@@ -331,14 +329,17 @@ const Cart = () => {
   }, []);
 
   return products && cartItems ? (
-    <div className="net-cart max-padd-container bg-primary py-16 pt-28">
+    <div className="net-cart py-16 pt-28">
+      <div className="max-padd-container">
       {/* STEP 1 */}
       {currentStep === 1 && (
         <section className="min-w-0 text-[95%]">
-          <Title title1="Giỏ hàng" title2="Tổng quan" titleStyles="pb-10" />
+          <header className="net-cart-heading">
+            <h1>Giỏ hàng</h1>
+          </header>
           {cartData.length > 0 ? (
             <div ref={cartContentRef}>
-              <div className="hidden shrink-0 grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] items-center gap-3 rounded-xl bg-white px-4 py-3 lg:grid">
+              <div className="net-cart-table-head hidden shrink-0 grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] items-center gap-3 rounded-xl bg-white px-4 py-3 lg:grid">
                 <CartCheckbox
                   inputRef={selectAllRef}
                   disabled={isChangingSize || availableCartData.length === 0}
@@ -375,7 +376,7 @@ const Cart = () => {
                   return (
                     <div
                       key={getCartRowKey(item)}
-                      className={`grid grid-cols-[32px_minmax(0,1fr)_40px] items-center gap-x-2 gap-y-4 rounded-xl px-3 py-5 transition sm:gap-x-3 sm:px-4 lg:grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] lg:py-6 ${isUnavailable ? "bg-white/40 [&>div]:opacity-50" : isSelected ? "bg-white" : "bg-white/60"}`}
+                      className={`net-cart-item grid grid-cols-[32px_minmax(0,1fr)_40px] items-center gap-x-2 gap-y-4 rounded-xl px-3 py-5 transition sm:gap-x-3 sm:px-4 lg:grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] lg:py-6 ${isUnavailable ? "bg-white/40 [&>div]:opacity-50" : isSelected ? "bg-white" : "bg-white/60"}`}
                     >
                       <div className="col-start-1 row-start-1">
                         <CartCheckbox
@@ -394,7 +395,7 @@ const Cart = () => {
                             className="h-20 w-16 shrink-0 rounded-xl bg-primary object-cover sm:h-24 sm:w-20"
                           />
                           <div className="min-w-0">
-                            <h5 className="h5 line-clamp-2">{translateCatalogText(product.title)}</h5>
+                            <h5 className="h5 line-clamp-2">{product.title}</h5>
                             {isUnavailable && (
                               <p
                                 className="mt-2 text-sm font-medium text-secondary"
@@ -638,6 +639,7 @@ const Cart = () => {
           </button>
         </div>
       )}
+      </div>
     </div>
   ) : null;
 };

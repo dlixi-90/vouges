@@ -1,11 +1,12 @@
 import { useAppContext } from "../../context/AppContext";
 import { assets } from "../../assets/data";
-import { Link, NavLink, Outlet, Navigate, useMatch } from "react-router-dom";
+import { Link, Outlet, Navigate, matchPath, useLocation, useMatch } from "react-router-dom";
 import { UserButton } from "@clerk/react";
 import { MessagesSquare } from "lucide-react";
 
 const Sidebar = () => {
   const { isOwner, user, profileError, retryUserProfile } = useAppContext();
+  const { pathname } = useLocation();
   const isVoucherPage = Boolean(useMatch("/owner/vouchers"));
   const isMessagesPage = Boolean(useMatch("/owner/messages"));
   const isWorkspacePage = isVoucherPage || isMessagesPage;
@@ -17,22 +18,22 @@ const Sidebar = () => {
       icon: assets.dashboard,
     },
     {
-      path: "/owner/add-product",
-      label: "Thêm sản phẩm",
-      icon: assets.squarePlus,
-    },
-    {
-      path: "/owner/add-category",
-      label: "Thêm danh mục",
-      icon: assets.squarePlus,
+      path: "/owner/messages",
+      label: "Tin nhắn",
+      iconComponent: <MessagesSquare size={18} className="hidden md:block" aria-hidden="true" />,
     },
     {
       path: "/owner/list-product",
-      label: "Danh sách sản phẩm",
+      label: "Sản phẩm",
       icon: assets.list,
+      activePaths: ["/owner/list-product", "/owner/add-product", "/owner/edit-product/:productId"],
+    },
+    {
+      path: "/owner/add-category",
+      label: "Danh mục",
+      icon: assets.squarePlus,
     },
     { path: "/owner/vouchers", label: "Mã giảm giá", icon: assets.list },
-    { path: "/owner/messages", label: "Tin nhắn", iconComponent: <MessagesSquare size={18} className="hidden md:block" aria-hidden="true" /> },
   ];
 
   if (isOwner === null) {
@@ -95,26 +96,33 @@ const Sidebar = () => {
               </div>
             </div>
             <div className="flex flex-wrap justify-center md:flex-col md:gap-x-5 gap-y-4 md:gap-y-8 md:mt-4">
-              {navItems.map((link) => (
-                <NavLink
-                  key={link.label}
-                  to={link.path}
-                  end={link.path === "/owner"}
-                  className={({ isActive }) =>
-                    isActive
-                      ? "flexStart gap-x-2 p-5 lg:pl-12 bold-13 sm:!text-sm cursor-pointer h-10 bg-secondary/10 max-md:border-b-4 md:border-r-4 border-secondary"
-                      : "flexStart gap-x-2 lg:pl-12 p-5 bold-13 sm:!text-sm cursor-pointer h-10 rounded-xl"
-                  }
-                >
-                  {link.iconComponent || <img
-                    src={link.icon}
-                    alt={link.label}
-                    className="hidden md:block"
-                    width={18}
-                  />}
-                  <div>{link.label}</div>
-                </NavLink>
-              ))}
+              {navItems.map((link) => {
+                const isActive = (link.activePaths || [link.path]).some((path) =>
+                  matchPath({ path, end: true }, pathname),
+                );
+                return (
+                  <Link
+                    key={link.label}
+                    to={link.path}
+                    aria-current={isActive ? "page" : undefined}
+                    className={
+                      isActive
+                        ? "flexStart gap-x-2 p-5 lg:pl-12 bold-13 sm:!text-sm cursor-pointer h-10 bg-secondary/10 max-md:border-b-4 md:border-r-4 border-secondary"
+                        : "flexStart gap-x-2 lg:pl-12 p-5 bold-13 sm:!text-sm cursor-pointer h-10 rounded-xl"
+                    }
+                  >
+                    {link.iconComponent || (
+                      <img
+                        src={link.icon}
+                        alt={link.label}
+                        className="hidden md:block"
+                        width={18}
+                      />
+                    )}
+                    <div>{link.label}</div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
           <div className="hidden md:flex items-center gap-3 md:bg-primary border-t border-slate-900/15 rounded-b-xl p-2 pl-5 lg:pl-10 md:mt-10">

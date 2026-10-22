@@ -8,14 +8,13 @@ const Hero = () => {
       <div className="h-[89vh] w-full mt-18 rounded-2xl relative overflow-hidden">
         <img src={background} alt="" fetchPriority="high" className="absolute inset-0 h-full w-full object-cover" />
         <div className="relative mx-auto max-w-[1440px] px-4 pt-1 sm:pt-8 flex flex-col justify-between h-full">
-          <div className="max-w-3xl">
-            <h1 className="h1 !font-[400] ">
-              Tôn lên
-              <span className="!font-[600] text-secondary"> vẻ đẹp</span> với
-              <span className="!font-[600] text-secondary"> mỹ phẩm </span>{" "}
-              tinh chọn
+          <div className="net-hero-copy">
+            <p className="net-hero-eyebrow">Velours · Mỹ phẩm tinh chọn</p>
+            <h1 className="net-hero-title">
+              <span className="net-hero-title-lead">Tôn lên</span>{" "}
+              <span className="net-hero-title-accent">vẻ đẹp tự nhiên.</span>
             </h1>
-            <p>
+            <p className="net-hero-description">
               Khám phá bộ sưu tập mỹ phẩm chất lượng, đáng tin cậy với mức giá
               hợp lý, giúp tôn lên vẻ đẹp tự nhiên và mang lại sự tự tin,
               rạng rỡ mỗi ngày.

@@ -1,4 +1,3 @@
-import { translateCatalogText } from "../utils/localization.js";
 import { useMemo } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
@@ -88,7 +87,7 @@ const PairWithProducts = ({ product, productId }) => {
 
               <div className="p-3">
                 <h3 className="truncate text-xs font-medium text-[#343434] sm:text-sm">
-                  {translateCatalogText(item.title)}
+                  {item.title}
                 </h3>
                 <p className="mt-1 text-xs text-[#858585]">
                   {formatThousandsVnd(item.price?.[firstSize], currency)}

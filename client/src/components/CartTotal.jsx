@@ -1,4 +1,3 @@
-import { translateCatalogText } from "../utils/localization.js";
 import { useMemo } from "react";
 import { CreditCard, Package, Truck } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
@@ -68,7 +67,7 @@ const CartTotal = ({ checkout, contentRef, onBack, isSubmitting = false, selecte
                   className="h-20 w-16 shrink-0 rounded-lg bg-primary object-cover"
                 />
                 <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-6 gap-y-2">
-                  <p className="min-w-0 flex-1 basis-48 font-medium">{translateCatalogText(item.product.title)}</p>
+                  <p className="min-w-0 flex-1 basis-48 font-medium">{item.product.title}</p>
                   <p className="text-sm text-gray-500">Dung tích: {item.size}</p>
                 </div>
               </div>
@@ -109,7 +108,7 @@ const CartTotal = ({ checkout, contentRef, onBack, isSubmitting = false, selecte
                     onChange={() => checkout.setShippingMethod(option.id)} className="mt-1 accent-secondary" />
                   <span className="min-w-0 flex-1">
                     <span className="block font-medium">{option.label}</span>
-                    <span className="mt-1 block text-xs text-gray-500">{translateCatalogText(option.description)}</span>
+                    <span className="mt-1 block text-xs text-gray-500">{option.description}</span>
                     <span className="mt-2 block font-semibold text-secondary">
                       {shippingPrice(option)}
                     </span>

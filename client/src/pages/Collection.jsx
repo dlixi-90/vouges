@@ -1,4 +1,3 @@
-import { translateCatalogText } from "../utils/localization.js";
 import { useLayoutEffect, useMemo, useState } from "react";
 import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
@@ -68,7 +67,7 @@ const Collection = () => {
     if (searchQuery) {
       const normalizedSearch = searchQuery.toLowerCase();
       filtered = filtered.filter((product) =>
-        translateCatalogText(product.title).toLowerCase().includes(normalizedSearch),
+        product.title.toLowerCase().includes(normalizedSearch),
       );
     }
 
@@ -179,7 +178,7 @@ const Collection = () => {
                     checked={category.includes(cat)}
                     className="w-3"
                   />
-                  {translateCatalogText(cat)}
+                  {cat}
                 </label>
               ))}
             </div>
@@ -196,7 +195,7 @@ const Collection = () => {
                     checked={type.includes(typ)}
                     className="w-3"
                   />
-                  {translateCatalogText(typ)}
+                  {typ}
                 </label>
               ))}
             </div>

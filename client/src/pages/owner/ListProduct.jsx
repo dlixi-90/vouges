@@ -1,4 +1,3 @@
-import { translateCatalogText } from "../../utils/localization.js";
 import { useMemo, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
@@ -12,6 +11,7 @@ import {
   ChevronsRight,
   Package,
   Pencil,
+  Plus,
   Search,
   Trash2,
 } from "lucide-react";
@@ -227,13 +227,23 @@ const ListProduct = () => {
             </p>
 
             <h1 className="mt-2 text-2xl font-semibold text-[#263b4a] sm:text-3xl">
-              Danh sách sản phẩm
+              Sản phẩm
             </h1>
           </div>
 
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#d8e5da] bg-[#edf6ee] px-3 py-1.5 text-xs font-medium text-[#557b5e]">
-            <Package size={15} />
-            {(products || []).length} sản phẩm
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#d8e5da] bg-[#edf6ee] px-3 py-1.5 text-xs font-medium text-[#557b5e]">
+              <Package size={15} />
+              {(products || []).length} sản phẩm
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate("/owner/add-product")}
+              className="admin-primary-button inline-flex items-center gap-2"
+            >
+              <Plus size={17} aria-hidden="true" />
+              Thêm sản phẩm
+            </button>
           </div>
         </header>
 
@@ -400,11 +410,11 @@ const ListProduct = () => {
                               className="max-w-[240px] border-b border-[#dfe5e8] px-4 py-4 align-top font-medium text-[#263b4a]"
                             >
                               <span className="block truncate">
-                                {translateCatalogText(product.title)}
+                                {product.title}
                               </span>
 
                               <span className="mt-1 block text-xs font-normal text-[#8b949c]">
-                                {translateCatalogText(product.type || "Sản phẩm")}
+                                {product.type || "Sản phẩm"}
                               </span>
 
                               <span className="mt-2 inline-flex rounded-full bg-[#f2f5f3] px-2 py-0.5 text-[11px] font-normal text-[#71808a]">
@@ -420,7 +430,7 @@ const ListProduct = () => {
                               rowSpan={rowSpan}
                               className="border-b border-[#dfe5e8] px-4 py-4 align-top text-[#69747e]"
                             >
-                              {translateCatalogText(product.category || "—")}
+                              {product.category || "—"}
                             </td>
                           )}
 

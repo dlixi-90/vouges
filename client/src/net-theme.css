@@ -75,12 +75,16 @@ body { background:#fff; color:var(--net-ink); }
 .net-hero > div::after { content:none; }
 .net-hero > div > .relative { z-index:1; max-width:none; height:100%; min-height:0; gap:20px; padding:28px; }
 .net-hero > div > .relative > div { flex-shrink:0; }
-.net-hero .h1 { max-width:820px; color:var(--net-ink); font-weight:500; line-height:1.2; letter-spacing:-.045em; }
-.net-hero .h1 .text-secondary { color:inherit; }
-.net-hero .max-w-3xl > p { max-width:580px; margin-top:18px; color:#494949; font-size:15px; line-height:1.8; }
-.net-hero .max-w-3xl a { margin-top:20px; background:#171717; border:1px solid #171717; color:#fff; padding-block:4px; padding-left:22px; font-size:13px; }
-.net-hero .max-w-3xl a:hover { background:#343434; }
-.net-hero .max-w-3xl a img { box-shadow:none; }
+.net-hero-copy { width:min(60%,720px); padding-top:8px; }
+.net-hero .net-hero-eyebrow { display:flex; align-items:center; gap:12px; margin:0 0 18px; color:#646652; font-size:10px; font-weight:600; line-height:1.6; letter-spacing:.16em; text-transform:uppercase; }
+.net-hero-eyebrow::before { content:""; width:30px; height:1px; flex-shrink:0; background:currentColor; opacity:.6; }
+.net-hero .net-hero-title { margin:0; color:#242820; font-weight:400; letter-spacing:-.035em; line-height:1.2; }
+.net-hero-title-lead { display:block; font-size:clamp(30px,3.5vw,50px); font-weight:400; }
+.net-hero-title-accent { display:block; margin-top:2px; color:#586448; font-family:"Noto Serif",Georgia,serif; font-size:clamp(38px,5.1vw,74px); font-style:italic; font-weight:500; letter-spacing:-.045em; line-height:1.3; text-wrap:balance; }
+.net-hero .net-hero-description { max-width:540px; margin-top:20px; color:#55564e; font-size:15px; line-height:1.8; text-wrap:pretty; }
+.net-hero-copy a { margin-top:24px; background:#171717; border:1px solid #171717; color:#fff; padding-block:4px; padding-left:22px; font-size:13px; }
+.net-hero-copy a:hover { background:#343434; }
+.net-hero-copy a img { box-shadow:none; }
 .net-hero .max-w-\[249px\] { background:#ffffffed; border-radius:18px; padding:12px; margin-bottom:0; }
 .net-hero .max-w-\[249px\] > div { height:104px; }
 .net-hero .max-w-\[249px\] > div > img { height:100%; }
@@ -117,10 +121,43 @@ body { background:#fff; color:var(--net-ink); }
 .net-contact form .max-w-96 { max-width:480px; }
 .net-contact form .h-10 { height:48px; border-radius:12px; background:#fff; }
 .net-contact textarea { background:#fff; border-radius:12px; padding:14px; }
-.net-cart,.net-orders { background:#fff; }
+.net-orders { background:#fff; }
+.net-cart { min-height:100dvh; background:#f4f1ed; }
+.net-cart-heading { padding-block:8px 30px; }
+.net-cart-heading h1 { margin:0; font-size:clamp(30px,3vw,40px); font-weight:600; letter-spacing:-.04em; line-height:1.3; }
+.net-cart-table-head { border:1px solid #e5dfd7; }
+.net-cart-item { border:1px solid #e5dfd7; }
 .net-cart :is(section,article).bg-white,.net-orders article { border:1px solid var(--net-line); border-radius:20px; box-shadow:none; }
-.net-theme.net-storefront .net-membership { background:#fff; }
-.net-membership > .max-padd-container > header { border-color:var(--net-line); }
+/* Membership follows the storefront's cream canvas, white cards and olive accents. */
+.net-theme.net-storefront .net-membership { --member-ink:#283025; --member-muted:#697060; --member-accent:#526245; --member-line:#e2e3d9; background:#f4f1ed; color:var(--member-ink); }
+.net-membership .net-member-header { border-color:#deded4; }
+.net-membership .net-member-header h1 { font-size:clamp(30px,3vw,40px); font-weight:600; line-height:1.3; letter-spacing:-.04em; }
+.net-membership .net-member-eyebrow { color:var(--member-accent); }
+.net-membership .net-member-muted { color:var(--member-muted); }
+.net-membership .net-member-panel { border:1px solid var(--member-line); border-radius:20px; background:#fff; }
+.net-membership .net-member-profile-cover { background:#edf0e5; border-bottom:1px solid #dce2d2; }
+.net-membership .net-member-brand,.net-membership .net-member-icon { color:var(--member-accent); }
+.net-membership .net-member-settings { color:var(--member-accent); }
+.net-membership .net-member-settings:hover { background:#e0e6d5; }
+.net-membership .net-member-avatar { background:#fff; border-color:#d4dcc7; color:var(--member-accent); }
+.net-membership .net-member-details dt { color:var(--member-muted); }
+.net-membership .net-member-details dd { color:var(--member-ink); }
+.net-membership .net-member-date { background:#fafbf7; border-color:#d9dfd0; }
+.net-membership .net-member-gift { background:#fafbf6; border-color:#dce2d1; }
+.net-membership .net-member-gift-label { background:#edf1e4; color:var(--member-accent); }
+.net-membership .net-member-gift-value { min-width:130px; padding:16px 20px; border:1px solid #e1e6d8; border-radius:16px; background:#fff; }
+.net-membership .net-member-discount { color:var(--member-accent); font-size:64px; line-height:1.15; }
+.net-member-discount > span { margin-left:3px; font-size:28px; font-weight:500; }
+.net-membership .net-member-gift-note { border-color:#dde3d3; line-height:1.8; }
+.net-membership .net-member-wallet-header { border-color:var(--member-line); }
+.net-membership .net-member-wallet-count,.net-membership .net-member-empty-icon { background:#eef2e6; color:var(--member-accent); }
+.net-membership .net-member-voucher { border-color:var(--member-line); background:#fff; }
+.net-membership .net-member-voucher-value { background:#f0f3e9; color:var(--member-accent); border-color:#d8e0cb; }
+.net-membership .net-member-voucher-value p { color:var(--member-accent); }
+.net-membership .net-member-voucher-code { background:#f4f2ed; color:#38402f; }
+.net-membership .net-member-copy { background:#fff; color:var(--member-ink); border-color:#d9dfd0; }
+.net-membership .net-member-copy:hover { background:#f0f3e9; }
+.net-membership .net-member-wallet-footer { background:#f8f9f5; border-color:var(--member-line); }
 
 /* Shared black footer, preserving every existing column and newsletter field. */
 .net-footer { width:calc(100% - 40px); max-width:1440px; margin:28px auto 20px; padding-top:54px; background:#171717; color:#dedede; border-radius:26px; }
@@ -167,6 +204,30 @@ body { background:#fff; color:var(--net-ink); }
 .net-admin select,.net-admin textarea { border-radius:11px; }
 .net-admin .net-admin-messages { padding:0; background:#fff; }
 .net-admin .net-admin-messages > header { padding:26px 30px; background:#f6f6f6; }
+
+/* Order details stay white; restrained accents identify payment and actions. */
+.net-admin .net-order-card { border-color:#e3e7df; background:#fff; color:#283025; }
+.net-admin .net-order-card > header { background:#fff; border-color:#e8ebe4; }
+.net-admin .net-order-card .net-order-label { color:#6b7461; }
+.net-admin .net-order-card .net-order-meta { color:#697260; }
+.net-admin .net-order-card :is(.net-order-number,.net-order-heading) { color:#283025; }
+.net-admin .net-order-card .net-order-total { color:#283025; font-size:20px; letter-spacing:-.025em; }
+.net-admin .net-order-payment { display:inline-flex; align-items:center; gap:7px; line-height:1.6; }
+.net-admin .net-order-payment::before { content:""; width:6px; height:6px; flex-shrink:0; border-radius:50%; background:currentColor; }
+.net-admin .net-order-payment[data-payment-state="cod"] { background:#f1f3eb; color:#586449; }
+.net-admin .net-order-payment[data-payment-state="paid"] { background:#eaf5ed; color:#326447; }
+.net-admin .net-order-payment[data-payment-state="pending"] { background:#fff4e4; color:#92601e; }
+.net-admin .net-order-products,.net-admin .net-order-customer { background:#fff; border-color:#e8ebe4; }
+.net-admin .net-order-items > * { border-color:#eceee8; }
+.net-admin .net-order-thumbnail { background:#f7f8f4; border-color:#e8ebe2; }
+.net-admin .net-order-variant { background:#f5f6f1; color:#68725f; border:1px solid #e9ece3; }
+.net-admin .net-order-variant b { color:#3e4b33; }
+.net-admin .net-order-customer dt { color:#6b7461; }
+.net-admin .net-order-customer dd { color:#3e4738; }
+.net-admin .net-order-actions { background:#f8f9f5; border-color:#e8ebe0; }
+.net-admin .net-order-card .net-order-status { background:#fff; color:#3e4e32; border-color:#d8dfcf; }
+.net-admin .net-order-card .net-order-status:focus { border-color:#7f906b; box-shadow:0 0 0 3px #75865c14; }
+.net-admin .net-order-card .net-order-status:disabled { background:#f0f3eb; color:#637057; }
 .net-theme [class*="bg-gradient"][class*="from-[#"] { background-image:none; }
 .net-cart button.bg-secondary,.net-product-detail button.bg-secondary { border-radius:999px; }
 
@@ -223,11 +284,18 @@ body { background:#fff; color:var(--net-ink); }
   .net-header [aria-controls="vouges-ai-chat-panel"] { padding-inline:11px; }
   .net-hero > div { height:auto; min-height:650px; margin-top:90px; border-radius:20px; }
   .net-hero > div > .relative { height:auto; min-height:650px; padding:28px 24px; }
-  .net-hero .h1 { font-size:40px; }
-  .net-hero .max-w-3xl > p { font-size:13px; line-height:1.8; margin-top:18px; }
-  .net-hero .max-w-3xl a { padding-left:15px; font-size:11px; }
+  .net-hero-copy { width:100%; max-width:540px; padding-top:0; }
+  .net-hero .net-hero-eyebrow { gap:9px; margin-bottom:16px; font-size:9px; letter-spacing:.12em; }
+  .net-hero-eyebrow::before { width:22px; }
+  .net-hero-title-lead { font-size:clamp(28px,7vw,40px); }
+  .net-hero-title-accent { font-size:clamp(30px,7.5vw,54px); }
+  .net-hero .net-hero-description { font-size:13px; line-height:1.8; margin-top:18px; }
+  .net-hero-copy a { padding-left:15px; font-size:11px; }
   .net-hero .max-w-\[249px\] { max-width:220px; }
   .net-hero .max-w-\[249px\] > div { width:100%; }
+  .net-membership .net-member-gift-layout { flex-direction:column; }
+  .net-membership .net-member-gift-value { display:flex; width:100%; align-items:center; justify-content:space-between; padding:12px 18px; }
+  .net-membership .net-member-discount { margin:0; font-size:52px; }
   .net-features > div { gap:18px; padding-block:0; }
 
 

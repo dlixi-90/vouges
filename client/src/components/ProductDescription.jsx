@@ -1,4 +1,3 @@
-import { translateCatalogText } from "../utils/localization.js";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
@@ -23,7 +22,7 @@ const ProductDescription = ({ product, selectedSize }) => {
       label: "Mô tả",
       content: (
         <p className="text-sm leading-6 text-[#697078]">
-          {translateCatalogText(product.description)}
+          {product.description}
         </p>
       ),
     },

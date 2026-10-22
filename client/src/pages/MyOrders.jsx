@@ -1,4 +1,4 @@
-import { getOrderStatusLabel, getPaymentMethodLabel, translateCatalogText } from "../utils/localization.js";
+import { getOrderStatusLabel, getPaymentMethodLabel } from "../utils/localization.js";
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Package, Star } from "lucide-react";
 import Title from "../components/Title";
@@ -179,7 +179,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
 
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-[#263b4a]">
-                        {translateCatalogText(productTitle)}
+                        {productTitle}
                       </p>
                       <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px] text-[#69747e]">
                         <span className="rounded-md bg-[#f1f4f2] px-2 py-1">

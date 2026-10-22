@@ -96,7 +96,7 @@ const Header = () => {
                   onClick={() => navigate("/owner")}
                   className="btn-outline px-2 py-2 text-xs font-semibold"
                 >
-                  Tổng quan
+                  Admin
                 </button>
               )}
             </div>

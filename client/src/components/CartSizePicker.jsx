@@ -1,4 +1,3 @@
-import { translateCatalogText } from "../utils/localization.js";
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { getSizeQuantity, isSizeAvailable } from "../utils/productStock";
@@ -101,7 +100,7 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
       >
         <div className="p-5 sm:p-6">
           <h3 id={titleId} className="font-semibold">Chọn phân loại</h3>
-          <p className="mt-1 truncate">{translateCatalogText(product.title)}</p>
+          <p className="mt-1 truncate">{product.title}</p>
           <div className="mt-5 flex items-start gap-4">
             <span className="pt-2 text-gray-500">Dung tích:</span>
             <div className="flex flex-wrap gap-2" role="group" aria-label="Các dung tích hiện có">

@@ -1,4 +1,4 @@
-import { getOrderStatusLabel, translateCatalogText } from "../../utils/localization.js";
+import { getOrderStatusLabel } from "../../utils/localization.js";
 import { useClerk } from "@clerk/react";
 import { Link } from "react-router-dom";
 import {
@@ -465,10 +465,10 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <p className="truncate text-xs font-bold text-slate-900">
-                                    {translateCatalogText(product.title)}
+                                    {product.title}
                                   </p>
                                   <p className="mt-0.5 text-[11px] text-slate-500">
-                                    {translateCatalogText(product.type)} ·{" "}
+                                    {product.type} ·{" "}
                                     {formatProductPrice(product.priceRange)}
                                   </p>
                                   <div className="mt-1 flex flex-wrap gap-1">
@@ -544,7 +544,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                                         </div>
                                         <div className="min-w-0 flex-1">
                                           <p className="truncate text-xs font-semibold text-slate-800">
-                                            {translateCatalogText(item.title || "Sản phẩm")}
+                                            {item.title || "Sản phẩm"}
                                           </p>
                                           <p className="mt-0.5 text-[10px] text-slate-500">
                                             Dung tích {item.size || "—"} · Số lượng{" "}
@@ -635,7 +635,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                                           <div className="min-w-0 flex-1">
                                             <div className="flex items-start justify-between gap-2">
                                               <p className="truncate text-xs font-semibold text-slate-800">
-                                                {translateCatalogText(item.title || "Sản phẩm")}
+                                                {item.title || "Sản phẩm"}
                                               </p>
                                               <span className="shrink-0 text-xs font-bold text-slate-900">
                                                 {formatMoney(item.lineTotal)}
@@ -734,7 +734,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                                 </span>
                                 <div>
                                   <p className="text-xs font-bold text-slate-900">
-                                    {translateCatalogText(cartActionPresentation.title)}
+                                    {cartActionPresentation.title}
                                   </p>
                                   <p
                                     className={`mt-0.5 text-[10px] ${

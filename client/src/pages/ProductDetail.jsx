@@ -1,4 +1,3 @@
-import { translateCatalogText } from "../utils/localization.js";
 import { useEffect, useRef, useState } from "react";
 import { Check, Minus, Plus, ShieldCheck, Star, Truck } from "lucide-react";
 import { useParams } from "react-router-dom";
@@ -161,10 +160,10 @@ const ProductDetail = () => {
           aria-label="Thông tin sản phẩm"
         >
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#858b87]">
-            {translateCatalogText(product.category)} · {product.type.replaceAll("-", " ")}
+            {product.category} · {product.type.replaceAll("-", " ")}
           </p>
           <h1 className="text-2xl font-semibold leading-tight tracking-[-0.025em] text-[#303030] sm:text-3xl">
-            {translateCatalogText(product.title)}
+            {product.title}
           </h1>
           <p className="mt-2 text-2xl text-[#737373]">
             {formatThousandsVnd(size ? product.price?.[size] : 0, currency)}

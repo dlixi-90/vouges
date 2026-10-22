@@ -1,4 +1,3 @@
-import { translateCatalogText } from "../utils/localization.js";
 import { useEffect, useRef, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { getAvailableSizes } from "../utils/productStock";
@@ -69,7 +68,7 @@ const Item = ({ product, collectionLayout = false }) => {
           </div>
         )}
         <p className="absolute right-2 top-2 rounded-full bg-white/50 px-5 ring-1 ring-slate-900/10">
-          {translateCatalogText(product.type)}
+          {product.type}
         </p>
         {!isAvailable && (
           <p className="absolute left-2 top-2 rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 ring-1 ring-red-200">
@@ -89,7 +88,7 @@ const Item = ({ product, collectionLayout = false }) => {
         {collectionLayout ? (
           <>
             <h5 className="line-clamp-1 text-[10px] font-normal uppercase sm:text-xs">
-              {translateCatalogText(product.title)}
+              {product.title}
             </h5>
             <p className="mt-2 font-normal">
               {formatThousandsVnd(displayedPrice, currency)}
@@ -98,12 +97,12 @@ const Item = ({ product, collectionLayout = false }) => {
         ) : (
           <>
             <div className="flexBetween">
-              <h5 className="h5 line-clamp-1 uppercase">{translateCatalogText(product.title)}</h5>
+              <h5 className="h5 line-clamp-1 uppercase">{product.title}</h5>
               <p className="font-semibold">
                 {formatThousandsVnd(displayedPrice, currency)}
               </p>
             </div>
-            <p className="line-clamp-2 pt-1">{translateCatalogText(product.description)}</p>
+            <p className="line-clamp-2 pt-1">{product.description}</p>
           </>
         )}
       </div>

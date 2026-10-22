@@ -68,19 +68,19 @@ const Footer = () => {
             </ul>
           </div>
 
-          <div className="max-w-80">
+          <div className="w-full max-w-80">
             <p className="h4 text-black/80">NHẬN TIN MỚI NHẤT</p>
             <p className="mt-3 text-sm">
               Đăng ký nhận bản tin để cập nhật bí quyết làm đẹp và ưu đãi đặc biệt.
             </p>
-            <div className="net-field-shell flex items-center border pl-4 gap-2 bg-secondary/10 border-gray-500/30 h-[46px] rounded-full overflow-hidden max-w-md w-full mt-6">
+            <div className="net-field-shell flex h-[46px] w-full items-center gap-2 overflow-hidden rounded-full border border-gray-500/30 bg-secondary/10 p-1 pl-4 mt-6">
               <input
-                className="w-full h-full outline-none text-sm text-gray-500"
+                className="h-full min-w-0 flex-1 outline-none text-sm text-gray-500"
+                aria-label="Địa chỉ thư điện tử nhận bản tin"
                 placeholder="Địa chỉ thư điện tử của bạn"
                 type="text"
               />
-              <button className="btn-dark font-medium !px-3.5 py-2 mr-0.5">
-                {/* Arrow icon */}
+              <button type="button" className="btn-dark inline-flex h-full shrink-0 items-center justify-center whitespace-nowrap font-medium !px-4 !py-0 !text-sm">
                 Đăng ký
               </button>
             </div>

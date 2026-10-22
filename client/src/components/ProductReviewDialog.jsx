@@ -1,4 +1,3 @@
-import { translateCatalogText } from "../utils/localization.js";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
@@ -34,7 +33,7 @@ const ProductReviewDialog = ({ product, onClose }) => {
         <div className="mb-6 flex items-center gap-4 rounded-lg bg-primary p-4">
           {product.image && <ProductImage src={product.image} imageWidth={160} alt={product.title} className="h-16 w-14 shrink-0 rounded-md object-cover" />}
           <div className="min-w-0">
-            <h3 className="break-words text-sm font-semibold">{translateCatalogText(product.title)}</h3>
+            <h3 className="break-words text-sm font-semibold">{product.title}</h3>
             <p className="mt-1 text-xs text-gray-500">Dung tích: {product.size} · Đã mua hàng</p>
           </div>
         </div>

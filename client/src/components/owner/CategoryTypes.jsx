@@ -1,4 +1,3 @@
-import { translateCatalogText } from "../../utils/localization.js";
 import { useState } from "react";
 import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
 
@@ -71,14 +70,14 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
             ) : (
               <div className="flex items-center justify-between gap-3">
                 <span className="min-w-0 break-words text-sm text-[#52616a]">
-                  {translateCatalogText(type.name)}
+                  {type.name}
                 </span>
                 <div className="flex shrink-0 items-center gap-1">
                   <button
                     type="button"
                     className="inline-flex h-10 items-center gap-1.5 rounded-lg px-2.5 text-sm text-[#496852] hover:bg-[#edf6ee] disabled:opacity-60"
                     disabled={disabled}
-                    aria-label={`Chỉnh sửa loại sản phẩm ${type.name} trong danh mục ${translateCatalogText(category.name)}`}
+                    aria-label={`Chỉnh sửa loại sản phẩm ${type.name} trong danh mục ${category.name}`}
                     onClick={() => {
                       setEditingId(type._id);
                       setEditName(type.name);
@@ -90,7 +89,7 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
                     type="button"
                     disabled={disabled}
                     onClick={() => onDelete(category, type)}
-                    aria-label={`Xóa loại sản phẩm ${type.name} trong danh mục ${translateCatalogText(category.name)}`}
+                    aria-label={`Xóa loại sản phẩm ${type.name} trong danh mục ${category.name}`}
                     className="inline-flex h-10 items-center gap-1.5 rounded-lg px-2.5 text-sm text-red-600 hover:bg-red-50 disabled:opacity-60"
                   >
                     <Trash2 size={14} />

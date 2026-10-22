@@ -1,4 +1,3 @@
-import { translateCatalogText } from "../../utils/localization.js";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
@@ -202,7 +201,7 @@ const AddCategory = () => {
               Sản phẩm
             </p>
             <h1 className="text-2xl font-semibold tracking-tight text-[#263b4a] sm:text-3xl">
-              Thêm danh mục
+              Danh mục
             </h1>
           </div>
           {returnTo && (
@@ -373,7 +372,7 @@ const AddCategory = () => {
                             />
                             <span className="min-w-0 flex-1">
                               <span className="block break-words text-sm font-semibold text-[#263b4a]">
-                                {translateCatalogText(category.name)}
+                                {category.name}
                               </span>
                               <span className="mt-1 block truncate text-xs text-[#839099]">
                                 {types.length

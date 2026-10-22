@@ -1,4 +1,4 @@
-import { getOrderStatusLabel, getPaymentMethodLabel, translateCatalogText } from "../../utils/localization.js";
+import { getOrderStatusLabel, getPaymentMethodLabel } from "../../utils/localization.js";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Package } from "lucide-react";
 import toast from "react-hot-toast";
@@ -165,7 +165,6 @@ const Dashboard = () => {
 
           <DashboardCard>
             <CardTitle title="Sản phẩm bán chạy" />
-            <p className="mt-2 text-xs text-[#8b949c]">4 sản phẩm bán chạy nhất theo số lượng · Toàn thời gian</p>
             {popularProductsError && (
               <p role="alert" className="mt-3 text-sm text-red-600">
                 {popularProductsError}{" "}
@@ -195,7 +194,7 @@ const Dashboard = () => {
                     </div>
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-[#263b4a]">
-                        {translateCatalogText(product.title)}
+                        {product.title}
                       </p>
                       <p className="text-xs text-[#8b949c]">
                         {product.soldQuantity} đã bán
@@ -281,30 +280,27 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
       });
 
   return (
-    <article className="overflow-hidden rounded-xl border border-[#e2e7eb] bg-white shadow-sm">
-      <header className="flex flex-col gap-3 border-b border-[#edf0f2] bg-[#fafbfb] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <article className="net-order-card overflow-hidden rounded-xl border bg-white">
+      <header className="flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8b949c]">
+          <p className="net-order-label text-[11px] font-semibold uppercase tracking-[0.14em]">
             Đơn hàng
           </p>
           <h3
-            className="mt-1 truncate font-mono text-sm font-semibold text-[#263b4a]"
+            className="net-order-number mt-1 truncate font-mono text-sm font-semibold"
             title={order._id}
           >
             #{String(order._id).slice(-8).toUpperCase()}
           </h3>
-          <p className="mt-1 text-xs text-[#8b949c]">
+          <p className="net-order-meta mt-1 text-xs">
             Đặt ngày {formattedDate}
           </p>
         </div>
 
         <div className="flex items-center justify-between gap-4 sm:justify-end">
           <span
-            className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-              order.isPaid
-                ? "bg-[#edf6ee] text-[#4f7f5a]"
-                : "bg-[#fff5e5] text-[#a26f2c]"
-            }`}
+            className="net-order-payment rounded-full px-2.5 py-1 text-xs font-medium"
+            data-payment-state={order.isPaid ? "paid" : order.paymentMethod === "COD" ? "cod" : "pending"}
           >
             {order.isPaid
               ? "Đã thanh toán"
@@ -313,10 +309,10 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
                 : "Chờ thanh toán"}
           </span>
           <div className="text-right">
-            <p className="text-[11px] uppercase tracking-wide text-[#8b949c]">
+            <p className="net-order-label text-[11px] uppercase tracking-wide">
               Tổng cộng
             </p>
-            <p className="mt-0.5 text-base font-semibold text-[#263b4a]">
+            <p className="net-order-total mt-0.5 font-semibold">
               {formatThousandsVnd(order.amount, currency)}
             </p>
           </div>
@@ -324,15 +320,15 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
       </header>
 
       <div className="grid lg:grid-cols-[minmax(0,1.55fr)_minmax(260px,0.75fr)]">
-        <section className="p-4 sm:p-5 lg:border-r lg:border-[#edf0f2]">
+        <section className="net-order-products p-4 sm:p-5 lg:border-r">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-[#263b4a]">Sản phẩm</h4>
-            <span className="text-xs text-[#8b949c]">
+            <h4 className="net-order-heading text-sm font-semibold">Sản phẩm</h4>
+            <span className="net-order-meta text-xs">
               {items.length} {"sản phẩm"}
             </span>
           </div>
 
-          <div className="mt-3 divide-y divide-[#edf0f2]">
+          <div className="net-order-items mt-3 divide-y">
             {items.map((item, index) => {
               const product =
                 item.product && typeof item.product === "object"
@@ -349,7 +345,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
                 >
                   {/* LEFT: Product */}
                   <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-[#edf0f2] bg-[#f7f9f8] p-1">
+                    <div className="net-order-thumbnail flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border p-1">
                       {productImage ? (
                         <ProductImage
                           src={productImage}
@@ -363,16 +359,16 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
                     </div>
 
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-[#263b4a]">
-                        {translateCatalogText(productTitle)}
+                      <p className="net-order-heading truncate text-sm font-semibold">
+                        {productTitle}
                       </p>
 
                       <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px] text-[#69747e]">
-                        <span className="rounded-md bg-[#f1f4f2] px-2 py-1">
+                        <span className="net-order-variant rounded-md px-2 py-1">
                           Dung tích: <b className="text-[#263b4a]">{item.size}</b>
                         </span>
 
-                        <span className="rounded-md bg-[#f1f4f2] px-2 py-1">
+                        <span className="net-order-variant rounded-md px-2 py-1">
                           Số lượng: <b className="text-[#263b4a]">{item.quantity}</b>
                         </span>
                       </div>
@@ -381,7 +377,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
 
                   {/* RIGHT: Price */}
                   <div className="shrink-0 pt-0.5 text-right">
-                    <p className="whitespace-nowrap text-sm font-semibold leading-5 text-[#263b4a]">
+                    <p className="net-order-heading whitespace-nowrap text-sm font-semibold leading-5">
                       {formatThousandsVnd(
                         item.unitPrice ?? product.price?.[item.size] ?? 0,
                         currency,
@@ -394,8 +390,8 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
           </div>
         </section>
 
-        <aside className="border-t border-[#edf0f2] bg-[#fcfdfc] p-4 sm:p-5 lg:border-t-0">
-          <h4 className="text-sm font-semibold text-[#263b4a]">
+        <aside className="net-order-customer border-t p-4 sm:p-5 lg:border-t-0">
+          <h4 className="net-order-heading text-sm font-semibold">
             Thông tin khách hàng
           </h4>
 
@@ -448,10 +444,10 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
         </aside>
       </div>
 
-      <footer className="flex flex-col gap-2 border-t border-[#edf0f2] bg-[#fafbfb] px-4 py-3 sm:flex-row sm:items-center sm:justify-end sm:px-5">
+      <footer className="net-order-actions flex flex-col gap-2 border-t px-4 py-3 sm:flex-row sm:items-center sm:justify-end sm:px-5">
         <label
           htmlFor={`status-${order._id}`}
-          className="text-xs font-medium text-[#69747e]"
+          className="net-order-meta text-xs font-medium"
         >
           Trạng thái đơn hàng
         </label>
@@ -461,7 +457,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
           value={order.status}
           disabled={updating || currentStep < 0 || currentStep === ORDER_STATUSES.length - 1}
           aria-busy={updating}
-          className="w-full rounded-md border border-[#dfe5e8] bg-white px-3 py-2 text-xs font-semibold text-[#263b4a] outline-none transition focus:border-[#9fc4a9] focus:ring-2 focus:ring-[#dcecdf] disabled:cursor-not-allowed disabled:bg-[#f1f4f2] sm:w-40"
+          className="net-order-status w-full rounded-md border px-3 py-2 text-xs font-semibold outline-none transition disabled:cursor-not-allowed sm:w-40"
         >
           {!ORDER_STATUSES.includes(order.status) && (
             <option value={order.status}>{getOrderStatusLabel(order.status)}</option>

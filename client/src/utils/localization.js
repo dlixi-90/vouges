@@ -1,8 +1,3 @@
-import { catalogTranslations } from "./catalogTranslations.js";
-
-export const translateCatalogText = (value) =>
-  Object.hasOwn(catalogTranslations, value) ? catalogTranslations[value] : value;
-
 const orderStatusLabels = {
   "Awaiting Payment": "Chờ thanh toán",
   "Payment Expired": "Hết hạn thanh toán",
