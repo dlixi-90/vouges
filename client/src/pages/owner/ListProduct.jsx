@@ -231,20 +231,14 @@ const ListProduct = () => {
             </h1>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#d8e5da] bg-[#edf6ee] px-3 py-1.5 text-xs font-medium text-[#557b5e]">
-              <Package size={15} />
-              {(products || []).length} sản phẩm
-            </div>
-            <button
-              type="button"
-              onClick={() => navigate("/owner/add-product")}
-              className="admin-primary-button inline-flex items-center gap-2"
-            >
-              <Plus size={17} aria-hidden="true" />
-              Thêm sản phẩm
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => navigate("/owner/add-product")}
+            className="admin-primary-button inline-flex w-fit shrink-0 items-center gap-2"
+          >
+            <Plus size={17} aria-hidden="true" />
+            Thêm sản phẩm
+          </button>
         </header>
 
         <section className="rounded-xl border border-[#e2e7eb] bg-white shadow-sm">
@@ -263,6 +257,12 @@ const ListProduct = () => {
                 placeholder="Lọc sản phẩm…"
                 className="admin-input pl-10"
               />
+            </div>
+            <div className="inline-flex w-fit shrink-0 items-center gap-2 self-end whitespace-nowrap rounded-full border border-secondary/15 bg-primary px-4 py-2 text-sm font-medium text-secondary sm:self-auto">
+              <Package size={17} aria-hidden="true" />
+              <span>
+                <strong className="text-base font-bold">{(products || []).length}</strong> sản phẩm
+              </span>
             </div>
           </div>
 

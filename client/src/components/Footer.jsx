@@ -90,15 +90,12 @@ const Footer = () => {
           <p>
             © {new Date().getFullYear()} <a href="#">Velours</a>. Bảo lưu mọi quyền.
           </p>
-          <ul className="flex items-center gap-4">
+          <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
             <li>
               <a href="#">Chính sách bảo mật</a>
             </li>
             <li>
               <a href="#">Điều khoản sử dụng</a>
-            </li>
-            <li>
-              <a href="#">Sơ đồ trang web</a>
             </li>
           </ul>
         </div>

@@ -33,7 +33,8 @@ const Header = () => {
   const [hasOpenedAIChat, setHasOpenedAIChat] = useState(false);
   const { openSignIn } = useClerk();
 
-  const { navigate, openCart, user, getCartCount, isOwner, storeResources } = useAppContext();
+  const { navigate, openCart, user, getCartCount, isOwner, storeResources } =
+    useAppContext();
 
   const prefetchMembership = () => {
     if (!user) return;
@@ -57,7 +58,11 @@ const Header = () => {
           {/* Logo */}
           <div className="flex flex-1">
             <Link to={"/"} className="flex items-end">
-              <img src={assets.logoImg} alt="Biểu trưng Velours" className="h-11" />
+              <img
+                src={assets.logoImg}
+                alt="Biểu trưng Velours"
+                className="h-11"
+              />
               <span className="hidden sm:block bold-24 relative top-1 right-2">
                 elours
               </span>
@@ -87,7 +92,9 @@ const Header = () => {
                 className="btn-outline flex items-center px-2 py-2 gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-200/50 transition-all hover:from-amber-600 hover:to-orange-600 hover:shadow-lg hover:shadow-amber-300/50 dark:shadow-amber-900/30 dark:hover:shadow-amber-800/40"
               >
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
-                <span className="hidden text-xs font-semibold sm:inline">Hỏi trợ lý AI</span>
+                <span className="hidden text-xs font-semibold sm:inline">
+                  Hỏi trợ lý AI
+                </span>
               </button>
             </div>
             <div>
@@ -96,7 +103,7 @@ const Header = () => {
                   onClick={() => navigate("/owner")}
                   className="btn-outline px-2 py-2 text-xs font-semibold"
                 >
-                  Admin
+                  Dashboard
                 </button>
               )}
             </div>
@@ -129,7 +136,11 @@ const Header = () => {
               </span>
             </button>
             {/* User Profile */}
-            <div className="group" onPointerEnter={prefetchMembership} onFocus={prefetchMembership}>
+            <div
+              className="group"
+              onPointerEnter={prefetchMembership}
+              onFocus={prefetchMembership}
+            >
               {user ? (
                 <UserButton
                   appearance={{
@@ -147,8 +158,11 @@ const Header = () => {
                       labelIcon={<OrdersIcon />}
                       onClick={() => navigate("/my-orders")}
                     />
-                    <UserButton.Action label="Thành viên & mã giảm giá" labelIcon={<Ticket size={16} aria-hidden="true" />}
-                      onClick={() => navigate("/membership")} />
+                    <UserButton.Action
+                      label="Thành viên & mã giảm giá"
+                      labelIcon={<Ticket size={16} aria-hidden="true" />}
+                      onClick={() => navigate("/membership")}
+                    />
                   </UserButton.MenuItems>
                 </UserButton>
               ) : (
@@ -167,7 +181,18 @@ const Header = () => {
       </header>
 
       {hasOpenedAIChat && (
-        <Suspense fallback={isAIChatOpen ? <div role="status" className="fixed bottom-6 right-6 z-50 rounded-xl bg-white p-5 shadow-lg">Đang tải cuộc trò chuyện…</div> : null}>
+        <Suspense
+          fallback={
+            isAIChatOpen ? (
+              <div
+                role="status"
+                className="fixed bottom-6 right-6 z-50 rounded-xl bg-white p-5 shadow-lg"
+              >
+                Đang tải cuộc trò chuyện…
+              </div>
+            ) : null
+          }
+        >
           <AIChatPanel
             key={user?.id || "guest"}
             isOpen={isAIChatOpen}

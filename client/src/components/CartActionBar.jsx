@@ -41,7 +41,7 @@ const CartActionBar = ({ contentRef, children }) => {
 
   return (
     <div ref={actionsRef} className="max-padd-container fixed inset-x-0 bottom-0 z-40">
-      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-t-xl border border-secondary/10 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(0,0,0,0.08)] sm:p-5 sm:pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+      <div className="net-cart-actions flex flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-t-xl border border-secondary/10 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(0,0,0,0.08)] sm:p-5 sm:pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
         {children}
       </div>
     </div>
