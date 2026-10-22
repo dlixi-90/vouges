@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { ArrowUpRight } from "lucide-react";
 import { assets } from "../assets/data";
 import background from "../assets/bg.webp";
 
@@ -11,8 +10,7 @@ const Hero = () => {
         <div className="net-hero-content relative">
           <div className="net-hero-copy">
             <h1 className="net-hero-title">
-              <span className="net-hero-title-lead">Tôn lên vẻ đẹp</span>{" "}
-              <span className="net-hero-title-accent">tự nhiên.</span>
+              Tôn lên <strong>vẻ đẹp</strong> với <strong>mỹ phẩm</strong> tinh chọn
             </h1>
             <p className="net-hero-description">
               Khám phá bộ sưu tập mỹ phẩm chất lượng, đáng tin cậy với mức giá
@@ -34,22 +32,19 @@ const Hero = () => {
               </Link>
             </div>
           </div>
-          <Link to="/collection" className="net-hero-promo">
+          <div className="net-hero-promo">
             <img
               src={assets.hero}
               alt=""
-              width={88}
-              height={88}
+              width={224}
+              height={104}
               className="net-hero-promo-image"
             />
-            <div className="min-w-0">
-              <p className="net-hero-promo-title">Đẹp theo cách của bạn</p>
-              <p className="net-hero-promo-text">Khám phá bộ sưu tập mới.</p>
-              <span className="net-hero-promo-link">
-                Xem ngay <ArrowUpRight size={14} aria-hidden="true" />
-              </span>
-            </div>
-          </Link>
+            <p className="net-hero-promo-text">
+              <b className="uppercase">Khơi dậy</b> vẻ đẹp của bạn chỉ với một
+              cú nhấp chuột. Khám phá phong cách mới và mua sắm ngay hôm nay!
+            </p>
+          </div>
         </div>
       </div>
     </section>
