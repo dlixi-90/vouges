@@ -5,6 +5,11 @@ const Blog = () => {
     <div className="net-blog bg-primary pt-28 pb-28">
       <div className="max-padd-container">
         {/* Center */}
+        <header className="inessa-page-heading">
+          <p className="inessa-eyebrow">The beauty journal</p>
+          <h1>Góc <em>làm đẹp</em></h1>
+          <p>Cảm hứng, những câu chuyện và bí quyết chăm sóc bản thân.</p>
+        </header>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 gap-y-12">
           {blogs.map((blog, index) => (
             <div key={index} className="relative">

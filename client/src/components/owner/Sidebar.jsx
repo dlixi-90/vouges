@@ -2,7 +2,7 @@ import { useAppContext } from "../../context/AppContext";
 import { assets } from "../../assets/data";
 import { Link, Outlet, Navigate, matchPath, useLocation, useMatch } from "react-router-dom";
 import { UserButton } from "@clerk/react";
-import { MessagesSquare } from "lucide-react";
+import { ArrowUpRight, MessagesSquare } from "lucide-react";
 
 const Sidebar = () => {
   const { isOwner, user, profileError, retryUserProfile } = useAppContext();
@@ -95,6 +95,7 @@ const Sidebar = () => {
                 </div>
               </div>
             </div>
+            <p className="inessa-admin-label">Không gian quản trị</p>
             <div className="flex flex-wrap justify-center md:flex-col md:gap-x-5 gap-y-4 md:gap-y-8 md:mt-4">
               {navItems.map((link) => {
                 const isActive = (link.activePaths || [link.path]).some((path) =>
@@ -125,6 +126,7 @@ const Sidebar = () => {
               })}
             </div>
           </div>
+          <Link to="/" className="inessa-back-to-store">Xem cửa hàng <ArrowUpRight size={14} aria-hidden="true" /></Link>
           <div className="hidden md:flex items-center gap-3 md:bg-primary border-t border-slate-900/15 rounded-b-xl p-2 pl-5 lg:pl-10 md:mt-10">
             <UserButton
               appearance={{

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./net-theme.css";
+@import "./inessa-theme.css";
 
 @theme {
   --color-primary: #f5f5f5;

@@ -9,7 +9,7 @@ const Navbar = ({ containerStyles, setMenuOpened }) => {
   ];
 
   return (
-    <nav className={`${containerStyles}`}>
+    <nav id="store-navigation" aria-label="Điều hướng chính" className={`${containerStyles}`}>
       {navLinks.map((link) => (
         <NavLink
           onClick={() => setMenuOpened(false)}

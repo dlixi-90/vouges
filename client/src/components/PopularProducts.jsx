@@ -11,6 +11,7 @@ const PopularProducts = () => {
   } = usePopularProducts();
   return (
     <section className="net-popular-products max-padd-container">
+      <p className="inessa-eyebrow inessa-section-eyebrow">Được yêu thích tại Velours</p>
       <Title title1={"Sản phẩm"} title2={"bán chạy"} titleStyles={"pb-10"} />
       {popularProductsError && (
         <p role="alert" className="mb-4 text-sm text-red-600">

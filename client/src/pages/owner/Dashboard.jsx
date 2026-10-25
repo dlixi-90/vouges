@@ -1,6 +1,6 @@
 import { getOrderStatusLabel, getPaymentMethodLabel } from "../../utils/localization.js";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { Package } from "lucide-react";
+import { Banknote, Package, ShoppingBag } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
 import { formatThousandsVnd } from "../../utils/money";
@@ -137,13 +137,24 @@ const Dashboard = () => {
         <header className="mb-6 flex flex-col gap-4 border-b border-[#e1e6e3] pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#6f9a79]">
-              Tổng quan
+              Velours / Không gian quản lý
             </p>
             <h1 className="text-2xl font-semibold tracking-tight text-[#263b4a] sm:text-3xl">
               Tổng quan
             </h1>
           </div>
         </header>
+
+        <div className="inessa-dashboard-metrics">
+          <div className="inessa-dashboard-metric">
+            <div><p>Tổng doanh thu</p><strong>{dashboardData.totalRevenue === null ? "—" : formatThousandsVnd(dashboardData.totalRevenue, currency)}</strong></div>
+            <span><Banknote size={21} strokeWidth={1.3} aria-hidden="true" /></span>
+          </div>
+          <div className="inessa-dashboard-metric">
+            <div><p>Tổng đơn hàng</p><strong>{dashboardData.totalOrders ?? "—"}</strong></div>
+            <span><ShoppingBag size={21} strokeWidth={1.3} aria-hidden="true" /></span>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
           <DashboardCard className="xl:col-span-2">

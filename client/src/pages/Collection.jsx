@@ -1,4 +1,5 @@
 import { useLayoutEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
 import SearchInput from "../components/SearchInput";
@@ -23,11 +24,15 @@ const Collection = () => {
   }, []);
 
   const { products, searchQuery, categories, currency } = useAppContext();
+  const [searchParams] = useSearchParams();
   const allCategories = [...new Set([
     ...categories.map((item) => item.name),
     ...products.map((item) => item.category).filter(Boolean),
   ])];
-  const [category, setCategory] = useState([]);
+  const [category, setCategory] = useState(() => {
+    const selected = searchParams.get("category");
+    return selected ? [selected] : [];
+  });
   const [type, setType] = useState([]);
   const [selectedSort, setSelectedSort] = useState("relevant");
   const [maxPrice, setMaxPrice] = useState(null);
@@ -111,8 +116,13 @@ const Collection = () => {
   );
 
   return (
-    <div className="net-collection max-padd-container !px-0 mt-20">
-      <div className="mb-16 flex flex-col gap-8 sm:grid sm:grid-cols-[18rem_minmax(0,1fr)] lg:grid-cols-[20rem_minmax(0,1fr)]">
+    <div className="net-collection max-padd-container">
+      <header className="inessa-page-heading">
+        <p className="inessa-eyebrow">Tinh chọn cho vẻ đẹp của bạn</p>
+        <h1>Bộ sưu tập <em>Velours</em></h1>
+        <p>Những lựa chọn yêu thích, dành cho nghi thức làm đẹp mỗi ngày.</p>
+      </header>
+      <div className="inessa-collection-layout mb-16 flex flex-col gap-8 sm:grid sm:grid-cols-[18rem_minmax(0,1fr)] lg:grid-cols-[20rem_minmax(0,1fr)]">
         {/* Filters Option */}
         <aside className="relative min-w-0 rounded-r-xl bg-primary sm:min-h-0">
         <div role="region" aria-label="Bộ lọc sản phẩm" tabIndex={0}
@@ -203,7 +213,7 @@ const Collection = () => {
         </div>
         </aside>
         {/* Right Side - Filtered Products */}
-        <div className="min-w-0 max-sm:px-10 sm:pr-10">
+        <div className="min-w-0">
           <div className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {paginatedProducts.length > 0 ? (
               paginatedProducts.map((product) => (

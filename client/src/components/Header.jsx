@@ -56,7 +56,7 @@ const Header = () => {
       <header className="net-header absolute top-0 left-0 right-0 z-50 bg-white py-3">
         <div className="max-padd-container flexBetween">
           {/* Logo */}
-          <div className="flex flex-1">
+          <div className="inessa-brand flex">
             <Link to={"/"} className="flex items-end">
               <img
                 src={assets.logoImg}
@@ -69,7 +69,7 @@ const Header = () => {
             </Link>
           </div>
           {/* Navbar */}
-          <div className="flex-1">
+          <div className="inessa-navigation">
             <Navbar
               setMenuOpened={setMenuOpened}
               containerStyles={`${
@@ -80,7 +80,7 @@ const Header = () => {
             />
           </div>
           {/* Buttons & Profile icon */}
-          <div className="flex flex-1 items-center sm:justify-end gap-x-3 sm:gap-x-4 xl:gap-x-6">
+          <div className="net-header-actions flex items-center justify-end gap-x-3 sm:gap-x-4 xl:gap-x-6">
             <div>
               <button
                 type="button"
@@ -108,20 +108,9 @@ const Header = () => {
               )}
             </div>
             {/* Menu Toggle */}
-            <div className="relative xl:hidden w-7 h-6">
-              <img
-                onClick={toggleMenu}
-                src={assets.menu}
-                alt=""
-                className={`absolute inset-0 xl:hidden cursor-pointer transition-opacity duration-700 ${menuOpened ? "opacity-0" : "opacity-100"}`}
-              />
-              <img
-                onClick={toggleMenu}
-                src={assets.menuClose}
-                alt=""
-                className={`absolute inset-0 xl:hidden cursor-pointer transition-opacity duration-700 ${menuOpened ? "opacity-100" : "opacity-0"}`}
-              />
-            </div>
+            <button type="button" onClick={toggleMenu} aria-label={menuOpened ? "Đóng menu" : "Mở menu"} aria-expanded={menuOpened} aria-controls="store-navigation" className="inessa-menu-toggle xl:hidden">
+              <img src={menuOpened ? assets.menuClose : assets.menu} alt="" width={24} height={24} />
+            </button>
             {/* Cart */}
             <button
               type="button"
