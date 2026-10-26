@@ -642,6 +642,12 @@ export const getOrderStatus = async (req, res) => {
       });
     }
 
+    // Load receipt details only after access has been checked; payment polling
+    // keeps its existing response unless the overview explicitly requests them.
+    if (req.query?.overview === "true") {
+      await order.populate("items.product address");
+    }
+
     const serializedOrder =
       order.paymentMethod === "QR" && order.status === "Awaiting Payment"
         ? {

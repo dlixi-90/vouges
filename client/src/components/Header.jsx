@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { assets } from "../assets/data";
 import Navbar from "./Navbar";
@@ -54,8 +54,12 @@ const Header = () => {
   };
   const closeAIChat = useCallback(() => {
     setIsAIChatOpen(false);
-    chatLauncherRef.current?.focus({ preventScroll: true });
   }, []);
+  useEffect(() => {
+    if (hasOpenedAIChat && !isAIChatOpen) {
+      chatLauncherRef.current?.focus({ preventScroll: true });
+    }
+  }, [hasOpenedAIChat, isAIChatOpen]);
   return (
     <>
       <header className="net-header absolute top-0 left-0 right-0 z-50 bg-white py-3">
@@ -162,15 +166,16 @@ const Header = () => {
       <button
         ref={chatLauncherRef}
         type="button"
+        hidden={isAIChatOpen}
         onClick={toggleAIChat}
-        aria-label={isAIChatOpen ? "Đóng trò chuyện tư vấn" : "Hỏi trợ lý AI"}
+        aria-label="Hỏi trợ lý AI"
         aria-haspopup="dialog"
         aria-expanded={isAIChatOpen}
         aria-controls="vouges-ai-chat-panel"
         className="inessa-chat-launcher"
       >
-        {isAIChatOpen ? <X size={25} aria-hidden="true" /> : <Headset size={26} strokeWidth={1.7} aria-hidden="true" />}
-        {!isAIChatOpen && <span className="inessa-chat-launcher-label" aria-hidden="true">Hỏi trợ lý AI</span>}
+        <Headset size={26} strokeWidth={1.7} aria-hidden="true" />
+        <span className="inessa-chat-launcher-label" aria-hidden="true">Hỏi trợ lý AI</span>
       </button>
 
       {hasOpenedAIChat && (
@@ -178,10 +183,10 @@ const Header = () => {
           fallback={
             isAIChatOpen ? (
               <div
-                role="status"
-                className="inessa-chat-loading rounded-xl bg-white p-5 shadow-lg"
+                className="inessa-chat-loading flex items-center justify-between gap-4 rounded-xl bg-white p-5 shadow-lg"
               >
-                Đang tải cuộc trò chuyện…
+                <p role="status">Đang tải cuộc trò chuyện…</p>
+                <button type="button" onClick={closeAIChat} aria-label="Đóng trò chuyện tư vấn" className="cursor-pointer rounded-md p-1"><X size={20} aria-hidden="true" /></button>
               </div>
             ) : null
           }

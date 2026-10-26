@@ -14,7 +14,7 @@ const Navbar = ({ containerStyles, setMenuOpened, group = "all", navigationId = 
     })),
   ];
   const informationLinks = [
-    { path: "/blog", title: "Góc làm đẹp" },
+    { path: "/about", title: "Về chúng tôi" },
     { path: "/contact", title: "Liên hệ" },
   ];
   const navLinks = group === "shop" ? shoppingLinks

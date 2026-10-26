@@ -1,6 +1,7 @@
 import { getOrderStatusLabel, getPaymentMethodLabel } from "../utils/localization.js";
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Package, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 import Title from "../components/Title";
 import { useAppContext } from "../context/AppContext";
 import { formatThousandsVnd } from "../utils/money";
@@ -275,7 +276,8 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
         </aside>
       </div>
 
-      <footer className="flex items-center justify-end gap-3 border-t border-[#edf0f2] bg-[#fafbfb] px-4 py-3 sm:px-5">
+      <footer className="flex flex-wrap items-center justify-end gap-3 border-t border-[#edf0f2] bg-[#fafbfb] px-4 py-3 sm:px-5">
+        <Link to={`/order-overview/${order._id}`} className="inessa-order-overview-link" aria-label={`Xem tổng quan đơn hàng ${String(order._id).slice(-8).toUpperCase()}`}>Xem tổng quan đơn hàng →</Link>
         <span className="text-xs font-medium text-[#69747e]">Trạng thái đơn hàng</span>
         <span className="inline-flex items-center gap-2 rounded-md border border-[#dfe5e8] bg-white px-3 py-2 text-xs font-semibold text-[#263b4a]">
           <i className="h-2 w-2 rounded-full bg-[#78a782]" />

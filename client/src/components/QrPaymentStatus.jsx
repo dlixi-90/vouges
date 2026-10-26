@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../context/AppContext";
 import { removePurchasedItems } from "../utils/cartSelection";
-import { useBlocker } from "react-router-dom";
+import { Navigate, useBlocker } from "react-router-dom";
 import { createQrCancellation, shouldCancelQrNavigation } from "../utils/qrNavigation";
 import { URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
 
@@ -244,6 +244,10 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
     const success = await cancelPayment();
     if (success && blockerRef.current.state !== "blocked") onCancelled();
   };
+
+  if (order._id && (order.isPaid || order.status === "Payment Review")) {
+    return <Navigate to={`/order-overview/${order._id}`} replace />;
+  }
 
   if (order.status === "Payment Review") {
     return (

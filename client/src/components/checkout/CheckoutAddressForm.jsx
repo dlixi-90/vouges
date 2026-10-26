@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MapPin } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
 import {
@@ -322,17 +321,10 @@ const CheckoutAddressForm = ({
     <form
       id="checkout-address-form"
       onSubmit={handleSubmit}
-      className="relative overflow-hidden rounded-xl bg-white p-5 sm:p-6"
+      className="inessa-checkout-address"
+      aria-labelledby="checkout-address-title"
     >
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-1"
-        style={{ background: "repeating-linear-gradient(135deg, #41334e 0 24px, #fff 24px 40px, #b5adcb 40px 64px, #fff 64px 80px)" }}
-      />
-      <h2 className="flex items-center gap-2 text-lg font-semibold text-secondary">
-        <MapPin size={20} aria-hidden="true" />
-        Địa chỉ giao hàng
-      </h2>
+      <h2 id="checkout-address-title">Thông tin giao hàng</h2>
 
       {isLoadingAddresses && !address._id ? (
         <p className="mt-8" role="status">
@@ -350,7 +342,7 @@ const CheckoutAddressForm = ({
           </button>
         </div>
       ) : address._id ? (
-        <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-4">
+        <div className="inessa-checkout-saved-address mt-4 flex flex-wrap items-center gap-x-6 gap-y-4">
           <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
             <span className="break-words font-semibold">
               {address.firstName} {address.lastName}
@@ -399,7 +391,7 @@ const CheckoutAddressForm = ({
             type="button"
             disabled={isSubmitting}
             onClick={saveInlineAddress}
-            className="btn-dark mt-5 !rounded-full disabled:opacity-40"
+            className="btn-dark mt-5 disabled:opacity-40"
           >
             {isSubmitting ? "Đang lưu…" : "Lưu địa chỉ"}
           </button>
@@ -408,7 +400,7 @@ const CheckoutAddressForm = ({
               type="button"
               disabled={isSubmitting}
               onClick={() => setIsAddressBookOpen(true)}
-              className="btn-outline mt-5 !rounded-full"
+              className="btn-outline mt-5"
             >
               Chọn địa chỉ đã lưu
             </button>

@@ -107,7 +107,6 @@ const Cart = () => {
   const [orderNote, setOrderNote] = useState("");
   const [deselectedItemKeys, setDeselectedItemKeys] = useState(() => new Set());
   const selectAllRef = useRef(null);
-  const checkoutContentRef = useRef(null);
 
   const cartData = useMemo(() => {
     if (products.length === 0) return [];
@@ -301,9 +300,13 @@ const Cart = () => {
 
   const handleOrderCreated = (order) => {
     storeResources.invalidateMembership();
+    window.scrollTo(0, 0);
+    if (order.paymentMethod === "COD" && order._id) {
+      navigate(`/order-overview/${order._id}`, { replace: true });
+      return;
+    }
     setCreatedOrder(order);
     setCurrentStep(3);
-    window.scrollTo(0, 0);
   };
 
   const handleQrExpired = () => {
@@ -326,7 +329,7 @@ const Cart = () => {
   }, []);
 
   return products && cartItems ? (
-    <div className={`net-cart py-16 pt-28 ${currentStep === 1 ? "inessa-cart-page" : ""}`}>
+    <div className={`net-cart py-16 pt-28 ${currentStep === 1 ? "inessa-cart-page" : currentStep === 2 ? "inessa-checkout-page" : ""}`}>
       <div className="max-padd-container">
       {/* STEP 1 */}
       {currentStep === 1 && (
@@ -449,7 +452,14 @@ const Cart = () => {
       {currentStep === 2 && <CheckoutBackGuard onBack={handleBackToCart} isSubmitting={isSubmitting} />}
       {currentStep === 2 && (
         <Suspense fallback={<p role="status" className="py-12 text-center">Đang tải thông tin thanh toán…</p>}>
-          <div ref={checkoutContentRef} className="space-y-4 text-[95%]">
+          <CartTotal
+            checkout={checkout}
+            isSubmitting={isSubmitting || isUpdatingCart}
+            selectedItemKeys={selectedItemKeys}
+            orderNote={orderNote}
+            setOrderNote={setOrderNote}
+            onBack={handleBackToCart}
+          >
             <CheckoutAddressForm
               checkout={checkout}
               onOrderCreated={handleOrderCreated}
@@ -460,16 +470,7 @@ const Cart = () => {
               setAddress={setCheckoutAddress}
               orderNote={orderNote}
             />
-            <CartTotal
-              checkout={checkout}
-              contentRef={checkoutContentRef}
-              isSubmitting={isSubmitting || isUpdatingCart}
-              selectedItemKeys={selectedItemKeys}
-              orderNote={orderNote}
-              setOrderNote={setOrderNote}
-              onBack={handleBackToCart}
-            />
-          </div>
+          </CartTotal>
         </Suspense>
       )}
 

@@ -30,7 +30,7 @@ const Footer = () => {
             <p className="h4 text-black/80">CÔNG TY</p>
             <ul className="mt-3 flex flex-col gap-2 text-sm">
               <li>
-                <a href="#">Về chúng tôi</a>
+                <Link to="/about">Về chúng tôi</Link>
               </li>
               <li>
                 <a href="#">Tuyển dụng</a>
@@ -39,7 +39,7 @@ const Footer = () => {
                 <a href="#">Báo chí</a>
               </li>
               <li>
-                <a href="#">Góc làm đẹp</a>
+                <Link to="/about#cau-chuyen">Câu chuyện Velours</Link>
               </li>
               <li>
                 <a href="#">Đối tác</a>

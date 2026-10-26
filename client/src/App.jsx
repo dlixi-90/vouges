@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import Header from "./components/Header";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Footer from "./components/Footer";
 import { Toaster } from "react-hot-toast";
 import { useAppContext } from "./context/AppContext";
@@ -8,11 +8,12 @@ import { useAppContext } from "./context/AppContext";
 import Home from "./pages/Home";
 const Collection = lazy(() => import("./pages/Collection"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
-const Blog = lazy(() => import("./pages/Blog"));
+const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Cart = lazy(() => import("./pages/Cart"));
 const CartDrawer = lazy(() => import("./components/CartDrawer"));
 const MyOrders = lazy(() => import("./pages/MyOrders"));
+const OrderOverview = lazy(() => import("./pages/OrderOverview"));
 const Membership = lazy(() => import("./pages/Membership"));
 const Vouchers = lazy(() => import("./pages/owner/Vouchers"));
 const Messages = lazy(() => import("./pages/owner/Messages"));
@@ -42,10 +43,12 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/collection" element={<Collection key={location.search} />} />
           <Route path="/collection/:productId" element={<ProductDetail />} />
-          <Route path="/blog" element={<Blog />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/blog" element={<Navigate to="/about" replace />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/cart" element={<Cart key={location.state?.checkoutRequest || "cart"} />} />
           <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/order-overview/:orderId" element={<OrderOverview />} />
           <Route path="/membership" element={<Membership />} />
           <Route path="/owner" element={<Sidebar />}>
             <Route index element={<Dashboard />} />
