@@ -57,7 +57,6 @@
 .net-header .net-header-actions,.inessa-header-tools,.inessa-header-account-actions { display: flex; align-items: center; flex-shrink: 0; gap: 14px; font-family: Inter, sans-serif; }
 .net-header .net-header-actions { justify-content: flex-end; gap: 18px; }
 .net-header-actions :is(.btn-outline,.btn-secondary) { border-radius: 999px; padding: 10px 14px; font-size: 12px; text-transform: none; letter-spacing: normal; }
-.net-header-actions [aria-controls="vouges-ai-chat-panel"] { background: #f5f5f5; }
 .net-header .inessa-menu-toggle { display: none; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; cursor: pointer; }
 .inessa-menu-toggle img { display: block; }
 @media (max-width: 1439px) {
@@ -73,7 +72,7 @@
   .net-header .inessa-header-tools button { min-height: 36px; padding-block: 8px; }
   .inessa-sign-in-label { display: none; }
   .net-header .inessa-header-account-actions .btn-secondary { width: 40px; height: 40px; padding: 9px; }
-  .net-header nav.fixed { top: 128px; max-height: calc(100dvh - 148px); }
+  .net-header:has(.inessa-header-tools) nav.fixed { top: 128px; max-height: calc(100dvh - 148px); }
 }
 
 /* Full-width campaign, followed by alternating, overlapping editorial images. */
@@ -477,6 +476,20 @@
 .net-theme #vouges-ai-chat-panel h2,.net-theme [role="dialog"] h2 { font-family: Inter, sans-serif; font-size: 20px; }
 .net-theme #vouges-ai-chat-panel :is(button,input,textarea) { text-transform: none; letter-spacing: normal; }
 
+/* Floating consultation button and the existing AI / customer-service popup. */
+.net-storefront { --inessa-chat-edge: 24px; --inessa-chat-size: 56px; --inessa-chat-bottom: max(var(--inessa-chat-edge), env(safe-area-inset-bottom)); }
+.inessa-chat-launcher { position: fixed; right: max(var(--inessa-chat-edge), env(safe-area-inset-right)); bottom: var(--inessa-chat-bottom); z-index: 60; display: flex; align-items: center; justify-content: center; width: var(--inessa-chat-size); height: var(--inessa-chat-size); border: 1px solid #ffffff45; border-radius: 50%; background: #171717; color: #fff; box-shadow: 0 5px 22px #0003; cursor: pointer; transition: background .2s, box-shadow .2s; }
+.inessa-chat-launcher:hover { background: #373737; box-shadow: 0 7px 26px #0004; }
+.inessa-chat-launcher:focus-visible { outline: 2px solid #171717; outline-offset: 4px; }
+.inessa-chat-launcher-label { position: absolute; right: calc(100% + 12px); padding: 8px 12px; border: 1px solid var(--inessa-line); border-radius: var(--inessa-radius-control); background: #fff; color: #333; box-shadow: 0 3px 12px #0000000a; font-size: 12px; white-space: nowrap; visibility: hidden; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.inessa-chat-launcher:focus-visible .inessa-chat-launcher-label { visibility: visible; opacity: 1; }
+@media (hover: hover) { .inessa-chat-launcher:hover .inessa-chat-launcher-label { visibility: visible; opacity: 1; } }
+.net-theme #vouges-ai-chat-panel,.inessa-chat-loading { position: fixed; inset: auto max(var(--inessa-chat-edge), env(safe-area-inset-right)) calc(var(--inessa-chat-bottom) + var(--inessa-chat-size) + 14px) auto; z-index: 70; width: min(420px, calc(100vw - 2 * var(--inessa-chat-edge))); border-radius: var(--inessa-radius-panel); }
+.net-theme #vouges-ai-chat-panel { height: min(680px, calc(100dvh - var(--inessa-chat-bottom) - var(--inessa-chat-size) - 38px)); max-height: none; }
+@media (max-width: 767px) {
+  .net-storefront { --inessa-chat-edge: 16px; --inessa-chat-size: 52px; }
+}
+
 @media (min-width: 768px) { .net-admin-layout > div > main { height: 100dvh; border-radius: var(--inessa-radius-panel); } }
 @media (max-width: 1279px) {
   .net-sidebar { min-width: 215px; width: 215px; border-radius: var(--inessa-radius-panel); }
@@ -489,8 +502,8 @@
   .inessa-brand > a > span { font-size: 26px; }
   .inessa-header-account-actions { gap: 10px; }
   .net-header-actions :is(.btn-outline,.btn-secondary) { padding: 8px 10px; font-size: 10px; }
-  .net-header-actions [aria-controls="vouges-ai-chat-panel"] { padding-inline: 11px; }
-  .net-header nav.fixed { top: 116px; max-height: calc(100dvh - 136px); }
+  .net-header nav.fixed { top: 82px; max-height: calc(100dvh - 102px); }
+  .net-header:has(.inessa-header-tools) nav.fixed { top: 116px; max-height: calc(100dvh - 136px); }
   .inessa-hero { min-height: 620px; }
   .inessa-hero::before { position: absolute; inset: 0; z-index: -1; content: ""; background: linear-gradient(90deg,#f3f1efcf 0%,#f3f1ef99 43%,transparent 100%); }
   .inessa-hero-image { object-position: 57% center; }

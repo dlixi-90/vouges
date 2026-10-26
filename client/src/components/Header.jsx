@@ -1,10 +1,10 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useCallback, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { assets } from "../assets/data";
 import Navbar from "./Navbar";
 import { useClerk, UserButton } from "@clerk/react";
 import { useAppContext } from "../context/AppContext";
-import { Sparkles, Ticket } from "lucide-react";
+import { Headset, Ticket, X } from "lucide-react";
 const AIChatPanel = lazy(() => import("./ai/AIChatPanel"));
 
 const OrdersIcon = () => (
@@ -31,6 +31,7 @@ const Header = () => {
   const [menuOpened, setMenuOpened] = useState(false);
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
   const [hasOpenedAIChat, setHasOpenedAIChat] = useState(false);
+  const chatLauncherRef = useRef(null);
   const { openSignIn } = useClerk();
 
   const { navigate, openCart, isCartOpen, user, getCartCount, isOwner, storeResources } =
@@ -51,6 +52,10 @@ const Header = () => {
     setMenuOpened(false);
     setIsAIChatOpen((isOpen) => !isOpen);
   };
+  const closeAIChat = useCallback(() => {
+    setIsAIChatOpen(false);
+    chatLauncherRef.current?.focus({ preventScroll: true });
+  }, []);
   return (
     <>
       <header className="net-header absolute top-0 left-0 right-0 z-50 bg-white py-3">
@@ -79,32 +84,16 @@ const Header = () => {
             <Navbar group="info" navigationId="store-info-navigation" setMenuOpened={setMenuOpened} containerStyles="inessa-desktop-navigation" />
             {/* Buttons & Profile icon */}
             <div className="net-header-actions">
-              <div className="inessa-header-tools">
-                <div>
-                  <button
-                    type="button"
-                    onClick={toggleAIChat}
-                    aria-label="Hỏi trợ lý AI"
-                    aria-haspopup="dialog"
-                    aria-expanded={isAIChatOpen}
-                    aria-controls="vouges-ai-chat-panel"
-                    className="btn-outline flex items-center px-2 py-2 gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-200/50 transition-all hover:from-amber-600 hover:to-orange-600 hover:shadow-lg hover:shadow-amber-300/50 dark:shadow-amber-900/30 dark:hover:shadow-amber-800/40"
-                  >
-                    <Sparkles className="h-4 w-4" aria-hidden="true" />
-                    <span className="text-xs font-semibold">
-                      Hỏi trợ lý AI
-                    </span>
-                  </button>
-                </div>
-                {isOwner && (
+              {isOwner && (
+                <div className="inessa-header-tools">
                   <button
                     onClick={() => navigate("/owner")}
                     className="btn-outline px-2 py-2 text-xs font-semibold"
                   >
                     Dashboard
                   </button>
-                )}
-              </div>
+                </div>
+              )}
               <div className="inessa-header-account-actions">
                 {/* Cart */}
                 <button
@@ -170,13 +159,27 @@ const Header = () => {
         </div>
       </header>
 
+      <button
+        ref={chatLauncherRef}
+        type="button"
+        onClick={toggleAIChat}
+        aria-label={isAIChatOpen ? "Đóng trò chuyện tư vấn" : "Hỏi trợ lý AI"}
+        aria-haspopup="dialog"
+        aria-expanded={isAIChatOpen}
+        aria-controls="vouges-ai-chat-panel"
+        className="inessa-chat-launcher"
+      >
+        {isAIChatOpen ? <X size={25} aria-hidden="true" /> : <Headset size={26} strokeWidth={1.7} aria-hidden="true" />}
+        {!isAIChatOpen && <span className="inessa-chat-launcher-label" aria-hidden="true">Hỏi trợ lý AI</span>}
+      </button>
+
       {hasOpenedAIChat && (
         <Suspense
           fallback={
             isAIChatOpen ? (
               <div
                 role="status"
-                className="fixed bottom-6 right-6 z-50 rounded-xl bg-white p-5 shadow-lg"
+                className="inessa-chat-loading rounded-xl bg-white p-5 shadow-lg"
               >
                 Đang tải cuộc trò chuyện…
               </div>
@@ -186,7 +189,7 @@ const Header = () => {
           <AIChatPanel
             key={user?.id || "guest"}
             isOpen={isAIChatOpen}
-            onClose={() => setIsAIChatOpen(false)}
+            onClose={closeAIChat}
           />
         </Suspense>
       )}

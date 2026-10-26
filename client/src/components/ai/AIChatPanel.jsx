@@ -279,7 +279,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
   };
 
   if (!isOpen) return null;
-  if (chatMode === "support") return <Suspense fallback={<div role="status" className="fixed bottom-6 right-6 z-50 rounded-2xl bg-white p-6 text-sm shadow-xl">Đang mở trò chuyện CSKH…</div>}>
+  if (chatMode === "support") return <Suspense fallback={<div role="status" className="inessa-chat-loading rounded-2xl bg-white p-6 text-sm shadow-xl">Đang mở trò chuyện CSKH…</div>}>
     <SupportChatPanel onClose={onClose} onBack={() => setChatMode("ai")} aiMessages={messages} />
   </Suspense>;
 
