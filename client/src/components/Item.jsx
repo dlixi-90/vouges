@@ -5,7 +5,7 @@ import { getAvailableSizes } from "../utils/productStock";
 import { formatThousandsVnd } from "../utils/money";
 import ProductImage from "./ProductImage";
 
-const Item = ({ product, collectionLayout = false }) => {
+const Item = ({ product, collectionLayout = false, imageOnlyBackground = false }) => {
   const { currency, storeResources } = useAppContext();
   const prefetchTimer = useRef(null);
   useEffect(() => () => window.clearTimeout(prefetchTimer.current), []);
@@ -19,6 +19,7 @@ const Item = ({ product, collectionLayout = false }) => {
   const colors = ["#f2f2f2", "#f6f9f6", "#f6f8fe"];
   const bgcolor =
     colors[parseInt(product._id?.slice(-4) || "0", 16) % colors.length];
+  const useCardBackground = collectionLayout && !imageOnlyBackground;
 
   const displayedPrice = size
     ? product.price?.[size]
@@ -41,14 +42,14 @@ const Item = ({ product, collectionLayout = false }) => {
       className={`net-product-card block relative overflow-hidden ${
         collectionLayout ? "rounded-xl" : ""
       }`}
-      style={collectionLayout ? { backgroundColor: bgcolor } : undefined}
+      style={useCardBackground ? { backgroundColor: bgcolor } : undefined}
     >
       {/* Image */}
       <div
         className={`flexCenter relative h-[182px] w-full ${
           collectionLayout ? "" : "rounded-xl"
         }`}
-        style={collectionLayout ? undefined : { backgroundColor: bgcolor }}
+        style={useCardBackground ? undefined : { backgroundColor: bgcolor }}
       >
         <ProductImage
           src={product.images[0]}
@@ -79,7 +80,7 @@ const Item = ({ product, collectionLayout = false }) => {
             <h5 className="line-clamp-1 text-[10px] font-normal uppercase sm:text-xs">
               {product.title}
             </h5>
-            <p className="mt-2 font-normal">
+            <p className="net-product-price mt-2 font-normal">
               {formatThousandsVnd(displayedPrice, currency)}
             </p>
           </>
@@ -87,7 +88,7 @@ const Item = ({ product, collectionLayout = false }) => {
           <>
             <div className="flexBetween">
               <h5 className="h5 line-clamp-1 uppercase">{product.title}</h5>
-              <p className="font-semibold">
+              <p className="net-product-price font-semibold">
                 {formatThousandsVnd(displayedPrice, currency)}
               </p>
             </div>

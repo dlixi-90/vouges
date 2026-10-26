@@ -54,121 +54,119 @@ const Header = () => {
   return (
     <>
       <header className="net-header absolute top-0 left-0 right-0 z-50 bg-white py-3">
-        <div className="max-padd-container flexBetween">
+        <div className="max-padd-container inessa-header-grid">
+          <div className="inessa-navigation-left">
+            <button type="button" onClick={toggleMenu} aria-label={menuOpened ? "Đóng menu" : "Mở menu"}
+              aria-expanded={menuOpened} aria-controls="store-navigation" className="inessa-menu-toggle">
+              <img src={menuOpened ? assets.menuClose : assets.menu} alt="" width={24} height={24} />
+            </button>
+            <Navbar group="shop" navigationId="store-shop-navigation" setMenuOpened={setMenuOpened} containerStyles="inessa-desktop-navigation" />
+          </div>
           {/* Logo */}
           <div className="inessa-brand flex">
-            <Link to={"/"} className="flex items-end">
+            <Link to={"/"} onClick={() => setMenuOpened(false)} aria-label="Velours — Trang chủ" className="flex items-end">
               <img
                 src={assets.logoImg}
                 alt="Biểu trưng Velours"
                 className="h-11"
               />
-              <span className="hidden sm:block bold-24 relative top-1 right-2">
+              <span className="inessa-brand-name">
                 elours
               </span>
             </Link>
           </div>
-          {/* Navbar */}
-          <div className="inessa-navigation">
-            <Navbar
-              setMenuOpened={setMenuOpened}
-              containerStyles={`${
-                menuOpened
-                  ? "flex items-start flex-col gap-y-8 fixed top-16 right-6 p-5 bg-white rounded-xl shadow-md w-52 z-50"
-                  : "hidden xl:flex gap-x-5 xl:gap-x-10 medium-15 bg-secondary/10 rounded-full p-1"
-              }`}
-            />
-          </div>
-          {/* Buttons & Profile icon */}
-          <div className="net-header-actions flex items-center justify-end gap-x-3 sm:gap-x-4 xl:gap-x-6">
-            <div>
-              <button
-                type="button"
-                onClick={toggleAIChat}
-                aria-label="Hỏi trợ lý AI"
-                aria-haspopup="dialog"
-                aria-expanded={isAIChatOpen}
-                aria-controls="vouges-ai-chat-panel"
-                className="btn-outline flex items-center px-2 py-2 gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-200/50 transition-all hover:from-amber-600 hover:to-orange-600 hover:shadow-lg hover:shadow-amber-300/50 dark:shadow-amber-900/30 dark:hover:shadow-amber-800/40"
-              >
-                <Sparkles className="h-4 w-4" aria-hidden="true" />
-                <span className="hidden text-xs font-semibold sm:inline">
-                  Hỏi trợ lý AI
-                </span>
-              </button>
-            </div>
-            <div>
-              {isOwner && (
+          <div className="inessa-header-right">
+            <Navbar group="info" navigationId="store-info-navigation" setMenuOpened={setMenuOpened} containerStyles="inessa-desktop-navigation" />
+            {/* Buttons & Profile icon */}
+            <div className="net-header-actions">
+              <div className="inessa-header-tools">
+                <div>
+                  <button
+                    type="button"
+                    onClick={toggleAIChat}
+                    aria-label="Hỏi trợ lý AI"
+                    aria-haspopup="dialog"
+                    aria-expanded={isAIChatOpen}
+                    aria-controls="vouges-ai-chat-panel"
+                    className="btn-outline flex items-center px-2 py-2 gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-200/50 transition-all hover:from-amber-600 hover:to-orange-600 hover:shadow-lg hover:shadow-amber-300/50 dark:shadow-amber-900/30 dark:hover:shadow-amber-800/40"
+                  >
+                    <Sparkles className="h-4 w-4" aria-hidden="true" />
+                    <span className="text-xs font-semibold">
+                      Hỏi trợ lý AI
+                    </span>
+                  </button>
+                </div>
+                {isOwner && (
+                  <button
+                    onClick={() => navigate("/owner")}
+                    className="btn-outline px-2 py-2 text-xs font-semibold"
+                  >
+                    Dashboard
+                  </button>
+                )}
+              </div>
+              <div className="inessa-header-account-actions">
+                {/* Cart */}
                 <button
-                  onClick={() => navigate("/owner")}
-                  className="btn-outline px-2 py-2 text-xs font-semibold"
+                  type="button"
+                  onClick={() => { setMenuOpened(false); openCart(); }}
+                  data-cart-target
+                  aria-label={`Giỏ hàng có ${getCartCount()} sản phẩm`}
+                  aria-haspopup="dialog"
+                  aria-expanded={isCartOpen}
+                  aria-controls="velours-cart-drawer"
+                  className="relative cursor-pointer"
                 >
-                  Dashboard
+                  <img src={assets.cartAdded} alt="" className="min-w-7" />
+                  <span className="absolute bottom-7 right-0 left-0 text-xs font-bold bg-secondary/15 flexCenter rounded-full">
+                    {getCartCount()}
+                  </span>
                 </button>
-              )}
-            </div>
-            {/* Menu Toggle */}
-            <button type="button" onClick={toggleMenu} aria-label={menuOpened ? "Đóng menu" : "Mở menu"} aria-expanded={menuOpened} aria-controls="store-navigation" className="inessa-menu-toggle xl:hidden">
-              <img src={menuOpened ? assets.menuClose : assets.menu} alt="" width={24} height={24} />
-            </button>
-            {/* Cart */}
-            <button
-              type="button"
-              onClick={openCart}
-              data-cart-target
-              aria-label={`Giỏ hàng có ${getCartCount()} sản phẩm`}
-              aria-haspopup="dialog"
-              aria-expanded={isCartOpen}
-              aria-controls="velours-cart-drawer"
-              className="relative cursor-pointer"
-            >
-              <img src={assets.cartAdded} alt="" className="min-w-7" />
-              <span className="absolute bottom-7 right-0 left-0 text-xs font-bold bg-secondary/15 flexCenter rounded-full">
-                {getCartCount()}
-              </span>
-            </button>
-            {/* User Profile */}
-            <div
-              className="group"
-              onPointerEnter={prefetchMembership}
-              onFocus={prefetchMembership}
-            >
-              {user ? (
-                <UserButton
-                  appearance={{
-                    elements: {
-                      userButtonAvatarBox: {
-                        width: "42px",
-                        height: "42px",
-                      },
-                    },
-                  }}
+                {/* User Profile */}
+                <div
+                  className="group"
+                  onPointerEnter={prefetchMembership}
+                  onFocus={prefetchMembership}
                 >
-                  <UserButton.MenuItems>
-                    <UserButton.Action
-                      label="Đơn hàng của tôi"
-                      labelIcon={<OrdersIcon />}
-                      onClick={() => navigate("/my-orders")}
-                    />
-                    <UserButton.Action
-                      label="Thành viên & mã giảm giá"
-                      labelIcon={<Ticket size={16} aria-hidden="true" />}
-                      onClick={() => navigate("/membership")}
-                    />
-                  </UserButton.MenuItems>
-                </UserButton>
-              ) : (
-                <button
-                  aria-label="Đăng nhập"
-                  onClick={() => openSignIn()}
-                  className="btn-secondary flexCenter gap-2 rofunded-full"
-                >
-                  <span className="hidden sm:inline">Đăng nhập</span>
-                  <img src={assets.user} alt="" className="invert w-5" />
-                </button>
-              )}
+                  {user ? (
+                    <UserButton
+                      appearance={{
+                        elements: {
+                          userButtonAvatarBox: {
+                            width: "42px",
+                            height: "42px",
+                          },
+                        },
+                      }}
+                    >
+                      <UserButton.MenuItems>
+                        <UserButton.Action
+                          label="Đơn hàng của tôi"
+                          labelIcon={<OrdersIcon />}
+                          onClick={() => navigate("/my-orders")}
+                        />
+                        <UserButton.Action
+                          label="Thành viên & mã giảm giá"
+                          labelIcon={<Ticket size={16} aria-hidden="true" />}
+                          onClick={() => navigate("/membership")}
+                        />
+                      </UserButton.MenuItems>
+                    </UserButton>
+                  ) : (
+                    <button
+                      aria-label="Đăng nhập"
+                      onClick={() => openSignIn()}
+                      className="btn-secondary flexCenter gap-2 rounded-full"
+                    >
+                      <span className="inessa-sign-in-label">Đăng nhập</span>
+                      <img src={assets.user} alt="" className="invert w-5" />
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
+          {menuOpened && <Navbar setMenuOpened={setMenuOpened} containerStyles="inessa-mobile-navigation fixed" />}
         </div>
       </header>
 

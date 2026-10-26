@@ -191,7 +191,7 @@ const Collection = () => {
       />}
 
       <div className="inessa-collection-grid" aria-busy={productsLoading}>
-        {paginatedProducts.map((product) => <Item product={product} key={product._id} collectionLayout />)}
+        {paginatedProducts.map((product) => <Item product={product} key={product._id} collectionLayout imageOnlyBackground />)}
         {!productsLoading && paginatedProducts.length === 0 && <div className="inessa-collection-empty">
           <SearchX size={32} strokeWidth={1.2} aria-hidden="true" />
           <h2>Không tìm thấy sản phẩm</h2>

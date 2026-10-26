@@ -92,6 +92,7 @@ export const AppContextProvider = ({ children }) => {
   const { pathname, key: locationKey } = useLocation();
   const needsCatalog = !["/owner", "/owner/messages", "/membership"].includes(pathname.replace(/\/+$/, ""))
     || cartDrawer?.locationKey === locationKey;
+  const needsCategories = needsCatalog || !pathname.startsWith("/owner");
   const currency = import.meta.env.VITE_CURRENCY;
   const delivery_charges = 30;
 
@@ -106,7 +107,7 @@ export const AppContextProvider = ({ children }) => {
   const { openSignIn } = useClerk();
 
   useEffect(() => () => dashboardCache.clear(), [dashboardCache, authUserId, isOwner]);
-  useEffect(() => () => setCartDrawer(null), [locationKey]);
+  useEffect(() => () => setCartDrawer((current) => current?.locationKey === locationKey ? null : current), [locationKey]);
 
   useEffect(() => () => {
     quantityQueue.cancelAll();
@@ -541,10 +542,10 @@ export const AppContextProvider = ({ children }) => {
   }, [fetchProducts, needsCatalog]);
 
   useEffect(() => {
-    if (!needsCatalog) return undefined;
+    if (!needsCategories) return undefined;
     const timeoutId = window.setTimeout(fetchCategories, 0);
     return () => window.clearTimeout(timeoutId);
-  }, [fetchCategories, needsCatalog]);
+  }, [fetchCategories, needsCategories]);
 
   const value = {
     storeResources,

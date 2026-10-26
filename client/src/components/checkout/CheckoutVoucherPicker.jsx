@@ -4,7 +4,7 @@ import { useAppContext } from "../../context/AppContext";
 import { formatThousandsVnd } from "../../utils/money";
 import { formatVoucherExpiryDate } from "../../utils/voucherDates";
 
-const CheckoutVoucherPicker = ({ checkout, subtotal, disabled }) => {
+const CheckoutVoucherPicker = ({ checkout, subtotal, disabled, compact = false }) => {
   const { user, currency, storeResources } = useAppContext();
   const popupId = useId();
   const titleId = useId();
@@ -90,11 +90,18 @@ const CheckoutVoucherPicker = ({ checkout, subtotal, disabled }) => {
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
+      <div className={compact ? "inessa-cart-coupon" : "flex flex-wrap items-center justify-between gap-4"}>
+        {compact ? <div className="inessa-cart-coupon-input">
+          <label htmlFor={`${codeId}-inline`} className="sr-only">Mã giảm giá</label>
+          <input id={`${codeId}-inline`} value={draft} maxLength={40} disabled={disabled}
+            onChange={(event) => setDraft(event.target.value.toUpperCase())}
+            onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); applyVoucher(); } }}
+            placeholder="Mã giảm giá" />
+          <button type="button" onClick={applyVoucher} disabled={disabled || checkout.loading || !draft.trim()} className="btn-dark">Áp dụng</button>
+        </div> : <div>
           <h2 className="flex items-center gap-2 font-semibold"><Ticket size={20} className="text-secondary" aria-hidden="true" />Mã giảm giá cửa hàng</h2>
           <p className="mt-2 text-sm text-gray-500">Mỗi đơn hàng chỉ áp dụng 1 mã giảm giá.</p>
-        </div>
+        </div>}
         <button ref={triggerRef} type="button" popoverTarget={popupId} disabled={disabled} aria-haspopup="dialog" aria-expanded={isOpen} aria-controls={popupId}
           onClick={preparePopup} className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-secondary/20 bg-white px-4 py-2.5 text-sm font-medium text-secondary transition hover:bg-secondary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary disabled:cursor-not-allowed disabled:opacity-50">
           <Ticket size={16} aria-hidden="true" />{hasAppliedVoucher ? "Đổi mã giảm giá" : "Chọn mã giảm giá"}

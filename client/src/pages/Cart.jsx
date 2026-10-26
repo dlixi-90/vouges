@@ -1,12 +1,12 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { Check } from "lucide-react";
-import { useBlocker, useLocation } from "react-router-dom";
+import { Check, Minus, Plus, ShoppingBag, X } from "lucide-react";
+import { Link, useBlocker, useLocation } from "react-router-dom";
 import CartSizePicker from "../components/CartSizePicker";
-import CartActionBar from "../components/CartActionBar";
+import CartSummary from "../components/CartSummary";
+import CheckoutVoucherPicker from "../components/checkout/CheckoutVoucherPicker";
 import ProductImage from "../components/ProductImage";
 import { useAppContext } from "../context/AppContext";
-import { assets } from "../assets/data";
 import { formatThousandsVnd } from "../utils/money";
 import { URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
 import {
@@ -107,8 +107,6 @@ const Cart = () => {
   const [orderNote, setOrderNote] = useState("");
   const [deselectedItemKeys, setDeselectedItemKeys] = useState(() => new Set());
   const selectAllRef = useRef(null);
-  const footerSelectAllRef = useRef(null);
-  const cartContentRef = useRef(null);
   const checkoutContentRef = useRef(null);
 
   const cartData = useMemo(() => {
@@ -168,9 +166,7 @@ const Cart = () => {
     selectedItemKeys.size < availableCartData.length;
 
   useEffect(() => {
-    for (const ref of [selectAllRef, footerSelectAllRef]) {
-      if (ref.current) ref.current.indeterminate = someItemsSelected;
-    }
+    if (selectAllRef.current) selectAllRef.current.indeterminate = someItemsSelected;
   }, [someItemsSelected, currentStep]);
 
   const toggleItemSelection = (itemKey) => {
@@ -330,247 +326,120 @@ const Cart = () => {
   }, []);
 
   return products && cartItems ? (
-    <div className="net-cart py-16 pt-28">
+    <div className={`net-cart py-16 pt-28 ${currentStep === 1 ? "inessa-cart-page" : ""}`}>
       <div className="max-padd-container">
       {/* STEP 1 */}
       {currentStep === 1 && (
-        <section className="min-w-0 text-[95%]">
-          <header className="net-cart-heading">
-            <h1>Giỏ hàng</h1>
+        <section className="inessa-cart-section" aria-labelledby="cart-page-title">
+          <header className="net-cart-heading inessa-cart-heading">
+            <h1 id="cart-page-title">Giỏ hàng</h1>
           </header>
           {cartData.length > 0 ? (
-            <div ref={cartContentRef}>
-              <div className="net-cart-table-head hidden shrink-0 grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] items-center gap-3 rounded-xl bg-white px-4 py-3 lg:grid">
-                <CartCheckbox
-                  inputRef={selectAllRef}
-                  disabled={isChangingSize || availableCartData.length === 0}
-                  checked={allItemsSelected}
-                  onChange={toggleAllItems}
-                  indeterminate={someItemsSelected}
-                  label="Chọn tất cả sản phẩm"
-                />
-                <h5 className="h5">Sản phẩm</h5>
-                <h5 className="h5 text-center">Đơn giá</h5>
-                <h5 className="h5 text-center">Số lượng</h5>
-                <h5 className="h5 text-center">Thành tiền</h5>
-                <h5 className="h5 text-center">Thao tác</h5>
-              </div>
+            <div className="inessa-cart-layout">
+              <div className="inessa-cart-products">
+                <div className="inessa-cart-table-wrap">
+                  <table className="inessa-cart-table">
+                    <caption className="sr-only">Sản phẩm trong giỏ hàng</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col" className="inessa-cart-select-cell">
+                          <CartCheckbox inputRef={selectAllRef} disabled={isChangingSize || availableCartData.length === 0}
+                            checked={allItemsSelected} onChange={toggleAllItems} indeterminate={someItemsSelected} label="Chọn tất cả sản phẩm" />
+                        </th>
+                        <th scope="col" className="inessa-cart-remove-cell"><span className="sr-only">Xóa</span></th>
+                        <th scope="col" className="inessa-cart-product-cell">Sản phẩm</th>
+                        <th scope="col" className="inessa-cart-price-cell">Đơn giá</th>
+                        <th scope="col" className="inessa-cart-quantity-cell">Số lượng</th>
+                        <th scope="col" className="inessa-cart-subtotal-cell">Thành tiền</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cartData.map((item) => {
+                        const product = products.find((entry) => entry._id === item._id);
+                        if (!product) return null;
+                        const quantity = Number(cartItems[item._id]?.[item.size] ?? 0);
+                        const itemKey = getCartItemKey(item._id, item.size);
+                        const isSelected = selectedItemKeys.has(itemKey);
+                        const isUnavailable = !availableItemKeys.has(itemKey);
+                        if (quantity <= 0) return null;
 
-              <div
-                role="region"
-                aria-label="Sản phẩm trong giỏ hàng"
-                className="mt-3 space-y-3"
-              >
-                {cartData.map((item) => {
-                  const product = products.find(
-                    (entry) => entry._id === item._id,
-                  );
-                  if (!product) return null;
-                  const quantity = Number(
-                    cartItems[item._id]?.[item.size] ?? 0,
-                  );
-                  const itemKey = getCartItemKey(item._id, item.size);
-                  const isSelected = selectedItemKeys.has(itemKey);
-                  const isUnavailable = !availableItemKeys.has(itemKey);
-                  if (quantity <= 0) return null;
-
-                  return (
-                    <div
-                      key={getCartRowKey(item)}
-                      className={`net-cart-item grid grid-cols-[32px_minmax(0,1fr)_40px] items-center gap-x-2 gap-y-4 rounded-xl px-3 py-5 transition sm:gap-x-3 sm:px-4 lg:grid-cols-[48px_minmax(0,1fr)_120px_140px_140px_80px] lg:py-6 ${isUnavailable ? "bg-white/40 [&>div]:opacity-50" : isSelected ? "bg-white" : "bg-white/60"}`}
-                    >
-                      <div className="col-start-1 row-start-1">
-                        <CartCheckbox
-                          disabled={isChangingSize || isUnavailable}
-                          checked={isSelected}
-                          onChange={() => toggleItemSelection(itemKey)}
-                          label={`Chọn ${product.title}, dung tích ${item.size}`}
-                        />
-                      </div>
-                      <div className="col-start-2 row-start-1 flex min-w-0 flex-wrap items-center gap-3 xl:flex-nowrap xl:gap-5">
-                        <div className="flex min-w-0 flex-1 items-center gap-3">
-                          <ProductImage
-                            src={product.images[0]}
-                            imageWidth={200}
-                            alt={product.title}
-                            className="h-20 w-16 shrink-0 rounded-xl bg-primary object-cover sm:h-24 sm:w-20"
-                          />
-                          <div className="min-w-0">
-                            <h5 className="h5 line-clamp-2">{product.title}</h5>
-                            {isUnavailable && (
-                              <p
-                                className="mt-2 text-sm font-medium text-secondary"
-                                role="status"
-                              >
-                                Đã hết hàng — vui lòng xóa khỏi giỏ hàng
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="w-full pl-[76px] sm:pl-[92px] xl:w-32 xl:shrink-0 xl:pl-0">
-                          <CartSizePicker
-                            product={product}
-                            size={item.size}
-                            quantity={quantity}
-                            quantities={cartItems[item._id]}
-                            disabled={isUpdatingCart || isUnavailable}
-                            onConfirm={(size) =>
-                              handleSizeChange(item._id, item.size, size)
-                            }
-                          />
-                        </div>
-                      </div>
-                      <div className="col-start-2 row-start-2 flex items-center justify-between gap-2 text-sm lg:col-start-3 lg:row-start-1 lg:block lg:text-center">
-                        <span className="text-gray-500 lg:hidden">
-                          Đơn giá
-                        </span>
-                        <span className="whitespace-nowrap">
-                          {formatThousandsVnd(
-                            product.price[item.size],
-                            currency,
-                          )}
-                        </span>
-                      </div>
-                      <div className="col-start-2 row-start-3 flex items-center justify-between gap-2 lg:col-start-4 lg:row-start-1 lg:justify-center">
-                        <span className="text-sm text-gray-500 lg:hidden">
-                          Số lượng
-                        </span>
-                        <div className="inline-flex items-center overflow-hidden rounded-full bg-primary ring-1 ring-slate-900/15">
-                          <button
-                            type="button"
-                            aria-label={`Giảm số lượng ${product.title}, dung tích ${item.size}`}
-                            onClick={() => decrement(item._id, item.size)}
-                            disabled={
-                              isChangingSize || isUnavailable || quantity <= 1
-                            }
-                            className="cursor-pointer rounded-full bg-secondary p-2 text-white shadow-md disabled:cursor-not-allowed disabled:opacity-40"
-                          >
-                            <img
-                              src={assets.minus}
-                              alt=""
-                              width={11}
-                              className="invert"
-                            />
-                          </button>
-                          <span className="min-w-10 px-2 text-center text-sm">
-                            {quantity}
-                          </span>
-                          <button
-                            type="button"
-                            aria-label={`Tăng số lượng ${product.title}, dung tích ${item.size}`}
-                            onClick={() => increment(item._id, item.size)}
-                            disabled={
-                              isChangingSize ||
-                              isUnavailable ||
-                              quantity >= getSizeQuantity(product, item.size)
-                            }
-                            className="cursor-pointer rounded-full bg-secondary p-2 text-white shadow-md disabled:cursor-not-allowed disabled:opacity-40"
-                          >
-                            <img
-                              src={assets.plus}
-                              alt=""
-                              width={11}
-                              className="invert"
-                            />
-                          </button>
-                        </div>
-                      </div>
-                      <div className="col-start-2 row-start-4 flex items-center justify-between gap-2 lg:col-start-5 lg:row-start-1 lg:block lg:text-center">
-                        <span className="text-sm text-gray-500 lg:hidden">
-                          Thành tiền
-                        </span>
-                        <span className="whitespace-nowrap bold-16 text-secondary">
-                          {formatThousandsVnd(
-                            product.price[item.size] * quantity,
-                            currency,
-                          )}
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        aria-label={`Xóa ${product.title}, dung tích ${item.size}`}
-                        onClick={() =>
-                          updateQuantity(item._id, item.size, 0)
-                        }
-                        disabled={isChangingSize}
-                        className="col-start-3 row-start-1 mx-auto cursor-pointer rounded-md p-2 transition hover:bg-primary disabled:opacity-40 lg:col-start-6"
-                      >
-                        <img src={assets.cartRemove} alt="" width={22} />
+                        return (
+                          <tr key={getCartRowKey(item)} className={`inessa-cart-row ${isUnavailable ? "is-unavailable" : ""}`}>
+                            <td className="inessa-cart-select-cell">
+                              <CartCheckbox disabled={isChangingSize || isUnavailable} checked={isSelected}
+                                onChange={() => toggleItemSelection(itemKey)} label={`Chọn ${product.title}, dung tích ${item.size}`} />
+                            </td>
+                            <td className="inessa-cart-remove-cell">
+                              <button type="button" className="inessa-cart-remove" aria-label={`Xóa ${product.title}, dung tích ${item.size}`}
+                                onClick={() => updateQuantity(item._id, item.size, 0)} disabled={isChangingSize}>
+                                <X size={14} aria-hidden="true" />
+                              </button>
+                            </td>
+                            <td className="inessa-cart-product-cell">
+                              <div className="inessa-cart-product">
+                                <Link to={`/collection/${product._id}`} className="inessa-cart-product-image" aria-label={`Xem chi tiết ${product.title}`}>
+                                  <ProductImage src={product.images[0]} imageWidth={160} alt="" />
+                                </Link>
+                                <div className="inessa-cart-product-info">
+                                  <Link to={`/collection/${product._id}`} className="inessa-cart-product-name">{product.title}</Link>
+                                  <CartSizePicker product={product} size={item.size} quantity={quantity} quantities={cartItems[item._id]}
+                                    disabled={isUpdatingCart || isUnavailable} onConfirm={(size) => handleSizeChange(item._id, item.size, size)} />
+                                  {isUnavailable && <p className="inessa-cart-unavailable" role="status">Đã hết hàng — vui lòng xóa khỏi giỏ hàng</p>}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="inessa-cart-price-cell">
+                              <span className="inessa-cart-mobile-label" aria-hidden="true">Đơn giá</span>
+                              <span>{formatThousandsVnd(product.price[item.size], currency)}</span>
+                            </td>
+                            <td className="inessa-cart-quantity-cell">
+                              <span className="inessa-cart-mobile-label" aria-hidden="true">Số lượng</span>
+                              <div className="inessa-cart-quantity">
+                                <button type="button" aria-label={`Giảm số lượng ${product.title}, dung tích ${item.size}`}
+                                  onClick={() => decrement(item._id, item.size)} disabled={isChangingSize || isUnavailable || quantity <= 1}>
+                                  <Minus size={13} aria-hidden="true" />
+                                </button>
+                                <span aria-label={`Số lượng ${product.title}, dung tích ${item.size}`}>{quantity}</span>
+                                <button type="button" aria-label={`Tăng số lượng ${product.title}, dung tích ${item.size}`}
+                                  onClick={() => increment(item._id, item.size)} disabled={isChangingSize || isUnavailable || quantity >= getSizeQuantity(product, item.size)}>
+                                  <Plus size={13} aria-hidden="true" />
+                                </button>
+                              </div>
+                            </td>
+                            <td className="inessa-cart-subtotal-cell">
+                              <span className="inessa-cart-mobile-label" aria-hidden="true">Thành tiền</span>
+                              <span>{formatThousandsVnd(product.price[item.size] * quantity, currency)}</span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  <div className="inessa-cart-table-actions">
+                    <p role="status">{isUpdatingCart ? "Đang lưu thay đổi…" : `Đã chọn ${selectedItemKeys.size}/${availableCartData.length} phân loại sản phẩm`}</p>
+                    <div>
+                      <button type="button" onClick={toggleAllItems} disabled={isChangingSize || availableCartData.length === 0}>
+                        {allItemsSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
                       </button>
+                      <button type="button" onClick={removeSelectedItems} disabled={isUpdatingCart || selectedItemKeys.size === 0}>Xóa đã chọn</button>
+                      {unavailableCartData.length > 0 && <button type="button" onClick={removeUnavailableItems} disabled={isUpdatingCart}>Xóa sản phẩm hết hàng</button>}
                     </div>
-                  );
-                })}
+                  </div>
+                  <div className="inessa-cart-voucher">
+                    <CheckoutVoucherPicker checkout={checkout} subtotal={subtotal} disabled={isUpdatingCart || selectedItemKeys.size === 0} compact />
+                  </div>
+                </div>
               </div>
-
-              <CartActionBar contentRef={cartContentRef}>
-                <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                  <div className="flex items-center gap-1">
-                    <CartCheckbox
-                      inputRef={footerSelectAllRef}
-                      disabled={
-                        isChangingSize || availableCartData.length === 0
-                      }
-                      checked={allItemsSelected}
-                      onChange={toggleAllItems}
-                      indeterminate={someItemsSelected}
-                      label="Chọn tất cả sản phẩm"
-                    />
-                    <span className="text-sm">
-                      Chọn tất cả ({availableCartData.length})
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={removeSelectedItems}
-                    disabled={isUpdatingCart || selectedItemKeys.size === 0}
-                    className="cursor-pointer rounded-md px-2 py-2 text-sm text-gray-500 transition hover:bg-primary hover:text-secondary disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    Xóa tất cả
-                  </button>
-                  <button
-                    type="button"
-                    onClick={removeUnavailableItems}
-                    disabled={isUpdatingCart || unavailableCartData.length === 0}
-                    className="cursor-pointer rounded-md px-2 py-2 text-sm text-gray-500 transition hover:bg-primary hover:text-secondary disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    Xóa sản phẩm hết hàng
-                  </button>
-                </div>
-                <div className="flex w-full flex-wrap items-center justify-between gap-4 lg:w-auto lg:justify-end lg:gap-6">
-                  <div>
-                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                      <span className="text-sm">
-                        Tổng cộng ({selectedCount} sản phẩm):
-                      </span>
-                      <span className="text-xl font-bold text-secondary">
-                        {formatThousandsVnd(subtotal, currency)}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleCheckout}
-                    disabled={selectedItemKeys.size === 0 || isUpdatingCart}
-                    className="btn-dark w-full !rounded-full disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-48"
-                  >
-                    {isUpdatingCart ? "Đang lưu thay đổi…" : "Tiến hành thanh toán"}
-                  </button>
-                </div>
-              </CartActionBar>
+              <CartSummary checkout={checkout} subtotal={subtotal} selectedCount={selectedCount} isUpdatingCart={isUpdatingCart} onCheckout={handleCheckout} />
             </div>
           ) : (
-            <div className="rounded-xl bg-white px-6 py-16 text-center">
-              <h2 className="text-xl font-semibold">Giỏ hàng của bạn đang trống</h2>
-              <p className="mt-2 text-gray-500">
-                Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán.
-              </p>
-              <button
-                type="button"
-                onClick={() => navigate("/collection")}
-                className="btn-dark mt-6 !rounded-full"
-              >
-                Tiếp tục mua sắm
-              </button>
+            <div className="inessa-cart-empty">
+              <div className="inessa-cart-empty-message">
+                <ShoppingBag size={20} strokeWidth={1.5} aria-hidden="true" />
+                <h2>Giỏ hàng của bạn đang trống</h2>
+              </div>
+              <p>Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán.</p>
+              <Link to="/collection" className="btn-dark">Tiếp tục mua sắm</Link>
             </div>
           )}
         </section>

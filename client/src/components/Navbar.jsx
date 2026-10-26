@@ -1,23 +1,41 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
 
-const Navbar = ({ containerStyles, setMenuOpened }) => {
-  const navLinks = [
-    { path: "/", title: "Trang chủ" },
+const Navbar = ({ containerStyles, setMenuOpened, group = "all", navigationId = "store-navigation" }) => {
+  const { categories } = useAppContext();
+  const { pathname, search } = useLocation();
+  const selectedCategory = new URLSearchParams(search).get("category");
+  const shoppingLinks = [
     { path: "/collection", title: "Bộ sưu tập" },
+    ...categories.slice(0, 3).map((category) => ({
+      path: `/collection?category=${encodeURIComponent(category.name)}`,
+      title: category.name,
+      category: category.name,
+    })),
+  ];
+  const informationLinks = [
     { path: "/blog", title: "Góc làm đẹp" },
     { path: "/contact", title: "Liên hệ" },
   ];
+  const navLinks = group === "shop" ? shoppingLinks
+    : group === "info" ? informationLinks : [...shoppingLinks, ...informationLinks];
 
   return (
-    <nav id="store-navigation" aria-label="Điều hướng chính" className={`${containerStyles}`}>
+    <nav id={navigationId} aria-label={group === "shop" ? "Mua sắm" : group === "info" ? "Thông tin cửa hàng" : "Điều hướng chính"} className={containerStyles}>
       {navLinks.map((link) => (
         <NavLink
           onClick={() => setMenuOpened(false)}
-          key={link.title}
+          key={link.path}
           to={link.path}
-          className={({ isActive }) =>
-            `${isActive ? "active-link" : ""}   p-2.5 px-4 rounded-full capitalize text-sm font-semibold`
-          }
+          title={link.title}
+          aria-current={link.category ? (selectedCategory === link.category ? "page" : false)
+            : link.path === "/collection" && selectedCategory ? false : "page"}
+          className={({ isActive }) => {
+            const active = link.category
+              ? pathname === "/collection" && selectedCategory === link.category
+              : isActive && (link.path !== "/collection" || !selectedCategory);
+            return `${active ? "active-link" : ""} p-2.5 px-4 rounded-full text-sm font-semibold`;
+          }}
         >
           {link.title}
         </NavLink>
