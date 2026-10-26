@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Check } from "lucide-react";
-import { useBlocker } from "react-router-dom";
+import { useBlocker, useLocation } from "react-router-dom";
 import CartSizePicker from "../components/CartSizePicker";
 import CartActionBar from "../components/CartActionBar";
 import ProductImage from "../components/ProductImage";
@@ -76,6 +76,7 @@ const CartCheckbox = ({
 );
 
 const Cart = () => {
+  const { state: navigationState } = useLocation();
   const {
     navigate,
     user,
@@ -94,7 +95,7 @@ const Cart = () => {
   } = useAppContext();
   const userId = user?.id;
 
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(() => navigationState?.checkoutRequest ? 2 : 1);
   const [createdOrder, setCreatedOrder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isChangingSize, setIsChangingSize] = useState(false);

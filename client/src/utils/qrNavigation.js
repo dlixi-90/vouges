@@ -2,6 +2,7 @@ export const shouldCancelQrNavigation = (order, { currentLocation, nextLocation,
   order.status === "Awaiting Payment" && !order.isPaid && (
     currentLocation.pathname !== nextLocation.pathname ||
     currentLocation.search !== nextLocation.search ||
+    currentLocation.state?.checkoutRequest !== nextLocation.state?.checkoutRequest ||
     historyAction === "POP"
   );
 

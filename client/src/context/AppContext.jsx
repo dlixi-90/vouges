@@ -55,6 +55,7 @@ const getRequestErrorMessage = (error, fallbackMessage) => {
 
 export const AppContextProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
   const [dashboardCache] = useState(() => createDashboardCache());
   const [popularProducts, setPopularProducts] = useState([]);
   const [popularProductsLoading, setPopularProductsLoading] = useState(true);
@@ -79,6 +80,7 @@ export const AppContextProvider = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [cartItems, setCartItems] = useState({});
   const [cartAddedAt, setCartAddedAt] = useState({});
+  const [cartDrawer, setCartDrawer] = useState(null);
   const [pendingCartKeys, setPendingCartKeys] = useState([]);
   const [quantityQueue] = useState(() => createCartUpdateQueue({ onPendingChange: setPendingCartKeys }));
   const cartWritesRef = useRef(0);
@@ -87,8 +89,9 @@ export const AppContextProvider = ({ children }) => {
   const [method, setMethod] = useState("COD");
   const [profileResult, setProfileResult] = useState({ userId: null, role: null, error: "" });
   const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const needsCatalog = !["/owner", "/owner/messages", "/membership"].includes(pathname.replace(/\/+$/, ""));
+  const { pathname, key: locationKey } = useLocation();
+  const needsCatalog = !["/owner", "/owner/messages", "/membership"].includes(pathname.replace(/\/+$/, ""))
+    || cartDrawer?.locationKey === locationKey;
   const currency = import.meta.env.VITE_CURRENCY;
   const delivery_charges = 30;
 
@@ -103,8 +106,12 @@ export const AppContextProvider = ({ children }) => {
   const { openSignIn } = useClerk();
 
   useEffect(() => () => dashboardCache.clear(), [dashboardCache, authUserId, isOwner]);
+  useEffect(() => () => setCartDrawer(null), [locationKey]);
 
-  useEffect(() => () => quantityQueue.cancelAll(), [quantityQueue, user?.id]);
+  useEffect(() => () => {
+    quantityQueue.cancelAll();
+    setCartDrawer(null);
+  }, [quantityQueue, user?.id]);
   useEffect(() => () => {
     sizeRequestRef.current?.abort();
     sizeRequestRef.current = null;
@@ -119,9 +126,11 @@ export const AppContextProvider = ({ children }) => {
 
   const openCart = () => {
     if (!requireCartLogin()) return false;
-    navigate("/cart");
+    setCartDrawer({ userId: user.id, locationKey });
     return true;
   };
+  const closeCart = useCallback(() => setCartDrawer(null), []);
+  const isCartOpen = Boolean(user && cartDrawer?.userId === user.id && cartDrawer?.locationKey === locationKey);
 
   const [profileLoader] = useState(() => createUserProfileLoader({
     request: async (_userId, signal, readToken) => {
@@ -162,6 +171,7 @@ export const AppContextProvider = ({ children }) => {
       } catch (error) {
         toast.error(error.message);
       } finally {
+        setProductsLoading(false);
         productsRequestRef.current = null;
       }
     })();
@@ -550,6 +560,7 @@ export const AppContextProvider = ({ children }) => {
     navigate,
     user,
     products,
+    productsLoading,
     categories,
     categoriesLoading,
     categoriesError,
@@ -570,6 +581,8 @@ export const AppContextProvider = ({ children }) => {
     delivery_charges,
     addToCart,
     openCart,
+    closeCart,
+    isCartOpen,
     requireCartLogin,
     getCartCount,
     updateQuantity,

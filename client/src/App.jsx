@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import { Route, Routes, useLocation } from "react-router-dom";
 import Footer from "./components/Footer";
 import { Toaster } from "react-hot-toast";
+import { useAppContext } from "./context/AppContext";
 
 import Home from "./pages/Home";
 const Collection = lazy(() => import("./pages/Collection"));
@@ -10,6 +11,7 @@ const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const Blog = lazy(() => import("./pages/Blog"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Cart = lazy(() => import("./pages/Cart"));
+const CartDrawer = lazy(() => import("./components/CartDrawer"));
 const MyOrders = lazy(() => import("./pages/MyOrders"));
 const Membership = lazy(() => import("./pages/Membership"));
 const Vouchers = lazy(() => import("./pages/owner/Vouchers"));
@@ -22,10 +24,12 @@ const ListProduct = lazy(() => import("./pages/owner/ListProduct"));
 
 const App = () => {
   const location = useLocation();
+  const { isCartOpen } = useAppContext();
   const isOwnerPath = location.pathname.includes("owner");
   return (
     <main className={`net-theme ${isOwnerPath ? "net-admin" : "net-storefront"} overflow-hidden text-tertiary`}>
       {!isOwnerPath && <Header />}
+      {isCartOpen && <Suspense fallback={null}><CartDrawer /></Suspense>}
       <Toaster position="bottom-right" />
       <Suspense
         fallback={
@@ -40,7 +44,7 @@ const App = () => {
           <Route path="/collection/:productId" element={<ProductDetail />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/cart" element={<Cart />} />
+          <Route path="/cart" element={<Cart key={location.state?.checkoutRequest || "cart"} />} />
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/membership" element={<Membership />} />
           <Route path="/owner" element={<Sidebar />}>

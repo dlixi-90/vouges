@@ -82,20 +82,33 @@ const Testimonial = () => {
                 100% { transform: translateX(-50%); }
             }
 
-            .marquee-inner {
+            .net-testimonials .marquee-inner {
                 animation: marqueeScroll 25s linear infinite;
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .net-testimonials .marquee-inner {
+                    animation: none;
+                }
             }
 
         `}</style>
 
-        <div className="marquee-row overflow-hidden relative">
-          <div className="absolute left-0 top-0 h-full w-20 z-10 pointer-events-none bg-gradient-to-r from-white to-transparent"></div>
-          <div className="marquee-inner flex transform-gpu min-w-[200%] py-2">
-            {[...cardsData, ...cardsData].map((card, index) => (
-              <CreateCard key={index} card={card} />
-            ))}
-          </div>
-          <div className="absolute right-0 top-0 h-full w-20 md:w-40 z-10 pointer-events-none bg-gradient-to-l from-white to-transparent"></div>
+        <div className="space-y-4">
+          {[cardsData, [...cardsData].reverse()].map((rowCards, rowIndex) => (
+            <div key={rowIndex} className="marquee-row overflow-hidden relative">
+              <div className="absolute left-0 top-0 h-full w-20 z-10 pointer-events-none bg-gradient-to-r from-white to-transparent"></div>
+              <div
+                className="marquee-inner flex w-max transform-gpu py-2"
+                style={rowIndex === 1 ? { animationDirection: "reverse" } : undefined}
+              >
+                {[...rowCards, ...rowCards].map((card, index) => (
+                  <CreateCard key={index} card={card} />
+                ))}
+              </div>
+              <div className="absolute right-0 top-0 h-full w-20 md:w-40 z-10 pointer-events-none bg-gradient-to-l from-white to-transparent"></div>
+            </div>
+          ))}
         </div>
 
       </>

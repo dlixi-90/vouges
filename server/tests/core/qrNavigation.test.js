@@ -119,3 +119,35 @@ test("same-page anchors do not cancel QR; route replacement is guarded", async (
   assert.equal(router.state.location.pathname, "/cart");
   assert.equal(router.state.blockers.get("qr").state, "blocked");
 });
+
+test("drawer checkout on the current cart route waits for QR cancellation and can retry", async (t) => {
+  const router = setup(t);
+  const cancellation = createQrCancellation();
+  const options = { state: { checkoutRequest: "drawer-checkout" } };
+  await router.navigate("/cart", options);
+  assert.equal(router.state.blockers.get("qr").state, "blocked");
+  assert.equal(router.state.location.state, null);
+  assert.equal(await cancellation.run(async () => false), false);
+  router.state.blockers.get("qr").reset();
+  assert.equal(router.state.location.state, null);
+
+  await router.navigate("/cart", options);
+  assert.equal(await cancellation.run(async () => true), true);
+  router.state.blockers.get("qr").proceed();
+  await settle();
+  assert.equal(router.state.location.state.checkoutRequest, "drawer-checkout");
+});
+
+test("viewing the cart cannot remount a drawer-started checkout before QR cancellation", async (t) => {
+  const router = createMemoryRouter([{ path: "*", element: null }], {
+    initialEntries: [{ pathname: "/cart", state: { checkoutRequest: "drawer-checkout" } }],
+  });
+  router.getBlocker("qr", (transition) => shouldCancelQrNavigation(pendingOrder, transition));
+  t.after(() => router.dispose());
+  await router.navigate("/cart");
+  assert.equal(router.state.blockers.get("qr").state, "blocked");
+  assert.equal(router.state.location.state.checkoutRequest, "drawer-checkout");
+  router.state.blockers.get("qr").proceed();
+  await settle();
+  assert.equal(router.state.location.state, null);
+});

@@ -33,7 +33,7 @@ const Header = () => {
   const [hasOpenedAIChat, setHasOpenedAIChat] = useState(false);
   const { openSignIn } = useClerk();
 
-  const { navigate, openCart, user, getCartCount, isOwner, storeResources } =
+  const { navigate, openCart, isCartOpen, user, getCartCount, isOwner, storeResources } =
     useAppContext();
 
   const prefetchMembership = () => {
@@ -117,6 +117,9 @@ const Header = () => {
               onClick={openCart}
               data-cart-target
               aria-label={`Giỏ hàng có ${getCartCount()} sản phẩm`}
+              aria-haspopup="dialog"
+              aria-expanded={isCartOpen}
+              aria-controls="velours-cart-drawer"
               className="relative cursor-pointer"
             >
               <img src={assets.cartAdded} alt="" className="min-w-7" />

@@ -1,9 +1,9 @@
 import { useLayoutEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
-import SearchInput from "../components/SearchInput";
-import { SearchX } from "lucide-react";
+import CollectionFilterDrawer from "../components/CollectionFilterDrawer";
+import { SearchX, SlidersHorizontal } from "lucide-react";
 import { formatThousandsVnd } from "../utils/money";
 import {
   getAvailableSizes,
@@ -23,7 +23,7 @@ const Collection = () => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, []);
 
-  const { products, searchQuery, categories, currency } = useAppContext();
+  const { products, productsLoading, searchQuery, setSearchQuery, categories, currency } = useAppContext();
   const [searchParams] = useSearchParams();
   const allCategories = [...new Set([
     ...categories.map((item) => item.name),
@@ -35,6 +35,8 @@ const Collection = () => {
   });
   const [type, setType] = useState([]);
   const [selectedSort, setSelectedSort] = useState("relevant");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
@@ -45,8 +47,28 @@ const Collection = () => {
   // Prices are stored in thousands of VND; one slider step equals 1,000 VND.
   const priceCeiling = Math.max(1, Math.ceil(maxProductPrice));
   const priceLimit = maxPrice === null ? priceCeiling : Math.min(maxPrice, priceCeiling);
-  const isPriceFiltered = maxPrice !== null && priceLimit < priceCeiling;
+  const priceFloor = Math.min(minPrice, priceLimit);
+  const isPriceFiltered = priceFloor > 0 || (maxPrice !== null && priceLimit < priceCeiling);
   const formatPrice = (price) => formatThousandsVnd(price, currency);
+
+  const changeMinPrice = (value) => {
+    setMinPrice(Math.max(0, Math.min(value, priceLimit)));
+    setCurrentPage(1);
+  };
+  const changeMaxPrice = (value) => {
+    const nextPrice = Math.max(0, Math.min(value, priceCeiling));
+    setMaxPrice(nextPrice >= priceCeiling ? null : nextPrice);
+    setMinPrice((current) => Math.min(current, nextPrice));
+    setCurrentPage(1);
+  };
+  const resetFilters = () => {
+    setCategory([]);
+    setType([]);
+    setMinPrice(0);
+    setMaxPrice(null);
+    setSearchQuery("");
+    setCurrentPage(1);
+  };
 
   const toggleFilter = (value, setState) => {
     setState((prev) =>
@@ -89,7 +111,10 @@ const Collection = () => {
     }
 
     if (isPriceFiltered) {
-      filtered = filtered.filter((product) => getDisplayedPrice(product) <= priceLimit);
+      filtered = filtered.filter((product) => {
+        const price = getDisplayedPrice(product);
+        return price >= priceFloor && price <= priceLimit;
+      });
     }
 
     if (selectedSort === "low") {
@@ -105,7 +130,7 @@ const Collection = () => {
     }
 
     return filtered;
-  }, [availableTypes, category, products, searchQuery, selectedSort, type, isPriceFiltered, priceLimit]);
+  }, [availableTypes, category, products, searchQuery, selectedSort, type, isPriceFiltered, priceFloor, priceLimit]);
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const activePage = Math.min(currentPage, Math.max(totalPages, 1));
@@ -114,162 +139,77 @@ const Collection = () => {
     startIndex,
     startIndex + itemsPerPage,
   );
+  const filterCount = category.length + type.filter((item) => availableTypes.includes(item)).length
+    + Number(isPriceFiltered) + Number(Boolean(searchQuery));
 
   return (
     <div className="net-collection max-padd-container">
-      <header className="inessa-page-heading">
-        <p className="inessa-eyebrow">Tinh chọn cho vẻ đẹp của bạn</p>
-        <h1>Bộ sưu tập <em>Velours</em></h1>
-        <p>Những lựa chọn yêu thích, dành cho nghi thức làm đẹp mỗi ngày.</p>
+      <header className="inessa-collection-heading">
+        <nav aria-label="Đường dẫn" className="inessa-collection-breadcrumb">
+          <Link to="/">Trang chủ</Link><span aria-hidden="true">/</span><span>Bộ sưu tập</span>
+        </nav>
+        <h1>Bộ sưu tập</h1>
       </header>
-      <div className="inessa-collection-layout mb-16 flex flex-col gap-8 sm:grid sm:grid-cols-[18rem_minmax(0,1fr)] lg:grid-cols-[20rem_minmax(0,1fr)]">
-        {/* Filters Option */}
-        <aside className="relative min-w-0 rounded-r-xl bg-primary sm:min-h-0">
-        <div role="region" aria-label="Bộ lọc sản phẩm" tabIndex={0}
-          className="collection-filters max-h-[60dvh] overflow-y-auto overscroll-y-contain rounded-r-xl p-4 pl-6 focus-visible:outline-2 focus-visible:outline-secondary sm:absolute sm:inset-0 sm:max-h-none lg:pl-12">
-          <SearchInput />
-          <div className="px-4 py-3 mt-4 bg-white rounded-xl">
-            <h5 className="h5 mb-4">Sắp xếp theo giá</h5>
-            <select
-              onChange={(e) => {
-                setSelectedSort(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="border border-slate-900/10 outline-none text-gray-30 medium-14 h-8 w-full px-2 rounded-md"
-            >
-              <option value="relevant">Phù hợp nhất</option>
-              <option value="low">Giá tăng dần</option>
-              <option value="high">Giá giảm dần</option>
-            </select>
-          </div>
-          <div className="px-4 py-4 mt-4 bg-white rounded-xl">
-            <div className="flex items-center justify-between gap-3">
-              <h5 className="h5">Lọc theo giá</h5>
-              {isPriceFiltered && <button type="button"
-                onClick={() => { setMaxPrice(null); setCurrentPage(1); }}
-                className="shrink-0 cursor-pointer rounded px-1 py-1 text-xs font-medium text-secondary underline underline-offset-4 focus-visible:outline-secondary">
-                Đặt lại
-              </button>}
-            </div>
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-              <label htmlFor="collection-max-price" className="text-sm text-gray-500">Giá tối đa</label>
-              <output htmlFor="collection-max-price" className="rounded-md bg-secondary/5 px-2.5 py-1.5 text-sm font-semibold text-secondary">
-                {formatPrice(priceLimit)}
-              </output>
-            </div>
-            <div className="py-5">
-              <input id="collection-max-price" type="range" min={0} max={priceCeiling} step={1}
-                value={priceLimit} disabled={maxProductPrice <= 0}
-                onChange={(event) => {
-                  const value = Number(event.target.value);
-                  setMaxPrice(value >= priceCeiling ? null : value);
-                  setCurrentPage(1);
-                }}
-                aria-valuetext={formatPrice(priceLimit)} aria-describedby="collection-price-summary"
-                style={{ "--range-progress": `${priceLimit / priceCeiling * 100}%` }}
-                className="price-filter-range" />
-            </div>
-            <div className="flex justify-between gap-2 text-xs text-gray-500">
-              <span>{formatPrice(0)}</span><span>{formatPrice(priceCeiling)}</span>
-            </div>
-            <p id="collection-price-summary" className="mt-3 text-xs text-gray-500">
-              {isPriceFiltered ? `${filteredProducts.length} sản phẩm phù hợp.` : "Hiển thị tất cả mức giá."}
-            </p>
-          </div>
-          <div className="pl-5 py-3 mt-4 bg-white rounded-xl">
-            <h5 className="h5 mb-4">Danh mục</h5>
-            <div className="flex flex-col gap-2 text-sm font-light">
-              {allCategories.map((cat) => (
-                <label key={cat} className="flex gap-2 medium-14 text-gray-30">
-                  <input
-                    onChange={(e) => toggleFilter(e.target.value, setCategory)}
-                    type="checkbox"
-                    value={cat}
-                    checked={category.includes(cat)}
-                    className="w-3"
-                  />
-                  {cat}
-                </label>
-              ))}
-            </div>
-          </div>
-          <div className="pl-5 py-3 mt-4 bg-white rounded-xl">
-            <h5 className="h5 mb-4">Loại sản phẩm</h5>
-            <div className="flex flex-col gap-2 text-sm font-light">
-              {availableTypes.map((typ) => (
-                <label key={typ} className="flex gap-2 medium-14 text-gray-30">
-                  <input
-                    onChange={(e) => toggleFilter(e.target.value, setType)}
-                    type="checkbox"
-                    value={typ}
-                    checked={type.includes(typ)}
-                    className="w-3"
-                  />
-                  {typ}
-                </label>
-              ))}
-            </div>
-          </div>
+
+      <div className="inessa-collection-toolbar">
+        <div className="inessa-collection-filter-tools">
+          <button type="button" onClick={() => setIsFilterOpen(true)} className="inessa-collection-filter-trigger"
+            aria-haspopup="dialog" aria-expanded={isFilterOpen} aria-controls="collection-filter-drawer">
+            <SlidersHorizontal size={20} strokeWidth={1.5} aria-hidden="true" />
+            Lọc sản phẩm
+            {filterCount > 0 && <span className="inessa-collection-filter-count">{filterCount}</span>}
+          </button>
+          {filterCount > 0 && <button type="button" onClick={resetFilters} className="inessa-collection-reset">Xóa bộ lọc</button>}
         </div>
-        </aside>
-        {/* Right Side - Filtered Products */}
-        <div className="min-w-0">
-          <div className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {paginatedProducts.length > 0 ? (
-              paginatedProducts.map((product) => (
-                <Item
-                  product={product}
-                  key={product._id}
-                  collectionLayout
-                />
-              ))
-            ) : (
-              <div className="col-span-full mx-auto flex min-h-[240px] w-full max-w-xl flex-col items-center justify-center rounded-2xl border border-dashed border-secondary/20 bg-primary/60 px-5 py-8 text-center">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white text-secondary shadow-sm ring-1 ring-secondary/10">
-                  <SearchX size={24} strokeWidth={1.8} />
-                </div>
-                <p className="text-base font-semibold text-secondary">
-                  Không tìm thấy sản phẩm
-                </p>
-              </div>
-            )}
-          </div>
-          {/* Pagination */}
-          {filteredProducts.length > 0 && (
-            <div className="flexCenter flex flex-wrap mt-14 gap-4">
-              <button
-                disabled={activePage === 1}
-                onClick={() => setCurrentPage((prev) => prev - 1)}
-                className={`btn-secondary !py-1 !px-3 ${
-                  activePage === 1 && "opacity-50 cursor-not-allowed"
-                }`}
-              >
-                Trước
-              </button>
-              {Array.from({ length: totalPages }, (_, index) => (
-                <button
-                  key={index + 1}
-                  onClick={() => setCurrentPage(index + 1)}
-                  className={`btn-light !py-1 !px-3 ${
-                    activePage === index + 1 && "bg-tertiary text-white"
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              ))}
-              <button
-                disabled={activePage === totalPages}
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-                className={`btn-secondary !py-1 !px-3 ${
-                  activePage === totalPages && "opacity-50 cursor-not-allowed"
-                }`}
-              >
-                Tiếp
-              </button>
-            </div>
-          )}
+        <div className="inessa-collection-sort-tools">
+          <p className="inessa-collection-results" role="status" aria-live="polite">
+            {productsLoading ? "Đang tải sản phẩm…" : filteredProducts.length
+              ? `${startIndex + 1}–${Math.min(startIndex + itemsPerPage, filteredProducts.length)} / ${filteredProducts.length} sản phẩm`
+              : "0 sản phẩm"}
+          </p>
+          <select aria-label="Sắp xếp sản phẩm" value={selectedSort}
+            onChange={(event) => { setSelectedSort(event.target.value); setCurrentPage(1); }}>
+            <option value="relevant">Sắp xếp mặc định</option>
+            <option value="low">Giá: thấp đến cao</option>
+            <option value="high">Giá: cao đến thấp</option>
+          </select>
         </div>
       </div>
+
+      {isFilterOpen && <CollectionFilterDrawer
+        onClose={() => setIsFilterOpen(false)}
+        searchQuery={searchQuery}
+        onSearchChange={(value) => { setSearchQuery(value); setCurrentPage(1); }}
+        categories={allCategories} selectedCategories={category}
+        onCategoryChange={(value) => toggleFilter(value, setCategory)}
+        types={availableTypes} selectedTypes={type}
+        onTypeChange={(value) => toggleFilter(value, setType)}
+        minPrice={priceFloor} maxPrice={priceLimit} priceCeiling={priceCeiling}
+        priceDisabled={maxProductPrice <= 0}
+        onMinPriceChange={changeMinPrice} onMaxPriceChange={changeMaxPrice}
+        formatPrice={formatPrice} resultCount={filteredProducts.length} onReset={resetFilters}
+      />}
+
+      <div className="inessa-collection-grid" aria-busy={productsLoading}>
+        {paginatedProducts.map((product) => <Item product={product} key={product._id} collectionLayout />)}
+        {!productsLoading && paginatedProducts.length === 0 && <div className="inessa-collection-empty">
+          <SearchX size={32} strokeWidth={1.2} aria-hidden="true" />
+          <h2>Không tìm thấy sản phẩm</h2>
+          <p>Thử thay đổi từ khóa hoặc bộ lọc để tìm sản phẩm phù hợp.</p>
+          {filterCount > 0 && <button type="button" onClick={resetFilters} className="inessa-button">Xóa bộ lọc</button>}
+        </div>}
+      </div>
+
+      {filteredProducts.length > 0 && <nav className="inessa-collection-pagination" aria-label="Phân trang sản phẩm">
+        <button type="button" disabled={activePage === 1} onClick={() => setCurrentPage((previous) => previous - 1)} aria-label="Trang trước">Trước</button>
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button type="button" key={index + 1} onClick={() => setCurrentPage(index + 1)}
+            aria-label={`Trang ${index + 1}`} aria-current={activePage === index + 1 ? "page" : undefined}>
+            {index + 1}
+          </button>
+        ))}
+        <button type="button" disabled={activePage === totalPages} onClick={() => setCurrentPage((previous) => previous + 1)} aria-label="Trang sau">Tiếp</button>
+      </nav>}
     </div>
   );
 };

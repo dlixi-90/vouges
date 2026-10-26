@@ -1,6 +1,5 @@
 import { lazy } from "react";
 import Hero from "../components/Hero";
-import Features from "../components/Features";
 import DeferredSection from "../components/DeferredSection";
 import { EditorialStories, EditorialCampaign, ShopCategories } from "../components/Editorial";
 
@@ -17,7 +16,6 @@ const Home = () => {
       <EditorialCampaign />
       <DeferredSection minHeight={540}><NewArrivals /></DeferredSection>
       <ShopCategories />
-      <Features />
       <DeferredSection minHeight={440}><Testimonials /></DeferredSection>
     </>
   );
