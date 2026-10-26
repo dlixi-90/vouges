@@ -25,7 +25,7 @@ const PopularProducts = () => {
       {!popularProductsLoading && !popularProductsError && !popularProducts.length && (
         <p className="text-sm text-gray-500">Chưa có sản phẩm nào được bán.</p>
       )}
-      {popularProducts.length > 0 && <ProductCarousel products={popularProducts} showSoldCount />}
+      {popularProducts.length > 0 && <ProductCarousel products={popularProducts} />}
     </section>
   );
 };

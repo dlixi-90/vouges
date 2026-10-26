@@ -3,7 +3,7 @@ import "swiper/css";
 import { Autoplay } from "swiper/modules";
 import Item from "./Item";
 
-const ProductCarousel = ({ products, showSoldCount = false }) => (
+const ProductCarousel = ({ products }) => (
   <Swiper
     spaceBetween={20}
     autoplay={{ delay: 4000, disableOnInteraction: false }}
@@ -19,7 +19,6 @@ const ProductCarousel = ({ products, showSoldCount = false }) => (
     {products.slice(0, 10).map((product) => (
       <SwiperSlide key={product._id}>
         <Item product={product} />
-        {showSoldCount && <p className="mt-2 text-center text-xs text-gray-500">{product.soldQuantity} đã bán</p>}
       </SwiperSlide>
     ))}
   </Swiper>
