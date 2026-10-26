@@ -82,32 +82,24 @@
 .inessa-story-reverse .inessa-story-inset { left: auto; right: 0; top: 45%; }
 .inessa-story-reverse .inessa-image-index { text-align: right; }
 
-/* The original deterministic pastel background and hover image logic are untouched. */
+/* Product colours retain their original calculation; the whole card is a link. */
 .net-theme :is(.net-new-arrivals,.net-popular-products) { padding-top: 25px; margin-top: 0; padding-bottom: 55px; }
 .inessa-section-eyebrow { text-align: center; margin-bottom: 12px; }
 .net-theme :is(.net-new-arrivals,.net-popular-products) .net-section-title { text-align: center; padding-bottom: 42px; }
 .net-theme :is(.net-new-arrivals,.net-popular-products) .net-section-title :is(h3,h3 > span) { font-weight: 400; text-transform: uppercase; }
 .net-section-title > div { margin-inline: auto; margin-top: 25px; }
-.net-theme .net-product-card { border-radius: var(--inessa-radius-card); }
+.net-theme .net-product-card { border-radius: var(--inessa-radius-card); cursor: pointer; }
 .net-product-card > div:first-child { height: clamp(215px, 21vw, 300px); border-radius: var(--inessa-radius-card); }
 .net-product-card > div:first-child > img { width: 72%; height: 76%; object-fit: contain; transition: transform .4s ease; }
-.net-product-card:hover > div:first-child > img { transform: scale(1.04); }
+.net-product-card:is(:hover,:focus-visible) > div:first-child > img { transform: scale(1.04); }
 .net-product-card > div:nth-child(2) { padding: 18px 14px 23px; }
 .net-product-card h5 { font-family: var(--inessa-serif); font-size: 20px; line-height: 1.35; letter-spacing: 0; }
 .net-product-card > div:nth-child(2) > p { font-size: 12px; margin-top: 7px; }
 .net-product-card > div:first-child > p { padding-inline: 10px; font-size: 9px; letter-spacing: .04em; }
-.net-product-card > div:last-child > button { border-radius: var(--inessa-radius-control); box-shadow: none; font-size: 10px; }
-.net-product-card:focus-within > div:nth-child(2) { opacity: 1; filter: none; }
-.net-product-card:focus-within > div:last-child > button { transform: none; opacity: 1; }
 .net-product-carousel .net-product-card > div:first-child { height: clamp(180px, 17vw, 220px); border-radius: var(--inessa-radius-card); }
 .net-product-carousel .net-product-card > div:nth-child(2) { padding: 10px 12px 14px; }
 .net-product-carousel .net-product-card h5 { font-size: 18px; }
 .net-product-carousel .net-product-card > div:nth-child(2) > p { margin-top: 4px; }
-@media (hover: none) {
-  .net-product-card > div:last-child { position: static; padding: 0 12px 14px; height: auto; }
-  .net-product-card > div:last-child > button { transform: none; opacity: 1; border-radius: var(--inessa-radius-control); }
-  .net-product-card:hover > div:nth-child(2) { opacity: 1; filter: none; }
-}
 .inessa-campaign { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: clamp(30px, 6vw, 90px); margin-block: 50px 90px; }
 .inessa-campaign-image { overflow: hidden; border-radius: var(--inessa-radius-panel); }
 .inessa-campaign-image img { width: 100%; aspect-ratio: 1; object-fit: cover; }
@@ -210,11 +202,9 @@
   .net-collection .net-product-card > div:nth-child(2) { padding: 12px 6px 16px; }
   .net-collection .net-product-card h5 { font-size: 16px; }
   .net-collection .net-product-card > div:first-child > p { max-width: calc(100% - 12px); padding-inline: 6px; font-size: 8px; }
-  .net-collection .net-product-card > div:last-child > button { min-height: 44px; padding: 10px 6px; font-size: 9px; border-radius: var(--inessa-radius-control); }
   .inessa-collection-pagination { gap: 6px; padding-block: 30px 45px; }
 }
 @media (max-width: 480px) { .net-theme dialog.inessa-filter-drawer { width: 100%; } }
-@media (hover: none) { .net-collection .net-product-card > div:last-child { background: #fff; } }
 @media (prefers-reduced-motion: reduce) { .net-theme dialog.inessa-filter-drawer[open] { animation: none; } }
 .net-product-detail { padding-top: 48px; }
 .net-product-detail h1 { font-size: clamp(32px, 3.4vw, 48px); font-weight: 400; }

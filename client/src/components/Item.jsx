@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { getAvailableSizes } from "../utils/productStock";
 import { formatThousandsVnd } from "../utils/money";
 import ProductImage from "./ProductImage";
 
 const Item = ({ product, collectionLayout = false }) => {
-  const { navigate, currency, storeResources } = useAppContext();
-  const [hovered, setHovered] = useState(false);
+  const { currency, storeResources } = useAppContext();
   const prefetchTimer = useRef(null);
   useEffect(() => () => window.clearTimeout(prefetchTimer.current), []);
   const prefetchProduct = () => {
@@ -25,48 +25,37 @@ const Item = ({ product, collectionLayout = false }) => {
     : Math.min(...Object.values(product.price ?? {}).map(Number));
 
   return (
-    <article
+    <Link
+      to={`/collection/${product._id}`}
+      aria-label={`Xem chi tiết ${product.title}`}
       onFocus={prefetchProduct}
-      className={`net-product-card group relative overflow-hidden ${
+      onMouseEnter={() => {
+        prefetchTimer.current = window.setTimeout(prefetchProduct, 200);
+      }}
+      onMouseLeave={() => window.clearTimeout(prefetchTimer.current)}
+      onClick={(event) => {
+        if (!event.defaultPrevented && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+          window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        }
+      }}
+      className={`net-product-card block relative overflow-hidden ${
         collectionLayout ? "rounded-xl" : ""
       }`}
       style={collectionLayout ? { backgroundColor: bgcolor } : undefined}
     >
       {/* Image */}
       <div
-        onMouseEnter={() => {
-          setHovered(true);
-          prefetchTimer.current = window.setTimeout(prefetchProduct, 200);
-        }}
-        onMouseLeave={() => { setHovered(false); window.clearTimeout(prefetchTimer.current); }}
-        className={`flexCenter group relative h-[182px] w-full transition-all duration-300 ${
+        className={`flexCenter relative h-[182px] w-full ${
           collectionLayout ? "" : "rounded-xl"
         }`}
         style={collectionLayout ? undefined : { backgroundColor: bgcolor }}
       >
         <ProductImage
-          src={
-            product.images.length > 1 && hovered
-              ? product.images[1]
-              : product.images[0]
-          }
+          src={product.images[0]}
           alt=""
           height={144}
           width={144}
         />
-        {!collectionLayout && (
-          <div className="absolute bottom-1 left-1 right-1 hidden group-hover:block">
-            <button
-              onClick={() => {
-                navigate(`/collection/${product._id}`);
-                scrollTo(0, 0);
-              }}
-              className="btn-secondary w-full !px-0 !py-2 !text-xs"
-            >
-              Xem
-            </button>
-          </div>
-        )}
         <p className="absolute right-2 top-2 rounded-full bg-white/50 px-5 ring-1 ring-slate-900/10">
           {product.type}
         </p>
@@ -81,7 +70,7 @@ const Item = ({ product, collectionLayout = false }) => {
       <div
         className={
           collectionLayout
-            ? "px-3 pb-4 pt-3 text-center transition duration-300 group-hover:opacity-20 group-hover:blur-[1px]"
+            ? "px-3 pb-4 pt-3 text-center"
             : "p-1 pt-3"
         }
       >
@@ -106,22 +95,7 @@ const Item = ({ product, collectionLayout = false }) => {
           </>
         )}
       </div>
-
-      {collectionLayout && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-[42%] items-end bg-white/0 p-3 transition-colors duration-300 group-hover:bg-white/30">
-          <button
-            type="button"
-            onClick={() => {
-              navigate(`/collection/${product._id}`);
-              scrollTo(0, 0);
-            }}
-            className="pointer-events-auto w-full translate-y-5 rounded-full bg-white px-4 py-3 text-xs font-medium uppercase tracking-[0.12em] text-[#343434] opacity-0 shadow-lg transition duration-300 hover:bg-[#f5f5f2] group-hover:translate-y-0 group-hover:opacity-100"
-          >
-            Xem sản phẩm
-          </button>
-        </div>
-      )}
-    </article>
+    </Link>
   );
 };
 
