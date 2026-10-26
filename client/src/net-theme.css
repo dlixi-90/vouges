@@ -156,17 +156,18 @@ body { background:#fff; color:var(--net-ink); }
 .net-membership .net-member-wallet-footer { background:#fff; border-color:var(--member-line); }
 
 /* Shared black footer, preserving every existing column and newsletter field. */
-.net-footer { width:calc(100% - 40px); max-width:1440px; margin:28px auto 20px; padding-top:54px; border:1px solid var(--net-line); background:#fff; color:#555; border-radius:26px; }
-.net-footer :is(p,li,a,span) { color:#555; }
-.net-footer .h4 { color:#171717; font-size:14px; font-weight:500; letter-spacing:.07em; }
+.net-footer { width:calc(100% - 40px); max-width:1440px; margin:28px auto 20px; padding-top:54px; border:1px solid #171717; background:#171717; color:#eee; border-radius:26px; }
+.net-footer :is(p,li,a,span) { color:#eee; }
+.net-footer .h4 { color:#fff; font-size:14px; font-weight:500; letter-spacing:.07em; }
 .net-footer p { font-size:13px; line-height:1.9; }
-.net-footer a:hover { color:#171717; text-decoration:underline; }
-.net-footer img { filter:grayscale(1) brightness(0); }
-.net-footer [class*="border-gray"] { border-color:#d8d8d8; }
-.net-footer input { color:#171717; background:transparent; }
-.net-footer input::placeholder { color:#777; }
-.net-footer .btn-dark { background:#171717; color:#fff; border-color:#171717; }
-.net-footer .btn-dark:hover { background:#343434; border-color:#343434; }
+.net-footer a:hover { color:#fff; text-decoration:underline; }
+.net-footer img { filter:grayscale(1) brightness(0) invert(1); }
+.net-footer .net-field-shell { background:transparent; }
+.net-footer [class*="border-gray"] { border-color:#a3a3a3; }
+.net-footer input { color:#fff; background:transparent; }
+.net-footer input::placeholder { color:#bcbcbc; }
+.net-theme .net-footer .btn-dark { background:#fff; color:#171717; border-color:#fff; }
+.net-theme .net-footer .btn-dark:hover:not(:disabled) { background:#eee; border-color:#eee; }
 
 /* Admin frames, forms, tables, chart and nested voucher/chat workspaces. */
 .net-admin { background:#fff; }

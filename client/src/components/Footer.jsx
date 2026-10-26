@@ -3,7 +3,7 @@ import { assets } from "../assets/data";
 
 const Footer = () => {
   return (
-    <footer className="net-footer pt-16 xl:pt-20 w-full text-gray-500 bg-primary">
+    <footer className="net-footer pt-16 xl:pt-20 w-full">
       <div className="max-padd-container">
         <div className="flex flex-wrap justify-between gap-12 md:gap-6">
           <div className="max-w-80">
@@ -73,7 +73,7 @@ const Footer = () => {
             <p className="mt-3 text-sm">
               Đăng ký nhận bản tin để cập nhật bí quyết làm đẹp và ưu đãi đặc biệt.
             </p>
-            <div className="net-field-shell flex h-[46px] w-full items-center gap-2 overflow-hidden rounded-full border border-gray-500/30 bg-secondary/10 p-1 pl-4 mt-6">
+            <div className="net-field-shell flex h-[46px] w-full items-center gap-2 overflow-hidden rounded-full border border-gray-500/30 p-1 pl-4 mt-6">
               <input
                 className="h-full min-w-0 flex-1 outline-none text-sm text-gray-500"
                 aria-label="Địa chỉ thư điện tử nhận bản tin"
