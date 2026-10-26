@@ -6,8 +6,9 @@ import CartSizePicker from "../components/CartSizePicker";
 import CartSummary from "../components/CartSummary";
 import CheckoutVoucherPicker from "../components/checkout/CheckoutVoucherPicker";
 import ProductImage from "../components/ProductImage";
+import { getSizeImage } from "../utils/productImage";
 import { useAppContext } from "../context/AppContext";
-import { formatThousandsVnd } from "../utils/money";
+import { formatVnd } from "../utils/money";
 import { URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
 import {
   getCartItemKey,
@@ -15,7 +16,7 @@ import {
   getAvailableCartItems,
   sortCartItemsByAvailability,
 } from "../utils/cartSelection";
-import { getSizeQuantity } from "../utils/productStock";
+import { getPurchaseLimit } from "../utils/productStock";
 import { initialCheckoutAddress } from "../utils/checkoutAddress";
 import { getCartRowKey, getOrderedCartItems } from "../utils/cartOrder";
 import useCheckoutQuote from "../hooks/useCheckoutQuote";
@@ -381,7 +382,7 @@ const Cart = () => {
                             <td className="inessa-cart-product-cell">
                               <div className="inessa-cart-product">
                                 <Link to={`/collection/${product._id}`} className="inessa-cart-product-image" aria-label={`Xem chi tiết ${product.title}`}>
-                                  <ProductImage src={product.images[0]} imageWidth={160} alt="" />
+                                  <ProductImage src={getSizeImage(product, item.size)} imageWidth={160} alt="" />
                                 </Link>
                                 <div className="inessa-cart-product-info">
                                   <Link to={`/collection/${product._id}`} className="inessa-cart-product-name">{product.title}</Link>
@@ -393,7 +394,7 @@ const Cart = () => {
                             </td>
                             <td className="inessa-cart-price-cell">
                               <span className="inessa-cart-mobile-label" aria-hidden="true">Đơn giá</span>
-                              <span>{formatThousandsVnd(product.price[item.size], currency)}</span>
+                              <span>{formatVnd(product.price[item.size], currency)}</span>
                             </td>
                             <td className="inessa-cart-quantity-cell">
                               <span className="inessa-cart-mobile-label" aria-hidden="true">Số lượng</span>
@@ -404,14 +405,14 @@ const Cart = () => {
                                 </button>
                                 <span aria-label={`Số lượng ${product.title}, dung tích ${item.size}`}>{quantity}</span>
                                 <button type="button" aria-label={`Tăng số lượng ${product.title}, dung tích ${item.size}`}
-                                  onClick={() => increment(item._id, item.size)} disabled={isChangingSize || isUnavailable || quantity >= getSizeQuantity(product, item.size)}>
+                                  onClick={() => increment(item._id, item.size)} disabled={isChangingSize || isUnavailable || quantity >= getPurchaseLimit(product, item.size)}>
                                   <Plus size={13} aria-hidden="true" />
                                 </button>
                               </div>
                             </td>
                             <td className="inessa-cart-subtotal-cell">
                               <span className="inessa-cart-mobile-label" aria-hidden="true">Thành tiền</span>
-                              <span>{formatThousandsVnd(product.price[item.size] * quantity, currency)}</span>
+                              <span>{formatVnd(product.price[item.size] * quantity, currency)}</span>
                             </td>
                           </tr>
                         );

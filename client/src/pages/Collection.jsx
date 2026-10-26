@@ -4,7 +4,7 @@ import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
 import CollectionFilterDrawer from "../components/CollectionFilterDrawer";
 import { SearchX, SlidersHorizontal } from "lucide-react";
-import { formatThousandsVnd } from "../utils/money";
+import { formatVnd } from "../utils/money";
 import {
   getAvailableSizes,
   hasAnyAvailableSize,
@@ -44,12 +44,12 @@ const Collection = () => {
     const price = getDisplayedPrice(product);
     return Number.isFinite(price) ? Math.max(highest, price) : highest;
   }, 0), [products]);
-  // Prices are stored in thousands of VND; one slider step equals 1,000 VND.
+  // Every price and filter value is integer VND.
   const priceCeiling = Math.max(1, Math.ceil(maxProductPrice));
   const priceLimit = maxPrice === null ? priceCeiling : Math.min(maxPrice, priceCeiling);
   const priceFloor = Math.min(minPrice, priceLimit);
   const isPriceFiltered = priceFloor > 0 || (maxPrice !== null && priceLimit < priceCeiling);
-  const formatPrice = (price) => formatThousandsVnd(price, currency);
+  const formatPrice = (price) => formatVnd(price, currency);
 
   const changeMinPrice = (value) => {
     setMinPrice(Math.max(0, Math.min(value, priceLimit)));

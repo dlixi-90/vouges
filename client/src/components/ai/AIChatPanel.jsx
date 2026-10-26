@@ -24,8 +24,8 @@ const SupportChatPanel = lazy(() => import("../support/SupportChatPanel"));
 
 const suggestedPrompts = [
   "Bạn có thể giúp gì cho tôi?",
-  "Hướng dẫn tôi chọn sản phẩm phù hợp",
-  "So sánh hai sản phẩm phù hợp với da khô",
+  "Hướng dẫn tôi chọn nước hoa phù hợp",
+  "Gợi ý nước hoa hương tươi mát cho ban ngày",
   "Đơn hàng gần nhất của tôi đang ở đâu?",
   "Trong giỏ hàng của tôi có gì?",
 ];
@@ -371,7 +371,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                   Xin chào! Tôi là Velours AI
                 </h3>
                 <p className="mt-2 max-w-xs text-sm leading-6 text-slate-500">
-                  Tôi có thể hỗ trợ bạn tìm hiểu sản phẩm và chăm sóc sắc đẹp.
+                  Tôi có thể hỗ trợ bạn tìm hiểu nước hoa và lựa chọn mùi hương phù hợp.
                 </p>
 
                 <div className="mt-5 flex w-full flex-col gap-2">

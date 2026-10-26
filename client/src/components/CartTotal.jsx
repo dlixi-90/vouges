@@ -1,10 +1,11 @@
 import { useMemo } from "react";
 import { ArrowLeft, LockKeyhole } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
-import { formatThousandsVnd } from "../utils/money";
+import { formatVnd } from "../utils/money";
 import { getCartItemKey } from "../utils/cartSelection";
 import { SHIPPING_METHODS, URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
 import ProductImage from "./ProductImage";
+import { getSizeImage } from "../utils/productImage";
 import CheckoutVoucherPicker from "./checkout/CheckoutVoucherPicker";
 
 const CartTotal = ({ checkout, children, onBack, isSubmitting = false, selectedItemKeys, orderNote, setOrderNote }) => {
@@ -31,7 +32,7 @@ const CartTotal = ({ checkout, children, onBack, isSubmitting = false, selectedI
   const shippingMethods = checkout.shippingMethods || SHIPPING_METHODS;
   const isUrgentShipping = checkout.shippingMethod === "urgent";
   const discount = checkout.pricing?.discount || 0;
-  const formatPrice = (value) => formatThousandsVnd(value, currency);
+  const formatPrice = (value) => formatVnd(value, currency);
   const shippingPrice = (option) => {
     if (option.fee === null) return "Theo giá đơn vị giao hàng · Thanh toán sau";
     const quote = checkout.shippingQuotes?.[option.id];
@@ -104,7 +105,7 @@ const CartTotal = ({ checkout, children, onBack, isSubmitting = false, selectedI
             {orderItems.map((item) => (
               <div key={getCartItemKey(item.product._id, item.size)} className="inessa-checkout-product">
                 <div className="inessa-checkout-product-image">
-                  <ProductImage src={item.product.images[0]} imageWidth={160} alt={item.product.title} />
+                  <ProductImage src={getSizeImage(item.product, item.size)} imageWidth={160} alt={item.product.title} />
                   <span aria-label={`Số lượng: ${item.quantity}`}>{item.quantity}</span>
                 </div>
                 <div className="inessa-checkout-product-info">

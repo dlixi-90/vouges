@@ -35,7 +35,7 @@ export const getPopularProducts = async () => {
       },
     },
     { $unwind: "$product" },
-    { $match: { "product.isDeleted": { $ne: true } } },
+    { $match: { "product.isDeleted": { $ne: true }, "product.isPublished": { $ne: false } } },
     // Stable ordering when products have sold the same number of units.
     { $sort: { soldQuantity: -1, "product._id": 1 } },
     { $limit: 10 },
@@ -51,6 +51,8 @@ export const getPopularProducts = async () => {
         stockBySize: "$product.stockBySize",
         inStockBySize: "$product.inStockBySize",
         inStock: "$product.inStock",
+        inventoryMode: "$product.inventoryMode",
+        isPublished: "$product.isPublished",
         soldQuantity: 1,
       },
     },

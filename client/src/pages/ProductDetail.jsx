@@ -9,14 +9,18 @@ import { useAppContext } from "../context/AppContext";
 import {
   getAvailableSizes,
   getSizeQuantity,
+  getPurchaseLimit,
+  isSourceInventory,
   hasAnyAvailableSize,
   isSizeAvailable,
 } from "../utils/productStock";
 import { FREE_SHIPPING_THRESHOLD } from "../utils/orderPricing";
-import { formatThousandsVnd } from "../utils/money";
+import { formatVnd } from "../utils/money";
 import { flyProductToCart } from "../utils/cartAnimation";
 import ProductImage from "../components/ProductImage";
 import ProductReviews from "../components/ProductReviews";
+import { getSizeImage } from "../utils/productImage";
+import PerfumeProfile from "../components/PerfumeProfile";
 
 const MAX_QUANTITY_PER_ADD = 10;
 
@@ -34,7 +38,9 @@ const RatingStars = ({ average }) => (
 );
 
 const ProductDetail = () => {
-  const { products, currency, addToCart, requireCartLogin, storeResources } = useAppContext();
+  const { products, currency, addToCart, requireCartLogin, storeResources, axios } = useAppContext();
+  const [detail, setDetail] = useState(null);
+  const [detailError, setDetailError] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -44,33 +50,45 @@ const ProductDetail = () => {
   const addedResetTimerRef = useRef(null);
 
   const { productId } = useParams();
+  useEffect(() => {
+    const controller = new AbortController();
+    setDetailError("");
+    axios.get("/api/products/single", {params:{productId},signal:controller.signal}).then(({data})=>{
+      if (!data.success) throw new Error(data.message);
+      setDetail(data.product);
+    }).catch(error=>{if(!controller.signal.aborted)setDetailError(error.response?.data?.message||"Không thể tải chi tiết sản phẩm.");});
+    return ()=>controller.abort();
+  }, [axios, productId]);
   const reviewStats = reviewSummary?.productId === productId ? reviewSummary : storeResources.peekReviews(productId);
   // Start independently of the catalog request, including on direct links.
   useEffect(() => {
     void storeResources.loadReviews(productId).catch(() => {});
     void storeResources.loadOwnReview(productId).catch(() => {});
   }, [storeResources, productId]);
-  const product = products.find((item) => item._id === productId);
+  const product = detail?._id === productId ? detail : products.find((item) => item._id === productId);
   const productAvailable = product ? hasAnyAvailableSize(product) : false;
   const availableSizes = product ? getAvailableSizes(product) : [];
-  const size = availableSizes.includes(selectedSize)
+  const size = product?.sizes?.includes(selectedSize)
     ? selectedSize
-    : (availableSizes[0] ?? null);
-  const image = product?.images?.includes(selectedImage)
-    ? selectedImage
-    : (product?.images?.[0] ?? null);
+    : (availableSizes[0] ?? product?.sizes?.[0] ?? null);
+  const sizeImage = product?.sizeImages?.[size];
+  const gallery = [...new Set([sizeImage, ...(product?.images || [])].filter(Boolean))];
+  const image = selectedImage?.productId === productId && selectedImage?.size === size && gallery.includes(selectedImage.url)
+    ? selectedImage.url
+    : getSizeImage(product, size);
   const selectedSizeAvailable = product
     ? isSizeAvailable(product, size)
     : false;
   const selectedStock = product ? getSizeQuantity(product, size) : 0;
   const maxQuantity = Math.max(
     1,
-    Math.min(MAX_QUANTITY_PER_ADD, selectedStock),
+    Math.min(MAX_QUANTITY_PER_ADD, product ? getPurchaseLimit(product, size) : 0),
   );
   const safeQuantity = Math.min(quantity, maxQuantity);
 
   const selectSize = (nextSize) => {
     setSelectedSize(nextSize);
+    setSelectedImage(null);
     setQuantity(1);
   };
 
@@ -108,7 +126,7 @@ const ProductDetail = () => {
     [],
   );
 
-  if (!product) return null;
+  if (!product) return <div className="max-padd-container py-32" role={detailError?"alert":"status"}>{detailError||"Đang tải sản phẩm…"}</div>;
 
   return (
     <div className="net-product-detail max-padd-container pb-14 pt-24 sm:pt-28">
@@ -119,11 +137,12 @@ const ProductDetail = () => {
         >
           <div className="flex gap-2 sm:gap-3">
             <div className="flex w-16 shrink-0 flex-col gap-2 sm:w-[72px]">
-              {product.images.map((item, index) => (
+              {gallery.map((item, index) => (
                 <button
                   type="button"
                   key={`${item}-${index}`}
-                  onClick={() => setSelectedImage(item)}
+                  onClick={() => setSelectedImage({ productId, size, url: item })}
+                  aria-pressed={item === image}
                   aria-label={`Xem ảnh sản phẩm ${index + 1}`}
                   className={`aspect-square overflow-hidden rounded-lg bg-[#f5f5f0] p-1.5 transition ${
                     item === image
@@ -148,7 +167,7 @@ const ProductDetail = () => {
                 imageWidth={960}
                 loading="eager"
                 fetchPriority="high"
-                alt={product.title}
+                alt={`${product.title}${sizeImage && image === sizeImage ? ` - ${size}` : ""}`}
                 className="h-auto max-h-[470px] w-auto max-w-[82%] object-contain"
               />
             </div>
@@ -166,7 +185,7 @@ const ProductDetail = () => {
             {product.title}
           </h1>
           <p className="mt-2 text-2xl text-[#737373]">
-            {formatThousandsVnd(size ? product.price?.[size] : 0, currency)}
+            {formatVnd(size ? product.price?.[size] : 0, currency)}
           </p>
           <a href="#reviews"
             aria-label={reviewStats && !reviewStats.error
@@ -192,7 +211,7 @@ const ProductDetail = () => {
               </p>
               {size && (
                 <span className="text-xs text-[#858585]">
-                  {selectedStock} sản phẩm còn trong kho
+                  {isSourceInventory(product) ? (selectedSizeAvailable ? "Còn hàng" : "Hết hàng") : `${selectedStock} sản phẩm còn trong kho`}
                 </span>
               )}
             </div>
@@ -285,7 +304,7 @@ const ProductDetail = () => {
             <div className="flex items-center gap-2">
               <Truck size={16} />
               Miễn phí giao hàng cho đơn từ{" "}
-              {(FREE_SHIPPING_THRESHOLD * 1000).toLocaleString("vi-VN")}₫
+              {(FREE_SHIPPING_THRESHOLD).toLocaleString("vi-VN")}₫
             </div>
             <div className="flex items-center gap-2 sm:justify-end">
               <ShieldCheck size={16} />
@@ -295,6 +314,7 @@ const ProductDetail = () => {
         </section>
       </div>
 
+      <PerfumeProfile product={product} />
       <ProductReviews key={productId} productId={productId} onSummaryChange={setReviewSummary} />
       <ProductFeatures />
       <RelatedProducts product={product} productId={productId} />

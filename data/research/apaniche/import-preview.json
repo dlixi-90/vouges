@@ -1,0 +1,20 @@
+{
+  "currency": "VND",
+  "inventoryMode": "source",
+  "totals": {
+    "products": 2444,
+    "published": 2324,
+    "hiddenOutsidePerfume": 120,
+    "orderable": 2251,
+    "variants": 5464,
+    "sourceVariants": 5289,
+    "categories": 5,
+    "terms": {
+      "brand": 173,
+      "group": 31,
+      "accord": 68,
+      "note": 950
+    }
+  },
+  "sourceCollectedAt": "2026-10-26T13:18:18.358Z"
+}

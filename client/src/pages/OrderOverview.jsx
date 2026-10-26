@@ -1,10 +1,11 @@
+import { getSizeImage } from "../utils/productImage";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/react";
 import { ArrowLeft, Check, CheckCircle2, Clock3, Package } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import ProductImage from "../components/ProductImage";
-import { formatThousandsVnd } from "../utils/money";
+import { formatVnd } from "../utils/money";
 import { getOrderStatusLabel, getPaymentMethodLabel } from "../utils/localization";
 import { SHIPPING_METHODS, URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
 
@@ -81,7 +82,7 @@ const OrderOverview = () => {
   const isAwaiting = order.paymentMethod === "QR" && !order.isPaid && order.status === "Awaiting Payment";
   const isClosed = ["Payment Expired", "Payment Cancelled"].includes(order.status);
   const confirmed = currentStep >= 0 && !isReview && !isClosed && !isAwaiting;
-  const formatPrice = (value) => isSavedNumber(value) ? formatThousandsVnd(value, currency) : "—";
+  const formatPrice = (value) => isSavedNumber(value) ? formatVnd(value, currency) : "—";
   const paymentLabel = isReview ? "Chờ xác minh" : order.isPaid ? "Đã thanh toán" : isClosed ? getOrderStatusLabel(order.status) : order.paymentMethod === "COD" ? "Thanh toán khi nhận hàng" : "Chờ thanh toán";
   const message = isReview
     ? "Khoản thanh toán đã được ghi nhận và đang chờ nhân viên xác minh."
@@ -141,7 +142,7 @@ const OrderOverview = () => {
             const product = item.product && typeof item.product === "object" ? item.product : {};
             const productId = product._id || (typeof item.product === "string" ? item.product : "");
             const title = item.title || product.title || "Sản phẩm không còn có sẵn";
-            const image = item.image || product.images?.[0];
+            const image = item.image || getSizeImage(product, item.size);
             return <div key={item._id || `${productId}:${item.size}:${index}`} className="inessa-checkout-product">
               <div className="inessa-checkout-product-image">{image ? <ProductImage src={image} imageWidth={160} alt={title} /> : <Package size={24} strokeWidth={1.3} aria-hidden="true" />}<span aria-label={`Số lượng: ${item.quantity}`}>{item.quantity}</span></div>
               <div className="inessa-checkout-product-info"><p>{productId && !product.isDeleted ? <Link to={`/collection/${productId}`}>{title}</Link> : title}</p><span>{item.size} · {formatPrice(item.unitPrice)}</span></div>

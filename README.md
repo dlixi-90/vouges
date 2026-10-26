@@ -4,7 +4,9 @@
 
 Hướng dẫn tính năng mới: [hồ sơ thành viên, voucher sinh nhật, giao hàng và đánh giá](MEMBERSHIP.md).
 Hỗ trợ khách hàng: [chat với nhân viên CSKH và hộp thư quản trị](SUPPORT.md).
-### Mỹ phẩm, nước hoa & trải nghiệm mua sắm cùng AI
+### Nước hoa & trải nghiệm mua sắm cùng AI
+
+Dashboard và dữ liệu vận hành: [catalog nước hoa Apaniche, quy ước VND và quản trị](docs/PERFUME_CATALOG.md).
 
 **Nền tảng thương mại điện tử kết hợp cửa hàng trực tuyến, thanh toán QR và trợ lý mua sắm AI trong cùng một trải nghiệm.**
 
@@ -31,7 +33,7 @@ Hỗ trợ khách hàng: [chat với nhân viên CSKH và hộp thư quản tr�
 <a id="gioi-thieu"></a>
 ## ✨ Velours?
 
-**Velours** là website thương mại điện tử dành cho mỹ phẩm, nước hoa và sản phẩm chăm sóc cá nhân. Dự án kết nối các bước trong hành trình mua sắm: tìm hiểu sản phẩm, lựa chọn dung tích, quản lý giỏ hàng, chọn địa chỉ, thanh toán và theo dõi đơn.
+**Velours** là website thương mại điện tử chuyên nước hoa. Dự án kết nối các bước trong hành trình mua sắm: tìm hiểu sản phẩm, lựa chọn dung tích, quản lý giỏ hàng, chọn địa chỉ, thanh toán và theo dõi đơn.
 
 Khách hàng có thể khám phá cửa hàng qua danh sách sản phẩm hoặc trao đổi với trợ lý AI bằng ngôn ngữ tự nhiên. Trợ lý hỗ trợ tìm kiếm, so sánh, kiểm tra giỏ hàng và tra cứu đơn dựa trên dữ liệu của hệ thống.
 

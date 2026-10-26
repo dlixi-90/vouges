@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { getAvailableSizes } from "../utils/productStock";
-import { formatThousandsVnd } from "../utils/money";
+import { formatVnd } from "../utils/money";
 import ProductImage from "./ProductImage";
 
 const Item = ({ product }) => {
@@ -62,7 +62,7 @@ const Item = ({ product }) => {
       <div className="net-product-info">
         <p className="net-product-category line-clamp-1">{product.category || product.type}</p>
         <h5 className="line-clamp-2 uppercase">{product.title}</h5>
-        <p className="net-product-price">{formatThousandsVnd(displayedPrice, currency)}</p>
+        <p className="net-product-price">{formatVnd(displayedPrice, currency)}</p>
       </div>
     </Link>
   );

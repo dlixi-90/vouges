@@ -9,6 +9,7 @@ const PopularProducts = () => {
     popularProductsError,
     fetchPopularProducts,
   } = usePopularProducts();
+  if (!popularProductsLoading && !popularProductsError && !popularProducts.length) return null;
   return (
     <section className="net-popular-products max-padd-container">
       <p className="inessa-eyebrow inessa-section-eyebrow">Được yêu thích tại Velours</p>

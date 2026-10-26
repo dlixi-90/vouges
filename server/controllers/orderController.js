@@ -1,11 +1,12 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
+import { getSizeImage } from "../utils/productImages.js";
 import User from "../models/User.js";
 import transporter from "../config/nodemailer.js";
 import crypto from "crypto";
 import Address from "../models/Address.js";
 import mongoose, { isObjectIdOrHexString } from "mongoose";
-import { getSizeQuantity, isSizeAvailable } from "../utils/productStock.js";
+import { getSizeQuantity, getPurchaseLimit, isSourceInventory, isSizeAvailable } from "../utils/productStock.js";
 import { getShippingPricing, SHIPPING_METHODS } from "../utils/orderPricing.js";
 import { validateVoucher, calculateDiscount, reserveVoucher, releaseVoucher } from "../services/voucherService.js";
 import { getCartAddedAt } from "../utils/cartOrder.js";
@@ -180,17 +181,17 @@ const validateOrderItems = async (items, session) => {
       );
     }
 
-    const stockQuantity = getSizeQuantity(product, item.size);
+    const stockQuantity = getPurchaseLimit(product, item.size);
 
     if (item.quantity > stockQuantity) {
       throw new OrderRequestError(
-        `Chỉ còn ${stockQuantity} sản phẩm của ${product.title} - ${item.size}`,
+        isSourceInventory(product) ? `Mỗi dung tích được đặt tối đa ${stockQuantity} sản phẩm trong một đơn.` : `Chỉ còn ${stockQuantity} sản phẩm của ${product.title} - ${item.size}`,
       );
     }
 
     const unitPrice = Number(product.price?.[item.size]);
 
-    if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
+    if (!Number.isSafeInteger(unitPrice) || unitPrice <= 0) {
       throw new OrderRequestError(
         `Giá không hợp lệ cho ${product.title} - ${item.size}`,
       );
@@ -198,7 +199,7 @@ const validateOrderItems = async (items, session) => {
 
     subtotal += unitPrice * item.quantity;
 
-    if (!Number.isFinite(subtotal) || subtotal > Number.MAX_SAFE_INTEGER / 1000) {
+    if (!Number.isFinite(subtotal) || subtotal > Number.MAX_SAFE_INTEGER) {
       throw new OrderRequestError("Tổng giá trị đơn hàng vượt quá giới hạn cho phép");
     }
   }
@@ -217,8 +218,9 @@ const createOrderItemSnapshots = (validatedOrder) =>
     return {
       ...item,
       title: product.title,
-      image: product.images?.[0] || undefined,
+      image: getSizeImage(product, item.size) || undefined,
       unitPrice: Number(product.price?.[item.size]),
+      inventoryMode: isSourceInventory(product) ? "source" : "tracked",
     };
   });
 
@@ -233,7 +235,7 @@ const priceOrder = async (subtotal, body, userId, session) => {
 const checkQuotedAmount = (body, pricing) => {
   if (body.expectedAmount !== undefined &&
       (typeof body.expectedAmount !== "number" || !Number.isFinite(body.expectedAmount) ||
-       Math.round(body.expectedAmount * 1000) !== Math.round(pricing.amount * 1000)))
+       body.expectedAmount !== pricing.amount))
     throw new OrderRequestError("Giá trị đơn hàng đã thay đổi. Vui lòng kiểm tra lại tổng tiền.", 409);
 };
 
@@ -277,6 +279,7 @@ const reserveOrderStock = async (validatedOrder, session) => {
 
   for (const item of validatedOrder.items) {
     const product = validatedOrder.productsById.get(item.product);
+    if (isSourceInventory(product)) continue;
     const currentQuantity = getSizeQuantity(product, item.size);
 
     product.stockBySize = {
@@ -306,7 +309,7 @@ const restoreOrderStock = async (order, session) => {
     const productId = String(item.product);
     const product = productsById.get(productId);
 
-    if (!product || !product.sizes.includes(item.size)) continue;
+    if (!product || item.inventoryMode === "source" || isSourceInventory(product) || !product.sizes.includes(item.size)) continue;
 
     product.stockBySize = {
       ...(product.stockBySize || {}),
@@ -568,8 +571,8 @@ export const placeOrderQr = async (req, res) => {
       if (pricing.amount <= 0) throw new OrderRequestError("Đơn hàng 0đ không cần chuyển khoản. Vui lòng chọn COD để đặt đơn.");
       const orderItems = createOrderItemSnapshots(validatedOrder);
 
-      // Giá trong project đang biểu diễn 30 = 30.000 VNĐ.
-      const qrAmount = Math.round(pricing.amount * 1000);
+      // Catalog, saved totals and bank transfer amounts all use whole VND.
+      const qrAmount = Math.round(pricing.amount);
 
       await reserveOrderStock(validatedOrder, session);
 

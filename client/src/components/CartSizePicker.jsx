@@ -1,6 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
-import { getSizeQuantity, isSizeAvailable } from "../utils/productStock";
+import { getPurchaseLimit, isSizeAvailable } from "../utils/productStock";
 
 const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfirm }) => {
   const popupId = useId();
@@ -13,7 +13,7 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
   const canConfirm = draftSize === size || (
     product.sizes.includes(draftSize) &&
     isSizeAvailable(product, draftSize) &&
-    requiredQuantity <= getSizeQuantity(product, draftSize)
+    requiredQuantity <= getPurchaseLimit(product, draftSize)
   );
 
   const positionPopup = () => {
@@ -107,7 +107,7 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
               {Array.from(new Set([size, ...product.sizes])).map((option) => {
                 const required = quantity + (option === size ? 0 : Number(quantities?.[option] ?? 0));
                 const available = product.sizes.includes(option) && isSizeAvailable(product, option);
-                const enoughStock = required <= getSizeQuantity(product, option);
+                const enoughStock = required <= getPurchaseLimit(product, option);
                 const reason = !available ? "Hết hàng" : !enoughStock ? "Không đủ hàng trong kho" : "";
                 return (
                   <button
@@ -127,10 +127,10 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
               })}
             </div>
           </div>
-          <p className="mt-5" aria-live="polite">Tồn kho: {isSizeAvailable(product, draftSize) ? getSizeQuantity(product, draftSize) : 0}</p>
+          <p className="mt-5" aria-live="polite">{product.inventoryMode === "source" ? (isSizeAvailable(product, draftSize) ? "Còn hàng" : "Hết hàng") : `Tồn kho: ${isSizeAvailable(product, draftSize) ? getPurchaseLimit(product, draftSize) : 0}`}</p>
           {draftSize !== size && isSizeAvailable(product, draftSize) && !canConfirm && (
             <p className="mt-2 text-red-600" role="alert">
-              Thay đổi này cần {requiredQuantity} sản phẩm dung tích {draftSize}, nhưng kho chỉ còn {getSizeQuantity(product, draftSize)} sản phẩm.
+              Thay đổi này cần {requiredQuantity} sản phẩm dung tích {draftSize}, nhưng kho chỉ còn {getPurchaseLimit(product, draftSize)} sản phẩm.
             </p>
           )}
         </div>

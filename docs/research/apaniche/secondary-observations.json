@@ -1,0 +1,88 @@
+{
+  "reviewedAt": "2026-10-26",
+  "observations": [
+    {
+      "name": "compare",
+      "url": "https://apaniche.vn/so-sanh",
+      "title": "So Sánh Nước Hoa - Dễ Dàng Đánh Giá Và Lựa Chọn - Apa Niche",
+      "heading": {
+        "tag": "H1",
+        "font": "SVN-Gilroy",
+        "size": "26px",
+        "color": "rgb(0, 0, 0)",
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "selects": [],
+      "search": [
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://apaniche.vn/tim-kiem"
+        },
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://apaniche.vn/tim-kiem"
+        },
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://localhost/apa/tim-kiem"
+        }
+      ],
+      "buttonCount": 50
+    },
+    {
+      "name": "coupon",
+      "url": "https://apaniche.vn/ma-giam-gia",
+      "title": "Mã giảm giá - Voucher ưu đãi hôm nay - Apa Niche",
+      "heading": null,
+      "selects": [],
+      "search": [
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://apaniche.vn/tim-kiem"
+        },
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://apaniche.vn/tim-kiem"
+        },
+        {
+          "placeholder": "Tìm mã hoặc mô tả..."
+        },
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://localhost/apa/tim-kiem"
+        }
+      ],
+      "buttonCount": 50
+    },
+    {
+      "name": "checkout-empty",
+      "url": "https://apaniche.vn/",
+      "title": "Nước Hoa Chính Hãng, Shop Nước Hoa Hà Nội Uy Tín | Apa Niche",
+      "heading": {
+        "tag": "H1",
+        "font": "SVN-Gilroy, serif",
+        "size": "25.024px",
+        "color": "rgb(85, 85, 85)",
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "selects": [],
+      "search": [
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://apaniche.vn/tim-kiem"
+        },
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://apaniche.vn/tim-kiem"
+        },
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://localhost/apa/tim-kiem"
+        }
+      ],
+      "buttonCount": 50
+    }
+  ]
+}

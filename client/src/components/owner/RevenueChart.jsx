@@ -1,5 +1,5 @@
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { formatThousandsVnd } from "../../utils/money";
+import { formatVnd } from "../../utils/money";
 import { memo } from "react";
 
 const RevenueChart = ({ data, currency }) => (
@@ -8,7 +8,7 @@ const RevenueChart = ({ data, currency }) => (
       <CartesianGrid vertical={false} stroke="#e9edef" />
       <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#7d8792", fontSize: 12 }} />
       <YAxis axisLine={false} tickLine={false} tick={{ fill: "#7d8792", fontSize: 12 }} />
-      <Tooltip formatter={(value) => formatThousandsVnd(value, currency)} cursor={{ fill: "#f4f6f5" }} />
+      <Tooltip formatter={(value) => formatVnd(value, currency)} cursor={{ fill: "#f4f6f5" }} />
       <Legend />
       <Bar dataKey="total" name="Tổng doanh thu" fill="#9fc4a9" radius={[4, 4, 0, 0]} isAnimationActive={false} />
       <Bar dataKey="successful" name="Đã thanh toán" fill="#263b4a" radius={[4, 4, 0, 0]} isAnimationActive={false} />

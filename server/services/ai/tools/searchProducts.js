@@ -153,6 +153,7 @@ export const searchProducts = async (argumentsValue = {}) => {
 
   const databaseFilter = {
     isDeleted: { $ne: true },
+    isPublished: { $ne: false },
   };
 
   if (query) {
@@ -175,7 +176,7 @@ export const searchProducts = async (argumentsValue = {}) => {
 
   const databaseProducts = await Product.find(databaseFilter)
     .select(
-      "title description price sizes stockBySize inStockBySize images category type popular inStock createdAt",
+      "title description price sizes stockBySize inventoryMode isPublished inStockBySize images category type popular inStock createdAt",
     )
     .lean();
 

@@ -25,7 +25,7 @@ const About = () => {
       <section className="max-padd-container inessa-about-intro" aria-labelledby="about-intro-title">
         <p className="inessa-eyebrow">Chúng tôi là ai</p>
         <h2 id="about-intro-title">Một không gian dành cho hương thơm và vẻ đẹp của riêng bạn.</h2>
-        <p>Velours là nơi bạn khám phá những lựa chọn làm đẹp phù hợp với phong cách và nhu cầu của mình. Từ nước hoa đến các sản phẩm chăm sóc da và tóc, mỗi lựa chọn đều hướng đến những khoảnh khắc chăm sóc bản thân thật dễ chịu. Chúng tôi tin rằng vẻ đẹp bắt đầu khi bạn cảm thấy thoải mái và tự tin với chính mình.</p>
+        <p>Velours là nơi bạn khám phá những mùi hương phù hợp với phong cách và nhu cầu của mình. Mỗi chai nước hoa mở ra một câu chuyện, từ những nốt hương đầu tiên đến dư âm trên da. Chúng tôi tin rằng lựa chọn hương thơm bắt đầu khi bạn cảm thấy thoải mái và tự tin với chính mình.</p>
       </section>
 
       <figure className="max-padd-container inessa-about-wide-photo">
@@ -36,7 +36,7 @@ const About = () => {
         <p className="inessa-eyebrow">Như một người bạn</p>
         <h2 id="about-companion-title">Đồng hành cùng những khoảnh khắc rất riêng.</h2>
         <div className="inessa-about-prose">
-          <p>Một mùi hương gợi nhớ, một làn da được nâng niu, hay vài phút dành cho bản thân giữa ngày bận rộn — những điều nhỏ ấy làm nên cảm giác khác biệt. Velours mong muốn cùng bạn tìm thấy niềm vui trong thói quen chăm sóc bản thân, để mỗi ngày đều có một chút tinh tế và cảm hứng.</p>
+          <p>Một mùi hương gợi nhớ, một chai nước hoa yêu thích, hay vài phút dành cho bản thân giữa ngày bận rộn — những điều nhỏ ấy làm nên cảm giác khác biệt. Velours mong muốn cùng bạn tìm thấy niềm vui khi khám phá hương thơm, để mỗi ngày đều có một chút tinh tế và cảm hứng.</p>
           <p>Chúng tôi hiểu rằng mỗi người có một sở thích và nhu cầu khác nhau. Vì vậy, trải nghiệm tại Velours được xây dựng để bạn có thể tìm hiểu sản phẩm, lựa chọn dung tích, nhận tư vấn và theo dõi đơn hàng một cách thuận tiện. Khi cần thêm thông tin, bạn luôn có thể trò chuyện với trợ lý hoặc liên hệ với đội ngũ hỗ trợ của Velours.</p>
         </div>
       </section>

@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
-import { formatThousandsVnd } from "../utils/money";
+import { formatVnd } from "../utils/money";
 import { URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
 
 const CartSummary = ({ checkout, subtotal, selectedCount, isUpdatingCart, onCheckout }) => {
   const { currency, user } = useAppContext();
-  const formatPrice = (value) => formatThousandsVnd(value, currency);
+  const formatPrice = (value) => formatVnd(value, currency);
   const hasSelection = selectedCount > 0;
   const pricing = hasSelection && checkout.ready ? checkout.pricing : null;
   const isUrgentShipping = checkout.shippingMethod === "urgent";

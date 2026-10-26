@@ -8,14 +8,14 @@ const order = {
   createdAt: "2026-09-09T03:30:00.000Z",
   paymentMethod: "COD",
   isPaid: false,
-  amount: 450,
+  amount: 450000,
   items: [
     {
-      title: "Unscented Sensitive Lotion", size: "200ml", quantity: 2, unitPrice: 150,
+      title: "Nước hoa mẫu 01", size: "30ml", quantity: 2, unitPrice: 150000,
       image: "https://res.cloudinary.com/dhsui22lz/image/upload/v1788148769/nyowmwzgpqiwetejxodc.png",
     },
     {
-      title: "Vitamin E Enriched Lotion", size: "100ml", quantity: 1, unitPrice: 120,
+      title: "Nước hoa mẫu 02", size: "10ml", quantity: 1, unitPrice: 120000,
       image: "https://res.cloudinary.com/dhsui22lz/image/upload/v1788148767/e9ijqwlwq6tovdaez9xx.png",
     },
   ],

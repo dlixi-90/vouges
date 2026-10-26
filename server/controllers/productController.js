@@ -7,8 +7,10 @@ import { isValidSizeName, getSizeRenames, buildCartSizeRename } from "../utils/p
 import User from "../models/User.js";
 import { unlink } from "node:fs/promises";
 import { getPopularProducts } from "../services/popularProducts.js";
+import { planProductImages, productImageFiles, resolveSizeImages } from "../utils/productImages.js";
 import {
   getSizeQuantity,
+  isSourceInventory,
   hasAnyEnabledSize,
   hasAnyQuantity,
 } from "../utils/productStock.js";
@@ -21,9 +23,30 @@ class ProductRequestError extends Error {
 }
 
 const cleanupUploadedFiles = async (files = []) => {
+  const groups = productImageFiles(files);
   await Promise.allSettled(
-    files.filter((file) => file?.path).map((file) => unlink(file.path)),
+    [...groups.images, ...groups.sizeImages].filter((file) => file?.path).map((file) => unlink(file.path)),
   );
+};
+
+const uploadProductImages = async (plan) => {
+  const uploadGroup = async (files) => {
+    const results = await Promise.allSettled(files.map(async (file) => {
+      const result = await cloudinary.uploader.upload(file.path, { resource_type: "image" });
+      return result.secure_url;
+    }));
+    const failed = results.find((result) => result.status === "rejected");
+    if (failed) throw failed.reason;
+    return results.map((result) => result.value);
+  };
+  // Wait for both groups, including failures, before removing temporary files.
+  const results = await Promise.allSettled([uploadGroup(plan.uploads.images), uploadGroup(plan.uploads.sizeImages)]);
+  const failed = results.find((result) => result.status === "rejected");
+  if (failed) throw failed.reason;
+  return {
+    images: [...plan.existing, ...results[0].value],
+    sizeImages: resolveSizeImages(plan.references, results[1].value),
+  };
 };
 
 const parseProductData = (rawProductData) => {
@@ -89,9 +112,9 @@ const normalizeProductData = (productData, currentProduct = null) => {
     const quantity = Number(productData.stockBySize?.[size]);
 
     if (
-      !Number.isFinite(productPrice) ||
-      productPrice <= 0 ||
-      productPrice > Number.MAX_SAFE_INTEGER / 1000
+      !Number.isSafeInteger(productPrice) ||
+      (productPrice <= 0 && !(isSourceInventory(currentProduct) && productPrice === 0)) ||
+      productPrice > Number.MAX_SAFE_INTEGER
     ) {
       throw new ProductRequestError(`Giá không hợp lệ cho dung tích ${size}`);
     }
@@ -106,7 +129,7 @@ const normalizeProductData = (productData, currentProduct = null) => {
     price[size] = productPrice;
     stockBySize[size] = quantity;
     inStockBySize[size] =
-      quantity > 0 &&
+      (isSourceInventory(currentProduct) ? productPrice > 0 : quantity > 0) &&
       (typeof savedStatus === "boolean" ? savedStatus : true);
   }
 
@@ -128,38 +151,36 @@ const normalizeProductData = (productData, currentProduct = null) => {
 // Controller Function for Adding Product [POST '/']
 export const createProduct = async (req, res) => {
   try {
-    const productData = normalizeProductData(
-      parseProductData(req.body.productData),
-    );
-    const images = req.files || [];
-
-    if (images.length === 0) {
-      throw new ProductRequestError("Cần có ít nhất một ảnh");
-    }
+    const rawProductData = parseProductData(req.body.productData);
+    const productData = normalizeProductData(rawProductData);
+    const plan = planProductImages(rawProductData, null, productData.sizes, [], req.files);
 
     await validateProductCategory(productData);
 
-    // Upload images tp cloudinary
-    const imagesUrl = await Promise.all(
-      images.map(async (item) => {
-        const result = await cloudinary.uploader.upload(item.path, {
-          resource_type: "image",
-        });
-        return result.secure_url;
-      }),
-    );
+    const perfumeFields={};
+    for(const field of ["brand","origin"]){
+      const value=rawProductData[field]??"";
+      if(typeof value!=="string"||value.length>200)throw new ProductRequestError("Thông tin nước hoa không hợp lệ");
+      perfumeFields[field]=value.trim();
+    }
+    perfumeFields.concentration=productData.type;
+    perfumeFields.gender=({"Nước hoa nam":"Nam","Nước hoa nữ":"Nữ","Nước hoa unisex":"Unisex"})[productData.category]||"";
+    perfumeFields.qualityIssues=["missing_scent_group","missing_scent_notes",...(!perfumeFields.brand?["missing_brand"]:[])];
+
+    const imageData = await uploadProductImages(plan);
 
     const hasStock = productData.sizes.some(
       (size) => productData.inStockBySize[size],
     );
 
-    await Product.create({
+    const createdProduct=await Product.create({
       ...productData,
-      images: imagesUrl,
+      ...perfumeFields,
+      ...imageData,
       inStock: hasStock,
     });
 
-    return res.status(201).json({ success: true, message: "Đã thêm sản phẩm" });
+    return res.status(201).json({ success: true, productId: String(createdProduct._id), message: "Đã thêm sản phẩm" });
   } catch (error) {
     if (!error.statusCode) console.log(error);
     return res.status(error.statusCode || 500).json({
@@ -176,10 +197,11 @@ export const createProduct = async (req, res) => {
 export const listProduct = async (req, res) => {
   try {
     const products = await Product.find({
+      isPublished: { $ne: false },
       isDeleted: {
         $ne: true,
       },
-    }).sort({
+    }).select("title description ingredients price sizes stockBySize inStockBySize sizeImages images category type brand origin concentration gender inStock inventoryMode isPublished popular createdAt source.provider source.fetchedAt").sort({
       createdAt: -1,
     }).lean();
     res.json({ success: true, products });
@@ -220,6 +242,7 @@ export const singleProduct = async (req, res) => {
 
     const product = await Product.findOne({
       _id: productId,
+      isPublished: { $ne: false },
       isDeleted: { $ne: true },
     });
 
@@ -294,7 +317,7 @@ export const toggleStock = async (req, res) => {
       product.inStockBySize = Object.fromEntries(
         product.sizes.map((productSize) => [
           productSize,
-          inStock && getSizeQuantity(product, productSize) > 0,
+          inStock && (isSourceInventory(product) ? Number(product.price?.[productSize]) > 0 : getSizeQuantity(product, productSize) > 0),
         ]),
       );
       product.markModified("inStockBySize");
@@ -318,7 +341,7 @@ export const toggleStock = async (req, res) => {
 
     const quantity = getSizeQuantity(product, size);
 
-    if (inStock && quantity <= 0) {
+    if (inStock && (isSourceInventory(product) ? !(Number(product.price?.[size]) > 0) : quantity <= 0)) {
       return res.status(400).json({
         success: false,
         message: "Không thể mở bán dung tích có số lượng bằng 0",
@@ -380,32 +403,8 @@ export const updateProduct = async (req, res) => {
       throw new ProductRequestError("Sản phẩm đã thay đổi. Vui lòng tải lại trước khi lưu để tránh ghi đè các thay đổi về tồn kho.", 409);
     }
     await validateProductCategory(productData);
-    const existingImages = Array.isArray(rawProductData.existingImages)
-      ? rawProductData.existingImages
-      : [];
-    const safeExistingImages = existingImages.filter((imageUrl) =>
-      currentProduct.images.includes(imageUrl),
-    );
-
-    if (safeExistingImages.length + (req.files || []).length > 4) {
-      throw new ProductRequestError("Chỉ được tải lên tối đa 4 ảnh");
-    }
-
-    const uploadedImages = await Promise.all(
-      (req.files || []).map(async (image) => {
-        const result = await cloudinary.uploader.upload(image.path, {
-          resource_type: "image",
-        });
-
-        return result.secure_url;
-      }),
-    );
-
-    const images = [...safeExistingImages, ...uploadedImages];
-
-    if (images.length === 0) {
-      throw new ProductRequestError("Cần có ít nhất một ảnh");
-    }
+    const plan = planProductImages(rawProductData, currentProduct, productData.sizes, renames, req.files);
+    const imageData = await uploadProductImages(plan);
 
     const hasEnabledSize = productData.sizes.some(
       (size) => productData.inStockBySize[size],
@@ -428,7 +427,7 @@ export const updateProduct = async (req, res) => {
         {
           ...productData,
           inStock: hasEnabledSize ? Boolean(currentProduct.inStock) : false,
-          images,
+          ...imageData,
         },
         { new: true, runValidators: true, session },
       );

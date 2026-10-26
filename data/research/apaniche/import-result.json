@@ -1,0 +1,29 @@
+{
+  "appliedAt": "2026-10-26T17:57:39.705Z",
+  "database": "vouges",
+  "currency": "VND",
+  "inventoryMode": "source",
+  "totals": {
+    "products": 2444,
+    "published": 2324,
+    "hiddenOutsidePerfume": 120,
+    "orderable": 2251,
+    "variants": 5464,
+    "sourceVariants": 5289,
+    "categories": 5,
+    "terms": {
+      "brand": 173,
+      "group": 31,
+      "accord": 68,
+      "note": 950
+    }
+  },
+  "actual": {
+    "products": 2444,
+    "orders": 0,
+    "categories": 5,
+    "sourceRecords": 2444,
+    "terms": 1222
+  },
+  "backupPath": "C:\\Users\\nguye\\Desktop\\vouges\\.backups\\perfume-reset-2026-10-26T17-57-33-861Z"
+}

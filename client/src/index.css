@@ -2,6 +2,7 @@
 @import "./net-theme.css";
 @import "./inessa-theme.css";
 @import "./white-surfaces.css";
+@import "./perfume-dashboard.css";
 
 @theme {
   --color-primary: #ffffff;

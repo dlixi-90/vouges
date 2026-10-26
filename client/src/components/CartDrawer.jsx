@@ -4,9 +4,10 @@ import { Minus, Package, Plus, ShoppingBag, X } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import { getCartItemKey, getAvailableCartItems, sortCartItemsByAvailability } from "../utils/cartSelection";
 import { getCartRowKey, getOrderedCartItems } from "../utils/cartOrder";
-import { getSizeQuantity } from "../utils/productStock";
-import { formatThousandsVnd } from "../utils/money";
+import { getPurchaseLimit } from "../utils/productStock";
+import { formatVnd } from "../utils/money";
 import ProductImage from "./ProductImage";
+import { getSizeImage } from "../utils/productImage";
 
 export default function CartDrawer() {
   const {
@@ -26,7 +27,7 @@ export default function CartDrawer() {
       * Number(cartItems[item._id]?.[item.size] || 0), 0);
   const updating = hasPendingCartUpdates();
   const loading = productsLoading && items.length > 0;
-  const formatPrice = (value) => formatThousandsVnd(value, currency);
+  const formatPrice = (value) => formatVnd(value, currency);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -89,7 +90,7 @@ export default function CartDrawer() {
           const available = availableKeys.has(key);
           const title = product?.title || "Sản phẩm không còn bán";
           const price = Number(product?.price?.[item.size] || 0);
-          const image = product?.images?.[0];
+          const image = getSizeImage(product, item.size);
           return (
             <article key={getCartRowKey(item)} className="inessa-cart-drawer-item" aria-busy={pendingCartKeys.includes(key)}>
               <div className="inessa-cart-drawer-thumbnail">
@@ -112,7 +113,7 @@ export default function CartDrawer() {
                       <Minus size={14} aria-hidden="true" />
                     </button>
                     <output aria-live="polite" aria-label={`Số lượng ${title}, ${item.size}`}>{quantity}</output>
-                    <button type="button" disabled={!available || quantity >= getSizeQuantity(product, item.size)} onClick={() => changeQuantity(item._id, item.size, quantity + 1)} aria-label={`Tăng số lượng ${title}, ${item.size}`}>
+                    <button type="button" disabled={!available || quantity >= getPurchaseLimit(product, item.size)} onClick={() => changeQuantity(item._id, item.size, quantity + 1)} aria-label={`Tăng số lượng ${title}, ${item.size}`}>
                       <Plus size={14} aria-hidden="true" />
                     </button>
                   </div>

@@ -1,8 +1,9 @@
+import { getSizeImage } from "../../../utils/productImages.js";
 import { isObjectIdOrHexString } from "mongoose";
 import Product from "../../../models/Product.js";
 import User from "../../../models/User.js";
 import {
-  getSizeQuantity,
+  getPurchaseLimit,
   isSizeAvailable,
 } from "../../../utils/productStock.js";
 
@@ -82,9 +83,9 @@ const createCartItem = (entry, product, currency) => {
   }
 
   const savedPrice = Number(product.price?.[entry.size]);
-  const unitAmount = savedPrice * 1000;
+  const unitAmount = savedPrice;
   const hasValidPrice = Number.isFinite(unitAmount);
-  const availableStock = getSizeQuantity(product, entry.size);
+  const availableStock = getPurchaseLimit(product, entry.size);
   const isAvailable =
     !product.isDeleted &&
     product.sizes?.includes(entry.size) &&
@@ -107,7 +108,7 @@ const createCartItem = (entry, product, currency) => {
       : null,
     isAvailable,
     hasEnoughStock: isAvailable && entry.quantity <= availableStock,
-    image: product.images?.[0] || null,
+    image: getSizeImage(product, entry.size),
     url: !product.isDeleted ? `/collection/${product._id}` : null,
   };
 };
@@ -115,7 +116,7 @@ const createCartItem = (entry, product, currency) => {
 export const getMyCart = async (argumentsValue = {}, context = {}) => {
   validateArguments(argumentsValue);
   const userId = requireAuthenticatedUserId(context);
-  const currency = process.env.CURRENCY || "VND";
+  const currency = "VND";
   const user = await User.findById(userId).select("cartData").lean();
 
   if (!user) {
@@ -128,7 +129,7 @@ export const getMyCart = async (argumentsValue = {}, context = {}) => {
     productIds.length > 0
       ? await Product.find({ _id: { $in: productIds } })
           .select(
-            "title price sizes stockBySize inStockBySize images inStock isDeleted",
+            "title price sizes stockBySize inventoryMode isPublished inStockBySize images sizeImages inStock isDeleted",
           )
           .lean()
       : [];

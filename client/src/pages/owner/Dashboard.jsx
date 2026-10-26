@@ -1,9 +1,10 @@
+import { getSizeImage } from "../../utils/productImage";
 import { getOrderStatusLabel, getPaymentMethodLabel } from "../../utils/localization.js";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Banknote, Package, ShoppingBag } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
-import { formatThousandsVnd } from "../../utils/money";
+import { formatVnd } from "../../utils/money";
 import { usePopularProducts } from "../../hooks/usePopularProducts";
 import ProductImage from "../../components/ProductImage";
 
@@ -140,14 +141,14 @@ const Dashboard = () => {
               Velours / Không gian quản lý
             </p>
             <h1 className="text-2xl font-semibold tracking-tight text-[#263b4a] sm:text-3xl">
-              Tổng quan
+              Đơn hàng & doanh thu
             </h1>
           </div>
         </header>
 
         <div className="inessa-dashboard-metrics">
           <div className="inessa-dashboard-metric">
-            <div><p>Tổng doanh thu</p><strong>{dashboardData.totalRevenue === null ? "—" : formatThousandsVnd(dashboardData.totalRevenue, currency)}</strong></div>
+            <div><p>Tổng doanh thu</p><strong>{dashboardData.totalRevenue === null ? "—" : formatVnd(dashboardData.totalRevenue, currency)}</strong></div>
             <span><Banknote size={21} strokeWidth={1.3} aria-hidden="true" /></span>
           </div>
           <div className="inessa-dashboard-metric">
@@ -164,7 +165,7 @@ const Dashboard = () => {
               </h2>
 
               <p className="text-xl font-medium text-black">
-                {dashboardData.totalRevenue === null ? "—" : formatThousandsVnd(dashboardData.totalRevenue, currency)}
+                {dashboardData.totalRevenue === null ? "—" : formatVnd(dashboardData.totalRevenue, currency)}
               </p>
             </div>
             <div className="mt-4 h-[360px] min-h-[360px] min-w-0 w-full">
@@ -324,7 +325,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
               Tổng cộng
             </p>
             <p className="net-order-total mt-0.5 font-semibold">
-              {formatThousandsVnd(order.amount, currency)}
+              {formatVnd(order.amount, currency)}
             </p>
           </div>
         </div>
@@ -345,7 +346,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
                 item.product && typeof item.product === "object"
                   ? item.product
                   : {};
-              const productImage = item.image || product.images?.[0];
+              const productImage = item.image || getSizeImage(product, item.size);
               const productTitle =
                 item.title || product.title || "Sản phẩm không còn có sẵn";
 
@@ -389,7 +390,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
                   {/* RIGHT: Price */}
                   <div className="shrink-0 pt-0.5 text-right">
                     <p className="net-order-heading whitespace-nowrap text-sm font-semibold leading-5">
-                      {formatThousandsVnd(
+                      {formatVnd(
                         item.unitPrice ?? product.price?.[item.size] ?? 0,
                         currency,
                       )}

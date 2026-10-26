@@ -130,7 +130,7 @@ test("getMyCart không nhận userId và không ghi dữ liệu", async () => {
       {
         _id: PRODUCT_ID,
         title: "Cart product",
-        price: { M: 12 },
+        price: { M: 12000 },
         sizes: ["M"],
         stockBySize: { M: 5 },
         inStockBySize: { M: true },
@@ -188,7 +188,7 @@ test("prepareAddToCart chỉ tạo đề xuất và chưa cập nhật giỏ", a
     createQuery({
       _id: PRODUCT_ID,
       title: "Prepared product",
-      price: { M: 20 },
+      price: { M: 20000 },
       sizes: ["M"],
       stockBySize: { M: 5 },
       inStockBySize: { M: true },
@@ -242,7 +242,7 @@ test("prepare update/remove chỉ tạo đề xuất cho giỏ của Clerk user"
   let productResult = {
     _id: PRODUCT_ID,
     title: "Cart product",
-    price: { M: 20 },
+    price: { M: 20000 },
     sizes: ["M"],
     stockBySize: { M: 5 },
     inStockBySize: { M: true },

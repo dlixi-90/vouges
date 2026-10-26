@@ -119,9 +119,10 @@ export const compareProducts = async (argumentsValue = {}) => {
   const databaseProducts = await Product.find({
     _id: { $in: productIds },
     isDeleted: { $ne: true },
+    isPublished: { $ne: false },
   })
     .select(
-      "title description price sizes stockBySize inStockBySize images category type popular inStock",
+      "title description price sizes stockBySize inventoryMode isPublished inStockBySize images category type popular inStock",
     )
     .lean();
   const databaseProductsById = new Map(

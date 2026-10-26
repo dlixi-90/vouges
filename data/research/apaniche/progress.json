@@ -1,0 +1,11 @@
+{
+  "updatedAt": "2026-10-26T13:36:38.588Z",
+  "startedAt": "2026-10-26T13:36:36.383Z",
+  "total": 2444,
+  "detailsRecorded": 2444,
+  "processedThisRun": 7,
+  "queuedThisRun": 7,
+  "requestsThisRun": 8,
+  "decodedBytesThisRun": 1499009,
+  "stopped": false
+}

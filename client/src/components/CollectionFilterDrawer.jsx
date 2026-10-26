@@ -53,26 +53,26 @@ export default function CollectionFilterDrawer({
             "--range-min": `${minPrice / priceCeiling * 100}%`,
             "--range-max": `${maxPrice / priceCeiling * 100}%`,
           }}>
-            <input type="range" min={0} max={priceCeiling} step={1} value={minPrice}
+            <input type="range" min={0} max={priceCeiling} step={1000} value={minPrice}
               disabled={priceDisabled} onChange={(event) => onMinPriceChange(Number(event.target.value))}
               aria-label="Mức giá tối thiểu" aria-valuetext={formatPrice(minPrice)}
               style={{ zIndex: minPrice >= priceCeiling - 1 ? 3 : 1 }} />
-            <input type="range" min={0} max={priceCeiling} step={1} value={maxPrice}
+            <input type="range" min={0} max={priceCeiling} step={1000} value={maxPrice}
               disabled={priceDisabled} onChange={(event) => onMaxPriceChange(Number(event.target.value))}
               aria-label="Mức giá tối đa" aria-valuetext={formatPrice(maxPrice)} />
           </div>
           <div className="inessa-filter-price-inputs">
             <label>
-              <input type="number" inputMode="numeric" min={0} max={Math.round(maxPrice * 1000)} step={1000}
-                value={Math.round(minPrice * 1000)} disabled={priceDisabled}
-                onChange={(event) => onMinPriceChange(Number(event.target.value) / 1000)}
+              <input type="number" inputMode="numeric" min={0} max={Math.round(maxPrice)} step={1000}
+                value={Math.round(minPrice)} disabled={priceDisabled}
+                onChange={(event) => onMinPriceChange(Number(event.target.value))}
                 aria-label="Giá tối thiểu (VNĐ)" />
               <span>Giá tối thiểu</span><output>{formatPrice(minPrice)}</output>
             </label>
             <label>
-              <input type="number" inputMode="numeric" min={0} max={Math.round(priceCeiling * 1000)} step={1000}
-                value={Math.round(maxPrice * 1000)} disabled={priceDisabled}
-                onChange={(event) => onMaxPriceChange(Number(event.target.value) / 1000)}
+              <input type="number" inputMode="numeric" min={0} max={Math.round(priceCeiling)} step={1000}
+                value={Math.round(maxPrice)} disabled={priceDisabled}
+                onChange={(event) => onMaxPriceChange(Number(event.target.value))}
                 aria-label="Giá tối đa (VNĐ)" />
               <span>Giá tối đa</span><output>{formatPrice(maxPrice)}</output>
             </label>

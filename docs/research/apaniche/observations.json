@@ -1,0 +1,503 @@
+{
+  "reviewedAt": "2026-10-26",
+  "observations": [
+    {
+      "name": "home",
+      "url": "https://apaniche.vn/",
+      "title": "Nước Hoa Chính Hãng, Shop Nước Hoa Hà Nội Uy Tín | Apa Niche",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "body": {
+        "tag": "BODY",
+        "font": "SVN-Gilroy, serif",
+        "size": "14.72px",
+        "color": "rgb(102, 102, 102)",
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "heading": {
+        "tag": "H1",
+        "font": "SVN-Gilroy, serif",
+        "size": "25.024px",
+        "color": "rgb(85, 85, 85)",
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "nav": null,
+      "price": {
+        "tag": "SPAN",
+        "font": "SVN-Gilroy, serif",
+        "size": "11.7px",
+        "color": "rgb(102, 102, 102)",
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "productCard": {
+        "tag": "DIV",
+        "font": "SVN-Gilroy, serif",
+        "size": "13px",
+        "color": "rgb(102, 102, 102)",
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "canonical": "https://apaniche.vn/",
+      "plugins": [
+        "wp-rocket"
+      ],
+      "styles": [
+        "https://apaniche.vn/wp-content/cache/min/1/f6146583eaa53e70657aad47af47c4e6.css"
+      ],
+      "search": [
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://apaniche.vn/tim-kiem"
+        },
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://apaniche.vn/tim-kiem"
+        },
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://localhost/apa/tim-kiem"
+        }
+      ],
+      "links": [
+        {
+          "href": "https://apaniche.vn/checkout"
+        },
+        {
+          "href": "https://apaniche.vn/ma-giam-gia"
+        },
+        {
+          "href": "https://apaniche.vn/so-sanh"
+        },
+        {
+          "href": "https://apaniche.vn/#tab_h%C3%A0ng-gi%E1%BA%A3m-gi%C3%A1"
+        },
+        {
+          "href": "https://apaniche.vn/creed-aventus-edp"
+        },
+        {
+          "href": "https://apaniche.vn/versace-pour-homme-edt"
+        },
+        {
+          "href": "https://apaniche.vn/versace-eros-energy-edp"
+        },
+        {
+          "href": "https://apaniche.vn/4711-original-eau-de-cologne-4711-edc"
+        },
+        {
+          "href": "https://apaniche.vn/giorgio-armani-acqua-di-gio-edp"
+        },
+        {
+          "href": "https://apaniche.vn/prada-paradigme-edp"
+        },
+        {
+          "href": "https://apaniche.vn/yves-saint-laurent-y-edp"
+        },
+        {
+          "href": "https://apaniche.vn/loewe-001-man-edp"
+        },
+        {
+          "href": "https://apaniche.vn/dior-homme-sport-edt"
+        },
+        {
+          "href": "https://apaniche.vn/roja-dove-parfums-burlington-1819"
+        },
+        {
+          "href": "https://apaniche.vn/versace-eros-edt"
+        },
+        {
+          "href": "https://apaniche.vn/giorgio-armani-acqua-di-gio-pour-homme-for-men-edt"
+        },
+        {
+          "href": "https://apaniche.vn/lattafa-jasoor-edp"
+        },
+        {
+          "href": "https://apaniche.vn/dolce-gabbana-the-one-for-men-edp"
+        },
+        {
+          "href": "https://apaniche.vn/dior-sauvage-edt"
+        },
+        {
+          "href": "https://apaniche.vn/roja-dove-elysium-pour-homme-parfum-cologne"
+        },
+        {
+          "href": "https://apaniche.vn/versace-eros-flame-edp"
+        },
+        {
+          "href": "https://apaniche.vn/chanel-allure-homme-sport-edt"
+        },
+        {
+          "href": "https://apaniche.vn/salvatore-ferragamo-uomo-signature-edp"
+        },
+        {
+          "href": "https://apaniche.vn/valentino-uomo-born-in-roma-yellow-dream-edt"
+        },
+        {
+          "href": "https://apaniche.vn/acqua-di-parma-oud-edp"
+        },
+        {
+          "href": "https://apaniche.vn/dior-homme-sport-very-cool-spray-edt"
+        },
+        {
+          "href": "https://apaniche.vn/chanel-bleu-de-chanel-edp"
+        },
+        {
+          "href": "https://apaniche.vn/prada-lhomme-intense-edp"
+        },
+        {
+          "href": "https://apaniche.vn/viktor-rolf-spicebomb-extreme-edp"
+        },
+        {
+          "href": "https://apaniche.vn/dolce-gabbana-light-blue-pour-homme-edt"
+        }
+      ],
+      "selects": [],
+      "schemaTypes": []
+    },
+    {
+      "name": "home-mobile",
+      "width": 390,
+      "scrollWidth": 390,
+      "fixed": [
+        {
+          "tag": "DIV",
+          "class": "",
+          "text": "Tư vấn chọn\nChat Zalo\nThương hiệu\nGiỏ hàng"
+        },
+        {
+          "tag": "BUTTON",
+          "class": "back-to-top button icon invert plain fixed bottom z-1 is-outline round",
+          "text": ""
+        }
+      ]
+    },
+    {
+      "name": "collection",
+      "url": "https://apaniche.vn/nuoc-hoa-nam",
+      "title": "Nước hoa nam chính hãng - Apa Niche",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "body": {
+        "tag": "BODY",
+        "font": "SVN-Gilroy, serif",
+        "size": "14.72px",
+        "color": "rgb(102, 102, 102)",
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "heading": {
+        "tag": "H1",
+        "font": "SVN-Gilroy",
+        "size": "26px",
+        "color": "rgb(0, 0, 0)",
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "nav": {
+        "tag": "A",
+        "font": "SVN-Gilroy, serif",
+        "size": "14.72px",
+        "color": "rgba(74, 74, 74, 0.8)",
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "price": {
+        "tag": "SPAN",
+        "font": "SVN-Gilroy, serif",
+        "size": "13.248px",
+        "color": "rgb(102, 102, 102)",
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "productCard": {
+        "tag": "DIV",
+        "font": "SVN-Gilroy, serif",
+        "size": "14.72px",
+        "color": "rgb(102, 102, 102)",
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "canonical": "https://apaniche.vn/nuoc-hoa-nam",
+      "plugins": [
+        "wp-rocket"
+      ],
+      "styles": [
+        "https://apaniche.vn/wp-content/cache/min/1/eeab89f83da80e8606367feccdceee21.css"
+      ],
+      "search": [
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://apaniche.vn/tim-kiem"
+        },
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://apaniche.vn/tim-kiem"
+        },
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://localhost/apa/tim-kiem"
+        }
+      ],
+      "links": [
+        {
+          "href": "https://apaniche.vn/checkout"
+        },
+        {
+          "href": "https://apaniche.vn/ma-giam-gia"
+        },
+        {
+          "href": "https://apaniche.vn/so-sanh"
+        },
+        {
+          "href": "https://apaniche.vn/clive-christian-e-cashmere-musk"
+        },
+        {
+          "href": "https://apaniche.vn/ex-nihilo-paris-iris-porcelana-edp"
+        },
+        {
+          "href": "https://apaniche.vn/lusted-musk-have-extrait-de-parfum"
+        },
+        {
+          "href": "https://apaniche.vn/les-liquides-imaginaires-blanche-bete-limited-edition"
+        },
+        {
+          "href": "https://apaniche.vn/mode-creation-munich-mcm-charming-pup-edp"
+        },
+        {
+          "href": "https://apaniche.vn/ex-nihilo-vesper-glitz-edp"
+        },
+        {
+          "href": "https://apaniche.vn/prada-olfactories-purple-rain-edp"
+        },
+        {
+          "href": "https://apaniche.vn/le-labo-another-13-edp"
+        },
+        {
+          "href": "https://apaniche.vn/lusted-warm-blanket-extrait-de-parfum"
+        },
+        {
+          "href": "https://apaniche.vn/boadicea-the-victorious-valiant-parfum"
+        },
+        {
+          "href": "https://apaniche.vn/boadicea-the-victorious-hanuman-parfum"
+        },
+        {
+          "href": "https://apaniche.vn/boadicea-the-victorious-dragon-parfum"
+        },
+        {
+          "href": "https://apaniche.vn/calvin-klein-one-gold-edt"
+        },
+        {
+          "href": "https://apaniche.vn/calvin-klein-one-edt"
+        },
+        {
+          "href": "https://apaniche.vn/versace-pour-homme-dylan-blue-edt"
+        },
+        {
+          "href": "https://apaniche.vn/versace-pour-homme-edt"
+        },
+        {
+          "href": "https://apaniche.vn/chanel-allure-homme-sport-eau-extreme-edp"
+        },
+        {
+          "href": "https://apaniche.vn/chanel-pour-monsieur-edt"
+        },
+        {
+          "href": "https://apaniche.vn/van-cleef-arpels-santal-blanc-edp"
+        },
+        {
+          "href": "https://apaniche.vn/davidoff-zino-edt"
+        },
+        {
+          "href": "https://apaniche.vn/versace-eros-edt"
+        },
+        {
+          "href": "https://apaniche.vn/versace-eros-flame-edp"
+        },
+        {
+          "href": "https://apaniche.vn/versace-eros-energy-edp"
+        },
+        {
+          "href": "https://apaniche.vn/carolina-herrera-212-men-nyc-edt"
+        },
+        {
+          "href": "https://apaniche.vn/victorinox-black-steel-edt-for-him"
+        },
+        {
+          "href": "https://apaniche.vn/bdk-parfums-gris-charnel-extrait"
+        },
+        {
+          "href": "https://apaniche.vn/byredo-rose-of-no-man-s-land-edp"
+        }
+      ],
+      "selects": [
+        {
+          "name": "sort",
+          "optionCount": 4
+        },
+        {
+          "name": "orderby",
+          "optionCount": 5
+        },
+        {
+          "name": "sort",
+          "optionCount": 4
+        }
+      ],
+      "schemaTypes": [
+        "\"CollectionPage\"",
+        "\"ImageObject\""
+      ]
+    },
+    {
+      "name": "product",
+      "url": "https://apaniche.vn/versace-pour-homme-edt",
+      "title": "Nước Hoa Versace Pour Homme EDT Chính Hãng - Apa Niche",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "body": {
+        "tag": "BODY",
+        "font": "SVN-Gilroy, serif",
+        "size": "14.72px",
+        "color": "rgb(102, 102, 102)",
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "heading": {
+        "tag": "H1",
+        "font": "SVN-Gilroy",
+        "size": "24px",
+        "color": "rgb(40, 40, 40)",
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "nav": null,
+      "price": {
+        "tag": "P",
+        "font": "SVN-Gilroy, serif",
+        "size": "16px",
+        "color": "rgb(102, 102, 102)",
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "productCard": {
+        "tag": "DIV",
+        "font": "SVN-Gilroy, serif",
+        "size": "14.72px",
+        "color": "rgb(102, 102, 102)",
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "canonical": "https://apaniche.vn/versace-pour-homme-edt",
+      "plugins": [
+        "wp-rocket"
+      ],
+      "styles": [
+        "https://apaniche.vn/wp-content/cache/min/1/4492f19da9cdb7360d89a582ca69d77c.css"
+      ],
+      "search": [
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://apaniche.vn/tim-kiem"
+        },
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://apaniche.vn/tim-kiem"
+        },
+        {
+          "placeholder": "Tìm sản phẩm",
+          "action": "https://localhost/apa/tim-kiem"
+        }
+      ],
+      "links": [
+        {
+          "href": "https://apaniche.vn/checkout"
+        },
+        {
+          "href": "https://apaniche.vn/ma-giam-gia"
+        },
+        {
+          "href": "https://apaniche.vn/so-sanh"
+        },
+        {
+          "href": "https://apaniche.vn/checkout"
+        },
+        {
+          "href": "https://apaniche.vn/checkout"
+        },
+        {
+          "href": "https://apaniche.vn/ma-giam-gia"
+        },
+        {
+          "href": "https://apaniche.vn/so-sanh"
+        }
+      ],
+      "selects": [
+        {
+          "name": "attribute_pa_dung-tich",
+          "optionCount": 7
+        },
+        {
+          "name": "rating",
+          "optionCount": 6
+        }
+      ],
+      "schemaTypes": [
+        "\"Product\"",
+        "\"Offer\""
+      ],
+      "variationSummary": [
+        {
+          "attributes": {
+            "attribute_pa_dung-tich": "10ml-dung-thu"
+          },
+          "available": true,
+          "image": "https://apaniche.vn/wp-content/uploads/2024/10/Versace-Pour-Homme-EDT-apa-niche.jpg"
+        },
+        {
+          "attributes": {
+            "attribute_pa_dung-tich": "30ml"
+          },
+          "available": true,
+          "image": "https://apaniche.vn/wp-content/uploads/2024/10/Versace-Pour-Homme-EDT-apa-niche.jpg"
+        },
+        {
+          "attributes": {
+            "attribute_pa_dung-tich": "50ml"
+          },
+          "available": true,
+          "image": "https://apaniche.vn/wp-content/uploads/2024/10/Versace-Pour-Homme-EDT-apa-niche.jpg"
+        },
+        {
+          "attributes": {
+            "attribute_pa_dung-tich": "100ml"
+          },
+          "available": true,
+          "image": "https://apaniche.vn/wp-content/uploads/2024/10/Versace-Pour-Homme-EDT-apa-niche.jpg"
+        },
+        {
+          "attributes": {
+            "attribute_pa_dung-tich": "100ml-test"
+          },
+          "available": false,
+          "image": "https://apaniche.vn/wp-content/uploads/2023/06/Versace-Pour-Homme-Tester-khong-nap.png"
+        },
+        {
+          "attributes": {
+            "attribute_pa_dung-tich": "200ml"
+          },
+          "available": true,
+          "image": "https://apaniche.vn/wp-content/uploads/2024/10/Versace-Pour-Homme-EDT-apa-niche.jpg"
+        }
+      ]
+    }
+  ]
+}

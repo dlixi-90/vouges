@@ -16,7 +16,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { getSizeQuantity, hasAnyEnabledSize } from "../../utils/productStock";
-import { formatThousandsVnd } from "../../utils/money";
+import { formatVnd } from "../../utils/money";
 
 const PAGE_SIZE = 10;
 
@@ -28,7 +28,7 @@ const getMinimumPrice = (product) => {
   return prices.length > 0 ? Math.min(...prices) : 0;
 };
 
-const formatPrice = formatThousandsVnd;
+const formatPrice = formatVnd;
 
 const getSizeStockStatus = (product, size) => {
   const quantity = Number(product.stockBySize?.[size] ?? 0);

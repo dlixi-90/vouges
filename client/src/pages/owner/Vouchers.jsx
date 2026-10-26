@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { LoaderCircle, Plus, Search, Ticket, Trash2 } from "lucide-react";
 import DeleteVoucherDialog from "../../components/owner/DeleteVoucherDialog";
 import { useAppContext } from "../../context/AppContext";
-import { formatThousandsVnd } from "../../utils/money";
+import { formatVnd } from "../../utils/money";
 import { getVoucherValidityPeriod, getVoucherStatus, formatVoucherDate, formatVoucherExpiryDate } from "../../utils/voucherDates";
 
 const initial = { code: "", type: "percent", value: 10, minSubtotal: 0, maxDiscount: "", maxUses: 100, startsAt: "", expiresAt: "" };
@@ -45,9 +45,9 @@ export default function Vouchers() {
     setBusy(true);
     try {
       await axios.post("/api/vouchers", {
-        ...draft, value: Number(draft.value) / (draft.type === "fixed" ? 1000 : 1),
-        minSubtotal: Number(draft.minSubtotal) / 1000,
-        maxDiscount: draft.maxDiscount === "" ? null : Number(draft.maxDiscount) / 1000,
+        ...draft, value: Number(draft.value),
+        minSubtotal: Number(draft.minSubtotal),
+        maxDiscount: draft.maxDiscount === "" ? null : Number(draft.maxDiscount),
         maxUses: Number(draft.maxUses),
         ...getVoucherValidityPeriod(draft.startsAt, draft.expiresAt),
       }, { headers: { Authorization: `Bearer ${await getToken()}` } });
@@ -192,10 +192,10 @@ export default function Vouchers() {
                             <span className="break-all">{voucher.code}</span>
                           </th>
                           <td className="px-5 py-4">
-                            <span className="whitespace-nowrap font-medium text-[#263b4a]">Giảm {voucher.type === "percent" ? `${voucher.value}%` : formatThousandsVnd(voucher.value)}</span>
-                            {voucher.maxDiscount != null && <p className="mt-1 text-xs text-[#839099]">Tối đa {formatThousandsVnd(voucher.maxDiscount)}</p>}
+                            <span className="whitespace-nowrap font-medium text-[#263b4a]">Giảm {voucher.type === "percent" ? `${voucher.value}%` : formatVnd(voucher.value)}</span>
+                            {voucher.maxDiscount != null && <p className="mt-1 text-xs text-[#839099]">Tối đa {formatVnd(voucher.maxDiscount)}</p>}
                           </td>
-                          <td className="whitespace-nowrap px-5 py-4 text-[#52616b]">{formatThousandsVnd(voucher.minSubtotal)}</td>
+                          <td className="whitespace-nowrap px-5 py-4 text-[#52616b]">{formatVnd(voucher.minSubtotal)}</td>
                           <td className="whitespace-nowrap px-5 py-4">
                             <span className="text-[#52616b]">{formatVoucherDate(voucher.startsAt)}</span>
                             <p className="mt-1 text-xs text-[#839099]">Đến {formatVoucherExpiryDate(voucher.expiresAt)}</p>

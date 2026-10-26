@@ -1,3 +1,5 @@
+export const getSizeImage = (product, size) => product?.sizeImages?.[size] || product?.images?.[0] || null;
+
 // Transform only the versioned Cloudinary uploads used by our catalog.
 // Local, signed and already transformed image URLs keep their original behavior.
 export const getProductImageUrl = (src, width = 320) => {

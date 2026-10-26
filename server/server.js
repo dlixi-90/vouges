@@ -14,6 +14,7 @@ import orderRouter from "./routes/orderRoute.js";
 import aiRouter from "./routes/aiRoute.js";
 import voucherRouter from "./routes/voucherRoute.js";
 import supportRouter from "./routes/supportRoute.js";
+import catalogRouter from "./routes/catalogRoute.js";
 import { awardBirthdays } from "./controllers/voucherController.js";
 import multer from "multer";
 import SupportConversation from "./models/SupportConversation.js";
@@ -45,6 +46,7 @@ app.use(clerkMiddleware());
 // Define API Routes
 app.use("/api/users", userRouter); // Routes for User functionality
 app.use("/api/products", productRouter); // Routes for handling products
+app.use("/api/catalog", catalogRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/addresses", addressRouter); // Routes for handling addresses
 app.use("/api/cart", cartRouter); // Routes for handling cart
@@ -66,7 +68,7 @@ app.use((error, _req, res, next) => {
   const message =
     error.code === "LIMIT_FILE_SIZE"
       ? "Each image must be 5 MB or smaller"
-      : "Only up to 4 JPEG, PNG or WebP images are allowed";
+      : "Chỉ hỗ trợ ảnh JPEG, PNG hoặc WebP: tối đa 4 ảnh sản phẩm và 1 ảnh cho mỗi dung tích (tối đa 50 dung tích)";
 
   return res.status(400).json({ success: false, message });
 });

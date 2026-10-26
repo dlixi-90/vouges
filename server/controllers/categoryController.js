@@ -32,7 +32,7 @@ const readName = (req, label = "Tên danh mục", field = "name") => {
 
 export const listCategories = async (_req, res) => {
   try {
-    const categories = await Category.find({})
+    const categories = await Category.find({ storefrontVisible: { $ne: false } })
       .select("name types._id types.name")
       .sort({ createdAt: -1, _id: -1 });
     return res.json({ success: true, categories });

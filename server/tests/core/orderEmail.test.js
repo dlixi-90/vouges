@@ -5,11 +5,11 @@ import { buildOrderConfirmationEmail } from "../../emails/orderConfirmation.js";
 const sampleOrder = () => ({
   _id: "6aa03522b1cb60bcd7e92bd7",
   createdAt: "2026-09-08T18:00:00.000Z",
-  paymentMethod: "COD", isPaid: false, amount: 330,
+  paymentMethod: "COD", isPaid: false, amount: 330000,
   items: [{
     title: "Purchased lotion", image: "https://example.com/ordered.png",
-    size: "200ml", quantity: 2, unitPrice: 150,
-    product: { title: "Renamed lotion", images: ["https://example.com/new.png"], price: { "200ml": 999 } },
+    size: "200ml", quantity: 2, unitPrice: 150000,
+    product: { title: "Renamed lotion", images: ["https://example.com/new.png"], price: { "200ml": 999000 } },
   }],
   address: {
     firstName: "Khách", lastName: "Mẫu", street: "123 Đường Mẫu",
@@ -40,7 +40,7 @@ test("COD email clearly requests payment on delivery instead of claiming payment
 
 test("free shipping uses the saved total even if shipping rules later change", () => {
   const order = sampleOrder();
-  order.amount = 300;
+  order.amount = 300000;
   const { html, text } = buildOrderConfirmationEmail(order);
   assert.match(html, /Miễn phí/);
   assert.match(text, /Phí vận chuyển: Miễn phí/);
@@ -70,7 +70,7 @@ test("older orders can use populated products when snapshots are missing", () =>
   delete order.items[0].title;
   delete order.items[0].image;
   delete order.items[0].unitPrice;
-  order.amount = 1998;
+  order.amount = 1998000;
   const { html, text } = buildOrderConfirmationEmail(order, { storefrontUrl: "https://shop.example.com" });
   assert.match(html, /Renamed lotion/);
   assert.match(text, /1\.998\.000/);
@@ -86,7 +86,7 @@ test("paid receipt does not ask the customer to pay again", () => {
 });
 
 for (const isPaid of [false, true]) test(`urgent receipt explains the separately payable carrier fee when paid=${isPaid}`, () => {
-  const order = { ...sampleOrder(), shippingMethod: "urgent", shipping: 0, amount: 300,
+  const order = { ...sampleOrder(), shippingMethod: "urgent", shipping: 0, amount: 300000,
     paymentMethod: isPaid ? "QR" : "COD", isPaid };
   const { html, text } = buildOrderConfirmationEmail(order);
   for (const receipt of [html, text]) {

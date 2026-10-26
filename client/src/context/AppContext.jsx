@@ -19,7 +19,7 @@ import { persistCartSizeChange } from "../utils/cartSizeUpdate";
 import { getCartItemKey } from "../utils/cartSelection";
 import { getOrderedCartItems, setCartLineAddedAt } from "../utils/cartOrder";
 import {
-  getSizeQuantity,
+  getPurchaseLimit,
   isSizeAvailable,
 } from "../utils/productStock";
 
@@ -91,11 +91,11 @@ export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
   const { pathname, key: locationKey } = useLocation();
   const isCartPage = Boolean(useMatch("/cart"));
-  const needsCatalog = !["/owner", "/owner/messages", "/membership"].includes(pathname.replace(/\/+$/, ""))
+  const needsCatalog = !pathname.startsWith("/owner") && pathname !== "/membership"
     || cartDrawer?.locationKey === locationKey;
-  const needsCategories = needsCatalog || !pathname.startsWith("/owner");
-  const currency = import.meta.env.VITE_CURRENCY;
-  const delivery_charges = 30;
+  const needsCategories = needsCatalog || !pathname.startsWith("/owner") || pathname === "/owner/add-product";
+  const currency = "₫";
+  const delivery_charges = 30000;
 
   // Clerk
   const { user } = useUser();
@@ -292,7 +292,7 @@ export const AppContextProvider = ({ children }) => {
 
     const currentQuantity = Number(cartItems[itemId]?.[size] ?? 0);
     const nextQuantity = currentQuantity + addedQuantity;
-    const stockQuantity = getSizeQuantity(product, size);
+    const stockQuantity = getPurchaseLimit(product, size);
 
     if (nextQuantity > stockQuantity) {
       const message = `Chỉ còn ${stockQuantity} sản phẩm có dung tích ${size}`;
@@ -407,7 +407,7 @@ export const AppContextProvider = ({ children }) => {
         return { success: false, message };
       }
 
-      const stockQuantity = getSizeQuantity(product, size);
+      const stockQuantity = getPurchaseLimit(product, size);
 
       if (nextQuantity > stockQuantity) {
         const message = `Chỉ còn ${stockQuantity} sản phẩm có dung tích ${size}`;
@@ -466,8 +466,8 @@ export const AppContextProvider = ({ children }) => {
       if (fromQuantity < 1 || !Number.isSafeInteger(quantity)) {
         throw new Error("Số lượng trong giỏ hàng không hợp lệ");
       }
-      if (quantity > getSizeQuantity(product, toSize)) {
-        throw new Error(`Chỉ còn ${getSizeQuantity(product, toSize)} sản phẩm có dung tích ${toSize}`);
+      if (quantity > getPurchaseLimit(product, toSize)) {
+        throw new Error(`Chỉ còn ${getPurchaseLimit(product, toSize)} sản phẩm có dung tích ${toSize}`);
       }
       await persistCartSizeChange({
         itemId, fromSize, toSize, cartItems, cartAddedAt, addedAt,

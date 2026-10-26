@@ -1,3 +1,4 @@
+import { getSizeImage } from "../../../utils/productImages.js";
 import Order from "../../../models/Order.js";
 
 const DEFAULT_RESULT_LIMIT = 5;
@@ -93,8 +94,8 @@ const normalizeOrderItem = (item) => {
     title,
     size: item.size,
     quantity: item.quantity,
-    unitPrice: Number(item.unitPrice ?? 0) * 1000,
-    image: item.image || (hasProduct ? product.images?.[0] || null : null),
+    unitPrice: Number(item.unitPrice ?? 0),
+    image: item.image || (hasProduct ? getSizeImage(product, item.size) : null),
     url: hasProduct && !product.isDeleted ? `/collection/${productId}` : null,
   };
 };
@@ -102,7 +103,7 @@ const normalizeOrderItem = (item) => {
 export const getMyOrders = async (argumentsValue = {}, context = {}) => {
   const userId = requireAuthenticatedUserId(context);
   const { status, limit } = validateArguments(argumentsValue);
-  const currency = process.env.CURRENCY || "VND";
+  const currency = "VND";
   const databaseFilter = {
     userId,
     $or: [{ paymentMethod: "COD" }, { isPaid: true }],
@@ -116,7 +117,7 @@ export const getMyOrders = async (argumentsValue = {}, context = {}) => {
     .select("items amount status paymentMethod isPaid createdAt paidAt")
     .populate({
       path: "items.product",
-      select: "title images isDeleted",
+      select: "title images sizeImages isDeleted",
     })
     .sort({ createdAt: -1 })
     .limit(limit)
@@ -132,7 +133,7 @@ export const getMyOrders = async (argumentsValue = {}, context = {}) => {
         ? "pay_on_delivery"
         : "unpaid",
     total: {
-      amount: Number(order.amount) * 1000,
+      amount: Number(order.amount),
       currency,
     },
     createdAt: order.createdAt,

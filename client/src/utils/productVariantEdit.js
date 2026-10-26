@@ -9,12 +9,15 @@ export const saveVariantEdit = (variants, id, draft) => {
   if (variants.some((item) => item.id !== id && item.size.trim().toLowerCase() === size.toLowerCase())) {
     throw new Error("Dung tích này đã tồn tại");
   }
-  if (!Number.isFinite(price) || price <= 0 || price > Number.MAX_SAFE_INTEGER / 1000) {
+  if (!Number.isSafeInteger(price) || price <= 0 || price > Number.MAX_SAFE_INTEGER) {
     throw new Error("Giá phải lớn hơn 0 và nằm trong phạm vi cho phép");
   }
   if (draft.quantity == null || String(draft.quantity).trim() === "" ||
       !Number.isSafeInteger(quantity) || quantity < 0) {
     throw new Error("Số lượng phải là số nguyên không âm");
   }
-  return variants.map((item) => item.id === id ? { ...item, size, price, quantity } : item);
+  return variants.map((item) => item.id === id ? {
+    ...item, size, price, quantity,
+    ...(Object.hasOwn(draft, "image") && { image: draft.image }),
+  } : item);
 };

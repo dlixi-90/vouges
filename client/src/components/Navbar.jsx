@@ -7,7 +7,11 @@ const Navbar = ({ containerStyles, setMenuOpened, group = "all", navigationId = 
   const selectedCategory = new URLSearchParams(search).get("category");
   const shoppingLinks = [
     { path: "/collection", title: "Bộ sưu tập" },
-    ...categories.slice(0, 3).map((category) => ({
+    ...[...categories].sort((a,b)=>{
+      const order=["Nước hoa nam","Nước hoa nữ","Nước hoa unisex"];
+      const rank=value=>order.indexOf(value)<0?99:order.indexOf(value);
+      return rank(a.name)-rank(b.name);
+    }).slice(0, 3).map((category) => ({
       path: `/collection?category=${encodeURIComponent(category.name)}`,
       title: category.name,
       category: category.name,

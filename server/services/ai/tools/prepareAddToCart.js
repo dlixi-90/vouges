@@ -1,9 +1,10 @@
+import { getSizeImage } from "../../../utils/productImages.js";
 import { randomUUID } from "node:crypto";
 import { isObjectIdOrHexString } from "mongoose";
 import Product from "../../../models/Product.js";
 import User from "../../../models/User.js";
 import {
-  getSizeQuantity,
+  getPurchaseLimit,
   isSizeAvailable,
 } from "../../../utils/productStock.js";
 
@@ -106,7 +107,7 @@ export const prepareAddToCart = async (
       isDeleted: { $ne: true },
     })
       .select(
-        "title price sizes stockBySize inStockBySize images inStock isDeleted",
+        "title price sizes stockBySize inventoryMode isPublished inStockBySize images sizeImages inStock isDeleted",
       )
       .lean(),
   ]);
@@ -127,7 +128,7 @@ export const prepareAddToCart = async (
     throw new Error("Size sản phẩm này hiện đã hết hàng");
   }
 
-  const unitAmount = Number(product.price?.[size]) * 1000;
+  const unitAmount = Number(product.price?.[size]);
 
   if (!Number.isFinite(unitAmount)) {
     throw new Error("Giá sản phẩm không hợp lệ");
@@ -135,7 +136,7 @@ export const prepareAddToCart = async (
 
   const currentQuantity = Number(user.cartData?.[productId]?.[size] ?? 0);
   const resultingQuantity = currentQuantity + quantity;
-  const stockQuantity = getSizeQuantity(product, size);
+  const stockQuantity = getPurchaseLimit(product, size);
 
   if (resultingQuantity > stockQuantity) {
     throw new Error(
@@ -143,7 +144,7 @@ export const prepareAddToCart = async (
     );
   }
 
-  const currency = process.env.CURRENCY || "VND";
+  const currency = "VND";
 
   return {
     pendingCartAction: {
@@ -153,7 +154,7 @@ export const prepareAddToCart = async (
       product: {
         id: String(product._id),
         title: product.title,
-        image: product.images?.[0] || null,
+        image: getSizeImage(product, size),
         url: `/collection/${product._id}`,
       },
       size,

@@ -26,7 +26,7 @@ Chính sách khởi đầu: giảm **10%**, tối đa **100.000đ**, đơn tối
 
 ## Voucher và giao hàng
 
-Chủ cửa hàng tạo/bật/tắt mã ở `/owner/vouchers`. Có mã giảm phần trăm hoặc số tiền cố định, mức đơn tối thiểu, trần giảm, thời gian hiệu lực và tổng lượt dùng. Form quản trị nhập tiền bằng **VNĐ**, backend theo quy ước hiện có **nghìn VNĐ**. Mỗi khách dùng tối đa một lần mỗi mã; chỉ áp dụng một mã mỗi đơn.
+Chủ cửa hàng tạo/bật/tắt mã ở `/owner/vouchers`. Có mã giảm phần trăm hoặc số tiền cố định, mức đơn tối thiểu, trần giảm, thời gian hiệu lực và tổng lượt dùng. Form quản trị và backend cùng dùng **VND nguyên đồng**: 100000 là 100.000đ. Mỗi khách dùng tối đa một lần mỗi mã; chỉ áp dụng một mã mỗi đơn.
 
 Thanh toán cho nhập mã, chọn giao hàng và gọi `/api/orders/quote` để kiểm tra giá/tồn kho/voucher ở backend. COD/QR tính lại trong MongoDB transaction; không tin giá, mức giảm hay phí gửi từ browser. Đơn lưu snapshot tiền hàng, mức giảm, phí và phương thức giao. Nếu tổng thay đổi so với báo giá, API từ chối để khách kiểm tra lại.
 

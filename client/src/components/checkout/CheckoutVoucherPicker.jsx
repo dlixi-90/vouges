@@ -1,7 +1,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { Check, Ticket, X } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
-import { formatThousandsVnd } from "../../utils/money";
+import { formatVnd } from "../../utils/money";
 import { formatVoucherExpiryDate } from "../../utils/voucherDates";
 
 const CheckoutVoucherPicker = ({ checkout, subtotal, disabled, compact = false }) => {
@@ -22,7 +22,7 @@ const CheckoutVoucherPicker = ({ checkout, subtotal, disabled, compact = false }
   const hasAppliedVoucher = Boolean(appliedCode);
   const displayedCode = appliedCode || checkout.voucherCode;
   const isReplacingVoucher = Boolean(checkout.voucherCode && draft.trim().toUpperCase() !== checkout.voucherCode.trim().toUpperCase());
-  const formatPrice = (value) => formatThousandsVnd(value, currency);
+  const formatPrice = (value) => formatVnd(value, currency);
 
   const positionPopup = () => {
     const popup = popupRef.current;

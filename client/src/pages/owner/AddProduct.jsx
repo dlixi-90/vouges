@@ -9,6 +9,7 @@ import {
 } from "../../utils/productDraft";
 import { saveVariantEdit } from "../../utils/productVariantEdit";
 import ProductVariantRow from "../../components/owner/ProductVariantRow";
+import ProductImageUpload from "../../components/owner/ProductImageUpload";
 
 const createEmptyImages = () => ({
   1: null,
@@ -21,6 +22,8 @@ const createEmptyInputs = () => ({
   title: "",
   description: "",
   ingredients: "",
+  brand: "",
+  origin: "",
   category: "",
   type: "",
   typeId: "",
@@ -92,6 +95,7 @@ const ProductForm = () => {
   const [newQuantity, setNewQuantity] = useState(
     () => restoredDraft?.newQuantity || "",
   );
+  const [newSizeImage, setNewSizeImage] = useState(() => restoredDraft?.newSizeImage || null);
 
   const [loading, setLoading] = useState(false);
   const [imageInputVersion, setImageInputVersion] = useState(0);
@@ -113,6 +117,7 @@ const ProductForm = () => {
       newSize,
       newPrice,
       newQuantity,
+      newSizeImage,
       loadedProductId,
       loadedUpdatedAt,
       categoryId: selectedCategory?._id,
@@ -128,6 +133,7 @@ const ProductForm = () => {
     loadedUpdatedAt,
     newPrice,
     newQuantity,
+    newSizeImage,
     newSize,
     productId,
     saveProductDraft,
@@ -176,6 +182,7 @@ const ProductForm = () => {
       size,
       price: Number(product.price?.[size] ?? 0),
       quantity: Number(product.stockBySize?.[size] ?? 0),
+      image: product.sizeImages?.[size] || null,
     }));
     setSizePrices(variants);
     const target = variants.find(
@@ -243,12 +250,14 @@ const ProductForm = () => {
         size,
         price,
         quantity,
+        image: newSizeImage,
       },
     ]);
 
     setNewSize("");
     setNewPrice("");
     setNewQuantity("");
+    setNewSizeImage(null);
   };
 
   const removeSizePrice = (id) => {
@@ -285,7 +294,7 @@ const ProductForm = () => {
   const handleImageChange = (slot, file) => {
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
       toast.error("Vui lòng chọn tệp hình ảnh");
       return;
     }
@@ -299,6 +308,18 @@ const ProductForm = () => {
       ...currentImages,
       [slot]: file,
     }));
+  };
+
+  const changeSizeImage = (file, apply) => {
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+      toast.error("Vui lòng chọn ảnh PNG, JPEG hoặc WebP");
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      toast.error("Mỗi ảnh phải có dung lượng nhỏ hơn 5 MB");
+      return;
+    }
+    apply(file);
   };
 
   const removeImage = (slot) => {
@@ -318,6 +339,7 @@ const ProductForm = () => {
     setNewSize("");
     setNewPrice("");
     setNewQuantity("");
+    setNewSizeImage(null);
     setImages(createEmptyImages());
     setImageInputVersion((version) => version + 1);
   };
@@ -395,22 +417,33 @@ const ProductForm = () => {
       const prices = {};
       const stockBySize = {};
       const sizes = [];
+      const sizeImages = {};
+      const newSizeImages = [];
 
-      sizePrices.forEach(({ size, price, quantity }) => {
+      sizePrices.forEach(({ size, price, quantity, image }) => {
         const name = size.trim();
         prices[name] = Number(price);
         stockBySize[name] = Number(quantity);
         sizes.push(name);
+        if (image instanceof File) {
+          sizeImages[name] = newSizeImages.length;
+          newSizeImages.push(image);
+        } else {
+          sizeImages[name] = image || null;
+        }
       });
 
       const productData = {
         title: inputs.title.trim(),
         description: inputs.description.trim(),
         ingredients: inputs.ingredients.trim(),
+        brand: (inputs.brand || "").trim(),
+        origin: (inputs.origin || "").trim(),
         typeId: selectedType._id,
         price: prices,
         stockBySize,
         sizes,
+        sizeImages,
         ...(isEditMode && {
           existingImages,
           expectedUpdatedAt: loadedUpdatedAt,
@@ -430,6 +463,7 @@ const ProductForm = () => {
       newImages.forEach((image) => {
         formData.append("images", image);
       });
+      newSizeImages.forEach((image) => formData.append("sizeImages", image));
 
       const token = await getToken();
 
@@ -457,7 +491,8 @@ const ProductForm = () => {
         if (isEditMode) {
           navigate("/owner/list-product");
         } else {
-          resetForm();
+          if(data.productId) navigate(`/owner/edit-product/${data.productId}`);
+          else resetForm();
         }
       } else {
         toast.error(
@@ -517,13 +552,17 @@ const ProductForm = () => {
                   value={inputs.title}
                   onChange={(event) => updateInput("title", event.target.value)}
                   type="text"
-                  placeholder="Ví dụ: Sữa dưỡng thể cấp ẩm"
+                  placeholder="Ví dụ: Dior Sauvage Eau de Parfum"
                   className="admin-input"
                   autoComplete="off"
                   required
                 />
               </Field>
 
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Thương hiệu"><input value={inputs.brand||""} onChange={event=>updateInput("brand",event.target.value)} maxLength={200} placeholder="Ví dụ: Dior" className="admin-input"/></Field>
+                <Field label="Xuất xứ"><input value={inputs.origin||""} onChange={event=>updateInput("origin",event.target.value)} maxLength={200} placeholder="Ví dụ: Pháp" className="admin-input"/></Field>
+              </div>
               <Field label="Mô tả" required>
                 <textarea
                   value={inputs.description}
@@ -543,7 +582,7 @@ const ProductForm = () => {
                   onChange={(event) =>
                     updateInput("ingredients", event.target.value)
                   }
-                  placeholder="Ví dụ: Nước, glycerin, nước ép lá nha đam…"
+                  placeholder="Thành phần ghi trên nhãn chai, nếu có…"
                   rows={4}
                   className="admin-input min-h-28 resize-y"
                 />
@@ -646,9 +685,9 @@ const ProductForm = () => {
                     onKeyDown={handleSizePriceKeyDown}
                     type="number"
                     min="1"
-                    step="0.1"
-                    placeholder="Giá, ví dụ: 5, 50"
-                    aria-label="Giá tính bằng nghìn đồng"
+                    step="1"
+                    placeholder="Giá VND, ví dụ: 1250000"
+                    aria-label="Giá tính bằng đồng Việt Nam"
                     className="admin-input"
                   />
 
@@ -676,6 +715,13 @@ const ProductForm = () => {
                 </div>
 
                 {/* Added variants */}
+                <div className="mt-3 flex items-center gap-4">
+                  <div className="w-24 shrink-0">
+                    <ProductImageUpload file={newSizeImage} label="Ảnh dung tích mới" disabled={loading}
+                      onChange={(file) => changeSizeImage(file, setNewSizeImage)} onRemove={() => setNewSizeImage(null)} />
+                  </div>
+                  <p className="text-xs text-gray-500">Chọn ảnh riêng trước khi thêm dung tích (không bắt buộc).</p>
+                </div>
                 <div className="mt-4 space-y-2" aria-live="polite">
                   {sizePrices.length === 0 ? (
                     <div className="rounded-lg border border-dashed border-[#d5ddd7] px-4 py-6 text-center">
@@ -701,12 +747,14 @@ const ProductForm = () => {
                             [item.id]: { ...item },
                           }))
                         }
-                        onChange={(field, value) =>
-                          setVariantEdits((current) => ({
+                        onChange={(field, value) => {
+                          const apply = (nextValue) => setVariantEdits((current) => ({
                             ...current,
-                            [item.id]: { ...current[item.id], [field]: value },
-                          }))
-                        }
+                            [item.id]: { ...current[item.id], [field]: nextValue },
+                          }));
+                          if (field === "image" && value) changeSizeImage(value, apply);
+                          else apply(value);
+                        }}
                         onSave={() => commitVariantEdit(item.id)}
                         onCancel={() => cancelVariantEdit(item.id)}
                         onRemove={() => removeSizePrice(item.id)}
@@ -724,6 +772,7 @@ const ProductForm = () => {
                 <h2 className="text-base font-semibold text-[#263b4a]">
                   Ảnh sản phẩm
                 </h2>
+                <p className="mt-2 text-xs text-gray-500">Bộ ảnh chung dùng trên thẻ sản phẩm. Ảnh theo dung tích được thêm riêng ở từng phân loại.</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">

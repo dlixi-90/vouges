@@ -5,6 +5,7 @@ import {
   getOrderTotal,
   getShippingCharge,
   SHIPPING_METHODS,
+  getShippingPricing,
 } from "../../utils/orderPricing.js";
 import { FREE_SHIPPING_THRESHOLD as CLIENT_THRESHOLD, SHIPPING_METHODS as CLIENT_METHODS } from "../../../client/src/utils/orderPricing.js";
 import { hasAnyEnabledSize } from "../../utils/productStock.js";
@@ -12,21 +13,26 @@ import Product from "../../models/Product.js";
 import { toggleStock } from "../../controllers/productController.js";
 
 test("standard shipping is free from 1,000,000 VND before vouchers; express retains its fee", () => {
-  assert.equal(FREE_SHIPPING_THRESHOLD, 1000);
-  assert.equal(getShippingCharge(999.999), 30);
-  assert.equal(getShippingCharge(1000), 0);
-  assert.equal(getShippingCharge(0), 30);
-  assert.equal(getOrderTotal(500), 530);
-  assert.equal(getOrderTotal(1000), 1000);
-  assert.equal(getShippingCharge(1000, "express"), 50);
+  assert.equal(FREE_SHIPPING_THRESHOLD, 1000000);
+  assert.equal(getShippingCharge(999999), 30000);
+  assert.equal(getShippingCharge(1000000), 0);
+  assert.equal(getShippingCharge(0), 30000);
+  assert.equal(getOrderTotal(500000), 530000);
+  assert.equal(getOrderTotal(1000000), 1000000);
+  assert.equal(getShippingCharge(1000000, "express"), 50000);
   assert.throws(() => getShippingCharge(500, "unknown"), /không hợp lệ/);
+});
+
+test("whole VND pricing preserves exact bank amounts and rejects totals outside safe integer bounds",()=>{
+  assert.equal(getShippingPricing(1250000,0,"express").amount,1300000);
+  assert.throws(()=>getShippingPricing(Number.MAX_SAFE_INTEGER,0,"express"),/giới hạn/);
 });
 
 test("urgent shipping has a deferred carrier fee and client options match server options", () => {
   assert.equal(CLIENT_THRESHOLD, FREE_SHIPPING_THRESHOLD);
   assert.deepEqual(CLIENT_METHODS, SHIPPING_METHODS);
   assert.equal(SHIPPING_METHODS.find((method) => method.id === "urgent").fee, null);
-  for (const subtotal of [0, 500, 1000, 2000]) assert.equal(getShippingCharge(subtotal, "urgent"), 0);
+  for (const subtotal of [0, 500000, 1000000, 2000000]) assert.equal(getShippingCharge(subtotal, "urgent"), 0);
 });
 
 test("master stock follows whether at least one stocked size is enabled", () => {

@@ -12,6 +12,7 @@ const orderSchema = new mongoose.Schema(
         title: { type: String },
         image: { type: String },
         unitPrice: { type: Number },
+        inventoryMode: { type: String, enum: ["tracked", "source"] },
       },
     ],
     amount: { type: Number, required: true },

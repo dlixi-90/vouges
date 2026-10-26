@@ -1,10 +1,11 @@
+import { getSizeImage } from "../utils/productImage";
 import { getOrderStatusLabel, getPaymentMethodLabel } from "../utils/localization.js";
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Package, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import Title from "../components/Title";
 import { useAppContext } from "../context/AppContext";
-import { formatThousandsVnd } from "../utils/money";
+import { formatVnd } from "../utils/money";
 import { SHIPPING_METHODS, URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
 
 const ProductReviewDialog = lazy(() => import("../components/ProductReviewDialog"));
@@ -134,7 +135,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
               Tổng cộng
             </p>
             <p className="mt-0.5 text-base font-semibold text-[#263b4a]">
-              {formatThousandsVnd(order.amount, currency)}
+              {formatVnd(order.amount, currency)}
             </p>
           </div>
         </div>
@@ -155,7 +156,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
                 item.product && typeof item.product === "object"
                   ? item.product
                   : {};
-              const productImage = item.image || product.images?.[0];
+              const productImage = item.image || getSizeImage(product, item.size);
               const productTitle =
                 item.title || product.title || "Sản phẩm không còn có sẵn";
               const productId = product._id || (typeof item.product === "string" ? item.product : null);
@@ -195,7 +196,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
 
                   <div className="shrink-0 space-y-3 pt-0.5 text-right">
                     <p className="whitespace-nowrap text-sm font-semibold leading-5 text-[#263b4a]">
-                      {formatThousandsVnd(
+                      {formatVnd(
                         item.unitPrice ?? product.price?.[item.size] ?? 0,
                         currency,
                       )}
@@ -225,12 +226,12 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
             </div>}
             {order.shipping !== undefined && <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Giao hàng</dt>
-              <dd className="mt-1 text-sm">{SHIPPING_METHODS.find((method) => method.id === order.shippingMethod)?.label || "Giao tiêu chuẩn"} · {order.shippingMethod === "urgent" ? "Thanh toán sau" : formatThousandsVnd(order.shipping, currency)}</dd>
+              <dd className="mt-1 text-sm">{SHIPPING_METHODS.find((method) => method.id === order.shippingMethod)?.label || "Giao tiêu chuẩn"} · {order.shippingMethod === "urgent" ? "Thanh toán sau" : formatVnd(order.shipping, currency)}</dd>
               {order.shippingMethod === "urgent" && <dd className="mt-1 text-xs text-gray-500">{URGENT_SHIPPING_NOTE}</dd>}
             </div>}
             {order.discount > 0 && <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Mã giảm giá {order.voucherCode}</dt>
-              <dd className="mt-1 text-sm text-green-700">−{formatThousandsVnd(order.discount, currency)}</dd>
+              <dd className="mt-1 text-sm text-green-700">−{formatVnd(order.discount, currency)}</dd>
             </div>}
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">

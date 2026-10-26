@@ -59,7 +59,7 @@ test("searchProducts lọc size còn hàng và đổi giá sang đơn vị đầ
       createProduct({
         id: PRODUCT_A_ID,
         title: "Hydrating Serum",
-        price: { "30ml": 20, "50ml": 30 },
+        price: { "30ml": 20000, "50ml": 30000 },
         sizes: ["30ml", "50ml"],
         stockBySize: { "30ml": 4, "50ml": 0 },
         inStockBySize: { "30ml": true, "50ml": true },
@@ -105,7 +105,7 @@ test("searchProducts có thể tra cứu sản phẩm hết hàng và báo đún
       createProduct({
         id: PRODUCT_A_ID,
         title: "Sold Out Serum",
-        price: { "30ml": 20 },
+        price: { "30ml": 20000 },
         sizes: ["30ml"],
         stockBySize: { "30ml": 0 },
         inStockBySize: { "30ml": false },
@@ -143,7 +143,7 @@ test("getProductDetails trả dữ liệu thật và xử lý productId không h
   let databaseResult = createProduct({
     id: PRODUCT_A_ID,
     title: "Hydrating Serum",
-    price: { "30ml": 20 },
+    price: { "30ml": 20000 },
     sizes: ["30ml"],
     stockBySize: { "30ml": 2 },
     inStockBySize: { "30ml": true },
@@ -165,7 +165,7 @@ test("getProductDetails trả dữ liệu thật và xử lý productId không h
     databaseResult = createProduct({
       id: PRODUCT_B_ID,
       title: "Sold Out Serum",
-      price: { "30ml": 25 },
+      price: { "30ml": 25000 },
       sizes: ["30ml"],
       stockBySize: { "30ml": 0 },
       inStockBySize: { "30ml": false },
@@ -198,7 +198,7 @@ test("compareProducts giữ thứ tự yêu cầu và tính chỉ số khách qu
   const productA = createProduct({
     id: PRODUCT_A_ID,
     title: "Serum A",
-    price: { M: 20, L: 30 },
+    price: { M: 20000, L: 30000 },
     sizes: ["M", "L"],
     stockBySize: { M: 5, L: 2 },
     inStockBySize: { M: true, L: true },
@@ -206,7 +206,7 @@ test("compareProducts giữ thứ tự yêu cầu và tính chỉ số khách qu
   const productB = createProduct({
     id: PRODUCT_B_ID,
     title: "Serum B",
-    price: { M: 10 },
+    price: { M: 10000 },
     sizes: ["M"],
     stockBySize: { M: 3 },
     inStockBySize: { M: true },

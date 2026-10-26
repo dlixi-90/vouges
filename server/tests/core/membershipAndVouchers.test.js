@@ -28,7 +28,7 @@ const voucherId = "507f1f77bcf86cd799439014";
 const userId = "user_customer";
 const now = new Date("2026-10-03T00:00:00+07:00");
 const coupon = (overrides = {}) => ({ _id: voucherId, code: "SAVE10", type: "percent", value: 10,
-  minSubtotal: 300, maxDiscount: 100, startsAt: new Date("2020-01-01"), expiresAt: new Date("2099-01-01"),
+  minSubtotal: 300000, maxDiscount: 100000, startsAt: new Date("2020-01-01"), expiresAt: new Date("2099-01-01"),
   maxUses: 10, usedCount: 0, userId: null, ...overrides });
 const response = () => ({ statusCode: 200, status(code) { this.statusCode = code; return this; },
   json(body) { this.body = body; return this; } });
@@ -101,7 +101,7 @@ test("birthday issuance keys the same member/year and cannot refresh an existing
   });
   const first = await issueBirthdayVoucher({ _id: userId, birthday: "2000-10-03" }, now);
   const second = await issueBirthdayVoucher({ _id: userId, birthday: "2000-10-03" }, new Date(now.getTime() + 86400000));
-  assert.equal(first.code, second.code); assert.equal(first.maxUses, 1); assert.equal(first.maxDiscount, 100);
+  assert.equal(first.code, second.code); assert.equal(first.maxUses, 1); assert.equal(first.maxDiscount, 100000);
   const index = Voucher.schema.indexes().find(([keys]) => keys.birthdayYear);
   assert.equal(index[1].unique, true);
 });
@@ -149,7 +149,7 @@ test("membership returns the authenticated profile with vouchers and overlaps in
 });
 
 test("discounts cap percentage/fixed awards at subtotal and round to a single VND", () => {
-  assert.equal(calculateDiscount(coupon(), 2000), 100);
+  assert.equal(calculateDiscount(coupon(), 2000000), 100000);
   assert.equal(calculateDiscount(coupon({ type: "fixed", value: 1000, maxDiscount: null }), 300), 300);
   assert.equal(calculateDiscount(coupon({ value: 7.5 }), 333.333), 25);
 });
@@ -159,13 +159,13 @@ test("voucher validation rejects another member, expired/start dates, minimums, 
   t.mock.method(Voucher, "findOne", async () => saved);
   t.mock.method(VoucherUse, "exists", async () => used);
   for (const overrides of [ { userId: "someone_else" }, { expiresAt: now }, { startsAt: new Date("2090-01-01") },
-    { minSubtotal: 501 }, { usedCount: 10 } ]) {
-    saved = coupon(overrides); await assert.rejects(validateVoucher("save10", userId, 500, null, now));
+    { minSubtotal: 501000 }, { usedCount: 10 } ]) {
+    saved = coupon(overrides); await assert.rejects(validateVoucher("save10", userId, 500000, null, now));
   }
   saved = coupon(); used = { _id: "used" };
-  await assert.rejects(validateVoucher("save10", userId, 500, null, now), /đã sử dụng/);
-  used = null; assert.equal((await validateVoucher("save10", userId, 500, null, now)).code, "SAVE10");
-  await assert.rejects(validateVoucher({ $ne: null }, userId, 500, null, now), /không hợp lệ/);
+  await assert.rejects(validateVoucher("save10", userId, 500000, null, now), /đã sử dụng/);
+  used = null; assert.equal((await validateVoucher("save10", userId, 500000, null, now)).code, "SAVE10");
+  await assert.rejects(validateVoucher({ $ne: null }, userId, 500000, null, now), /không hợp lệ/);
 });
 
 test("lost concurrent voucher allocation is rejected before recording a use; session is shared", async (t) => {
@@ -188,12 +188,14 @@ test("voucher release is idempotent and only decrements its own order use", asyn
   assert.equal(change.mock.callCount(), 1);
 });
 
-const mockCatalog = (t, price = 500) => {
+const mockCatalog = (t, price = 500000) => {
   const product = { _id: productId, title: "Lotion", sizes: ["M"], inStock: true,
+    images: ["gallery.png"], sizeImages: { M: "purchased-size.png" },
     price: { M: price }, stockBySize: { M: 20 }, markModified() {}, save: async () => {} };
   t.mock.method(Product, "find", () => { const result = Promise.resolve([product]); result.session = async () => [product]; return result; });
   t.mock.method(Voucher, "findOne", () => { const result = Promise.resolve(coupon()); result.session = async () => coupon(); return result; });
   t.mock.method(VoucherUse, "exists", () => { const result = Promise.resolve(null); result.session = async () => null; return result; });
+  return product;
 };
 
 test("checkout quote ignores client prices/discounts and computes express shipping from the database", async (t) => {
@@ -201,25 +203,25 @@ test("checkout quote ignores client prices/discounts and computes express shippi
   const res = response();
   await quoteOrder({ user: { _id: userId }, body: { items: [{ product: productId, size: "M", quantity: 1, price: 1 }],
     voucherCode: "SAVE10", shippingMethod: "express", discount: 500, amount: 1, userId: "someone_else" } }, res);
-  assert.equal(res.body.pricing.subtotal, 500); assert.equal(res.body.pricing.discount, 50);
-  assert.equal(res.body.pricing.shipping, 50); assert.equal(res.body.pricing.amount, 500);
+  assert.equal(res.body.pricing.subtotal, 500000); assert.equal(res.body.pricing.discount, 50000);
+  assert.equal(res.body.pricing.shipping, 50000); assert.equal(res.body.pricing.amount, 500000);
   assert.equal(res.body.pricing.voucher, undefined);
   assert.deepEqual(res.body.shippingQuotes, {
-    standard: { shippingMethod: "standard", shipping: 30, amount: 480 },
-    express: { shippingMethod: "express", shipping: 50, amount: 500 },
-    urgent: { shippingMethod: "urgent", shipping: 0, amount: 450 },
+    standard: { shippingMethod: "standard", shipping: 30000, amount: 480000 },
+    express: { shippingMethod: "express", shipping: 50000, amount: 500000 },
+    urgent: { shippingMethod: "urgent", shipping: 0, amount: 450000 },
   });
   assert.equal(Product.find.mock.callCount(), 1);
   assert.equal(Voucher.findOne.mock.callCount(), 1);
 });
 
 for (const [price, voucherCode, discount, shipping] of [
-  [999.999, "", 0, 30],
-  [999.999, "SAVE10", 100, 30],
-  [1000, "", 0, 0],
-  [1000, "SAVE10", 100, 0],
-  [1099.999, "SAVE10", 100, 0],
-  [1100, "SAVE10", 100, 0],
+  [999999, "", 0, 30000],
+  [999999, "SAVE10", 100000, 30000],
+  [1000000, "", 0, 0],
+  [1000000, "SAVE10", 100000, 0],
+  [1099999, "SAVE10", 100000, 0],
+  [1100000, "SAVE10", 100000, 0],
 ]) test(`standard quote uses the subtotal before vouchers for price ${price} and voucher ${voucherCode || "none"}`, async (t) => {
   mockCatalog(t, price);
   const res = response();
@@ -230,14 +232,14 @@ for (const [price, voucherCode, discount, shipping] of [
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.pricing.discount, discount);
   assert.equal(res.body.pricing.shipping, shipping);
-  assert.equal(res.body.pricing.amount, Math.round((price - discount + shipping) * 1000) / 1000);
+  assert.equal(res.body.pricing.amount, Math.round(price - discount + shipping));
   assert.equal(res.body.shippingQuotes.standard.shipping, shipping);
   assert.equal(res.body.shippingQuotes.standard.amount, res.body.pricing.amount);
-  assert.equal(res.body.shippingQuotes.express.amount, Math.round((price - discount + 50) * 1000) / 1000);
-  assert.equal(res.body.shippingQuotes.urgent.amount, Math.round((price - discount) * 1000) / 1000);
+  assert.equal(res.body.shippingQuotes.express.amount, Math.round(price - discount + 50000));
+  assert.equal(res.body.shippingQuotes.urgent.amount, Math.round(price - discount));
 });
 
-for (const [price, shipping] of [[500, 30], [1000, 0]]) test(`a fully discounted standard order keeps shipping based on its original subtotal ${price}`, async (t) => {
+for (const [price, shipping] of [[500000, 30000], [1000000, 0]]) test(`a fully discounted standard order keeps shipping based on its original subtotal ${price}`, async (t) => {
   mockCatalog(t, price);
   t.mock.method(Voucher, "findOne", async () => coupon({ value: 100, maxDiscount: null }));
   const res = response();
@@ -248,7 +250,7 @@ for (const [price, shipping] of [[500, 30], [1000, 0]]) test(`a fully discounted
   assert.equal(res.body.pricing.shipping, shipping);
   assert.equal(res.body.pricing.amount, shipping);
   assert.equal(res.body.shippingQuotes.standard.amount, shipping);
-  assert.equal(res.body.shippingQuotes.express.amount, 50);
+  assert.equal(res.body.shippingQuotes.express.amount, 50000);
   assert.equal(res.body.shippingQuotes.urgent.amount, 0);
 });
 
@@ -261,7 +263,7 @@ test("urgent quote excludes the deferred carrier fee and exposes a pending fee o
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.pricing.shippingMethod, "urgent");
   assert.equal(res.body.pricing.shipping, 0);
-  assert.equal(res.body.pricing.amount, 450);
+  assert.equal(res.body.pricing.amount, 450000);
   assert.equal(res.body.shippingMethods.find((method) => method.id === "urgent").fee, null);
 });
 
@@ -278,11 +280,14 @@ for (const handler of [placeOrderCOD, placeOrderQr]) test(`${handler.name} rejec
   assert.equal(res.statusCode, 409); assert.equal(write.mock.callCount(), 0);
 });
 
-for (const handler of [placeOrderCOD, placeOrderQr]) for (const [shippingMethod, shipping, amount, price = 500] of [
-  ["standard", 30, 480], ["express", 50, 500], ["urgent", 0, 450],
-  ["standard", 0, 900, 1000],
-]) test(`${handler.name} saves authoritative ${shippingMethod} totals for subtotal ${price} and reserves the voucher use in the stock transaction`, async (t) => {
-  mockCatalog(t, price);
+for (const inventoryMode of ["tracked", "source"]) for (const handler of [placeOrderCOD, placeOrderQr]) for (const [shippingMethod, shipping, amount, price = 500000] of [
+  ["standard", 30000, 480000], ["express", 50000, 500000], ["urgent", 0, 450000],
+  ["standard", 0, 900000, 1000000],
+]) test(`${handler.name} saves authoritative ${shippingMethod} totals for subtotal ${price}, inventory ${inventoryMode}, and reserves the voucher in the transaction`, async (t) => {
+  const product=mockCatalog(t, price);
+  product.inventoryMode=inventoryMode;
+  if(inventoryMode==="source"){product.stockBySize={M:0};product.inStockBySize={M:true};}
+  const stockSave=t.mock.method(product,"save",async()=>{});
   const session = { withTransaction: async (callback) => callback(), endSession: async () => {} };
   t.mock.method(mongoose, "startSession", async () => session);
   t.mock.method(Order, "exists", async () => null);
@@ -313,13 +318,17 @@ for (const handler of [placeOrderCOD, placeOrderQr]) for (const [shippingMethod,
     address: addressId, expectedAmount: quote.body.shippingQuotes[shippingMethod].amount, shippingMethod, voucherCode: "SAVE10", discount: 99999,
     note: "  Gói quà giúp tôi.\nGọi trước khi giao & giữ nguyên hộp.  " } }, res);
   assert.equal(res.statusCode, 201); assert.equal(created.amount, amount); assert.equal(created.subtotal, price);
-  assert.equal(created.discount, Math.min(price * 0.1, 100)); assert.equal(created.shipping, shipping); assert.equal(created.shippingMethod, shippingMethod);
+  assert.equal(created.discount, Math.min(price * 0.1, 100000)); assert.equal(created.shipping, shipping); assert.equal(created.shippingMethod, shippingMethod);
+  assert.equal(created.items[0].image, "purchased-size.png");
+  assert.equal(created.items[0].inventoryMode, inventoryMode);
+  assert.equal(product.stockBySize.M, inventoryMode==="source"?0:19);
+  assert.equal(stockSave.mock.callCount(), inventoryMode==="source"?0:1);
   await assert.doesNotReject(() => new Order(created).validate());
   assert.equal(created.voucherCode, "SAVE10"); assert.equal(increment.mock.callCount(), 1); assert.equal(ledger.mock.callCount(), 1);
   assert.equal(created.note, "Gói quà giúp tôi.\nGọi trước khi giao & giữ nguyên hộp.");
   assert.equal(res.body.order.note, created.note);
   assert.equal(mail.mock.callCount(), 0);
-  if (handler === placeOrderQr) assert.equal(created.qrAmount, amount * 1000);
+  if (handler === placeOrderQr) assert.equal(created.qrAmount, amount);
 });
 
 for (const handler of [placeOrderCOD, placeOrderQr]) test(`${handler.name} rejects invalid seller messages before changing stock or orders`, async (t) => {
@@ -338,7 +347,7 @@ for (const handler of [placeOrderCOD, placeOrderQr]) test(`${handler.name} rejec
 });
 
 test("order messages are optional and enforce the same 500-character limit in storage", async () => {
-  const values = { userId, items: [{ product: productId, size: "M", quantity: 1 }], amount: 530, address: addressId, paymentMethod: "COD" };
+  const values = { userId, items: [{ product: productId, size: "M", quantity: 1 }], amount: 530000, address: addressId, paymentMethod: "COD" };
   const order = new Order(values);
   assert.equal(order.note, "");
   await assert.doesNotReject(() => order.validate());
@@ -472,7 +481,7 @@ test("deleted vouchers cannot be quoted or reserved from a stale checkout", asyn
     assert.equal(filter.active, true);
     return null;
   });
-  await assert.rejects(validateVoucher("SAVE10", userId, 500, null, now), /không tồn tại/);
+  await assert.rejects(validateVoucher("SAVE10", userId, 500000, null, now), /không tồn tại/);
   t.mock.method(Voucher, "updateOne", async (filter) => {
     assert.equal(filter.deletedAt, null);
     assert.equal(filter.active, true);
@@ -538,8 +547,8 @@ test("date-only voucher periods handle leap days and reject invalid or reversed 
 });
 
 test("receipt displays voucher separately from saved delivery fees", () => {
-  const order = { _id: orderId, createdAt: now, amount: 500, shipping: 50, discount: 50, voucherCode: "SAVE10", shippingMethod: "express",
-    items: [{ title: "Lotion", quantity: 1, unitPrice: 500, size: "M" }], address: {}, paymentMethod: "COD" };
+  const order = { _id: orderId, createdAt: now, amount: 500000, shipping: 50000, discount: 50000, voucherCode: "SAVE10", shippingMethod: "express",
+    items: [{ title: "Lotion", quantity: 1, unitPrice: 500000, size: "M" }], address: {}, paymentMethod: "COD" };
   const { html, text } = buildOrderConfirmationEmail(order);
   assert.match(text, /Mã giảm giá SAVE10: -50\.000/); assert.match(text, /Phí vận chuyển: 50\.000/);
   assert.match(html, /giao nhanh/);

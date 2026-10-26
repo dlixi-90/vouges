@@ -1,0 +1,1358 @@
+{
+  "checkedAt": "2026-10-26T13:38:13.666Z",
+  "products": 2444,
+  "variants": 5289,
+  "completeDetails": 2444,
+  "failedDetails": 0,
+  "pendingDetails": 0,
+  "errorCount": 0,
+  "warningCount": 102,
+  "missingFieldsByProduct": {
+    "xuất xứ": 138,
+    "nồng độ": 254,
+    "nhóm hương": 123,
+    "scentNotes": 151,
+    "thương hiệu": 172,
+    "accords": 112,
+    "images": 2
+  },
+  "errors": [],
+  "warnings": [
+    {
+      "sourceId": 19206,
+      "sourceUrl": "https://apaniche.vn/jean-paul-gaultier-le-beau-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 280000,
+        "max": 2900000
+      },
+      "availableVariantRange": {
+        "min": 280000,
+        "max": 2850000
+      }
+    },
+    {
+      "sourceId": 20467,
+      "sourceUrl": "https://apaniche.vn/carolina-herrera-good-girl-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 390000,
+        "max": 4450000
+      },
+      "availableVariantRange": {
+        "min": 390000,
+        "max": 3750000
+      }
+    },
+    {
+      "sourceId": 20485,
+      "sourceUrl": "https://apaniche.vn/carolina-herrera-good-girl-super-stars-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 420000,
+        "max": 3350000
+      },
+      "availableVariantRange": {
+        "min": 420000,
+        "max": 2700000
+      }
+    },
+    {
+      "sourceId": 20493,
+      "sourceUrl": "https://apaniche.vn/carolina-herrera-very-good-girl-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 110000,
+        "max": 3200000
+      },
+      "availableVariantRange": {
+        "min": 430000,
+        "max": 3200000
+      }
+    },
+    {
+      "sourceId": 20937,
+      "sourceUrl": "https://apaniche.vn/chanel-chance-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 350000,
+        "max": 4700000
+      },
+      "availableVariantRange": {
+        "min": 350000,
+        "max": 4650000
+      }
+    },
+    {
+      "sourceId": 21462,
+      "sourceUrl": "https://apaniche.vn/chopard-wish-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 180000,
+        "max": 2200000
+      },
+      "availableVariantRange": {
+        "min": 180000,
+        "max": 1250000
+      }
+    },
+    {
+      "sourceId": 21501,
+      "sourceUrl": "https://apaniche.vn/dior-miss-dior-absolutely-blooming-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 450000,
+        "max": 4000000
+      },
+      "availableVariantRange": {
+        "min": 450000,
+        "max": 3900000
+      }
+    },
+    {
+      "sourceId": 21644,
+      "sourceUrl": "https://apaniche.vn/diptyque-do-son-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 450000,
+        "max": 4600000
+      },
+      "availableVariantRange": {
+        "min": 430000,
+        "max": 4600000
+      }
+    },
+    {
+      "sourceId": 21699,
+      "sourceUrl": "https://apaniche.vn/marc-jacobs-daisy-dream-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 280000,
+        "max": 1950000
+      },
+      "availableVariantRange": {
+        "min": 280000,
+        "max": 1900000
+      }
+    },
+    {
+      "sourceId": 21822,
+      "sourceUrl": "https://apaniche.vn/dolce-gabbana-dolce-garden-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 260000,
+        "max": 2050000
+      },
+      "availableVariantRange": {
+        "min": 260000,
+        "max": 1850000
+      }
+    },
+    {
+      "sourceId": 21906,
+      "sourceUrl": "https://apaniche.vn/dolce-gabbana-light-blue-for-women-edt",
+      "code": "source_chart_count_invalid",
+      "field": "sillage",
+      "item": {
+        "label": "Gần",
+        "displayedCount": null,
+        "displayedPercent": null,
+        "sourceRawCount": -13138,
+        "sourceCountIssue": "not_a_nonnegative_integer",
+        "sourceRawPercent": -1313800,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 21906,
+      "sourceUrl": "https://apaniche.vn/dolce-gabbana-light-blue-for-women-edt",
+      "code": "source_chart_percent_out_of_range",
+      "field": "sillage",
+      "item": {
+        "label": "Gần",
+        "displayedCount": null,
+        "displayedPercent": null,
+        "sourceRawCount": -13138,
+        "sourceCountIssue": "not_a_nonnegative_integer",
+        "sourceRawPercent": -1313800,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 21906,
+      "sourceUrl": "https://apaniche.vn/dolce-gabbana-light-blue-for-women-edt",
+      "code": "source_chart_percent_out_of_range",
+      "field": "sillage",
+      "item": {
+        "label": "Vừa Phải",
+        "displayedCount": 6459,
+        "displayedPercent": null,
+        "sourceRawPercent": 645900,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 21906,
+      "sourceUrl": "https://apaniche.vn/dolce-gabbana-light-blue-for-women-edt",
+      "code": "source_chart_percent_out_of_range",
+      "field": "sillage",
+      "item": {
+        "label": "Xa",
+        "displayedCount": 1823,
+        "displayedPercent": null,
+        "sourceRawPercent": 182300,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 21906,
+      "sourceUrl": "https://apaniche.vn/dolce-gabbana-light-blue-for-women-edt",
+      "code": "source_chart_percent_out_of_range",
+      "field": "sillage",
+      "item": {
+        "label": "Rất Xa",
+        "displayedCount": 527,
+        "displayedPercent": null,
+        "sourceRawPercent": 52700,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 22047,
+      "sourceUrl": "https://apaniche.vn/montale-chocolate-greedy-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 290000,
+        "max": 2850000
+      },
+      "availableVariantRange": {
+        "min": 290000,
+        "max": 2650000
+      }
+    },
+    {
+      "sourceId": 22073,
+      "sourceUrl": "https://apaniche.vn/montblanc-explorer-ultra-blue-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 110000,
+        "max": 2500000
+      },
+      "availableVariantRange": {
+        "min": 290000,
+        "max": 2200000
+      }
+    },
+    {
+      "sourceId": 22080,
+      "sourceUrl": "https://apaniche.vn/montblanc-signature-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 170000,
+        "max": 2650000
+      },
+      "availableVariantRange": {
+        "min": 330000,
+        "max": 2650000
+      }
+    },
+    {
+      "sourceId": 22148,
+      "sourceUrl": "https://apaniche.vn/dolce-gabbana-light-blue-pour-homme-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 280000,
+        "max": 3400000
+      },
+      "availableVariantRange": {
+        "min": 280000,
+        "max": 2750000
+      }
+    },
+    {
+      "sourceId": 22353,
+      "sourceUrl": "https://apaniche.vn/etat-libre-dorange-archives-69-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 360000,
+        "max": 3350000
+      },
+      "availableVariantRange": {
+        "min": 360000,
+        "max": 2800000
+      }
+    },
+    {
+      "sourceId": 22532,
+      "sourceUrl": "https://apaniche.vn/giorgio-armani-si-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 390000,
+        "max": 2900000
+      },
+      "availableVariantRange": {
+        "min": 390000,
+        "max": 2700000
+      }
+    },
+    {
+      "sourceId": 22664,
+      "sourceUrl": "https://apaniche.vn/gucci-bloom-nettare-di-fiori-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 540000,
+        "max": 3050000
+      },
+      "availableVariantRange": {
+        "min": 540000,
+        "max": 2800000
+      }
+    },
+    {
+      "sourceId": 22875,
+      "sourceUrl": "https://apaniche.vn/gucci-by-gucci-pour-homme-edt",
+      "code": "source_chart_count_invalid",
+      "field": "longevity",
+      "item": {
+        "label": "Rất Lâu Trên 12H",
+        "displayedCount": null,
+        "displayedPercent": null,
+        "sourceRawCount": -145,
+        "sourceCountIssue": "not_a_nonnegative_integer",
+        "sourceRawPercent": -12.9,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 22875,
+      "sourceUrl": "https://apaniche.vn/gucci-by-gucci-pour-homme-edt",
+      "code": "source_chart_percent_out_of_range",
+      "field": "longevity",
+      "item": {
+        "label": "Rất Lâu Trên 12H",
+        "displayedCount": null,
+        "displayedPercent": null,
+        "sourceRawCount": -145,
+        "sourceCountIssue": "not_a_nonnegative_integer",
+        "sourceRawPercent": -12.9,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 22922,
+      "sourceUrl": "https://apaniche.vn/prada-lhomme-intense-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 2700000,
+        "max": 3200000
+      },
+      "availableVariantRange": {
+        "min": 3200000,
+        "max": 3200000
+      }
+    },
+    {
+      "sourceId": 23419,
+      "sourceUrl": "https://apaniche.vn/gucci-guilty-pour-femme-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 450000,
+        "max": 3300000
+      },
+      "availableVariantRange": {
+        "min": 400000,
+        "max": 3300000
+      }
+    },
+    {
+      "sourceId": 23458,
+      "sourceUrl": "https://apaniche.vn/hermes-eau-des-merveilles-bleue-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 320000,
+        "max": 2700000
+      },
+      "availableVariantRange": {
+        "min": 320000,
+        "max": 2650000
+      }
+    },
+    {
+      "sourceId": 23475,
+      "sourceUrl": "https://apaniche.vn/thierry-mugler-aura-mugler-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 430000,
+        "max": 2700000
+      },
+      "availableVariantRange": {
+        "min": 430000,
+        "max": 2650000
+      }
+    },
+    {
+      "sourceId": 23627,
+      "sourceUrl": "https://apaniche.vn/hermes-lombre-des-merveilles-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 360000,
+        "max": 2750000
+      },
+      "availableVariantRange": {
+        "min": 360000,
+        "max": 2700000
+      }
+    },
+    {
+      "sourceId": 23726,
+      "sourceUrl": "https://apaniche.vn/initio-parfums-prives-initio-atomic-rose",
+      "code": "source_chart_percent_out_of_range",
+      "field": "longevity",
+      "item": {
+        "label": "Yếu 1-3H",
+        "displayedCount": 36,
+        "displayedPercent": null,
+        "sourceRawPercent": 3600,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 23726,
+      "sourceUrl": "https://apaniche.vn/initio-parfums-prives-initio-atomic-rose",
+      "code": "source_chart_percent_out_of_range",
+      "field": "longevity",
+      "item": {
+        "label": "Trung Bình 4-5H",
+        "displayedCount": 39,
+        "displayedPercent": null,
+        "sourceRawPercent": 3900,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 23726,
+      "sourceUrl": "https://apaniche.vn/initio-parfums-prives-initio-atomic-rose",
+      "code": "source_chart_percent_out_of_range",
+      "field": "longevity",
+      "item": {
+        "label": "Khá 6-8H",
+        "displayedCount": 300,
+        "displayedPercent": null,
+        "sourceRawPercent": 30000,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 23726,
+      "sourceUrl": "https://apaniche.vn/initio-parfums-prives-initio-atomic-rose",
+      "code": "source_chart_count_invalid",
+      "field": "longevity",
+      "item": {
+        "label": "Lâu 9-12H",
+        "displayedCount": null,
+        "displayedPercent": null,
+        "sourceRawCount": -1767,
+        "sourceCountIssue": "not_a_nonnegative_integer",
+        "sourceRawPercent": -176700,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 23726,
+      "sourceUrl": "https://apaniche.vn/initio-parfums-prives-initio-atomic-rose",
+      "code": "source_chart_percent_out_of_range",
+      "field": "longevity",
+      "item": {
+        "label": "Lâu 9-12H",
+        "displayedCount": null,
+        "displayedPercent": null,
+        "sourceRawCount": -1767,
+        "sourceCountIssue": "not_a_nonnegative_integer",
+        "sourceRawPercent": -176700,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 23726,
+      "sourceUrl": "https://apaniche.vn/initio-parfums-prives-initio-atomic-rose",
+      "code": "source_chart_percent_out_of_range",
+      "field": "longevity",
+      "item": {
+        "label": "Rất Lâu Trên 12H",
+        "displayedCount": 779,
+        "displayedPercent": null,
+        "sourceRawPercent": 77900,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 24166,
+      "sourceUrl": "https://apaniche.vn/viktor-rolf-flowerbomb-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 370000,
+        "max": 3000000
+      },
+      "availableVariantRange": {
+        "min": 370000,
+        "max": 2900000
+      }
+    },
+    {
+      "sourceId": 25232,
+      "sourceUrl": "https://apaniche.vn/le-labo-ylang-49-edp",
+      "code": "variant_id_difference",
+      "apiIds": [
+        25233,
+        64366,
+        64367
+      ],
+      "pageIds": [
+        25233,
+        64366
+      ]
+    },
+    {
+      "sourceId": 25234,
+      "sourceUrl": "https://apaniche.vn/lolita-lempicka-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 290000,
+        "max": 2200000
+      },
+      "availableVariantRange": {
+        "min": 290000,
+        "max": 2000000
+      }
+    },
+    {
+      "sourceId": 25318,
+      "sourceUrl": "https://apaniche.vn/bvlgari-splendida-jasmin-noir-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 480000,
+        "max": 4400000
+      },
+      "availableVariantRange": {
+        "min": 480000,
+        "max": 3750000
+      }
+    },
+    {
+      "sourceId": 25321,
+      "sourceUrl": "https://apaniche.vn/louis-vuitton-heures-dabsence-edp",
+      "code": "source_suitability_percent_out_of_range",
+      "item": {
+        "label": "Xuân",
+        "displayedPercent": null,
+        "sourceRawPercent": 1100,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 25555,
+      "sourceUrl": "https://apaniche.vn/carolina-herrera-good-girl-dot-drama-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 380000,
+        "max": 2950000
+      },
+      "availableVariantRange": {
+        "min": 380000,
+        "max": 2750000
+      }
+    },
+    {
+      "sourceId": 25619,
+      "sourceUrl": "https://apaniche.vn/dior-miss-dior-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 350000,
+        "max": 3500000
+      },
+      "availableVariantRange": {
+        "min": 350000,
+        "max": 2700000
+      }
+    },
+    {
+      "sourceId": 25795,
+      "sourceUrl": "https://apaniche.vn/dior-poison-girl-for-women-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 480000,
+        "max": 4150000
+      },
+      "availableVariantRange": {
+        "min": 480000,
+        "max": 3400000
+      }
+    },
+    {
+      "sourceId": 25848,
+      "sourceUrl": "https://apaniche.vn/montblanc-legend-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 110000,
+        "max": 2000000
+      },
+      "availableVariantRange": {
+        "min": 220000,
+        "max": 2000000
+      }
+    },
+    {
+      "sourceId": 25932,
+      "sourceUrl": "https://apaniche.vn/gucci-the-virgin-violet-edp",
+      "code": "source_suitability_percent_out_of_range",
+      "item": {
+        "label": "Đông",
+        "displayedPercent": null,
+        "sourceRawPercent": 550,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 25945,
+      "sourceUrl": "https://apaniche.vn/guerlain-lhomme-ideal-edp",
+      "code": "source_suitability_percent_out_of_range",
+      "item": {
+        "label": "Xuân",
+        "displayedPercent": null,
+        "sourceRawPercent": 150,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 27276,
+      "sourceUrl": "https://apaniche.vn/dolce-gabbana-light-blue-eau-intense-for-men-edp",
+      "code": "source_chart_count_invalid",
+      "field": "sillage",
+      "item": {
+        "label": "Gần",
+        "displayedCount": null,
+        "displayedPercent": null,
+        "sourceRawCount": -1744,
+        "sourceCountIssue": "not_a_nonnegative_integer",
+        "sourceRawPercent": -37.6,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 27276,
+      "sourceUrl": "https://apaniche.vn/dolce-gabbana-light-blue-eau-intense-for-men-edp",
+      "code": "source_chart_percent_out_of_range",
+      "field": "sillage",
+      "item": {
+        "label": "Gần",
+        "displayedCount": null,
+        "displayedPercent": null,
+        "sourceRawCount": -1744,
+        "sourceCountIssue": "not_a_nonnegative_integer",
+        "sourceRawPercent": -37.6,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 27297,
+      "sourceUrl": "https://apaniche.vn/dolce-gabbana-light-blue-summer-vibes-femme-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 380000,
+        "max": 2700000
+      },
+      "availableVariantRange": {
+        "min": 380000,
+        "max": 2650000
+      }
+    },
+    {
+      "sourceId": 27303,
+      "sourceUrl": "https://apaniche.vn/dolce-gabbana-light-blue-summer-vibes-pour-homme-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 310000,
+        "max": 2800000
+      },
+      "availableVariantRange": {
+        "min": 310000,
+        "max": 2100000
+      }
+    },
+    {
+      "sourceId": 28607,
+      "sourceUrl": "https://apaniche.vn/diesel-only-the-brave-edt",
+      "code": "source_chart_percent_out_of_range",
+      "field": "sillage",
+      "item": {
+        "label": "Gần",
+        "displayedCount": 250,
+        "displayedPercent": null,
+        "sourceRawPercent": 25000,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 28607,
+      "sourceUrl": "https://apaniche.vn/diesel-only-the-brave-edt",
+      "code": "source_chart_percent_out_of_range",
+      "field": "sillage",
+      "item": {
+        "label": "Vừa Phải",
+        "displayedCount": 1033,
+        "displayedPercent": null,
+        "sourceRawPercent": 103300,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 28607,
+      "sourceUrl": "https://apaniche.vn/diesel-only-the-brave-edt",
+      "code": "source_chart_count_invalid",
+      "field": "sillage",
+      "item": {
+        "label": "Xa",
+        "displayedCount": null,
+        "displayedPercent": null,
+        "sourceRawCount": -1439,
+        "sourceCountIssue": "not_a_nonnegative_integer",
+        "sourceRawPercent": -143900,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 28607,
+      "sourceUrl": "https://apaniche.vn/diesel-only-the-brave-edt",
+      "code": "source_chart_percent_out_of_range",
+      "field": "sillage",
+      "item": {
+        "label": "Xa",
+        "displayedCount": null,
+        "displayedPercent": null,
+        "sourceRawCount": -1439,
+        "sourceCountIssue": "not_a_nonnegative_integer",
+        "sourceRawPercent": -143900,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 28607,
+      "sourceUrl": "https://apaniche.vn/diesel-only-the-brave-edt",
+      "code": "source_chart_percent_out_of_range",
+      "field": "sillage",
+      "item": {
+        "label": "Rất Xa",
+        "displayedCount": 97,
+        "displayedPercent": null,
+        "sourceRawPercent": 9700,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 29984,
+      "sourceUrl": "https://apaniche.vn/lancome-idole-for-woman-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 430000,
+        "max": 3300000
+      },
+      "availableVariantRange": {
+        "min": 430000,
+        "max": 2650000
+      }
+    },
+    {
+      "sourceId": 30244,
+      "sourceUrl": "https://apaniche.vn/xerjoff-casamorati-mefisto-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 560000,
+        "max": 4800000
+      },
+      "availableVariantRange": {
+        "min": 560000,
+        "max": 4600000
+      }
+    },
+    {
+      "sourceId": 30578,
+      "sourceUrl": "https://apaniche.vn/victorias-secret-very-sexy-orchid-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 240000,
+        "max": 2350000
+      },
+      "availableVariantRange": {
+        "min": 240000,
+        "max": 1950000
+      }
+    },
+    {
+      "sourceId": 30720,
+      "sourceUrl": "https://apaniche.vn/dolce-gabbana-q-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 440000,
+        "max": 3550000
+      },
+      "availableVariantRange": {
+        "min": 440000,
+        "max": 3200000
+      }
+    },
+    {
+      "sourceId": 32232,
+      "sourceUrl": "https://apaniche.vn/jean-paul-gaultier-le-beau-paradise-garden-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 330000,
+        "max": 3350000
+      },
+      "availableVariantRange": {
+        "min": 330000,
+        "max": 3250000
+      }
+    },
+    {
+      "sourceId": 32718,
+      "sourceUrl": "https://apaniche.vn/xerjoff-nio-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 1030000,
+        "max": 4950000
+      },
+      "availableVariantRange": {
+        "min": 1030000,
+        "max": 4900000
+      }
+    },
+    {
+      "sourceId": 33026,
+      "sourceUrl": "https://apaniche.vn/hermes-terre-dhermes-eau-intense-vetive-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 350000,
+        "max": 3250000
+      },
+      "availableVariantRange": {
+        "min": 350000,
+        "max": 2900000
+      }
+    },
+    {
+      "sourceId": 33903,
+      "sourceUrl": "https://apaniche.vn/dolce-gabbana-l-imperatrice-limited-edition",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 220000,
+        "max": 2500000
+      },
+      "availableVariantRange": {
+        "min": 220000,
+        "max": 2300000
+      }
+    },
+    {
+      "sourceId": 34027,
+      "sourceUrl": "https://apaniche.vn/prada-candy-florale-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 1400000,
+        "max": 1950000
+      },
+      "availableVariantRange": {
+        "min": 1950000,
+        "max": 1950000
+      }
+    },
+    {
+      "sourceId": 34485,
+      "sourceUrl": "https://apaniche.vn/thierry-mugler-cologne-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 230000,
+        "max": 2700000
+      },
+      "availableVariantRange": {
+        "min": 230000,
+        "max": 2400000
+      }
+    },
+    {
+      "sourceId": 34491,
+      "sourceUrl": "https://apaniche.vn/tiziana-terenzi-cassiopea-edp",
+      "code": "source_suitability_percent_out_of_range",
+      "item": {
+        "label": "Hạ",
+        "displayedPercent": null,
+        "sourceRawPercent": 900,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 34549,
+      "sourceUrl": "https://apaniche.vn/memo-paris-inle-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 520000,
+        "max": 5500000
+      },
+      "availableVariantRange": {
+        "min": 520000,
+        "max": 3600000
+      }
+    },
+    {
+      "sourceId": 34556,
+      "sourceUrl": "https://apaniche.vn/memo-paris-sintra-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 3800000,
+        "max": 5500000
+      },
+      "availableVariantRange": {
+        "min": 3800000,
+        "max": 3800000
+      }
+    },
+    {
+      "sourceId": 34825,
+      "sourceUrl": "https://apaniche.vn/tom-ford-orchid-soleil-edp",
+      "code": "source_suitability_percent_out_of_range",
+      "item": {
+        "label": "Hạ",
+        "displayedPercent": null,
+        "sourceRawPercent": 1000,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 34962,
+      "sourceUrl": "https://apaniche.vn/dior-j-adore-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 2550000,
+        "max": 3700000
+      },
+      "availableVariantRange": {
+        "min": 3700000,
+        "max": 3700000
+      }
+    },
+    {
+      "sourceId": 34967,
+      "sourceUrl": "https://apaniche.vn/dior-j-adore-infinissime-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 3350000,
+        "max": 3850000
+      },
+      "availableVariantRange": {
+        "min": 3500000,
+        "max": 3850000
+      }
+    },
+    {
+      "sourceId": 36471,
+      "sourceUrl": "https://apaniche.vn/giorgio-armani-acqua-di-gioia-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 320000,
+        "max": 3100000
+      },
+      "availableVariantRange": {
+        "min": 320000,
+        "max": 2650000
+      }
+    },
+    {
+      "sourceId": 36691,
+      "sourceUrl": "https://apaniche.vn/gucci-flora-edt-2009",
+      "code": "source_suitability_percent_out_of_range",
+      "item": {
+        "label": "Hạ",
+        "displayedPercent": null,
+        "sourceRawPercent": 140,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 36897,
+      "sourceUrl": "https://apaniche.vn/gucci-premiere-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 290000,
+        "max": 4950000
+      },
+      "availableVariantRange": {
+        "min": 290000,
+        "max": 2750000
+      }
+    },
+    {
+      "sourceId": 36905,
+      "sourceUrl": "https://apaniche.vn/gucci-rush-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 320000,
+        "max": 2500000
+      },
+      "availableVariantRange": {
+        "min": 320000,
+        "max": 2350000
+      }
+    },
+    {
+      "sourceId": 38572,
+      "sourceUrl": "https://apaniche.vn/narciso-rodriguez-narciso-rouge-generous-limited-edition-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 350000,
+        "max": 2800000
+      },
+      "availableVariantRange": {
+        "min": 350000,
+        "max": 2600000
+      }
+    },
+    {
+      "sourceId": 38578,
+      "sourceUrl": "https://apaniche.vn/yves-saint-laurent-la-nuit-de-l-homme-bleu-electrique-edt-intense",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 490000,
+        "max": 4700000
+      },
+      "availableVariantRange": {
+        "min": 490000,
+        "max": 4550000
+      }
+    },
+    {
+      "sourceId": 38776,
+      "sourceUrl": "https://apaniche.vn/jean-paul-gaultier-scandal-absolu-pour-femme-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 2350000,
+        "max": 3500000
+      },
+      "availableVariantRange": {
+        "min": 2900000,
+        "max": 3500000
+      }
+    },
+    {
+      "sourceId": 39351,
+      "sourceUrl": "https://apaniche.vn/salvatore-ferragamo-signorina-limited-edition",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 220000,
+        "max": 1250000
+      },
+      "availableVariantRange": {
+        "min": 220000,
+        "max": 1200000
+      }
+    },
+    {
+      "sourceId": 41775,
+      "sourceUrl": "https://apaniche.vn/armaf-uniq-oud-forever-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 280000,
+        "max": 2000000
+      },
+      "availableVariantRange": {
+        "min": 280000,
+        "max": 1350000
+      }
+    },
+    {
+      "sourceId": 42311,
+      "sourceUrl": "https://apaniche.vn/amouage-guidance-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 1110000,
+        "max": 9000000
+      },
+      "availableVariantRange": {
+        "min": 1110000,
+        "max": 8850000
+      }
+    },
+    {
+      "sourceId": 42371,
+      "sourceUrl": "https://apaniche.vn/parfums-de-marly-palatine-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 960000,
+        "max": 6900000
+      },
+      "availableVariantRange": {
+        "min": 960000,
+        "max": 6500000
+      }
+    },
+    {
+      "sourceId": 42669,
+      "sourceUrl": "https://apaniche.vn/van-cleef-arpels-orchidee-vanille",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 3350000,
+        "max": 3900000
+      },
+      "availableVariantRange": {
+        "min": 3900000,
+        "max": 3900000
+      }
+    },
+    {
+      "sourceId": 43414,
+      "sourceUrl": "https://apaniche.vn/diptyque-orpheon-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 780000,
+        "max": 5500000
+      },
+      "availableVariantRange": {
+        "min": 780000,
+        "max": 5200000
+      }
+    },
+    {
+      "sourceId": 43431,
+      "sourceUrl": "https://apaniche.vn/mode-creation-munich-mcm-crush-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 350000,
+        "max": 2000000
+      },
+      "availableVariantRange": {
+        "min": 350000,
+        "max": 1900000
+      }
+    },
+    {
+      "sourceId": 43939,
+      "sourceUrl": "https://apaniche.vn/set-narciso-rodriguez-cristal-edp-50ml-body-lotion-50ml",
+      "code": "source_chart_count_invalid",
+      "field": "longevity",
+      "item": {
+        "label": "Rất Lâu Trên 12H",
+        "displayedCount": null,
+        "displayedPercent": null,
+        "sourceRawCount": -124,
+        "sourceCountIssue": "not_a_nonnegative_integer",
+        "sourceRawPercent": -23,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 43939,
+      "sourceUrl": "https://apaniche.vn/set-narciso-rodriguez-cristal-edp-50ml-body-lotion-50ml",
+      "code": "source_chart_percent_out_of_range",
+      "field": "longevity",
+      "item": {
+        "label": "Rất Lâu Trên 12H",
+        "displayedCount": null,
+        "displayedPercent": null,
+        "sourceRawCount": -124,
+        "sourceCountIssue": "not_a_nonnegative_integer",
+        "sourceRawPercent": -23,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 44151,
+      "sourceUrl": "https://apaniche.vn/narciso-rodriguez-narciso-radiante-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 400000,
+        "max": 3450000
+      },
+      "availableVariantRange": {
+        "min": 400000,
+        "max": 2950000
+      }
+    },
+    {
+      "sourceId": 44961,
+      "sourceUrl": "https://apaniche.vn/dior-homme-parfum-2025",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 450000,
+        "max": 4700000
+      },
+      "availableVariantRange": {
+        "min": 450000,
+        "max": 4300000
+      }
+    },
+    {
+      "sourceId": 44987,
+      "sourceUrl": "https://apaniche.vn/giorgio-armani-emporio-armani-stronger-with-you-parfum",
+      "code": "source_suitability_percent_out_of_range",
+      "item": {
+        "label": "Thu",
+        "displayedPercent": null,
+        "sourceRawPercent": -180,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 45275,
+      "sourceUrl": "https://apaniche.vn/set-gucci-bloom-edp-30ml-va-mini-10ml",
+      "code": "source_suitability_percent_out_of_range",
+      "item": {
+        "label": "Xuân",
+        "displayedPercent": null,
+        "sourceRawPercent": 101,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 45374,
+      "sourceUrl": "https://apaniche.vn/loewe-solo-ella-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 350000,
+        "max": 3600000
+      },
+      "availableVariantRange": {
+        "min": 350000,
+        "max": 3300000
+      }
+    },
+    {
+      "sourceId": 45390,
+      "sourceUrl": "https://apaniche.vn/sospiro-vibrato-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 660000,
+        "max": 6000000
+      },
+      "availableVariantRange": {
+        "min": 660000,
+        "max": 5900000
+      }
+    },
+    {
+      "sourceId": 46133,
+      "sourceUrl": "https://apaniche.vn/parfums-de-marly-castley-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 580000,
+        "max": 7000000
+      },
+      "availableVariantRange": {
+        "min": 580000,
+        "max": 6100000
+      }
+    },
+    {
+      "sourceId": 46919,
+      "sourceUrl": "https://apaniche.vn/yves-saint-laurent-libre-leau-nue-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 470000,
+        "max": 3950000
+      },
+      "availableVariantRange": {
+        "min": 470000,
+        "max": 3700000
+      }
+    },
+    {
+      "sourceId": 48376,
+      "sourceUrl": "https://apaniche.vn/zara-vibrant-leather-edp",
+      "code": "variant_id_difference",
+      "apiIds": [
+        63833,
+        63834
+      ],
+      "pageIds": []
+    },
+    {
+      "sourceId": 49076,
+      "sourceUrl": "https://apaniche.vn/salvatore-ferragamo-giardini-di-seta-edp",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 250000,
+        "max": 2000000
+      },
+      "availableVariantRange": {
+        "min": 250000,
+        "max": 250000
+      }
+    },
+    {
+      "sourceId": 49994,
+      "sourceUrl": "https://apaniche.vn/thierry-mugler-amen-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 250000,
+        "max": 2200000
+      },
+      "availableVariantRange": {
+        "min": 250000,
+        "max": 2000000
+      }
+    },
+    {
+      "sourceId": 57862,
+      "sourceUrl": "https://apaniche.vn/valentino-donna-born-in-roma-intense",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 430000,
+        "max": 4250000
+      },
+      "availableVariantRange": {
+        "min": 430000,
+        "max": 3250000
+      }
+    },
+    {
+      "sourceId": 59098,
+      "sourceUrl": "https://apaniche.vn/burberry-brit-sheer-edt",
+      "code": "api_range_differs_from_available_variant_range",
+      "apiRange": {
+        "min": 240000,
+        "max": 1700000
+      },
+      "availableVariantRange": {
+        "min": 240000,
+        "max": 1600000
+      }
+    },
+    {
+      "sourceId": 64512,
+      "sourceUrl": "https://apaniche.vn/mykonos-slow-living-eau-de-parfum",
+      "code": "source_chart_count_invalid",
+      "field": "longevity",
+      "item": {
+        "label": "Rất Lâu Trên 12H",
+        "displayedCount": null,
+        "displayedPercent": null,
+        "sourceRawCount": -1,
+        "sourceCountIssue": "not_a_nonnegative_integer",
+        "sourceRawPercent": -0.8,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    },
+    {
+      "sourceId": 64512,
+      "sourceUrl": "https://apaniche.vn/mykonos-slow-living-eau-de-parfum",
+      "code": "source_chart_percent_out_of_range",
+      "field": "longevity",
+      "item": {
+        "label": "Rất Lâu Trên 12H",
+        "displayedCount": null,
+        "displayedPercent": null,
+        "sourceRawCount": -1,
+        "sourceCountIssue": "not_a_nonnegative_integer",
+        "sourceRawPercent": -0.8,
+        "sourceValueIssue": "outside_0_to_100"
+      }
+    }
+  ]
+}

@@ -18,7 +18,7 @@ productRouter.post(
   "/",
   authUser,
   requireOwner,
-  upload.array("images", 4),
+  upload.fields([{ name: "images", maxCount: 4 }, { name: "sizeImages", maxCount: 50 }]),
   createProduct,
 );
 productRouter.get("/", listProduct);
@@ -32,7 +32,7 @@ productRouter.put(
   "/:productId",
   authUser,
   requireOwner,
-  upload.array("images", 4),
+  upload.fields([{ name: "images", maxCount: 4 }, { name: "sizeImages", maxCount: 50 }]),
   updateProduct,
 );
 productRouter.delete("/:productId", authUser, requireOwner, deleteProduct);

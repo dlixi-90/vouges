@@ -13,7 +13,7 @@ export const issueBirthdayVoucher = async (user, now = new Date()) => {
   try {
     return await Voucher.findOneAndUpdate(filter, { $setOnInsert: {
       ...filter, code: `BDAY-${crypto.randomBytes(8).toString("hex").toUpperCase()}`,
-      type: "percent", value: 10, maxDiscount: 100, minSubtotal: 300,
+      type: "percent", value: 10, maxDiscount: 100000, minSubtotal: 300000,
       startsAt: window.startsAt, expiresAt: window.expiresAt, maxUses: 1,
     } }, { upsert: true, new: true, setDefaultsOnInsert: true });
   } catch (error) {
@@ -25,8 +25,8 @@ export const issueBirthdayVoucher = async (user, now = new Date()) => {
 export const calculateDiscount = (voucher, subtotal) => {
   let discount = voucher.type === "percent" ? subtotal * voucher.value / 100 : voucher.value;
   if (voucher.maxDiscount != null) discount = Math.min(discount, voucher.maxDiscount);
-  // Amounts in this project use thousands of VND; round to one VND.
-  return Math.round(Math.max(0, Math.min(subtotal, discount)) * 1000) / 1000;
+  // Round percentage discounts to one VND.
+  return Math.round(Math.max(0, Math.min(subtotal, discount)));
 };
 
 export const validateVoucher = async (code, userId, subtotal, session, now = new Date()) => {

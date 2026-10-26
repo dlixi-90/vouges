@@ -16,7 +16,7 @@ const Footer = () => {
               </Link>
             </div>
             <p className="text-sm mt-5">
-              Khám phá bộ sưu tập mỹ phẩm cao cấp, giúp tôn lên vẻ đẹp tự nhiên, mang lại sự tự tin và nét thanh lịch mỗi ngày.
+              Khám phá bộ sưu tập nước hoa, tìm dấu ấn hương thơm riêng và cảm hứng cho những khoảnh khắc mỗi ngày.
             </p>
             <div className="flex items-center gap-3 mt-7">
               <img src={assets.facebook} alt="" />

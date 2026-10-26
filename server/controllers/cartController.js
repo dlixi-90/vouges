@@ -1,7 +1,7 @@
 import { isObjectIdOrHexString } from "mongoose";
 import User from "../models/User.js";
 import Product from "../models/Product.js";
-import { getSizeQuantity, isSizeAvailable } from "../utils/productStock.js";
+import { getPurchaseLimit, isSizeAvailable } from "../utils/productStock.js";
 import { getCartAddedAt, getMissingCartAddedAtUpdates, getNextCartAddedAt } from "../utils/cartOrder.js";
 
 const MAX_ADD_QUANTITY = 10;
@@ -16,7 +16,7 @@ const findAvailableProduct = async (itemId) => {
   return Product.findOne({
     _id: itemId,
     isDeleted: { $ne: true },
-  }, "sizes stockBySize inStockBySize inStock");
+  }, "sizes stockBySize inventoryMode isPublished inStockBySize inStock");
 };
 
 const validateProductSize = (product, size) => {
@@ -92,7 +92,7 @@ export const addToCart = async (req, res) => {
       });
     }
 
-    const stockQuantity = getSizeQuantity(product, size);
+    const stockQuantity = getPurchaseLimit(product, size);
 
     if (quantity > stockQuantity) {
       return res.status(400).json({
@@ -172,7 +172,7 @@ export const changeCartSize = async (req, res) => {
       return res.status(400).json({ success: false, message: sizeError });
     }
     const quantity = fromQuantity + toQuantity;
-    const stock = getSizeQuantity(product, toSize);
+    const stock = getPurchaseLimit(product, toSize);
     if (!Number.isSafeInteger(quantity) || quantity > stock) {
       return res.status(400).json({
         success: false,
@@ -293,7 +293,7 @@ export const updateCart = async (req, res) => {
       });
     }
 
-    const stockQuantity = getSizeQuantity(product, size);
+    const stockQuantity = getPurchaseLimit(product, size);
 
     if (quantity > stockQuantity) {
       return res.status(400).json({

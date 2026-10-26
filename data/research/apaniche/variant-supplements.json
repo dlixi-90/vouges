@@ -1,0 +1,53 @@
+[
+  {
+    "productId": 25232,
+    "sourceId": 64367,
+    "sourceUrl": "https://apaniche.vn/wp-json/wc/store/v1/products/64367?_fields=id,parent,prices,images,is_in_stock,is_purchasable,sku",
+    "fetchedAt": "2026-10-26T13:36:39.179Z",
+    "detailSource": "public_store_api",
+    "attributes": {
+      "attribute_pa_dung-tich": "10ml-dung-thu"
+    },
+    "price": 0,
+    "regularPrice": 0,
+    "inStock": true,
+    "purchasable": false,
+    "sku": null,
+    "imageUrl": "https://apaniche.vn/wp-content/uploads/2023/07/apa.jpg",
+    "sourcePriceIssue": "zero_price_not_verified_as_free"
+  },
+  {
+    "productId": 48376,
+    "sourceId": 63833,
+    "sourceUrl": "https://apaniche.vn/wp-json/wc/store/v1/products/63833?_fields=id,parent,prices,images,is_in_stock,is_purchasable,sku",
+    "fetchedAt": "2026-10-26T13:36:39.799Z",
+    "detailSource": "public_store_api",
+    "attributes": {
+      "attribute_pa_dung-tich": "100ml"
+    },
+    "price": 0,
+    "regularPrice": 0,
+    "inStock": true,
+    "purchasable": false,
+    "sku": null,
+    "imageUrl": "https://apaniche.vn/wp-content/uploads/2025/07/Zara-Vibrant-Leather-apa-niche.png",
+    "sourcePriceIssue": "zero_price_not_verified_as_free"
+  },
+  {
+    "productId": 48376,
+    "sourceId": 63834,
+    "sourceUrl": "https://apaniche.vn/wp-json/wc/store/v1/products/63834?_fields=id,parent,prices,images,is_in_stock,is_purchasable,sku",
+    "fetchedAt": "2026-10-26T13:36:40.516Z",
+    "detailSource": "public_store_api",
+    "attributes": {
+      "attribute_pa_dung-tich": "10ml-dung-thu"
+    },
+    "price": 0,
+    "regularPrice": 0,
+    "inStock": true,
+    "purchasable": false,
+    "sku": null,
+    "imageUrl": "https://apaniche.vn/wp-content/uploads/2025/07/Zara-Vibrant-Leather-apa-niche.png",
+    "sourcePriceIssue": "zero_price_not_verified_as_free"
+  }
+]

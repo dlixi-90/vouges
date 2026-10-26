@@ -1,9 +1,10 @@
+import { getSizeImage } from "../../../utils/productImages.js";
 import { randomUUID } from "node:crypto";
 import { isObjectIdOrHexString } from "mongoose";
 import Product from "../../../models/Product.js";
 import User from "../../../models/User.js";
 import {
-  getSizeQuantity,
+  getPurchaseLimit,
   isSizeAvailable,
 } from "../../../utils/productStock.js";
 
@@ -114,7 +115,7 @@ const getCartItemData = async ({ userId, productId, size }) => {
     User.findById(userId).select("cartData").lean(),
     Product.findOne({ _id: productId })
       .select(
-        "title price sizes stockBySize inStockBySize images inStock isDeleted",
+        "title price sizes stockBySize inventoryMode isPublished inStockBySize images sizeImages inStock isDeleted",
       )
       .lean(),
   ]);
@@ -132,21 +133,21 @@ const getCartItemData = async ({ userId, productId, size }) => {
   return { product, currentQuantity };
 };
 
-const createProductSummary = (product, productId) => ({
+const createProductSummary = (product, productId, size) => ({
   id: productId,
   title: product?.title || "Sản phẩm không còn tồn tại",
-  image: product?.images?.[0] || null,
+  image: getSizeImage(product, size),
   url: product && !product.isDeleted ? `/collection/${productId}` : null,
 });
 
 const createMoney = (product, size, quantity) => {
-  const unitAmount = Number(product?.price?.[size]) * 1000;
+  const unitAmount = Number(product?.price?.[size]);
 
   if (!Number.isFinite(unitAmount)) {
     return { unitPrice: null, lineTotal: null };
   }
 
-  const currency = process.env.CURRENCY || "VND";
+  const currency = "VND";
 
   return {
     unitPrice: { amount: unitAmount, currency },
@@ -187,7 +188,7 @@ export const prepareUpdateCart = async (
     throw new Error("Size sản phẩm này hiện không khả dụng");
   }
 
-  if (quantity > getSizeQuantity(product, size)) {
+  if (quantity > getPurchaseLimit(product, size)) {
     throw new Error(`Không đủ tồn kho cho ${quantity} sản phẩm size ${size}`);
   }
 
@@ -200,7 +201,7 @@ export const prepareUpdateCart = async (
       id: randomUUID(),
       type: "updateCart",
       productId,
-      product: createProductSummary(product, productId),
+      product: createProductSummary(product, productId, size),
       size,
       quantity,
       currentQuantity,
@@ -231,7 +232,7 @@ export const prepareRemoveFromCart = async (
       id: randomUUID(),
       type: "removeFromCart",
       productId,
-      product: createProductSummary(product, productId),
+      product: createProductSummary(product, productId, size),
       size,
       quantity: 0,
       currentQuantity,

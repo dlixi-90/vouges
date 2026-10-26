@@ -1,0 +1,52 @@
+{
+  "reviewedAt": "2026-10-26",
+  "indexUrl": "https://apaniche.vn/sitemap_index.xml",
+  "total": 4364,
+  "uniqueUrls": 4364,
+  "counts": [
+    {
+      "source": "https://apaniche.vn/post-sitemap.xml",
+      "count": 184
+    },
+    {
+      "source": "https://apaniche.vn/page-sitemap.xml",
+      "count": 31
+    },
+    {
+      "source": "https://apaniche.vn/product-sitemap.xml",
+      "count": 1000
+    },
+    {
+      "source": "https://apaniche.vn/product-sitemap2.xml",
+      "count": 1000
+    },
+    {
+      "source": "https://apaniche.vn/product-sitemap3.xml",
+      "count": 444
+    },
+    {
+      "source": "https://apaniche.vn/note_huong-sitemap.xml",
+      "count": 950
+    },
+    {
+      "source": "https://apaniche.vn/nhom_huong-sitemap.xml",
+      "count": 31
+    },
+    {
+      "source": "https://apaniche.vn/thu_vien_mui_huong-sitemap.xml",
+      "count": 68
+    },
+    {
+      "source": "https://apaniche.vn/category-sitemap.xml",
+      "count": 5
+    },
+    {
+      "source": "https://apaniche.vn/product_cat-sitemap.xml",
+      "count": 646
+    },
+    {
+      "source": "https://apaniche.vn/author-sitemap.xml",
+      "count": 5
+    }
+  ]
+}

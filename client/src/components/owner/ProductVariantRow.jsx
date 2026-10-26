@@ -1,11 +1,12 @@
 import { Check, Pencil, Trash2, X } from "lucide-react";
+import ProductImageUpload from "./ProductImageUpload";
 
 const ProductVariantRow = ({ item, draft, loading, onEdit, onChange, onSave, onCancel, onRemove }) => {
   const editing = Boolean(draft);
   const values = draft || item;
   const fields = [
     { name: "size", label: "Dung tích", type: "text", maxLength: 50 },
-    { name: "price", label: "Giá (nghìn đồng)", type: "number", min: "0.01", step: "0.01" },
+    { name: "price", label: "Giá (VND)", type: "number", min: "1", step: "1" },
     { name: "quantity", label: "Số lượng", type: "number", min: "0", step: "1" },
   ];
   const buttonStyle = "inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#cfdad2] px-3 py-2 text-sm font-medium text-[#496852] hover:bg-[#f2f7f3] disabled:opacity-50";
@@ -41,6 +42,18 @@ const ProductVariantRow = ({ item, draft, loading, onEdit, onChange, onSave, onC
             />
           </label>
         ))}
+      </div>
+      <div className="mt-3 flex items-center gap-4">
+        <div className="w-24 shrink-0">
+          <ProductImageUpload
+            file={values.image}
+            label={`Ảnh dung tích ${values.size || item.size}`}
+            disabled={loading || !editing}
+            onChange={(file) => onChange("image", file)}
+            onRemove={() => onChange("image", null)}
+          />
+        </div>
+        <p className="text-xs text-gray-500">Ảnh riêng của dung tích. Chưa có ảnh sẽ dùng ảnh sản phẩm.</p>
       </div>
       <div className="mt-3 flex flex-wrap items-center justify-end gap-2 border-t border-[#edf0ee] pt-3">
         {editing ? (

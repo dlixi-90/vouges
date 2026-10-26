@@ -19,7 +19,7 @@ import {
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAppContext } from "../context/AppContext";
-import { formatThousandsVnd } from "../utils/money";
+import { formatVnd } from "../utils/money";
 import { formatVoucherExpiryDate } from "../utils/voucherDates";
 
 const focusStyles =
@@ -395,7 +395,7 @@ export default function Membership() {
                           >
                             {voucher.type === "percent"
                               ? `${voucher.value}%`
-                              : formatThousandsVnd(voucher.value)}
+                              : formatVnd(voucher.value)}
                           </p>
                         </div>
                         <div className="min-w-0 flex-1 p-5">
@@ -408,9 +408,9 @@ export default function Membership() {
                               : "Ưu đãi từ Velours"}
                           </h3>
                           <p className="mt-2 text-xs leading-5 text-gray-500">
-                            Đơn từ {formatThousandsVnd(voucher.minSubtotal)}
+                            Đơn từ {formatVnd(voucher.minSubtotal)}
                             {voucher.maxDiscount != null &&
-                              ` · Giảm tối đa ${formatThousandsVnd(voucher.maxDiscount)}`}
+                              ` · Giảm tối đa ${formatVnd(voucher.maxDiscount)}`}
                           </p>
                           <p className="mt-1 text-xs text-gray-500">
                             Hết hạn {formatVoucherExpiryDate(voucher.expiresAt)}

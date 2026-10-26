@@ -1,8 +1,8 @@
-export const toVndAmount = (thousandVnd) => {
-  const amount = Number(thousandVnd);
+export const toVndAmount = (value) => {
+  const amount = Number(value);
 
-  return Number.isFinite(amount) ? Math.round(amount * 1000) : 0;
+  return Number.isFinite(amount) ? Math.round(amount) : 0;
 };
 
-export const formatThousandsVnd = (thousandVnd, currency = "VND") =>
-  `${toVndAmount(thousandVnd).toLocaleString("vi-VN")} ${currency || ""}`.trim();
+export const formatVnd = (value, currency = "₫") =>
+  `${toVndAmount(value).toLocaleString("vi-VN")} ${currency || ""}`.trim();

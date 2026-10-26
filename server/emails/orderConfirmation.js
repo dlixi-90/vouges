@@ -1,3 +1,4 @@
+import { getSizeImage } from "../utils/productImages.js";
 const escapeHtml = (value) =>
   String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -15,14 +16,14 @@ const httpsUrl = (value) => {
   }
 };
 
-// Order prices are stored in thousands of VND. Use the purchase snapshots,
+// All prices are integer VND. Use the purchase snapshots,
 // including the saved total, so later catalog/shipping changes do not alter receipts.
 const money = (value) =>
   new Intl.NumberFormat("vi-VN", {
     style: "currency",
     currency: "VND",
     maximumFractionDigits: 0,
-  }).format(Math.round(Number(value) * 1000));
+  }).format(Math.round(Number(value)));
 
 export const buildOrderConfirmationEmail = (
   order,
@@ -52,7 +53,7 @@ export const buildOrderConfirmationEmail = (
       }).format(createdAt);
   const items = (order.items || []).map((item) => ({
     title: item.title || item.product?.title || "Sản phẩm Velours",
-    image: httpsUrl(item.image || item.product?.images?.[0]),
+    image: httpsUrl(item.image || getSizeImage(item.product, item.size)),
     size: item.size,
     quantity: Number(item.quantity),
     unitPrice: Number(item.unitPrice ?? item.product?.price?.[item.size] ?? 0),

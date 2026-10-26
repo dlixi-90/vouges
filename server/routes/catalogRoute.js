@@ -1,0 +1,14 @@
+import express from "express";
+import authUser,{requireOwner} from "../middleware/authMiddleware.js";
+import {upload} from "../middleware/multer.js";
+import {catalogSummary,catalogProducts,catalogProduct,saveCatalogProduct,libraryTerms,saveLibraryTerm,catalogMedia} from "../controllers/catalogController.js";
+const router=express.Router();
+router.use(authUser,requireOwner);
+router.get("/summary",catalogSummary);
+router.get("/products",catalogProducts);
+router.get("/products/:id",catalogProduct);
+router.patch("/products/:id",saveCatalogProduct);
+router.get("/terms",libraryTerms);
+router.patch("/terms/:id",saveLibraryTerm);
+router.post("/media",upload.array("images",4),catalogMedia);
+export default router;

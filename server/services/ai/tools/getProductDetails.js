@@ -47,9 +47,10 @@ export const getProductDetails = async (argumentsValue = {}) => {
   const product = await Product.findOne({
     _id: productId,
     isDeleted: { $ne: true },
+    isPublished: { $ne: false },
   })
     .select(
-      "title description price sizes stockBySize inStockBySize images category type popular inStock",
+      "title description price sizes stockBySize inventoryMode isPublished inStockBySize images category type popular inStock brand origin concentration gender fragrance",
     )
     .lean();
 
@@ -72,6 +73,11 @@ export const getProductDetails = async (argumentsValue = {}) => {
       description: product.description.slice(0, MAX_DESCRIPTION_LENGTH),
       category: product.category,
       type: product.type,
+      brand: product.brand || null,
+      concentration: product.concentration || null,
+      gender: product.gender || null,
+      origin: product.origin || null,
+      fragrance: {group:product.fragrance?.group||null,style:product.fragrance?.style||null,notes:product.fragrance?.notes||{},accords:(product.fragrance?.accords||[]).map(item=>item.label)},
       popular: Boolean(product.popular),
       isAvailable: availableOptions.length > 0,
       availableOptions,

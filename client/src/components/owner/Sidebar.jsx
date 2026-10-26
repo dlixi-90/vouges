@@ -2,7 +2,7 @@ import { useAppContext } from "../../context/AppContext";
 import { assets } from "../../assets/data";
 import { Link, Outlet, Navigate, matchPath, useLocation, useMatch } from "react-router-dom";
 import { UserButton } from "@clerk/react";
-import { ArrowUpRight, MessagesSquare } from "lucide-react";
+import { ArrowUpRight, MessagesSquare, Database, Library, Tags, Warehouse, ShieldAlert, ShoppingBag } from "lucide-react";
 
 const Sidebar = () => {
   const { isOwner, user, profileError, retryUserProfile } = useAppContext();
@@ -22,12 +22,18 @@ const Sidebar = () => {
       label: "Tin nhắn",
       iconComponent: <MessagesSquare size={18} className="hidden md:block" aria-hidden="true" />,
     },
+    { path: "/owner/orders", label: "Đơn hàng", iconComponent: <ShoppingBag size={18} className="hidden md:block" /> },
     {
       path: "/owner/list-product",
       label: "Sản phẩm",
       icon: assets.list,
       activePaths: ["/owner/list-product", "/owner/add-product", "/owner/edit-product/:productId"],
     },
+    { path: "/owner/inventory", label: "Giá & trạng thái hàng", iconComponent: <Warehouse size={18} className="hidden md:block" /> },
+    { path: "/owner/data", label: "Dữ liệu Apaniche", iconComponent: <Database size={18} className="hidden md:block" /> },
+    { path: "/owner/brands", label: "Thương hiệu", iconComponent: <Tags size={18} className="hidden md:block" /> },
+    { path: "/owner/library", label: "Thư viện hương", iconComponent: <Library size={18} className="hidden md:block" /> },
+    { path: "/owner/quality", label: "Chất lượng dữ liệu", iconComponent: <ShieldAlert size={18} className="hidden md:block" /> },
     {
       path: "/owner/add-category",
       label: "Danh mục",
@@ -96,7 +102,7 @@ const Sidebar = () => {
               </div>
             </div>
             <p className="inessa-admin-label">Không gian quản trị</p>
-            <div className="flex flex-wrap justify-center md:flex-col md:gap-x-5 gap-y-4 md:gap-y-8 md:mt-4">
+            <div className="perfume-admin-nav flex flex-wrap justify-center md:flex-col md:gap-x-5 gap-y-4 md:gap-y-8 md:mt-4">
               {navItems.map((link) => {
                 const isActive = (link.activePaths || [link.path]).some((path) =>
                   matchPath({ path, end: true }, pathname),

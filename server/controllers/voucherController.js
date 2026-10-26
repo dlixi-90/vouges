@@ -40,8 +40,9 @@ export const createVoucher = async (req, res, next) => {
     if (typeof code !== "string" || !/^[A-Z0-9-]{3,40}$/i.test(code.trim()) || code.toUpperCase().startsWith("BDAY-")
       || !["percent", "fixed"].includes(type)
       || typeof value !== "number" || !Number.isFinite(value) || value <= 0 || (type === "percent" && value > 100)
-      || typeof minSubtotal !== "number" || !Number.isFinite(minSubtotal) || minSubtotal < 0
-      || (maxDiscount !== null && (typeof maxDiscount !== "number" || !Number.isFinite(maxDiscount) || maxDiscount <= 0))
+      || !Number.isSafeInteger(minSubtotal) || minSubtotal < 0
+      || (maxDiscount !== null && (!Number.isSafeInteger(maxDiscount) || maxDiscount <= 0))
+      || (type === "fixed" && !Number.isSafeInteger(value))
       || !Number.isSafeInteger(maxUses) || maxUses < 1
       || !Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end <= start || end <= new Date())
       return res.status(400).json({ success: false, message: "Thông tin mã giảm giá không hợp lệ." });

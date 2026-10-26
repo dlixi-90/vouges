@@ -19,9 +19,12 @@ const Vouchers = lazy(() => import("./pages/owner/Vouchers"));
 const Messages = lazy(() => import("./pages/owner/Messages"));
 const Sidebar = lazy(() => import("./components/owner/Sidebar"));
 const Dashboard = lazy(() => import("./pages/owner/Dashboard"));
+const PerfumeOverview = lazy(() => import("./pages/owner/PerfumeOverview"));
+const PerfumeProducts = lazy(() => import("./pages/owner/PerfumeProducts"));
+const PerfumeEditor = lazy(() => import("./pages/owner/PerfumeEditor"));
+const FragranceLibrary = lazy(() => import("./pages/owner/FragranceLibrary"));
 const AddProduct = lazy(() => import("./pages/owner/AddProduct"));
 const AddCategory = lazy(() => import("./pages/owner/AddCategory"));
-const ListProduct = lazy(() => import("./pages/owner/ListProduct"));
 
 const App = () => {
   const location = useLocation();
@@ -51,13 +54,19 @@ const App = () => {
           <Route path="/order-overview/:orderId" element={<OrderOverview />} />
           <Route path="/membership" element={<Membership />} />
           <Route path="/owner" element={<Sidebar />}>
-            <Route index element={<Dashboard />} />
+            <Route index element={<PerfumeOverview />} />
+            <Route path="orders" element={<Dashboard />} />
             <Route path="add-product" element={<AddProduct />} />
             <Route path="add-category" element={<AddCategory />} />
-            <Route path="list-product" element={<ListProduct />} />
+            <Route path="list-product" element={<PerfumeProducts />} />
+            <Route path="inventory" element={<PerfumeProducts key="inventory" mode="inventory" />} />
+            <Route path="quality" element={<PerfumeProducts key="quality" mode="quality" />} />
+            <Route path="data" element={<PerfumeProducts key="source" mode="source" />} />
+            <Route path="brands" element={<FragranceLibrary key="brands" brands />} />
+            <Route path="library" element={<FragranceLibrary key="library" />} />
             <Route path="vouchers" element={<Vouchers />} />
             <Route path="messages" element={<Messages />} />
-            <Route path="edit-product/:productId" element={<AddProduct />} />
+            <Route path="edit-product/:productId" element={<PerfumeEditor />} />
           </Route>
         </Routes>
       </Suspense>

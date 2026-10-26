@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import { getAvailableSizes } from "../utils/productStock";
-import { formatThousandsVnd } from "../utils/money";
+import { formatVnd } from "../utils/money";
 
 const COMPLEMENTARY_TYPES = {
   Cleanser: ["Serum", "Lotion", "Oil"],
@@ -90,7 +90,7 @@ const PairWithProducts = ({ product, productId }) => {
                   {item.title}
                 </h3>
                 <p className="mt-1 text-xs text-[#858585]">
-                  {formatThousandsVnd(item.price?.[firstSize], currency)}
+                  {formatVnd(item.price?.[firstSize], currency)}
                 </p>
               </div>
             </button>
