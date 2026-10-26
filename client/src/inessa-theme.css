@@ -6,10 +6,10 @@
   --inessa-muted: #686868;
   --inessa-line: #e6e3df;
   --inessa-paper: #f8f7f5;
-  --inessa-radius-small: 8px;
-  --inessa-radius-control: 12px;
-  --inessa-radius-card: 18px;
-  --inessa-radius-panel: 24px;
+  --inessa-radius-small: 6px;
+  --inessa-radius-control: 8px;
+  --inessa-radius-card: 12px;
+  --inessa-radius-panel: 16px;
 }
 .net-theme { --color-primary: #f8f7f5; --color-primary-dark: #eeece8; --net-space: clamp(64px, 7vw, 110px); }
 .net-theme .max-padd-container { max-width: 1500px; padding-inline: clamp(22px, 5.5vw, 80px); }
