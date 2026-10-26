@@ -36,7 +36,7 @@ const ProductVariantRow = ({ item, draft, loading, onEdit, onChange, onSave, onC
                   onCancel();
                 }
               }}
-              className={`admin-input ${editing ? "" : "!bg-[#f8faf8] text-[#52616b]"}`}
+              className={`admin-input ${editing ? "" : "!bg-white text-[#52616b]"}`}
               aria-label={`${label} cho dung tích ${item.size}`}
             />
           </label>

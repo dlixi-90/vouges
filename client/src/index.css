@@ -1,10 +1,11 @@
 @import "tailwindcss";
 @import "./net-theme.css";
 @import "./inessa-theme.css";
+@import "./white-surfaces.css";
 
 @theme {
-  --color-primary: #f5f5f5;
-  --color-primary-dark: #ececec;
+  --color-primary: #ffffff;
+  --color-primary-dark: #ffffff;
   --color-secondary: #171717;
   --color-tertiary: #000000e3;
   --color-gray-50: #7b7b7b;

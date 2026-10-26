@@ -18,7 +18,7 @@ const ProductCarousel = ({ products, showSoldCount = false }) => (
   >
     {products.slice(0, 10).map((product) => (
       <SwiperSlide key={product._id}>
-        <Item product={product} collectionLayout />
+        <Item product={product} />
         {showSoldCount && <p className="mt-2 text-center text-xs text-gray-500">{product.soldQuantity} đã bán</p>}
       </SwiperSlide>
     ))}

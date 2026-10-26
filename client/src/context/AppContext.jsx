@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useMatch, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { createCartUpdateQueue } from "../utils/cartUpdateQueue";
@@ -90,6 +90,7 @@ export const AppContextProvider = ({ children }) => {
   const [profileResult, setProfileResult] = useState({ userId: null, role: null, error: "" });
   const navigate = useNavigate();
   const { pathname, key: locationKey } = useLocation();
+  const isCartPage = Boolean(useMatch("/cart"));
   const needsCatalog = !["/owner", "/owner/messages", "/membership"].includes(pathname.replace(/\/+$/, ""))
     || cartDrawer?.locationKey === locationKey;
   const needsCategories = needsCatalog || !pathname.startsWith("/owner");
@@ -126,12 +127,13 @@ export const AppContextProvider = ({ children }) => {
   }, [user, openSignIn]);
 
   const openCart = () => {
+    if (isCartPage) return false;
     if (!requireCartLogin()) return false;
     setCartDrawer({ userId: user.id, locationKey });
     return true;
   };
   const closeCart = useCallback(() => setCartDrawer(null), []);
-  const isCartOpen = Boolean(user && cartDrawer?.userId === user.id && cartDrawer?.locationKey === locationKey);
+  const isCartOpen = Boolean(!isCartPage && user && cartDrawer?.userId === user.id && cartDrawer?.locationKey === locationKey);
 
   const [profileLoader] = useState(() => createUserProfileLoader({
     request: async (_userId, signal, readToken) => {
@@ -582,6 +584,7 @@ export const AppContextProvider = ({ children }) => {
     delivery_charges,
     addToCart,
     openCart,
+    isCartPage,
     closeCart,
     isCartOpen,
     requireCartLogin,

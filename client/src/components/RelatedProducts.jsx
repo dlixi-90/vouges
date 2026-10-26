@@ -38,7 +38,7 @@ const RelatedProducts = ({ product, productId }) => {
       >
         {relatedProducts.map((item) => (
           <SwiperSlide key={item._id}>
-            <Item product={item} collectionLayout />
+            <Item product={item} />
           </SwiperSlide>
         ))}
       </Swiper>

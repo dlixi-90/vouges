@@ -34,7 +34,7 @@ const Header = () => {
   const chatLauncherRef = useRef(null);
   const { openSignIn } = useClerk();
 
-  const { navigate, openCart, isCartOpen, user, getCartCount, isOwner, storeResources } =
+  const { navigate, openCart, isCartOpen, isCartPage, user, getCartCount, isOwner, storeResources } =
     useAppContext();
 
   const prefetchMembership = () => {
@@ -103,12 +103,14 @@ const Header = () => {
                 <button
                   type="button"
                   onClick={() => { setMenuOpened(false); openCart(); }}
+                  disabled={isCartPage}
                   data-cart-target
                   aria-label={`Giỏ hàng có ${getCartCount()} sản phẩm`}
-                  aria-haspopup="dialog"
+                  aria-current={isCartPage ? "page" : undefined}
+                  aria-haspopup={isCartPage ? undefined : "dialog"}
                   aria-expanded={isCartOpen}
                   aria-controls="velours-cart-drawer"
-                  className="relative cursor-pointer"
+                  className={`relative ${isCartPage ? "cursor-default" : "cursor-pointer"}`}
                 >
                   <img src={assets.cartAdded} alt="" className="min-w-7" />
                   <span className="absolute bottom-7 right-0 left-0 text-xs font-bold bg-secondary/15 flexCenter rounded-full">
@@ -174,7 +176,7 @@ const Header = () => {
         aria-controls="vouges-ai-chat-panel"
         className="inessa-chat-launcher"
       >
-        <Headset size={26} strokeWidth={1.7} aria-hidden="true" />
+        <Headset size={22} strokeWidth={1.7} aria-hidden="true" />
         <span className="inessa-chat-launcher-label" aria-hidden="true">Hỏi trợ lý AI</span>
       </button>
 
