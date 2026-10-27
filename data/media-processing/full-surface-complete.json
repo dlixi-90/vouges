@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "total": 11214,
+  "fullImageChecks": 3386,
+  "controlSample": 100,
+  "controlMisses": 0,
+  "additionalLines": 150,
+  "failed": [],
+  "completedAt": "2026-10-27T15:11:08+0700"
+}

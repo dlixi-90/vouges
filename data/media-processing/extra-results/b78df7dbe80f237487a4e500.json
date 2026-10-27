@@ -1,0 +1,24 @@
+{
+  "key": "b78df7dbe80f237487a4e500",
+  "url": "https://apaniche.vn/wp-content/uploads/2026/10/Byredo-Rose-Of-No-Mans-Land-Absolu-Parfum-Apa-Niche.png",
+  "avatar": true,
+  "roles": [
+    "avatar"
+  ],
+  "productIds": [
+    "3afa7f5edeececa5f3b20e62"
+  ],
+  "width": 800,
+  "height": 800,
+  "status": "done",
+  "pipelineVersion": 4,
+  "fullSurfaceChecked": true,
+  "fullSurfaceVersion": 2,
+  "watermarkMatches": [],
+  "cutoutPath": "output/b78df7dbe80f237487a4e500-cutout.webp",
+  "cutout": {
+    "method": "u2net",
+    "foregroundRatio": 0.4192
+  },
+  "humanReviewed": true
+}

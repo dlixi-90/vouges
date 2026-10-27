@@ -71,3 +71,32 @@ npm.cmd test
 `resetPerfumeCatalog.js` xác nhận tên database, yêu cầu replica set, sao lưu BSON Extended JSON vào `.backups/perfume-reset-<timestamp>/`, rồi thay dữ liệu trong một giao dịch MongoDB. `manifest.json` ghi số bản ghi trước khi thay. Thư mục này bị loại khỏi Git và chứa dữ liệu khách hàng; giữ nội bộ. Ảnh Cloudinary cũ không bị xóa.
 
 `perfumeBrowserQA.mjs` kiểm tra desktop/mobile bằng dữ liệu database thật, giả lập Clerk riêng trong Chrome kiểm thử và chỉ đọc dữ liệu. Nó không sửa cơ chế xác thực của ứng dụng. Ảnh kiểm tra được ghi vào `.qa-perfume/`.
+
+## Xử lý ảnh sản phẩm
+
+Đã hoàn tất cập nhật ngày 27/10/2026:
+
+| Nội dung | Kết quả |
+| --- | ---: |
+| Ảnh nguồn đã đối chiếu và xử lý theo vai trò | 11.216 |
+| Sản phẩm có ảnh đại diện tách nền | 2.444 / 2.444 |
+| Tệp ảnh đại diện tách nền riêng biệt | 2.443 |
+| Ảnh đã xóa dòng website/số điện thoại | 3.286 |
+| Ảnh thật bổ sung từ Open Graph của nguồn | 2 |
+| Lỗi nguồn khi hoàn tất | 0 |
+
+Hai hồ sơ dùng chung một ảnh nguồn nên số tệp ảnh đại diện khác số sản phẩm. Kiểm tra database xác nhận các trường ngoài ảnh của sản phẩm/đơn hàng và toàn bộ URL ảnh trong bản chụp nguồn không đổi.
+
+Theo lựa chọn của chủ cửa hàng, ảnh được xử lý hàng loạt bằng mã, không sinh lại hình chai hoặc nhãn. Ảnh đại diện dùng WebP có nền trong suốt; màu nền khung vẫn do logic hiện có của cửa hàng quyết định. Ảnh gallery và ảnh từng dung tích giữ bối cảnh, chỉ xóa dòng website/số điện thoại được nhận diện. Ảnh gallery đã sửa có cạnh dài tối đa 2.000 px; bản nguồn đầy đủ vẫn được lưu.
+
+Quy trình và lệnh chạy tiếp nằm trong [tools/media/README.md](../tools/media/README.md). Mỗi ảnh có kết quả riêng để tiếp tục sau gián đoạn. URL đã xử lý được tải vào thư mục Cloudinary riêng, không ghi đè ảnh nguồn. Bản sao các trường ảnh trong database được lưu trước mỗi lần cập nhật; ID, giá VND, tồn kho, phân loại dung tích và dữ liệu nguồn không thay đổi.
+
+- [applied-avatars.json](../data/media-processing/applied-avatars.json): kết quả cập nhật ảnh đại diện đã thực hiện.
+- [applied.json](../data/media-processing/applied.json): kết quả cập nhật toàn bộ ảnh, số hồ sơ thay đổi và đường dẫn bản sao lưu.
+- [verification.json](../data/media-processing/verification.json): đối chiếu các trường ngoài ảnh và URL trong bản ghi nguồn với thời điểm trước xử lý.
+- [audit.json](../data/media-processing/audit.json): 100 ảnh đại diện giữ nguyên RGB so với ảnh gốc/ảnh đã xóa chữ; 100 ảnh đã sửa không phát hiện dòng website/số điện thoại còn sót.
+- [full-surface-complete.json](../data/media-processing/full-surface-complete.json): kết quả kiểm tra bổ sung trên toàn ảnh, gồm ảnh ghép có nhiều dòng lặp và mẫu đối chứng 100 ảnh.
+
+Kiểm tra trình duyệt sau cập nhật đã đạt trên desktop 1.440 px và mobile 390 px: ảnh sản phẩm tải thành công, chuyển ảnh gallery hoạt động, giá VND và dashboard giữ đúng dữ liệu, không có tràn ngang. Bộ kiểm tra chỉ đọc database; kết quả và ảnh chụp nằm trong `.qa-perfume/`. Bốn kiểm tra xử lý ảnh bằng Python và bốn kiểm tra ánh xạ ảnh/sản phẩm bổ sung cũng đã đạt.
+
+Gallery nguồn của `Creed Original Vetiver` và `Byredo Rose Of No Man’s Land Absolu Parfum` dùng ảnh chờ, nhưng metadata Open Graph trên chính trang Apaniche có ảnh chai thật. Hai ảnh này đã được kiểm tra trực quan, tách nền và bổ sung vào hai hồ sơ còn trống; thông tin nguồn nằm trong [extra-plan.json](../data/media-processing/extra-plan.json). Không sinh ảnh thay thế hoặc ghi đè ảnh chủ cửa hàng đã tự thêm. Bản chụp dữ liệu nguồn ban đầu vẫn được giữ nguyên.

@@ -1,0 +1,44 @@
+[
+  {
+    "url": "https://apaniche.vn/creed-original-vetiver",
+    "status": 200,
+    "openGraph": [
+      "https://apaniche.vn/wp-content/uploads/2026/10/Creed-Original-Vetiver-Apa-Niche.png"
+    ],
+    "productImages": [
+      {
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%200%200'%3E%3C/svg%3E",
+        "data-src": null,
+        "alt": "Đang chờ ảnh sản phẩm",
+        "class": "wp-post-image"
+      },
+      {
+        "src": "https://apaniche.vn/wp-content/uploads/woocommerce-placeholder.png",
+        "data-src": null,
+        "alt": "Đang chờ ảnh sản phẩm",
+        "class": "wp-post-image"
+      }
+    ]
+  },
+  {
+    "url": "https://apaniche.vn/byredo-rose-of-no-mans-land-absolu-parfum",
+    "status": 200,
+    "openGraph": [
+      "https://apaniche.vn/wp-content/uploads/2026/10/Byredo-Rose-Of-No-Mans-Land-Absolu-Parfum-Apa-Niche.png"
+    ],
+    "productImages": [
+      {
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%200%200'%3E%3C/svg%3E",
+        "data-src": null,
+        "alt": "Đang chờ ảnh sản phẩm",
+        "class": "wp-post-image"
+      },
+      {
+        "src": "https://apaniche.vn/wp-content/uploads/woocommerce-placeholder.png",
+        "data-src": null,
+        "alt": "Đang chờ ảnh sản phẩm",
+        "class": "wp-post-image"
+      }
+    ]
+  }
+]

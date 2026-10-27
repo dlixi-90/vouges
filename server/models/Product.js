@@ -11,6 +11,7 @@ const productSchema = new mongoose.Schema(
     inStockBySize: { type: Object, default: {} },
     images: { type: [String], required: true },
     sizeImages: { type: Object, default: {} },
+    imageProcessing: { type: Object, default: {} },
     category: { type: String, required: true },
     type: { type: String, required: true },
     popular: { type: Boolean, default: false },

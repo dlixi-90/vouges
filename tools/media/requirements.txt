@@ -1,0 +1,7 @@
+pillow==13.0.0
+numpy==2.5.4
+opencv-python-headless==5.0.0.93
+onnxruntime-directml==1.24.4; sys_platform == 'win32'
+onnxruntime>=1.24,<2; sys_platform != 'win32'
+rapidocr==3.10.0
+requests==2.34.2

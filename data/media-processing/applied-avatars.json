@@ -1,0 +1,13 @@
+{
+  "appliedAt": "2026-10-26T19:44:26.905Z",
+  "scope": "avatars",
+  "database": "vouges",
+  "scanned": 2441,
+  "total": 2441,
+  "watermarkImages": 846,
+  "cutoutAssets": 2441,
+  "changedProducts": 2442,
+  "changedOrders": 0,
+  "sourceErrors": 0,
+  "backupPath": "C:\\Users\\nguye\\Desktop\\vouges\\.backups\\product-media-2026-10-26T19-44-20-457Z"
+}

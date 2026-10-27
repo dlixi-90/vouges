@@ -1,0 +1,51 @@
+{
+  "createdAt": "2026-10-27T14:52:03+0700",
+  "reason": "Verified source Open Graph images exist although WooCommerce gallery shows a placeholder",
+  "assets": [
+    {
+      "key": "dbfba6337b74e02567da5412",
+      "url": "https://apaniche.vn/wp-content/uploads/2026/10/Creed-Original-Vetiver-Apa-Niche.png",
+      "avatar": true,
+      "roles": [
+        "avatar"
+      ],
+      "productIds": [
+        "05cb615939976020820bf247"
+      ]
+    },
+    {
+      "key": "b78df7dbe80f237487a4e500",
+      "url": "https://apaniche.vn/wp-content/uploads/2026/10/Byredo-Rose-Of-No-Mans-Land-Absolu-Parfum-Apa-Niche.png",
+      "avatar": true,
+      "roles": [
+        "avatar"
+      ],
+      "productIds": [
+        "3afa7f5edeececa5f3b20e62"
+      ]
+    }
+  ],
+  "products": [
+    {
+      "_id": "05cb615939976020820bf247",
+      "title": "Creed Original Vetiver",
+      "images": [
+        "https://apaniche.vn/wp-content/uploads/2026/10/Creed-Original-Vetiver-Apa-Niche.png"
+      ],
+      "sourcePage": "https://apaniche.vn/creed-original-vetiver"
+    },
+    {
+      "_id": "3afa7f5edeececa5f3b20e62",
+      "title": "Byredo Rose Of No Man’s Land Absolu Parfum",
+      "images": [
+        "https://apaniche.vn/wp-content/uploads/2026/10/Byredo-Rose-Of-No-Mans-Land-Absolu-Parfum-Apa-Niche.png"
+      ],
+      "sourcePage": "https://apaniche.vn/byredo-rose-of-no-mans-land-absolu-parfum"
+    }
+  ],
+  "counts": {
+    "products": 2,
+    "uniqueAssets": 2,
+    "uniqueAvatars": 2
+  }
+}

@@ -2,5 +2,13 @@ node_modules
 .backups/
 .qa-perfume/
 .perfume-*.log
+.venv-media/
+data/media-processing/originals/
+data/media-processing/models/
+data/media-processing/output/
+data/media-processing/results/
+data/media-processing/uploads/
+data/media-processing/samples/
+tools/media/__pycache__/
 
 *.env

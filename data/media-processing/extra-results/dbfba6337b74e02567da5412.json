@@ -1,0 +1,24 @@
+{
+  "key": "dbfba6337b74e02567da5412",
+  "url": "https://apaniche.vn/wp-content/uploads/2026/10/Creed-Original-Vetiver-Apa-Niche.png",
+  "avatar": true,
+  "roles": [
+    "avatar"
+  ],
+  "productIds": [
+    "05cb615939976020820bf247"
+  ],
+  "width": 800,
+  "height": 800,
+  "status": "done",
+  "pipelineVersion": 4,
+  "fullSurfaceChecked": true,
+  "fullSurfaceVersion": 2,
+  "watermarkMatches": [],
+  "cutoutPath": "output/dbfba6337b74e02567da5412-cutout.webp",
+  "cutout": {
+    "method": "u2net",
+    "foregroundRatio": 0.2742
+  },
+  "humanReviewed": true
+}
