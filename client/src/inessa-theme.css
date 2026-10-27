@@ -118,7 +118,7 @@
 .net-product-card:is(:hover,:focus-visible) > div:first-child > img { transform: scale(1.04); }
 .net-product-card > div:nth-child(2) { padding: 13px 18px 18px; background: #fff; text-align: left; }
 .net-product-card h5 { margin: 8px 0 7px; font-family: var(--inessa-serif); font-size: var(--product-card-text-size); font-weight: var(--inessa-serif-weight); line-height: 1.35; letter-spacing: .02em; }
-.net-product-card .net-product-category { margin: 0; color: #999; font-size: var(--product-card-text-size); line-height: 1.6; }
+.net-product-card .net-product-category { margin: 0; color: #999; font-size: 13px; line-height: 1.6; }
 .net-product-card .net-product-price { margin-top: 7px; color: #555; font-size: var(--product-card-text-size); font-weight: 700; line-height: 1.5; }
 .net-product-card > div:first-child > p { padding-inline: 10px; font-size: 9px; letter-spacing: .04em; }
 .net-product-carousel .net-product-card > div:nth-child(2) { padding: 12px 14px 16px; }
@@ -219,6 +219,7 @@
   .net-collection .inessa-collection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 14px; }
   .net-collection .net-product-card > div:nth-child(2) { padding: 10px 8px 16px; }
   .net-collection .net-product-card { --product-card-text-size: 13px; }
+  .net-collection .net-product-card .net-product-category { font-size: 11px; }
   .net-collection .net-product-card > div:first-child > p { max-width: calc(100% - 12px); padding-inline: 6px; font-size: 8px; }
   .inessa-collection-pagination { padding-block: 24px 36px; }
 }
