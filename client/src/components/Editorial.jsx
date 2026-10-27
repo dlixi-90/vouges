@@ -32,7 +32,7 @@ export function EditorialStories() {
             <br />
             từ những
             <br />
-            <br>điều tinh tế.</br>
+            <span>điều tinh tế.</span>
           </h2>
           <p>
             Từ hương thơm yêu thích đến một làn da rạng rỡ. Tìm thấy những sản
@@ -54,7 +54,7 @@ export function EditorialStories() {
             <br />
             Cuốn hút.
             <br />
-            <br>Là chính bạn.</br>
+            <span>Là chính bạn.</span>
           </h2>
           <p>
             Chăm sóc bản thân bắt đầu từ những lựa chọn nhỏ. Để mỗi ngày đều là

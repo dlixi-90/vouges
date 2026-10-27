@@ -17,5 +17,14 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'JSXElement[openingElement.selfClosing=false][openingElement.name.name=/^(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)$/]',
+          message: 'Void HTML elements must be self-closing (for example, <br />) and cannot contain content.',
+        },
+      ],
+    },
   },
 ])
