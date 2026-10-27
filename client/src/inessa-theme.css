@@ -145,13 +145,13 @@
 
 /* Shared page headings and shopping screens. */
 .inessa-page-heading { padding-block: 35px 58px; text-align: center; }
-.net-theme .inessa-page-heading h1 { margin: 14px 0; font-size: clamp(40px, 5.5vw, 78px); text-transform: uppercase; }
+.net-theme .inessa-page-heading h1 { margin: 14px 0; font-size: calc(clamp(40px, 5.5vw, 78px) - 3px); text-transform: uppercase; }
 .inessa-page-heading > p:not(.inessa-eyebrow) { margin-inline: auto; max-width: 500px; font-size: 12px; }
 .net-theme .net-collection { margin-top: 0; padding-inline: clamp(22px, 5.5vw, 80px)!important; }
 .inessa-collection-heading { padding-block: 64px 100px; }
 .inessa-collection-breadcrumb { display: flex; flex-wrap: wrap; gap: 8px; color: #777; font-size: 13px; }
 .inessa-collection-breadcrumb a:hover { color: #171717; }
-.net-theme .inessa-collection-heading h1 { margin-top: 25px; font-size: clamp(56px, 7vw, 100px); font-weight: var(--inessa-serif-weight); line-height: 1.2; text-transform: uppercase; }
+.net-theme .inessa-collection-heading h1 { margin-top: 25px; font-size: calc(clamp(56px, 7vw, 100px) - 3px); font-weight: var(--inessa-serif-weight); line-height: 1.2; text-transform: uppercase; }
 .net-collection .inessa-collection-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px 28px; padding-bottom: 34px; }
 .inessa-collection-filter-tools,.inessa-collection-sort-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 18px; }
 .inessa-collection-filter-trigger { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: #171717; font-size: 14px; font-weight: 500; cursor: pointer; }
@@ -212,7 +212,7 @@
 @media (max-width: 1100px) { .net-collection .inessa-collection-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 20px; } }
 @media (max-width: 767px) {
   .inessa-collection-heading { padding-block: 35px 55px; }
-  .net-theme .inessa-collection-heading h1 { font-size: clamp(46px, 9vw, 64px); margin-top: 20px; }
+  .net-theme .inessa-collection-heading h1 { font-size: calc(clamp(46px, 9vw, 64px) - 3px); margin-top: 20px; }
   .net-collection .inessa-collection-toolbar { gap: 8px 20px; padding-bottom: 24px; }
   .inessa-collection-sort-tools { justify-content: space-between; gap: 10px; width: 100%; }
   .net-collection .inessa-collection-sort-tools select { padding-right: 4px; font-size: 12px; border-radius: var(--inessa-radius-control); }
@@ -242,7 +242,7 @@
 .inessa-about-hero::after { position: absolute; inset: 0; z-index: -1; background: linear-gradient(0deg, #0009, #0002 75%); content: ""; }
 .inessa-about-hero-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; min-height: inherit; padding-block: 180px 52px; }
 .inessa-about-hero .inessa-eyebrow { color: #fff; }
-.net-theme .inessa-about-hero h1 { margin-top: 12px; color: #fff; font-size: clamp(56px, 7vw, 100px); font-weight: var(--inessa-serif-weight); line-height: 1.2; text-transform: uppercase; }
+.net-theme .inessa-about-hero h1 { margin-top: 12px; color: #fff; font-size: calc(clamp(56px, 7vw, 100px) - 3px); font-weight: var(--inessa-serif-weight); line-height: 1.2; text-transform: uppercase; }
 .inessa-about-intro,.inessa-about-companion { padding-block: clamp(65px, 7.5vw, 110px); }
 .net-theme .inessa-about-intro h2 { max-width: 1150px; margin-block: 24px; color: #252525; font-size: clamp(32px, 4vw, 56px); line-height: 1.2; text-transform: uppercase; text-wrap: balance; }
 .net-theme .inessa-about-intro > p:last-child,.net-theme .inessa-about-prose p { color: #777; font-size: 14px; line-height: 1.95; }
@@ -269,7 +269,7 @@
   .inessa-about-hero { min-height: 380px; }
   .inessa-about-hero > img { object-position: 60% center; }
   .inessa-about-hero-copy { padding-block: 130px 36px; }
-  .net-theme .inessa-about-hero h1 { font-size: clamp(48px, 10vw, 72px); }
+  .net-theme .inessa-about-hero h1 { font-size: calc(clamp(48px, 10vw, 72px) - 3px); }
   .inessa-about-panorama { height: 55svh; min-height: 320px; }
   .inessa-about-story { grid-template-columns: minmax(0, 1fr); }
   .inessa-about-story-copy { padding: 38px 8px 55px; }
@@ -279,11 +279,11 @@
 }
 .net-contact { padding-block: 60px 80px; background: #fff; }
 .net-contact form { border-radius: var(--inessa-radius-panel); padding: 45px; max-width: 720px; }
-.net-contact form h1 { font-size: clamp(36px, 4vw, 55px); font-weight: var(--inessa-serif-weight); }
+.net-contact form h1 { font-size: calc(clamp(36px, 4vw, 55px) - 3px); font-weight: var(--inessa-serif-weight); }
 .net-contact form > p:first-child { color: #555; background: transparent; font-size: 10px; text-transform: uppercase; letter-spacing: .16em; }
 .net-contact form .h-10,.net-contact textarea { border-radius: var(--inessa-radius-control); }
 .net-cart { padding-top: 45px; background: #fff; }
-.net-cart-heading h1,.net-orders h1 { font-family: var(--inessa-serif); font-size: clamp(36px, 4vw, 54px); font-weight: var(--inessa-serif-weight); text-transform: uppercase; }
+.net-cart-heading h1,.net-orders h1 { font-family: var(--inessa-serif); font-size: calc(clamp(36px, 4vw, 54px) - 3px); font-weight: var(--inessa-serif-weight); text-transform: uppercase; }
 .net-cart :is(section,article).bg-white,.net-orders article,.net-cart-item,.net-cart-table-head { border-color: var(--inessa-line); border-radius: var(--inessa-radius-card); }
 .net-cart .btn-dark { border-radius: var(--inessa-radius-control) !important; }
 
@@ -292,7 +292,7 @@
 .net-theme .inessa-cart-page > .max-padd-container { max-width: 1360px; }
 .inessa-cart-section,.inessa-cart-products { min-width: 0; }
 .net-cart .inessa-cart-heading { padding: 0 0 clamp(30px, 4vw, 56px); text-align: center; }
-.net-cart .inessa-cart-heading h1 { margin: 0; font-size: clamp(48px, 5.8vw, 82px); line-height: 1.2; }
+.net-cart .inessa-cart-heading h1 { margin: 0; font-size: calc(clamp(48px, 5.8vw, 82px) - 3px); line-height: 1.2; }
 .inessa-cart-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 30%); align-items: start; gap: 28px; }
 .inessa-cart-table-wrap { border: 1px solid var(--inessa-line); border-radius: var(--inessa-radius-card); }
 .inessa-cart-table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; color: #555; font-size: 13px; }
@@ -401,7 +401,7 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
 .inessa-checkout-heading { margin-bottom: 32px; }
 .inessa-checkout-back { display: inline-flex; align-items: center; gap: 8px; padding-block: 4px; color: #777; font-size: 12px; cursor: pointer; }
 .inessa-checkout-back:hover:not(:disabled) { color: #171717; text-decoration: underline; text-underline-offset: 4px; }
-.net-theme .inessa-checkout-heading h1 { margin-top: 16px; font-size: clamp(38px, 4vw, 52px); }
+.net-theme .inessa-checkout-heading h1 { margin-top: 16px; font-size: calc(clamp(38px, 4vw, 52px) - 3px); }
 .net-theme .inessa-checkout-details :is(h2,legend) { padding: 0; color: #242424; font-family: var(--inessa-serif); font-size: 26px; font-weight: var(--inessa-serif-weight); line-height: 1.2; }
 .inessa-checkout-address { min-width: 0; }
 .inessa-checkout-address > fieldset > div { margin-top: 22px; gap: 18px; }
@@ -497,7 +497,7 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
 .inessa-overview-confirmation { display: flex; align-items: center; gap: 18px; margin-top: 30px; }
 .inessa-overview-confirmation-icon { display: flex; flex-shrink: 0; color: #444; }
 .net-cart .inessa-overview-confirmation p { margin-bottom: 8px; color: #888; font-size: 12px; }
-.net-theme .inessa-overview-confirmation h1 { font-size: clamp(34px, 3.5vw, 48px); line-height: 1.2; overflow-wrap: anywhere; }
+.net-theme .inessa-overview-confirmation h1 { font-size: calc(clamp(34px, 3.5vw, 48px) - 3px); line-height: 1.2; overflow-wrap: anywhere; }
 .net-cart .inessa-overview-message { margin-top: 22px; max-width: 510px; color: #777; font-size: 13px; }
 .inessa-overview-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-block: 28px; padding-block: 22px; border-block: 1px solid var(--inessa-line); }
 .inessa-overview-meta > div:last-child { grid-column: 1 / -1; }
@@ -529,7 +529,7 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
 .inessa-overview-receipt-payment > span { display: block; margin-top: 4px; color: #888; font-size: 11px; }
 .inessa-overview-page .inessa-checkout-product-info a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .net-cart .inessa-overview-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; min-height: 60vh; padding-block: 60px; color: #666; font-size: 13px; text-align: center; }
-.net-theme .inessa-overview-state h1 { color: #171717; font-size: clamp(34px, 4vw, 48px); }
+.net-theme .inessa-overview-state h1 { color: #171717; font-size: calc(clamp(34px, 4vw, 48px) - 3px); }
 .inessa-overview-state > div { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
 .inessa-order-overview-link { display: inline-flex; margin-right: auto; padding-block: 7px; color: #333; font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }
 @media (max-width: 1023px) {
@@ -608,7 +608,7 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
 
 .net-orders { padding-top: 45px; }
 .net-theme.net-storefront .net-membership { padding-top: 45px; --member-ink: #262626; --member-muted: #737373; --member-accent: #333; --member-line: #e6e3df; background: #fff; }
-.net-membership .net-member-header h1 { font-family: var(--inessa-serif); font-size: clamp(36px, 4vw, 54px); font-weight: var(--inessa-serif-weight); text-transform: uppercase; }
+.net-membership .net-member-header h1 { font-family: var(--inessa-serif); font-size: calc(clamp(36px, 4vw, 54px) - 3px); font-weight: var(--inessa-serif-weight); text-transform: uppercase; }
 .net-membership .net-member-panel { border-radius: var(--inessa-radius-card); }
 .net-membership .net-member-profile-cover { background: #fff; border-color: #e0deda; }
 .net-membership :is(.net-member-date,.net-member-gift) { background: #fff; border-color: #e6e3df; border-radius: var(--inessa-radius-card); }
