@@ -1,6 +1,7 @@
 // Local browser harness: real database reads, mocked Clerk identity, and no writes.
 // The production server and its authentication middleware are never modified.
 // --pagination adds temporary review/inbox fixtures in the browser only.
+// --popular-products checks the homepage fallback and temporary sales/error responses.
 import "dotenv/config";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -21,6 +22,8 @@ const profile=path.join(artifacts,"chrome-profile");
 const frontend="http://localhost:5188";
 const paginationQA=process.argv.includes("--pagination");
 const typographyQA=process.argv.includes("--typography");
+const popularQA=process.argv.includes("--popular-products");
+let popularResponse=null;
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 let chrome,vite,ws,id=0;const pending=new Map(),errors=[],checks=[],writes=[];
 const inFlightReads=new Set();
@@ -49,7 +52,7 @@ const api=async request=>{
   if(pathname==="/api/catalog/terms")return call(libraryTerms,req);
   if(pathname==="/api/products")return call(listProduct,req);
   if(pathname==="/api/products/single")return call(singleProduct,req);
-  if(pathname==="/api/products/popular")return call(listPopularProducts,req);
+  if(pathname==="/api/products/popular")return popularQA&&popularResponse ? popularResponse : call(listPopularProducts,req);
   if(pathname==="/api/categories")return call(listCategories,req);
   if(pathname==="/api/orders/dashboard")return call(dashboard,req);
   if(pathname.endsWith("/reviews/mine"))return {statusCode:200,body:{success:true,review:null,canReview:false}};
@@ -134,6 +137,31 @@ try{
   if(typographyQA){await send('DOM.enable');await send('CSS.enable');}
   await send("Emulation.setDeviceMetricsOverride",{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   await send("Fetch.enable",{patterns:[{urlPattern:"*localhost:3000/*"},{urlPattern:"*@clerk_react*"}]});
+  if(popularQA){
+    const showPopularSection=async()=>{
+      await goto('/',"document.querySelector('.inessa-story-reverse')");
+      await evaluate("document.querySelector('.inessa-story-reverse').parentElement.nextElementSibling.scrollIntoView({block:'start',behavior:'instant'})");
+      await wait("document.querySelectorAll('.net-popular-products .net-product-card').length===10");
+    };
+    await showPopularSection();
+    assert.match(await evaluate("document.querySelector('.net-popular-products h3').textContent"),/Gợi ý cho bạn/);
+    await noOverflow();await screenshot('popular-no-sales-desktop');
+    popularResponse={statusCode:200,body:{success:true,products:[{...sample,soldQuantity:5}]}};
+    await evaluate("window.dispatchEvent(new Event('focus'))");
+    await wait("document.querySelectorAll('.net-popular-products .net-product-card').length===1&&document.querySelector('.net-popular-products h3').textContent.includes('bán chạy')");
+    assert.equal(await evaluate("document.querySelector('.net-popular-products .net-product-card').getAttribute('href')"),`/collection/${sample._id}`);
+    await screenshot('popular-ranked-desktop');
+    popularResponse={statusCode:500,body:{success:false,message:'Không thể tải sản phẩm bán chạy'}};
+    await evaluate("window.dispatchEvent(new Event('focus'))");
+    await wait("document.querySelector('.net-popular-products [role=\"alert\"]')");
+    popularResponse=null;
+    await evaluate("document.querySelector('.net-popular-products [role=\"alert\"] button').click()");
+    await wait("!document.querySelector('.net-popular-products [role=\"alert\"]')&&document.querySelector('.net-popular-products h3').textContent.includes('Gợi ý cho bạn')&&document.querySelectorAll('.net-popular-products .net-product-card').length===10");
+    await send("Emulation.setDeviceMetricsOverride",{width:390,height:844,deviceScaleFactor:1,mobile:true});
+    await showPopularSection();await noOverflow();await screenshot('popular-no-sales-mobile');
+    await send("Emulation.setDeviceMetricsOverride",{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+    checks.push('homepage: no-sales catalog suggestions, paid-sales ranking, API error/retry and mobile rendering');
+  }
   if(typographyQA){
     await goto('/',"document.querySelector('#hero-title')");await checkSerif('#hero-title');await noOverflow();await screenshot('typography-home-desktop');
     await goto('/about',"document.querySelector('.inessa-about-hero h1')");await checkSerif('.inessa-about-hero h1');await noOverflow();await screenshot('typography-about-desktop');
@@ -214,7 +242,7 @@ try{
     checks.push('compact 320px pagination and conversation list scroll');
   }
   assert.deepEqual(writes,[]);assert.deepEqual(errors,[]);
-  fs.writeFileSync(path.join(artifacts,"result.json"),JSON.stringify({passed:true,checks,errors,actualDatabaseReads:true,mockedAuthentication:true,paginationFixtures:paginationQA,typography:typographyQA,databaseWrites:0},null,2));
+  fs.writeFileSync(path.join(artifacts,"result.json"),JSON.stringify({passed:true,checks,errors,actualDatabaseReads:true,mockedAuthentication:true,paginationFixtures:paginationQA,popularFixtures:popularQA,typography:typographyQA,databaseWrites:0},null,2));
   console.log(JSON.stringify({passed:true,checks,screenshots:artifacts,databaseWrites:0}));
 }finally{
   try{if(ws?.readyState===1)await send("Browser.close");}catch{}ws?.close();chrome?.kill();vite?.kill();
