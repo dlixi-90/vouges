@@ -93,7 +93,7 @@ export const AppContextProvider = ({ children }) => {
   const isCartPage = Boolean(useMatch("/cart"));
   const needsCatalog = !pathname.startsWith("/owner") && pathname !== "/membership"
     || cartDrawer?.locationKey === locationKey;
-  const needsCategories = needsCatalog || !pathname.startsWith("/owner") || pathname === "/owner/add-product";
+  const needsCategories = needsCatalog || !pathname.startsWith("/owner") || ["/owner/add-product", "/owner/add-category"].includes(pathname);
   const currency = "₫";
   const delivery_charges = 30000;
 

@@ -1,0 +1,1259 @@
+{
+  "sourceUrl": "https://apaniche.vn/thuong-hieu",
+  "collectedAt": "2026-10-27T16:43:01.394Z",
+  "brands": [
+    {
+      "name": "Afnan Perfumes",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-afnan-perfumes",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Afnan-Perfumes.jpg.webp",
+      "image": "/images/brands/afnan-perfumes-9d7c01d1.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Afnan-Perfumes.jpg.webp"
+    },
+    {
+      "name": "Agatho Parfum",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-agatho-parfum",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/08/Logo-thuong-hieu-Agatho-Parfum.png.webp",
+      "image": "/images/brands/agatho-parfum-3bbbdf9c.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/08/Logo-thuong-hieu-Agatho-Parfum.png.webp"
+    },
+    {
+      "name": "Akro",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-akro",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Akro.png.webp",
+      "image": "/images/brands/akro-7aac2bb4.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Akro.png.webp"
+    },
+    {
+      "name": "Al Haramain",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-al-haramain",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Al-Haramain.jpg.webp",
+      "image": "/images/brands/al-haramain-a14872ae.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Al-Haramain.jpg.webp"
+    },
+    {
+      "name": "Alaia Paris",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-alaia-paris",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Alaia-Paris.jpg.webp",
+      "image": "/images/brands/alaia-paris-ff6ce55d.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Alaia-Paris.jpg.webp"
+    },
+    {
+      "name": "Alexandria Fragrances",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-alexandria-fragrances",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/08/Alexandria-Fragrances.png.webp",
+      "image": "/images/brands/alexandria-fragrances-e82e53c7.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/08/Alexandria-Fragrances.png.webp"
+    },
+    {
+      "name": "Amouage",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-amouage",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Amouge.jpg.webp",
+      "image": "/images/brands/amouage-84b7cc1a.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Amouge.jpg.webp"
+    },
+    {
+      "name": "Anna Sui",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-anna-sui",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Anna-Sui.jpg.webp",
+      "image": "/images/brands/anna-sui-277edd27.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Anna-Sui.jpg.webp"
+    },
+    {
+      "name": "Argos",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-argos",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Agros.png.webp",
+      "image": "/images/brands/argos-2e84058b.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Agros.png.webp"
+    },
+    {
+      "name": "Ariana Grande",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-ariana-grande",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Ariana-Grande.jpg.webp",
+      "image": "/images/brands/ariana-grande-8dcb36a7.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Ariana-Grande.jpg.webp"
+    },
+    {
+      "name": "Aristino Paris",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-aristino-paris",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/03/Logo-thuong-hieu-Aristino-Paris.png.webp",
+      "image": "/images/brands/aristino-paris-b09e0841.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/03/Logo-thuong-hieu-Aristino-Paris.png.webp"
+    },
+    {
+      "name": "Armaf",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-armaf",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Armaf.jpg.webp",
+      "image": "/images/brands/armaf-57c3d652.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Armaf.jpg.webp"
+    },
+    {
+      "name": "Asdaaf",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-asdaaf",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Asdaaf.png.webp",
+      "image": "/images/brands/asdaaf-1bc221cb.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Asdaaf.png.webp"
+    },
+    {
+      "name": "Atelier Cologne",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-atelier-cologne",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Atelier-Cologne.jpg.webp",
+      "image": "/images/brands/atelier-cologne-bb0d0955.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Atelier-Cologne.jpg.webp"
+    },
+    {
+      "name": "Atelier Des Ors",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-atelier-des-ors",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Atelier-Des-Ors.png.webp",
+      "image": "/images/brands/atelier-des-ors-3f5d38c6.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Atelier-Des-Ors.png.webp"
+    },
+    {
+      "name": "Atkinsons",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-atkinsons",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/07/Atkinsons.jpg.webp",
+      "image": "/images/brands/atkinsons-26f73181.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/07/Atkinsons.jpg.webp"
+    },
+    {
+      "name": "Attar",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-attar",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Attar-Collection.jpg.webp",
+      "image": "/images/brands/attar-0af9c0a3.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Attar-Collection.jpg.webp"
+    },
+    {
+      "name": "Abercrombie & Fitch",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-abercrombie-fitch",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Abercrombie-Fitch.jpg.webp",
+      "image": "/images/brands/abercrombie-fitch-4310a9c8.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Abercrombie-Fitch.jpg.webp"
+    },
+    {
+      "name": "Acqua Di Parma",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-acqua-di-parma",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Acqua-Di-Parma.jpg.webp",
+      "image": "/images/brands/acqua-di-parma-aad621e4.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Acqua-Di-Parma.jpg.webp"
+    },
+    {
+      "name": "Azzaro",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-azzaro",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/azzaro.jpg.webp",
+      "image": "/images/brands/azzaro-982dc0fd.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/azzaro.jpg.webp"
+    },
+    {
+      "name": "BDK Parfum",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-bdk-parfum",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/BDK-Parfum.png.webp",
+      "image": "/images/brands/bdk-parfum-b1e439c2.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/BDK-Parfum.png.webp"
+    },
+    {
+      "name": "Billie Eilish",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-billie-eilish",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Billie-Eilish.png.webp",
+      "image": "/images/brands/billie-eilish-4c8b5806.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Billie-Eilish.png.webp"
+    },
+    {
+      "name": "Boadicea the Victorious",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-boadicea-the-victorious",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Boadicea.png.webp",
+      "image": "/images/brands/boadicea-the-victorious-ff938ddc.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Boadicea.png.webp"
+    },
+    {
+      "name": "Bond No.9",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-bond-no-9",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Bond-No.9.jpg.webp",
+      "image": "/images/brands/bond-no-9-4c84b933.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Bond-No.9.jpg.webp"
+    },
+    {
+      "name": "BORNTOSTANDOUT",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-borntostandout",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/BORNTOSTANDOUT.png.webp",
+      "image": "/images/brands/borntostandout-0ad7e7e6.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/BORNTOSTANDOUT.png.webp"
+    },
+    {
+      "name": "Bottega Veneta",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-bottega-veneta",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Bottega-Veneta.jpg.webp",
+      "image": "/images/brands/bottega-veneta-b666d800.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Bottega-Veneta.jpg.webp"
+    },
+    {
+      "name": "Britney Spears",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-britney-spears",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Britney-Spears.jpg.webp",
+      "image": "/images/brands/britney-spears-d6895e69.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Britney-Spears.jpg.webp"
+    },
+    {
+      "name": "Burberry",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-burberry",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Burberry.jpg.webp",
+      "image": "/images/brands/burberry-817e6047.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Burberry.jpg.webp"
+    },
+    {
+      "name": "Butterfly Thai Perfume",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-butterfly-thai-pefume",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Butterfly-Thai-Perfume.png.webp",
+      "image": "/images/brands/butterfly-thai-perfume-8f0fca87.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Butterfly-Thai-Perfume.png.webp"
+    },
+    {
+      "name": "Bvlgari",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-bvlgari",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Bvlgari.jpg.webp",
+      "image": "/images/brands/bvlgari-a9c33a05.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Bvlgari.jpg.webp"
+    },
+    {
+      "name": "Byredo",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-byredo",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Byredo.jpg.webp",
+      "image": "/images/brands/byredo-05b389dc.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Byredo.jpg.webp"
+    },
+    {
+      "name": "Cacharel",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-cacharel",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Cacharel.jpg.webp",
+      "image": "/images/brands/cacharel-582981c8.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Cacharel.jpg.webp"
+    },
+    {
+      "name": "Calvin Klein",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-calvin-klein",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Calvin-Klein.jpg.webp",
+      "image": "/images/brands/calvin-klein-a59c9d28.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Calvin-Klein.jpg.webp"
+    },
+    {
+      "name": "Carner Barcelona",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-carner-barcelona",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/10/Carner-Barcelona.jpg.webp",
+      "image": "/images/brands/carner-barcelona-56cc9b25.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/10/Carner-Barcelona.jpg.webp"
+    },
+    {
+      "name": "Carolina Herrera",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-carolina-herrera",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/carolina-herrera.jpg.webp",
+      "image": "/images/brands/carolina-herrera-293e17d6.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/carolina-herrera.jpg.webp"
+    },
+    {
+      "name": "Cartier",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-cartier",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Cartier.jpg.webp",
+      "image": "/images/brands/cartier-141e943f.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Cartier.jpg.webp"
+    },
+    {
+      "name": "Chanel",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-chanel",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Chanel.jpg.webp",
+      "image": "/images/brands/chanel-58462970.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Chanel.jpg.webp"
+    },
+    {
+      "name": "Chasing Scents",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-chasing-scents",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Chasing-Scents.png.webp",
+      "image": "/images/brands/chasing-scents-c36ec1da.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Chasing-Scents.png.webp"
+    },
+    {
+      "name": "Chloé",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-chloe",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Chloe.jpg.webp",
+      "image": "/images/brands/chloe-1e0e2581.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Chloe.jpg.webp"
+    },
+    {
+      "name": "Chopard",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-chopard",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Chopard.jpg.webp",
+      "image": "/images/brands/chopard-485b4e24.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Chopard.jpg.webp"
+    },
+    {
+      "name": "Christian Louboutin",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-christian-louboutin",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Christian-Louboutin.jpg.webp",
+      "image": "/images/brands/christian-louboutin-cf2930e3.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Christian-Louboutin.jpg.webp"
+    },
+    {
+      "name": "Clive Christian",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-clive-christian",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Clive-Christian.jpg.webp",
+      "image": "/images/brands/clive-christian-f3b7fc4f.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Clive-Christian.jpg.webp"
+    },
+    {
+      "name": "Coach",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-coach",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Coach.jpg.webp",
+      "image": "/images/brands/coach-e9689874.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Coach.jpg.webp"
+    },
+    {
+      "name": "Creed",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-creed",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/creed.jpg.webp",
+      "image": "/images/brands/creed-51d3af5f.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/creed.jpg.webp"
+    },
+    {
+      "name": "D.S. & Durga",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-d-s-durga",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/D.S.-Durga.png.webp",
+      "image": "/images/brands/d-s-durga-be9bd2a2.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/D.S.-Durga.png.webp"
+    },
+    {
+      "name": "Davidoff",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-davidoff",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Davidoff.jpg.webp",
+      "image": "/images/brands/davidoff-0500c448.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Davidoff.jpg.webp"
+    },
+    {
+      "name": "Diesel",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-diesel",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/diesel.jpg.webp",
+      "image": "/images/brands/diesel-239e441b.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/diesel.jpg.webp"
+    },
+    {
+      "name": "Dior",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-dior",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Dior.jpg.webp",
+      "image": "/images/brands/dior-3be839e3.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Dior.jpg.webp"
+    },
+    {
+      "name": "Diptyque",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-diptyque",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Diptyque.jpg.webp",
+      "image": "/images/brands/diptyque-286e79cb.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Diptyque.jpg.webp"
+    },
+    {
+      "name": "DKNY",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-dkny",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/DKNY.jpg.webp",
+      "image": "/images/brands/dkny-cd84c447.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/DKNY.jpg.webp"
+    },
+    {
+      "name": "Dolce & Gabbana",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-dolce-gabbana",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/dolce-gabbana.jpg.webp",
+      "image": "/images/brands/dolce-gabbana-b43dc88f.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/dolce-gabbana.jpg.webp"
+    },
+    {
+      "name": "Dr. Vranjes Firenze",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-dr-vranjes-firenze",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/05/Logo-thuong-hieu-Dr.-Vranjes-Firenze.png.webp",
+      "image": "/images/brands/dr-vranjes-firenze-2712ae1e.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/05/Logo-thuong-hieu-Dr.-Vranjes-Firenze.png.webp"
+    },
+    {
+      "name": "DSquared2",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-dsquared2",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/DSquared2.jpg.webp",
+      "image": "/images/brands/dsquared2-f001468c.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/DSquared2.jpg.webp"
+    },
+    {
+      "name": "Dunhill",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-dunhill",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Dunhill.jpg.webp",
+      "image": "/images/brands/dunhill-0204a1c9.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Dunhill.jpg.webp"
+    },
+    {
+      "name": "El Ganso",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-el-ganso",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/El-Ganso.png.webp",
+      "image": "/images/brands/el-ganso-914673a0.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/El-Ganso.png.webp"
+    },
+    {
+      "name": "Elie Saab",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-elie-saab",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Elie-Saab.jpg.webp",
+      "image": "/images/brands/elie-saab-ad98f63b.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Elie-Saab.jpg.webp"
+    },
+    {
+      "name": "Elizabeth Arden",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-elizabeth-arden",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Elizabeth-Arden.jpg.webp",
+      "image": "/images/brands/elizabeth-arden-bd7bdacb.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Elizabeth-Arden.jpg.webp"
+    },
+    {
+      "name": "Ella K Parfums",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-ella-k-parfums",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/10/Ella-K-Parfums-logo.png.webp",
+      "image": "/images/brands/ella-k-parfums-74fc75fb.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/10/Ella-K-Parfums-logo.png.webp"
+    },
+    {
+      "name": "Ermenegildo Zegna",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-ermenegildo-zegna",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Ermenegildo-Zegna.jpg.webp",
+      "image": "/images/brands/ermenegildo-zegna-132abd69.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Ermenegildo-Zegna.jpg.webp"
+    },
+    {
+      "name": "Escentric Molecules",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-escentric-molecules",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Escentric-Molecule.jpg.webp",
+      "image": "/images/brands/escentric-molecules-61cbd9de.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Escentric-Molecule.jpg.webp"
+    },
+    {
+      "name": "Essential Parfums",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-essential-parfums",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Essential-Parfums.png.webp",
+      "image": "/images/brands/essential-parfums-bf2ca763.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Essential-Parfums.png.webp"
+    },
+    {
+      "name": "Etat Libre d'Orange",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-etat-libre-dorange",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Etat-Libre-dOrange.jpg.webp",
+      "image": "/images/brands/etat-libre-d-orange-0f948a70.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Etat-Libre-dOrange.jpg.webp"
+    },
+    {
+      "name": "Ex Nihilo",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-ex-nihilo",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Ex-Nihilo.png.webp",
+      "image": "/images/brands/ex-nihilo-9f93b1a0.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Ex-Nihilo.png.webp"
+    },
+    {
+      "name": "Fragrance Du Boise",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-fragrance-du-boise",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/10/Fragrance-Du-Boise-logo.png.webp",
+      "image": "/images/brands/fragrance-du-boise-71d17bac.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/10/Fragrance-Du-Boise-logo.png.webp"
+    },
+    {
+      "name": "Fragrance World",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-fragrance-world",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/05/Logo-thuong-hieu-Fragrance-World.png.webp",
+      "image": "/images/brands/fragrance-world-302799d1.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/05/Logo-thuong-hieu-Fragrance-World.png.webp"
+    },
+    {
+      "name": "Franck Boclet",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-franck-boclet",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Franck-Boclet.jpg.webp",
+      "image": "/images/brands/franck-boclet-d8c5a869.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Franck-Boclet.jpg.webp"
+    },
+    {
+      "name": "Franck Muller",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-franck-muller",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Frank-Muller.jpg.webp",
+      "image": "/images/brands/franck-muller-dc722174.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Frank-Muller.jpg.webp"
+    },
+    {
+      "name": "Frederic Malle",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-frederic-malle",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Frederic-Malle.jpg.webp",
+      "image": "/images/brands/frederic-malle-ed20b215.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Frederic-Malle.jpg.webp"
+    },
+    {
+      "name": "French Avenue",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-french-avenue",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-French-Avenue.png.webp",
+      "image": "/images/brands/french-avenue-05d520d9.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-French-Avenue.png.webp"
+    },
+    {
+      "name": "Giorgio Armani",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-giorgio-armani",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/giorgio-armani.jpg.webp",
+      "image": "/images/brands/giorgio-armani-a224f913.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/giorgio-armani.jpg.webp"
+    },
+    {
+      "name": "Givenchy",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-givenchy",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Givenchi.jpg.webp",
+      "image": "/images/brands/givenchy-ade50fa4.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Givenchi.jpg.webp"
+    },
+    {
+      "name": "Glossier",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-glossier",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Glossier.png.webp",
+      "image": "/images/brands/glossier-fb0a30a2.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Glossier.png.webp"
+    },
+    {
+      "name": "Gritti",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-gritti",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/04/Logo-thuong-hieu-Gritti-.png.webp",
+      "image": "/images/brands/gritti-59422dec.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/04/Logo-thuong-hieu-Gritti-.png.webp"
+    },
+    {
+      "name": "Guerlain",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-guerlain",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Guerlain.jpg.webp",
+      "image": "/images/brands/guerlain-04281ee2.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Guerlain.jpg.webp"
+    },
+    {
+      "name": "Guess",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-guess",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Guess.png.webp",
+      "image": "/images/brands/guess-98041566.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Guess.png.webp"
+    },
+    {
+      "name": "Gucci",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-gucci",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/04/gucci.jpg.webp",
+      "image": "/images/brands/gucci-4af2366e.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/04/gucci.jpg.webp"
+    },
+    {
+      "name": "Hermès",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-hermes",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Hermes.jpg.webp",
+      "image": "/images/brands/hermes-10d73c28.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Hermes.jpg.webp"
+    },
+    {
+      "name": "House of Sillage",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-house-of-sillage",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/House-of-Sillage.png.webp",
+      "image": "/images/brands/house-of-sillage-bc1a623a.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/House-of-Sillage.png.webp"
+    },
+    {
+      "name": "Hugo Boss",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-hugo-boss",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/hugo-boss.jpg.webp",
+      "image": "/images/brands/hugo-boss-67b46d71.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/hugo-boss.jpg.webp"
+    },
+    {
+      "name": "Initio Parfums Prives",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-initio-parfums-prives",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Initio-Parfums-Prives.jpg.webp",
+      "image": "/images/brands/initio-parfums-prives-bb79172f.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Initio-Parfums-Prives.jpg.webp"
+    },
+    {
+      "name": "Issey Miyake",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-issey-miyake",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Issey-Miyake.jpg.webp",
+      "image": "/images/brands/issey-miyake-2b7c47e5.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Issey-Miyake.jpg.webp"
+    },
+    {
+      "name": "J.U.S Parfums",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-j-u-s-parfums",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/J.U.S-Parfums.png.webp",
+      "image": "/images/brands/j-u-s-parfums-6153a3b8.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/J.U.S-Parfums.png.webp"
+    },
+    {
+      "name": "Jean Paul Gaultier",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-jean-paul-gaultier",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Jean-Paul-Gaultier.jpg.webp",
+      "image": "/images/brands/jean-paul-gaultier-44943412.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Jean-Paul-Gaultier.jpg.webp"
+    },
+    {
+      "name": "Jimmy Choo",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-jimmy-choo",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/jimmy-choo.jpg.webp",
+      "image": "/images/brands/jimmy-choo-0f588b0e.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/jimmy-choo.jpg.webp"
+    },
+    {
+      "name": "Jo Malone",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-jo-malone",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Jo-malone.jpg.webp",
+      "image": "/images/brands/jo-malone-62db7aba.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Jo-malone.jpg.webp"
+    },
+    {
+      "name": "John Varvatos",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-john-varvatos",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/John-Varvatos.jpg.webp",
+      "image": "/images/brands/john-varvatos-17155402.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/John-Varvatos.jpg.webp"
+    },
+    {
+      "name": "Karl Lagerfeld",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-karl-lagerfeld",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Karl-Lagerfeld.jpg.webp",
+      "image": "/images/brands/karl-lagerfeld-5f3e616d.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Karl-Lagerfeld.jpg.webp"
+    },
+    {
+      "name": "Katy Perry",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-katy-perry",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Katy-Perry.jpg.webp",
+      "image": "/images/brands/katy-perry-de1bad8d.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Katy-Perry.jpg.webp"
+    },
+    {
+      "name": "Kayali",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-kayali",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Kayali.png.webp",
+      "image": "/images/brands/kayali-5b96d552.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Kayali.png.webp"
+    },
+    {
+      "name": "Kenzo",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-kenzo",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Kenzo.jpg.webp",
+      "image": "/images/brands/kenzo-2a635381.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Kenzo.jpg.webp"
+    },
+    {
+      "name": "Kilian",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-kilian",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Kilian.jpg.webp",
+      "image": "/images/brands/kilian-c2080445.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Kilian.jpg.webp"
+    },
+    {
+      "name": "Kira",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-kira",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Kira.png.webp",
+      "image": "/images/brands/kira-a98a188f.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Kira.png.webp"
+    },
+    {
+      "name": "Lacoste",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-lacoste",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Lacoste.jpg.webp",
+      "image": "/images/brands/lacoste-8c3a5503.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Lacoste.jpg.webp"
+    },
+    {
+      "name": "Lalique",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-lalique",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Lalique.jpg.webp",
+      "image": "/images/brands/lalique-c7389415.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Lalique.jpg.webp"
+    },
+    {
+      "name": "Lancôme",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-lancome",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Lancome.jpg.webp",
+      "image": "/images/brands/lancome-9499630f.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Lancome.jpg.webp"
+    },
+    {
+      "name": "Lanvin",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-lanvin",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Lanvin.jpg.webp",
+      "image": "/images/brands/lanvin-e3c4a8e3.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Lanvin.jpg.webp"
+    },
+    {
+      "name": "Lattafa",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-lattafa",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Lattafa.jpg.webp",
+      "image": "/images/brands/lattafa-2c87809c.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Lattafa.jpg.webp"
+    },
+    {
+      "name": "Le Labo",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-le-labo",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Le-labo.jpg.webp",
+      "image": "/images/brands/le-labo-de34877b.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Le-labo.jpg.webp"
+    },
+    {
+      "name": "Les Liquides Imaginaires",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-les-liquides-imaginaires",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Les-Liquides-Imaginaires.png.webp",
+      "image": "/images/brands/les-liquides-imaginaires-abbcbf21.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Les-Liquides-Imaginaires.png.webp"
+    },
+    {
+      "name": "Loewe",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-loewe",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Loewe.png.webp",
+      "image": "/images/brands/loewe-a030b8cb.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Loewe.png.webp"
+    },
+    {
+      "name": "Lolita Lempicka",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-lolita-lempicka",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Lolita-Lempicka.jpg.webp",
+      "image": "/images/brands/lolita-lempicka-d328ace4.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Lolita-Lempicka.jpg.webp"
+    },
+    {
+      "name": "LONGTIEN",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-longtien",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/10/LONGTIEN-logo.png.webp",
+      "image": "/images/brands/longtien-81a33efa.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/10/LONGTIEN-logo.png.webp"
+    },
+    {
+      "name": "Louis Vuitton",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-louis-vuitton",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Louis-Vuitton.jpg.webp",
+      "image": "/images/brands/louis-vuitton-cc15375e.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Louis-Vuitton.jpg.webp"
+    },
+    {
+      "name": "Lusted",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-lusted",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/05/Logo-thuong-hieu-Lusted.png.webp",
+      "image": "/images/brands/lusted-08393f5e.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/05/Logo-thuong-hieu-Lusted.png.webp"
+    },
+    {
+      "name": "Mad Et Len",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-mad-et-len",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Mad-Et-Len.png.webp",
+      "image": "/images/brands/mad-et-len-3f0dda73.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Mad-Et-Len.png.webp"
+    },
+    {
+      "name": "Maison Alhambra",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-maison-alhambra",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Maison-Alhambra.png.webp",
+      "image": "/images/brands/maison-alhambra-1aa8cc60.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Maison-Alhambra.png.webp"
+    },
+    {
+      "name": "Maison Crivelli",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-maison-crivelli",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Maison-Crivelli.png.webp",
+      "image": "/images/brands/maison-crivelli-b70abc60.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Maison-Crivelli.png.webp"
+    },
+    {
+      "name": "Maison Francis Kurkdjian",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-maison-francis-kurkdjian",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Maison-Francis-Kurkdjian.jpg.webp",
+      "image": "/images/brands/maison-francis-kurkdjian-0457024c.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Maison-Francis-Kurkdjian.jpg.webp"
+    },
+    {
+      "name": "Maison Martin Margiela",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-maison-martin-margiela",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Maison-Martin-Margiela.jpg.webp",
+      "image": "/images/brands/maison-martin-margiela-f9b8fc32.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Maison-Martin-Margiela.jpg.webp"
+    },
+    {
+      "name": "Maison Matine",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-maison-matine",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Maison-Matine.jpg.webp",
+      "image": "/images/brands/maison-matine-08c9f009.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Maison-Matine.jpg.webp"
+    },
+    {
+      "name": "Mancera",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-mancera",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Mancera.png.webp",
+      "image": "/images/brands/mancera-b31bfd6f.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Mancera.png.webp"
+    },
+    {
+      "name": "Marc Jacobs",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-marc-jacobs",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/marc-jacobs.jpg.webp",
+      "image": "/images/brands/marc-jacobs-c964b563.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/marc-jacobs.jpg.webp"
+    },
+    {
+      "name": "Masque",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-masque",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Masque.jpg.webp",
+      "image": "/images/brands/masque-2c102986.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Masque.jpg.webp"
+    },
+    {
+      "name": "Matiere Premiere",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-matiere-premiere",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Matiere-Premiere.png.webp",
+      "image": "/images/brands/matiere-premiere-b899e908.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Matiere-Premiere.png.webp"
+    },
+    {
+      "name": "Memo Paris",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-memo-paris",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Memo-Paris.jpg.webp",
+      "image": "/images/brands/memo-paris-0134cbd8.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Memo-Paris.jpg.webp"
+    },
+    {
+      "name": "Memoire Des Sens",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-memoire-des-sens",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Memoire-Des-Sens.png.webp",
+      "image": "/images/brands/memoire-des-sens-23464562.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Memoire-Des-Sens.png.webp"
+    },
+    {
+      "name": "Mendittorosa",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-mendittorosa",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Mendittorosa.jpg.webp",
+      "image": "/images/brands/mendittorosa-596d235a.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Mendittorosa.jpg.webp"
+    },
+    {
+      "name": "Mercedes-Benz",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-mercedes-benz",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/mercedes-benz.jpg.webp",
+      "image": "/images/brands/mercedes-benz-4b38f1d7.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/mercedes-benz.jpg.webp"
+    },
+    {
+      "name": "Michael Kors",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-michael-kors",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/05/Logo-thuong-hieu-Michael-Kors.png.webp",
+      "image": "/images/brands/michael-kors-2e803c8a.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/05/Logo-thuong-hieu-Michael-Kors.png.webp"
+    },
+    {
+      "name": "Mind Games",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-mind-games",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/10/Mind-Games-logo.png.webp",
+      "image": "/images/brands/mind-games-0159c5c2.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/10/Mind-Games-logo.png.webp"
+    },
+    {
+      "name": "Missoni",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-missoni",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Missoni.jpg.webp",
+      "image": "/images/brands/missoni-f47d7c36.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Missoni.jpg.webp"
+    },
+    {
+      "name": "Mode Creation Munich (MCM)",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-mode-creation-munich-mcm",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Mode-Creation-Munich-MCM.jpg.webp",
+      "image": "/images/brands/mode-creation-munich-mcm--2ec8a316.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Mode-Creation-Munich-MCM.jpg.webp"
+    },
+    {
+      "name": "Montale",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-montale",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Montale.jpg.webp",
+      "image": "/images/brands/montale-33609744.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Montale.jpg.webp"
+    },
+    {
+      "name": "Montblanc",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-montblanc",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/montblanc.jpg.webp",
+      "image": "/images/brands/montblanc-d68963e0.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/montblanc.jpg.webp"
+    },
+    {
+      "name": "Moschino",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-moschino",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/moschino.jpg.webp",
+      "image": "/images/brands/moschino-ad4587a5.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/moschino.jpg.webp"
+    },
+    {
+      "name": "Mykonos",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-mykonos",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/10/Mykonos-logo.png.webp",
+      "image": "/images/brands/mykonos-781a40aa.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/10/Mykonos-logo.png.webp"
+    },
+    {
+      "name": "Nacho Vidal",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-nacho-vidal",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Nacho-Vidal.jpg.webp",
+      "image": "/images/brands/nacho-vidal-44590944.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Nacho-Vidal.jpg.webp"
+    },
+    {
+      "name": "Narciso",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-narciso",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Narciso.jpg.webp",
+      "image": "/images/brands/narciso-65b5c09d.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Narciso.jpg.webp"
+    },
+    {
+      "name": "Nasomatto",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-nasomatto",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Nasomato.jpg.webp",
+      "image": "/images/brands/nasomatto-f6eee35b.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Nasomato.jpg.webp"
+    },
+    {
+      "name": "Nautica",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-nautica",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Nautica.jpg.webp",
+      "image": "/images/brands/nautica-da8c217d.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Nautica.jpg.webp"
+    },
+    {
+      "name": "Nina Ricci",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-nina-ricci",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Nina-Ricci.jpg.webp",
+      "image": "/images/brands/nina-ricci-ddd7a96b.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Nina-Ricci.jpg.webp"
+    },
+    {
+      "name": "Nishane",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-nishane",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Nishane.jpg.webp",
+      "image": "/images/brands/nishane-bf8c56b4.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Nishane.jpg.webp"
+    },
+    {
+      "name": "Once Perfume",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-once-perfume",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Once-Perfume.png.webp",
+      "image": "/images/brands/once-perfume-ebd97162.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Once-Perfume.png.webp"
+    },
+    {
+      "name": "Original Penguin",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-original-penguin",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Original-Penguin.jpg.webp",
+      "image": "/images/brands/original-penguin-aa5446a8.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Original-Penguin.jpg.webp"
+    },
+    {
+      "name": "Ormonde Jayne",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-ormonde-jayne",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Ormonde-Jayne.jpg.webp",
+      "image": "/images/brands/ormonde-jayne-4dbf4f5e.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Ormonde-Jayne.jpg.webp"
+    },
+    {
+      "name": "Orto Parisi",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-orto-parisi",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Orto-Parisi.jpg.webp",
+      "image": "/images/brands/orto-parisi-8bc9a529.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Orto-Parisi.jpg.webp"
+    },
+    {
+      "name": "Paco Rabanne",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-paco-rabanne",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/paco-rabanne.jpg.webp",
+      "image": "/images/brands/paco-rabanne-7846c60f.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/paco-rabanne.jpg.webp"
+    },
+    {
+      "name": "Parfums De Marly",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-parfums-de-marly",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/parfum-de-marly.jpg.webp",
+      "image": "/images/brands/parfums-de-marly-237a9da9.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/parfum-de-marly.jpg.webp"
+    },
+    {
+      "name": "Paul Smith",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-paul-smith",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/12/Paul-Smith.jpg.webp",
+      "image": "/images/brands/paul-smith-fdac5172.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/12/Paul-Smith.jpg.webp"
+    },
+    {
+      "name": "Penhaligon's",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-penhaligon-s",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Penhaligons.jpg.webp",
+      "image": "/images/brands/penhaligon-s-0be34b07.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/06/Penhaligons.jpg.webp"
+    },
+    {
+      "name": "Perris Monte Carlo",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-perris-monte-carlo",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Perris-Monte-Carlo.jpg.webp",
+      "image": "/images/brands/perris-monte-carlo-f93eb8fa.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Perris-Monte-Carlo.jpg.webp"
+    },
+    {
+      "name": "Prada",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-prada",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/12/Prada.jpg.webp",
+      "image": "/images/brands/prada-c8c92b27.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/12/Prada.jpg.webp"
+    },
+    {
+      "name": "Profumum Roma",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-profumum-roma",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Profumum-Roma.png.webp",
+      "image": "/images/brands/profumum-roma-9b0a1f93.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Profumum-Roma.png.webp"
+    },
+    {
+      "name": "Ralph Lauren",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-ralph-lauren",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Ralph-Lauren.jpg.webp",
+      "image": "/images/brands/ralph-lauren-bd2e745b.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Ralph-Lauren.jpg.webp"
+    },
+    {
+      "name": "Rasasi",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-rasasi",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/12/Rasasi.jpg.webp",
+      "image": "/images/brands/rasasi-2d4a35ab.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/12/Rasasi.jpg.webp"
+    },
+    {
+      "name": "Reyane Tradition",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-reyane-tradition",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Reyane-Tradition.png.webp",
+      "image": "/images/brands/reyane-tradition-032a38d0.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Reyane-Tradition.png.webp"
+    },
+    {
+      "name": "Roja Dove",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-roja-dove",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Roja-Dove.png.webp",
+      "image": "/images/brands/roja-dove-a426d080.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Roja-Dove.png.webp"
+    },
+    {
+      "name": "Salvatore Ferragamo",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-salvatore-ferragamo",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/salvator-ferragamor.jpg.webp",
+      "image": "/images/brands/salvatore-ferragamo-397ed565.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/salvator-ferragamor.jpg.webp"
+    },
+    {
+      "name": "Sensxsent",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-sensxsent",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/04/Logo-thuong-hieu-Sensxsent-.png.webp",
+      "image": "/images/brands/sensxsent-ccc4cac1.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/04/Logo-thuong-hieu-Sensxsent-.png.webp"
+    },
+    {
+      "name": "Serge Lutens",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-serge-lutens",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Serge-Lutens.png.webp",
+      "image": "/images/brands/serge-lutens-0b53ed34.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Serge-Lutens.png.webp"
+    },
+    {
+      "name": "Sol de Janeiro",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-sol-de-janeiro",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Sol-de-Janeiro.png.webp",
+      "image": "/images/brands/sol-de-janeiro-553c64d6.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Sol-de-Janeiro.png.webp"
+    },
+    {
+      "name": "Sospiro",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-sospiro",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Sospiro.png.webp",
+      "image": "/images/brands/sospiro-67ea28fe.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Sospiro.png.webp"
+    },
+    {
+      "name": "State Of Mind",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-state-of-mind",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/04/Logo-thuong-hieu-State-of-Mind.png.webp",
+      "image": "/images/brands/state-of-mind-78dbe8ca.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/04/Logo-thuong-hieu-State-of-Mind.png.webp"
+    },
+    {
+      "name": "Stéphane Humbert Lucas 777",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-stephane-humbert-lucas-777",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/06/Logo-thuong-hieu-Stephane-Humbert-Lucas-777.png.webp",
+      "image": "/images/brands/stephane-humbert-lucas-777-8798b353.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/06/Logo-thuong-hieu-Stephane-Humbert-Lucas-777.png.webp"
+    },
+    {
+      "name": "Tamburins",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-tamburins",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Tamburins.png.webp",
+      "image": "/images/brands/tamburins-e4e5e577.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Tamburins.png.webp"
+    },
+    {
+      "name": "Tauer",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-tauer",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Tauer.png.webp",
+      "image": "/images/brands/tauer-e6da7edc.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-Tauer.png.webp"
+    },
+    {
+      "name": "Thameen",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-thameen",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/03/Logo-thuong-hieu-Thameen.png.webp",
+      "image": "/images/brands/thameen-af7dd227.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/03/Logo-thuong-hieu-Thameen.png.webp"
+    },
+    {
+      "name": "The Merchant of Venice",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-the-merchant-of-venice",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-The-Merchant-of-Venice.png.webp",
+      "image": "/images/brands/the-merchant-of-venice-7e6f6290.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-The-Merchant-of-Venice.png.webp"
+    },
+    {
+      "name": "The Woods Collection",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-the-woods-collection",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-The-Woods-Collection.png.webp",
+      "image": "/images/brands/the-woods-collection-8a7d5263.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2025/03/Logo-thuong-hieu-The-Woods-Collection.png.webp"
+    },
+    {
+      "name": "Thierry Mugler",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-thierry-mugler",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Thierry-Mugler.jpg.webp",
+      "image": "/images/brands/thierry-mugler-3164fbcb.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Thierry-Mugler.jpg.webp"
+    },
+    {
+      "name": "Thomas Kosmala",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-thomas-kosmala",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Thomas-Kosmala.png.webp",
+      "image": "/images/brands/thomas-kosmala-dc57729d.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Thomas-Kosmala.png.webp"
+    },
+    {
+      "name": "Tiziana Terenzi",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-tiziana-terenzi",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/12/Tiziana-Terenzi.jpg.webp",
+      "image": "/images/brands/tiziana-terenzi-6bf539c6.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/12/Tiziana-Terenzi.jpg.webp"
+    },
+    {
+      "name": "Tom Ford",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-tom-ford",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Tom-Ford.jpg.webp",
+      "image": "/images/brands/tom-ford-1a60ae9d.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Tom-Ford.jpg.webp"
+    },
+    {
+      "name": "Tommy Hilfiger",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-tommy-hilfiger",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Tommy-Hilfiger.png.webp",
+      "image": "/images/brands/tommy-hilfiger-a7fa3001.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Tommy-Hilfiger.png.webp"
+    },
+    {
+      "name": "Toouch",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-toouch",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/10/Toouch-logo.png.webp",
+      "image": "/images/brands/toouch-b7ceeb24.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/10/Toouch-logo.png.webp"
+    },
+    {
+      "name": "Trussardi",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-trussardi",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Trussardi.jpg.webp",
+      "image": "/images/brands/trussardi-cf30fee3.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Trussardi.jpg.webp"
+    },
+    {
+      "name": "Valentino",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-valentino",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Valentino.jpg.webp",
+      "image": "/images/brands/valentino-b299abdc.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Valentino.jpg.webp"
+    },
+    {
+      "name": "Van Cleef & Arpels",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-van-cleef-arpels",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Van-Cleef-Arpels.jpg.webp",
+      "image": "/images/brands/van-cleef-arpels-47a28079.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Van-Cleef-Arpels.jpg.webp"
+    },
+    {
+      "name": "Velixir",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-velixir",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/05/Logo-thuong-hieu-Verlixir.png.webp",
+      "image": "/images/brands/velixir-19cd548b.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2026/05/Logo-thuong-hieu-Verlixir.png.webp"
+    },
+    {
+      "name": "Vera Wang",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-vera-wang",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Vera-Wang.png.webp",
+      "image": "/images/brands/vera-wang-3b6276f3.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Vera-Wang.png.webp"
+    },
+    {
+      "name": "Victoria's Secret",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-victoria-s-secret",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Victorias-Secret.jpg.webp",
+      "image": "/images/brands/victoria-s-secret-887f79f9.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Victorias-Secret.jpg.webp"
+    },
+    {
+      "name": "Victorinox",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-victorinox",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Victorinox.png.webp",
+      "image": "/images/brands/victorinox-3d673503.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-Victorinox.png.webp"
+    },
+    {
+      "name": "Viktor & Rolf",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-viktor-rolf",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Viktor-Rolf.jpg.webp",
+      "image": "/images/brands/viktor-rolf-b67128ce.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/11/Viktor-Rolf.jpg.webp"
+    },
+    {
+      "name": "Versace",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-versace",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/09/versace.jpg.webp",
+      "image": "/images/brands/versace-343a8739.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/09/versace.jpg.webp"
+    },
+    {
+      "name": "Xerjoff",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-xerjoff",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/12/Xerjoff.jpg.webp",
+      "image": "/images/brands/xerjoff-bfc6dd36.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/12/Xerjoff.jpg.webp"
+    },
+    {
+      "name": "Yves Saint Laurent",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-yves-saint-laurent",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/09/Yves-Saint-Laurent.jpg.webp",
+      "image": "/images/brands/yves-saint-laurent-a908d42d.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/09/Yves-Saint-Laurent.jpg.webp"
+    },
+    {
+      "name": "Zadig & Voltaire",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-zadig-voltaire",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/12/Zadig-Voltaire-1.jpg.webp",
+      "image": "/images/brands/zadig-voltaire-c2e8e874.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2023/12/Zadig-Voltaire-1.jpg.webp"
+    },
+    {
+      "name": "Zara",
+      "sourceUrl": "https://apaniche.vn/nuoc-hoa-zara",
+      "sourceImage": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-thuong-hieu-Zara.png.webp",
+      "image": "/images/brands/zara-bab01e3f.webp",
+      "downloadedFrom": "https://apaniche.vn/wp-content/webp-express/webp-images/uploads/2024/10/Logo-thuong-hieu-Zara.png.webp"
+    },
+    {
+      "name": "4711",
+      "sourceUrl": "https://4711.com/",
+      "sourceImage": "https://4711.com/cdn/shop/files/MicrosoftTeams-image_2.png?v=1709654190&width=212",
+      "image": "/images/brands/4711-75e7f4ae.png",
+      "downloadedFrom": "https://4711.com/cdn/shop/files/MicrosoftTeams-image_2.png?v=1709654190&width=212"
+    }
+  ]
+}

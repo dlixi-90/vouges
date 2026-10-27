@@ -65,3 +65,15 @@ node --test tools/apaniche/product-parser.test.mjs
 ```
 
 Dữ liệu đã được nhập làm catalog thật của Velours; xem [kết quả nhập](./import-result.json) và [hướng dẫn dashboard](../../../docs/PERFUME_CATALOG.md). Toàn bộ giá và trạng thái là ảnh chụp dữ liệu ở thời điểm thu thập; chưa có đồng bộ tự động. JSON nguồn được giữ nguyên, các chỉnh sửa bán hàng nằm riêng trong database.
+
+## Màu sắc các kiểu mùi (Accords)
+
+Ngày 28/10/2026, đã đối chiếu đủ **68 kiểu mùi** trong [thư viện Apaniche](https://apaniche.vn/thu-vien-mui-huong) với toàn bộ kiểu mùi xuất hiện trong 2.444 sản phẩm đã thu thập. Màu nền và màu chữ được lấy nguyên từ CSS `background-color` / `color` của `.accord-label` trên 21 trang sản phẩm đại diện. Không suy màu từ ảnh hoặc tự đặt bảng màu. Đối chiếu không có màu bị thiếu hoặc xung đột trong các trang mẫu.
+
+- [accord-colors.json](./accord-colors.json) lưu tên Việt/Anh, mã màu, liên kết thư viện, trang sản phẩm đối chứng, thời điểm thu thập và SHA-256 các trang đã đọc.
+- [accordColors.json](../../../client/src/data/accordColors.json) là bảng màu dùng trực tiếp ở frontend.
+- `node tools/apaniche/collect-accord-colors.mjs` thu thập lại bảng màu. HTML dùng làm bộ nhớ đệm nằm trong `.qa-perfume/accord-colors/`, không đưa vào Git. Script không sửa database, giá hoặc tỷ lệ mùi hương.
+
+Trang chi tiết và phần xem trước dashboard dùng chung thanh màu xếp dọc, độ dài đúng theo tỷ lệ đã lưu; tên và phần trăm nằm trên thanh. Các tỷ lệ độc lập, không ép tổng thành 100%. Khi chưa có tỷ lệ, hiển thị “Chưa có dữ liệu”; kiểu mùi do chủ cửa hàng tự đặt mà chưa có trong bảng màu sẽ dùng xám trung tính. Ánh xạ ưu tiên URL kiểu mùi, sau đó tên Việt/Anh, nên nhập lại tên có khác biệt hoa/thường hoặc dấu vẫn nhận được màu tương ứng.
+
+Kiểm tra: `node --test tests/core/accordColors.test.js tests/core/perfumeCatalog.test.js` và `node scripts/perfumeBrowserQA.mjs --accord-colors` từ `server/`. Bộ kiểm tra trình duyệt đối chiếu màu thực tế, độ dài thanh, bản xem trước và màn hình 390px/320px; các chỉnh sửa thử không lưu vào database.

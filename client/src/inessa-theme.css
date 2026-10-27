@@ -86,7 +86,8 @@
 }
 .inessa-hero-inner { display: flex; align-items: center; min-height: inherit; padding-block: 65px 80px; }
 .inessa-hero-copy { width: 54%; max-width: 650px; }
-.net-theme .inessa-hero h1 { margin: 22px 0; font-size: calc(clamp(58px, 6.7vw, 100px) - 4px); line-height: calc(1.2em + 3px); text-transform: uppercase; }
+.net-theme .inessa-hero .inessa-eyebrow { font-size: 13px; }
+.net-theme .inessa-hero h1 { margin: 22px 0; font-size: calc(clamp(58px, 6.7vw, 100px) - 7px); line-height: calc(1.2em + 6px); text-transform: uppercase; }
 .inessa-hero h1 em { font-weight: var(--inessa-serif-weight); }
 .net-theme .inessa-hero-description { max-width: 350px; margin: 25px 0 28px; color: #545454; font-size: 12px; }
 .inessa-hero-caption { position: absolute; bottom: 26px; right: clamp(22px, 5.5vw, 80px); font-size: 9px; letter-spacing: .22em; color: #555; }
@@ -154,6 +155,11 @@
 .net-theme .inessa-collection-heading h1 { margin-top: 25px; font-size: calc(clamp(56px, 7vw, 100px) - 3px); font-weight: var(--inessa-serif-weight); line-height: 1.2; text-transform: uppercase; }
 .net-collection .inessa-collection-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px 28px; padding-bottom: 34px; }
 .inessa-collection-filter-tools,.inessa-collection-sort-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 18px; }
+.inessa-collection-search { display: flex; align-items: center; gap: 9px; flex: 1; min-width: 200px; max-width: 320px; min-height: 44px; padding: 5px 6px 5px 13px; border: 1px solid #e5e5e5; border-radius: var(--inessa-radius-control); background: #fff; color: #999; }
+.inessa-collection-search input { flex: 1; width: 100%; min-width: 0; outline: none; background: transparent; color: #333; font-size: 12px; }
+.inessa-collection-search > svg { flex-shrink: 0; }
+.inessa-collection-search button { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 32px; height: 32px; border-radius: 6px; background: #171717; color: #fff; cursor: pointer; }
+.inessa-collection-search:focus-within { border-color: #999; }
 .inessa-collection-filter-trigger { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: #171717; font-size: 14px; font-weight: 500; cursor: pointer; }
 .inessa-collection-filter-count { display: inline-flex; align-items: center; justify-content: center; min-width: 21px; height: 21px; padding-inline: 5px; border-radius: 50%; background: #fff; font-size: 10px; }
 .inessa-collection-reset { min-height: 44px; color: #777; font-size: 11px; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
@@ -178,10 +184,7 @@
 .inessa-filter-close { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; color: #777; cursor: pointer; }
 .inessa-filter-close:hover { color: #171717; }
 .inessa-filter-content { flex: 1; min-height: 0; padding: 0 32px 36px; overflow-y: auto; overscroll-behavior: contain; }
-.inessa-filter-search { display: flex; align-items: stretch; gap: 7px; }
-.inessa-filter-search input { min-width: 0; flex: 1; min-height: 44px; padding: 10px 12px; border: 1px solid #ddd; border-radius: var(--inessa-radius-control); background: #fff; font-size: 12px; }
-.net-theme dialog.inessa-filter-drawer .inessa-filter-search button { display: flex; flex-shrink: 0; align-items: center; justify-content: center; width: 38px; min-height: 44px; border-radius: var(--inessa-radius-control); background: #171717; color: #fff; cursor: pointer; }
-.inessa-filter-price { margin-top: 48px; }
+.inessa-filter-price { margin-top: 12px; }
 .net-theme .inessa-filter-price h3 { font-size: 58px; font-weight: var(--inessa-serif-weight); line-height: 1.2; }
 .inessa-filter-price-range { position: relative; height: 24px; margin-top: 24px; }
 .inessa-filter-price-range::before { position: absolute; inset: 11px 0 auto; height: 2px; background: linear-gradient(to right,#ddd 0 var(--range-min),#171717 var(--range-min) var(--range-max),#ddd var(--range-max) 100%); content: ""; }
@@ -214,6 +217,7 @@
   .inessa-collection-heading { padding-block: 35px 55px; }
   .net-theme .inessa-collection-heading h1 { font-size: calc(clamp(46px, 9vw, 64px) - 3px); margin-top: 20px; }
   .net-collection .inessa-collection-toolbar { gap: 8px 20px; padding-bottom: 24px; }
+  .inessa-collection-search { flex-basis: 100%; max-width: none; }
   .inessa-collection-sort-tools { justify-content: space-between; gap: 10px; width: 100%; }
   .net-collection .inessa-collection-sort-tools select { padding-right: 4px; font-size: 12px; border-radius: var(--inessa-radius-control); }
   .net-collection .inessa-collection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 14px; }
@@ -235,6 +239,25 @@
 .net-product-detail h1 { font-size: clamp(32px, 3.4vw, 48px); font-weight: var(--inessa-serif-weight); }
 .net-product-detail button[class*="bg-[#242424]"],.net-product-detail button.bg-secondary { border-radius: var(--inessa-radius-control); }
 .net-product-detail [class*="bg-[#f5f5f0]"] { border-radius: var(--inessa-radius-card); }
+
+/* Full-width product information follows the gallery and purchase controls. */
+.product-detail-tabs { margin-top: 48px; }
+.product-detail-tab-list { position: relative; display: flex; gap: 26px; border-top: 1px solid #dedede; overflow-x: auto; overscroll-behavior-x: contain; }
+.net-product-detail .product-detail-tab-list > button { flex-shrink: 0; position: relative; min-height: 46px; padding: 12px 0; color: #777; font-size: 14px; font-weight: 600; line-height: 1.5; cursor: pointer; }
+.product-detail-tab-list > button::before { content: ""; position: absolute; inset: 0 0 auto; height: 2px; background: transparent; }
+.net-product-detail .product-detail-tab-list > button[aria-selected="true"] { color: #171717; }
+.product-detail-tab-list > button[aria-selected="true"]::before { background: #171717; }
+.product-detail-tab-list > button:focus-visible { outline: 2px solid #777; outline-offset: -3px; }
+.product-detail-tab-panel { padding-top: 24px; }
+.product-detail-tab-panel[hidden] { display: none; }
+.product-detail-tab-panel:focus-visible { outline: 2px solid #aaa; outline-offset: 5px; }
+.net-theme .product-description-copy p { color: #626262; white-space: pre-line; font-size: 14px; line-height: 1.9; overflow-wrap: anywhere; }
+@media (max-width: 767px) {
+  .product-detail-tabs { margin-top: 32px; }
+  .product-detail-tab-list { gap: 20px; }
+  .net-product-detail .product-detail-tab-list > button { font-size: 12px; }
+  .product-detail-tab-panel { padding-top: 20px; }
+}
 /* About replaces the former beauty journal with the reference's brand story. */
 .inessa-about { padding-bottom: 80px; background: #fff; }
 .inessa-about-hero { position: relative; isolation: isolate; min-height: clamp(420px, 45vw, 620px); overflow: hidden; border-radius: var(--inessa-radius-panel); background: #1d2323; }
@@ -708,7 +731,7 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
   .inessa-hero-image { object-position: 57% center; }
   .inessa-hero-inner { padding-block: 65px; }
   .inessa-hero-copy { width: 85%; }
-  .net-theme .inessa-hero h1 { font-size: calc(clamp(36px, 9vw, 60px) - 4px); }
+  .net-theme .inessa-hero h1 { font-size: calc(clamp(36px, 9vw, 60px) - 7px); }
   .net-theme .inessa-hero-description { max-width: 270px; }
   .inessa-hero-caption { font-size: 8px; bottom: 20px; }
   .inessa-stories { padding-top: 65px; }

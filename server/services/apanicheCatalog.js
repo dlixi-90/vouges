@@ -60,7 +60,7 @@ export const buildApanicheCatalog = (sources, variants, inventoryMode = "source"
       category, type, brand, concentration, gender, origin: get("xuất xứ"), catalogScope,
       isPublished: !ancillary, inStock: source.inStock === true && Object.values(inStockBySize).some(Boolean), inventoryMode,
       popular: false, isDeleted: false, qualityIssues: [...qualityIssues], variantMetadata,
-      fragrance: { group: get("nhóm hương"), style: get("phong cách"), notes: data.scentNotes || {}, accords: data.accords || [], longevity: data.longevity || [], sillage: data.sillage || [], suitability: data.suitability || [], assessmentProvenance: data.assessmentProvenance || { methodologyVerified: false }, assessmentsVisible: false },
+      fragrance: { group: get("nhóm hương"), style: get("phong cách"), notes: data.scentNotes || {}, accords: data.accords || [], longevity: data.longevity || [], sillage: data.sillage || [], suitability: data.suitability || [], assessmentProvenance: data.assessmentProvenance || { methodologyVerified: false }, assessmentsVisible: true },
       source: { provider: "apaniche", id: source.sourceId, url: source.sourceUrl, fetchedAt: source.detail?.fetchedAt || source.apiFetchedAt }, createdAt: now, updatedAt: now,
     };
     addTerm("brand", brand, specs["thương hiệu"]?.links?.[0]?.url || "", id);

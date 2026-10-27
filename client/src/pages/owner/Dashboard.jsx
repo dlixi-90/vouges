@@ -1,7 +1,8 @@
 import { getSizeImage } from "../../utils/productImage";
 import { getOrderStatusLabel, getPaymentMethodLabel } from "../../utils/localization.js";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { Banknote, Package, ShoppingBag } from "lucide-react";
+import { Banknote, CalendarDays, Package, ShoppingBag } from "lucide-react";
+import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
 import { formatVnd } from "../../utils/money";
@@ -9,6 +10,8 @@ import { usePopularProducts } from "../../hooks/usePopularProducts";
 import ProductImage from "../../components/ProductImage";
 import Pagination from "../../components/Pagination";
 import usePaginationScroll from "../../hooks/usePaginationScroll";
+import { Badge, CatalogPage, RefreshButton } from "../../components/owner/CatalogUI";
+import { OperationsEmptyState, OperationsMetric, OperationsPanel } from "../../components/owner/OperationsUI";
 
 const RevenueChart = lazy(() => import("../../components/owner/RevenueChart"));
 const DASHBOARD_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -24,6 +27,7 @@ const Dashboard = () => {
     fetchPopularProducts,
   } = usePopularProducts();
   const [page, setPage] = useState(1);
+  const [months, setMonths] = useState(6);
   const cacheKey = `${userId}:${DASHBOARD_TIMEZONE}:${page}`;
   const [dashboardData, setDashboardData] = useState(() => dashboardCache.peek(cacheKey) || {
     orders: [],
@@ -135,132 +139,31 @@ const Dashboard = () => {
 
   const orders = dashboardData.orders || [];
 
-  return (
-    <main className="m-1 h-[97vh] overflow-y-auto rounded-xl bg-primary px-3 py-6 shadow sm:m-3 sm:px-5 md:px-8 lg:w-11/12 xl:py-8">
-      <div className="mx-auto w-full max-w-[1120px]">
-        <header className="mb-6 flex flex-col gap-4 border-b border-[#e1e6e3] pb-6 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#6f9a79]">
-              Velours / Không gian quản lý
-            </p>
-            <h1 className="text-2xl font-semibold tracking-tight text-[#263b4a] sm:text-3xl">
-              Đơn hàng & doanh thu
-            </h1>
-          </div>
-        </header>
-
-        <div className="inessa-dashboard-metrics">
-          <div className="inessa-dashboard-metric">
-            <div><p>Tổng doanh thu</p><strong>{dashboardData.totalRevenue === null ? "—" : formatVnd(dashboardData.totalRevenue, currency)}</strong></div>
-            <span><Banknote size={21} strokeWidth={1.3} aria-hidden="true" /></span>
-          </div>
-          <div className="inessa-dashboard-metric">
-            <div><p>Tổng đơn hàng</p><strong>{dashboardData.totalOrders ?? "—"}</strong></div>
-            <span><ShoppingBag size={21} strokeWidth={1.3} aria-hidden="true" /></span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-          <DashboardCard className="xl:col-span-2">
-            <div className="flex w-full items-center justify-between gap-3">
-              <h2 className="text-lg font-medium text-[#263b4a]">
-                Tổng doanh thu
-              </h2>
-
-              <p className="text-xl font-medium text-black">
-                {dashboardData.totalRevenue === null ? "—" : formatVnd(dashboardData.totalRevenue, currency)}
-              </p>
-            </div>
-            <div className="mt-4 h-[360px] min-h-[360px] min-w-0 w-full">
-              <Suspense fallback={<EmptyState text="Đang tải biểu đồ…" />}>
-                <RevenueChart data={dashboardData.monthlyData} currency={currency} />
-              </Suspense>
-            </div>
-          </DashboardCard>
-
-          <DashboardCard>
-            <CardTitle title="Sản phẩm bán chạy" />
-            {popularProductsError && (
-              <p role="alert" className="mt-3 text-sm text-red-600">
-                {popularProductsError}{" "}
-                <button type="button" onClick={fetchPopularProducts} className="underline">
-                  Thử lại
-                </button>
-              </p>
-            )}
-            <div className="mt-4 flex flex-col gap-2">
-              {popularProducts.slice(0, 4).map((product) => (
-                <div
-                  key={product._id}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-[#edf0f2] p-3"
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-[#f2f5f3]">
-                      {product.images?.[0] ? (
-                        <ProductImage
-                          src={product.images[0]}
-                          imageWidth={100}
-                          alt={product.title}
-                          className="h-full w-full object-contain"
-                        />
-                      ) : (
-                        <Package size={16} className="text-[#8b949c]" />
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-[#263b4a]">
-                        {product.title}
-                      </p>
-                      <p className="text-xs text-[#8b949c]">
-                        {product.soldQuantity} đã bán
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {popularProductsLoading && <p role="status">Đang tải sản phẩm bán chạy…</p>}
-              {!popularProductsLoading && !popularProductsError && !popularProducts.length && (
-                <EmptyState text="Chưa có sản phẩm nào được bán" />
-              )}
-            </div>
-          </DashboardCard>
-        </div>
-
-        <section ref={listRef} tabIndex={-1} className="pagination-list-start mt-4 rounded-xl border border-[#e2e7eb] bg-white p-4 shadow-sm sm:p-6">
-          <div className="mb-5 flex items-center justify-between border-b border-[#edf0f2] pb-4">
-            <div>
-              <h2 className="text-lg font-medium text-[#263b4a]">
-                Tất cả đơn hàng
-              </h2>
-            </div>
-            <span className="rounded-full bg-[#edf5ef] px-3 py-1 text-xs font-medium text-[#50745a]">
-              {dashboardData.totalOrders ?? "—"} đơn hàng
-            </span>
-          </div>
-
-          <div className="space-y-4">
-            {loadError && (
-              <p role="alert" className="text-sm text-red-600">
-                {loadError} <button type="button" onClick={() => getDashboardData({ force: true })} className="underline">Thử lại</button>
-              </p>
-            )}
-            {isLoading && <p role="status" className="py-8 text-center text-sm text-[#8b949c]">Đang tải đơn hàng…</p>}
-            {!isLoading && dashboardData.page === page && orders.map((order) => (
-              <OrderCard
-                key={order._id}
-                order={order}
-                currency={currency}
-                onStatusChange={statusHandler}
-                updating={updatingOrderIds.includes(order._id)}
-              />
-            ))}
-            {!isLoading && !loadError && !orders.length && <EmptyState text="Chưa có đơn hàng nào" />}
-          </div>
-          <Pagination className="mt-5" label="Phân trang đơn hàng" page={page} totalPages={dashboardData.totalPages} onPageChange={changePage} disabled={isLoading || updatingOrderIds.length > 0} />
-        </section>
-      </div>
-    </main>
-  );
+  return <CatalogPage className="admin-operations-page admin-orders-page" title="Đơn hàng & doanh thu" description="Theo dõi giao dịch, thanh toán và quá trình xử lý đơn hàng của Velours." actions={<RefreshButton disabled={isLoading} onClick={() => { void getDashboardData({ force: true }); void fetchPopularProducts(); }} />}>
+    {loadError && <div role="alert" className="perfume-alert">{loadError}<button type="button" onClick={() => void getDashboardData({ force: true })}>Thử lại</button></div>}
+    <div className="admin-metric-grid admin-two-metrics">
+      <OperationsMetric primary icon={Banknote} label="Doanh thu đã thanh toán" value={dashboardData.totalRevenue === null ? "—" : formatVnd(dashboardData.totalRevenue, currency)} detail="Tổng tiền từ các đơn đã thanh toán" />
+      <OperationsMetric icon={ShoppingBag} label="Tổng đơn hàng" value={dashboardData.totalOrders == null ? "—" : dashboardData.totalOrders.toLocaleString("vi-VN")} detail="Đơn COD và đơn đã thanh toán" />
+    </div>
+    <div className="admin-overview-grid admin-orders-analytics">
+      <OperationsPanel title="Doanh thu theo tháng" description="Giá trị đơn hàng và số tiền đã thanh toán · VND" actions={<label className="admin-period-control"><CalendarDays size={15} /><select aria-label="Khoảng thời gian doanh thu" value={months} onChange={event => setMonths(Number(event.target.value))}><option value={6}>6 tháng</option><option value={3}>3 tháng</option></select></label>}>
+        <div className="admin-revenue-chart"><Suspense fallback={<p className="perfume-loading" role="status">Đang tải biểu đồ…</p>}><RevenueChart data={dashboardData.monthlyData.slice(-months)} currency={currency} /></Suspense>{!isLoading && !loadError && !dashboardData.monthlyData.slice(-months).some(month => month.total > 0 || month.successful > 0) && <div className="admin-chart-empty"><Banknote size={23} strokeWidth={1.4} /><strong>Chưa có giao dịch trong kỳ</strong><span>Biểu đồ cập nhật khi có đơn hàng.</span></div>}</div>
+      </OperationsPanel>
+      <OperationsPanel title="Sản phẩm bán chạy" description="Xếp hạng theo số lượng đã thanh toán">
+        {popularProductsError && <p role="alert" className="perfume-alert">{popularProductsError}<button type="button" onClick={fetchPopularProducts}>Thử lại</button></p>}
+        {popularProductsLoading && <p role="status" className="perfume-loading">Đang tải sản phẩm bán chạy…</p>}
+        <div className="admin-sales-ranking">{popularProducts.slice(0, 4).map((product, index) => <Link key={product._id} to={`/owner/edit-product/${product._id}`}><span className="admin-ranking-number">{index + 1}</span><span className="admin-product-image">{product.images?.[0] ? <ProductImage src={product.images[0]} imageWidth={100} alt="" /> : <Package size={18} />}</span><span><strong>{product.title}</strong><small>{product.category}</small></span><Badge>{product.soldQuantity} đã bán</Badge></Link>)}</div>
+        {!popularProductsLoading && !popularProductsError && !popularProducts.length && <OperationsEmptyState icon={Package} title="Chưa có sản phẩm nào được bán" description="Danh sách sẽ xuất hiện sau khi có đơn được thanh toán." />}
+      </OperationsPanel>
+    </div>
+    <section ref={listRef} tabIndex={-1} className="admin-dashboard-panel admin-order-list pagination-list-start" aria-busy={isLoading}>
+      <header className="admin-panel-heading"><div><h2>Tất cả đơn hàng</h2><p>Thông tin sản phẩm, khách hàng và trạng thái giao hàng</p></div><Badge>{dashboardData.totalOrders ?? "—"} đơn hàng</Badge></header>
+      {isLoading && <p role="status" className="perfume-loading">Đang tải đơn hàng…</p>}
+      <div className="admin-order-cards">{!isLoading && dashboardData.page === page && orders.map(order => <OrderCard key={order._id} order={order} currency={currency} onStatusChange={statusHandler} updating={updatingOrderIds.includes(order._id)} />)}</div>
+      {!isLoading && !loadError && !orders.length && <OperationsEmptyState icon={ShoppingBag} title="Chưa có đơn hàng nào" description="Các đơn hàng được tiếp nhận sẽ xuất hiện tại đây để bạn theo dõi và xử lý." />}
+      <div className="admin-operation-pagination"><span>Trang {page}/{dashboardData.totalPages || 1}</span><Pagination label="Phân trang đơn hàng" page={page} totalPages={dashboardData.totalPages} onPageChange={changePage} disabled={isLoading || updatingOrderIds.length > 0} /></div>
+    </section>
+  </CatalogPage>;
 };
 
 const OrderCard = ({ order, currency, onStatusChange, updating }) => {
@@ -481,26 +384,5 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
     </article>
   );
 };
-
-const DashboardCard = ({ children, className = "" }) => (
-  <section
-    className={`min-w-0 rounded-xl border border-[#e2e7eb] bg-white p-4 shadow-sm sm:p-5 ${className}`}
-  >
-    {children}
-  </section>
-);
-
-const CardTitle = ({ title, description }) => (
-  <div>
-    <h2 className="text-lg font-medium text-[#263b4a]">{title}</h2>
-    {description && (
-      <p className="mt-1 text-xs font-medium text-[#8b949c]">{description}</p>
-    )}
-  </div>
-);
-
-const EmptyState = ({ text }) => (
-  <div className="py-8 text-center text-sm text-[#8b949c]">{text}</div>
-);
 
 export default Dashboard;

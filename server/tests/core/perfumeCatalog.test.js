@@ -14,6 +14,8 @@ import {singleProduct} from "../../controllers/productController.js";
 import {cancelQrOrder} from "../../controllers/orderController.js";
 import Order from "../../models/Order.js";
 import mongoose from "mongoose";
+import {sanitizeFragranceRows} from "../../services/fragranceEditing.js";
+import {editableFragrance} from "../../../client/src/utils/fragrance.js";
 
 const sources=JSON.parse(fs.readFileSync(new URL("../../../data/research/apaniche/products.json",import.meta.url),"utf8"));
 const variants=JSON.parse(fs.readFileSync(new URL("../../../data/research/apaniche/variants.json",import.meta.url),"utf8"));
@@ -50,7 +52,7 @@ test("raw source records and assessments remain intact, without turning source a
     assert.equal(catalog.sources[i].data,sources[i]);
     assert.deepEqual(catalog.products[i].fragrance.longevity,sources[i].detail?.data?.longevity||[]);
     assert.deepEqual(catalog.products[i].fragrance.suitability,sources[i].detail?.data?.suitability||[]);
-    assert.equal(catalog.products[i].fragrance.assessmentsVisible,false);
+    assert.equal(catalog.products[i].fragrance.assessmentsVisible,true);
   }
   assert.ok(catalog.products.some(p=>p.qualityIssues.includes("source_assessment_anomaly")));
 });
@@ -95,6 +97,67 @@ test("public product detail excludes unpublished imports",async(t)=>{
 });
 
 const current=()=>{const original=catalog.products.find(p=>p.sizes.length===1&&p.catalogScope==="perfume");return {...structuredClone(original),_id:original._id,updatedAt:new Date("2026-10-27T00:00:00Z")};};
+
+test("missing experience data stays unknown and existing source anomalies survive editor initialization",()=>{
+  const empty=editableFragrance({});
+  assert.deepEqual([empty.longevity.length,empty.sillage.length,empty.suitability.length],[5,4,6]);
+  assert.ok([...empty.longevity,...empty.sillage,...empty.suitability].every(row=>row.displayedPercent===null));
+  const source={longevity:[{label:"Yếu 1-3H",displayedCount:null,displayedPercent:null,sourceRawCount:-145,sourceCountIssue:"invalid"}]};
+  assert.deepEqual(editableFragrance(source).longevity[0],source.longevity[0]);
+});
+
+test("fragrance edits validate independent percentages and counts without trusting forged source metadata",()=>{
+  const previous=[{label:"Gần",displayedCount:null,displayedPercent:null,sourceRawCount:-145,sourceCountIssue:"invalid"}];
+  const result=sanitizeFragranceRows("sillage",[{label:"Gần",displayedCount:12,displayedPercent:45.5,sourceRawCount:999}],previous);
+  assert.equal(result[0].sourceRawCount,-145);assert.equal(result[0].displayedCount,12);assert.equal(result[0].manuallyEdited,true);
+  assert.equal(previous[0].displayedCount,null);
+  assert.equal(sanitizeFragranceRows("accords",[{label:"Gỗ",displayedPercent:100},{label:"Hoa",displayedPercent:80}]).length,2);
+  assert.deepEqual(sanitizeFragranceRows("accords",[]),[]);
+  for(const [field,rows] of [
+    ["accords",[{label:"",displayedPercent:20}]], ["accords",[{label:"Gỗ",displayedPercent:101}]],
+    ["accords",[{label:"Gỗ",displayedPercent:-1}]], ["accords",[{label:"Gỗ",displayedPercent:"50"}]],
+    ["accords",[{label:"Gỗ",url:"javascript:alert(1)"}]], ["accords",[{label:"Gỗ"},{label:" gỗ "}]],
+    ["longevity",[{label:"Yếu",displayedCount:1.5}]], ["longevity",[{label:"Yếu",displayedCount:-1}]],
+    ["suitability",{label:"Xuân"}], ["accords",Array.from({length:31},(_,i)=>({label:String(i)}))],
+  ]) assert.throws(()=>sanitizeFragranceRows(field,rows),error=>error.statusCode===400);
+});
+
+test("catalog saves accords, experience and per-size quantities while permanently enabling assessments and preserving source",async(t)=>{
+  const product=current(),size=product.sizes[0];
+  product.sizeImages={[size]:"https://example.com/size.jpg"};
+  const original=structuredClone(product.fragrance);
+  t.mock.method(Product,"findOne",async()=>product);
+  t.mock.method(CatalogSource,"updateOne",()=>assert.fail("Source records must not change"));
+  t.mock.method(Product,"findOneAndUpdate",async(_filter,update)=>{
+    const saved=update.$set;
+    assert.equal(saved.stockBySize[size],7);assert.equal(saved.inventoryMode,undefined);
+    assert.equal(saved.sizeImages[size],undefined);
+    assert.equal(saved.fragrance.assessmentsVisible,true);
+    assert.deepEqual(saved.fragrance.accords.map(row=>[row.label,row.displayedPercent]),[["Gỗ",75.5]]);
+    assert.equal(saved.fragrance.longevity[0].displayedCount,123);
+    assert.equal(saved.fragrance.suitability[0].displayedPercent,85);
+    assert.equal(saved.source,undefined);
+    return {...product,...saved};
+  });
+  const res=response();await saveCatalogProduct({params:{id:String(product._id)},body:{expectedUpdatedAt:product.updatedAt.toISOString(),stockBySize:{[size]:7},sizeImages:{[size]:null},assessmentsVisible:false,accords:[{label:"Gỗ",displayedPercent:75.5}],longevity:[{label:"Yếu 1-3H",displayedCount:123,displayedPercent:20}],suitability:[{label:"Xuân",displayedPercent:85}]}},res);
+  assert.equal(res.statusCode,200);assert.equal(res.body.success,true);
+  assert.deepEqual(product.fragrance,original);
+});
+
+test("tracked quantity controls availability while source quantity stays a separate internal record",async(t)=>{
+  const product=current(),size=product.sizes[0];
+  t.mock.method(Product,"findOne",async()=>product);
+  t.mock.method(Order,"exists",async()=>null);
+  t.mock.method(Product,"findOneAndUpdate",async(_filter,update)=>({...product,...update.$set}));
+  for(const quantity of [0,12]){
+    const res=response();await saveCatalogProduct({params:{id:String(product._id)},body:{expectedUpdatedAt:product.updatedAt.toISOString(),inventoryMode:"tracked",price:{[size]:250000},stockBySize:{[size]:quantity},inStockBySize:{[size]:true}}},res);
+    assert.equal(res.body.success,true);assert.equal(res.body.product.inStock,quantity>0);
+    assert.equal(getPurchaseLimit(res.body.product,size),quantity);
+  }
+  for(const quantity of [-1,1.5,"12"]){
+    const res=response();await saveCatalogProduct({params:{id:String(product._id)},body:{expectedUpdatedAt:product.updatedAt.toISOString(),stockBySize:{[size]:quantity}}},res);assert.equal(res.statusCode,400);
+  }
+});
 test("catalog edits reject stale versions, fractional prices, invalid size paths and out-of-scope publication",async(t)=>{
   const product=current();t.mock.method(Product,"findOne",async()=>product);
   const write=t.mock.method(Product,"findOneAndUpdate",()=>assert.fail("No invalid write"));

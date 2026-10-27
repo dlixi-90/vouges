@@ -25,7 +25,7 @@ Catalog Apaniche đã được nhập làm dữ liệu vận hành của databas
 | `/owner` | Tổng số hồ sơ, hiển thị, khả năng đặt hàng, doanh thu thực, chất lượng và độ phủ thư viện |
 | `/owner/list-product` | Tìm theo tên, hãng, ID nguồn; lọc nồng độ, hiển thị, còn/hết, phạm vi và chất lượng; phân trang phía server; ẩn/hiện hàng loạt; xuất CSV trang hiện tại |
 | `/owner/inventory` | Tra cứu giá và trạng thái, mở tab dung tích của sản phẩm |
-| `/owner/edit-product/:id` | Thông tin chung, giá VND từng dung tích, thêm/bỏ dung tích, ảnh riêng, gallery, tầng hương, nhóm hương, phong cách, biểu đồ và bản ghi nguồn |
+| `/owner/edit-product/:id` | Thông tin chung, giá VND và số lượng từng dung tích, thêm/bỏ dung tích, ảnh riêng, gallery, tầng hương, nhóm hương, phong cách, kiểu mùi/tỷ lệ, chỉ số trải nghiệm và bản ghi nguồn |
 | `/owner/data` | Đối chiếu catalog với JSON nguồn không bị thay đổi khi biên tập |
 | `/owner/brands` | 173 hãng và nội dung giới thiệu có thể biên tập |
 | `/owner/library` | Nhóm hương, kiểu mùi, note; tìm kiếm, phân trang, biên tập nội dung và liên kết nguồn |
@@ -36,6 +36,8 @@ Danh mục, voucher và hộp thư CSKH tiếp tục dùng quy trình hiện có
 
 Dashboard dùng chung khung quản trị đen trắng: menu chia nhóm, tìm nhanh sản phẩm/thương hiệu, tài khoản và lối vào hộp thư. Trang tổng quan có bốn chỉ số thực tế, biểu đồ giá trị đơn/đã thanh toán theo 3 hoặc 6 tháng và phân bổ trạng thái catalog. Khi chưa có doanh số, bảng sản phẩm hiển thị hồ sơ mới cập nhật; khi có doanh số sẽ chuyển sang xếp hạng bán chạy. Khối cần chú ý lấy hồ sơ thiếu dữ liệu, không suy diễn số lượng tồn kho từ trạng thái còn/hết hàng. Menu trên điện thoại có lớp phủ, phím Escape và giữ thao tác bàn phím trong menu đang mở.
 
+Đơn hàng, danh mục, mã giảm giá và tin nhắn sử dụng cùng tiêu đề, thẻ, bảng, biểu mẫu và nút thao tác với catalog. Trang danh mục tải dữ liệu khi mở trực tiếp và đặt biểu mẫu cạnh danh sách; trang mã giảm giá dùng bảng cùng ngăn tạo mã bên phải, hỗ trợ đóng bằng Escape. Hộp thư giữ khung cuộn riêng cho danh sách/lịch sử, chuyển qua lại danh sách và nội dung trên điện thoại. Quy trình cập nhật trạng thái đơn, CRUD danh mục/voucher và tiếp nhận/trả lời hội thoại không thay đổi.
+
 Thanh phân trang dùng chung hiển thị tối đa bảy vị trí số/dấu ba chấm, giữ trang đầu/cuối và các trang quanh trang hiện tại. Khi đổi trang, danh sách cuộn về hàng đầu sau khi dữ liệu mới tải xong; hộp thư cuộn trong vùng hội thoại riêng. Bộ sưu tập, dashboard, thư viện, đánh giá và hộp thư đều dùng cách này.
 
 ## Quy ước tiền và tồn kho
@@ -43,6 +45,7 @@ Thanh phân trang dùng chung hiển thị tối đa bảy vị trí số/dấu 
 - Toàn bộ giá, phí giao hàng, voucher tiền mặt, tổng đơn, email, AI và QR dùng **VND nguyên đồng**. `1250000` hiển thị `1.250.000 ₫`; không nhân/chia 1.000 tại ranh giới API.
 - Miễn phí giao tiêu chuẩn từ tổng tiền hàng 1.000.000đ trước voucher; dưới ngưỡng là 30.000đ. Giao nhanh 50.000đ; hỏa tốc thu phí riêng theo quy trình cũ.
 - Người dùng đã chọn đặt hàng theo trạng thái còn/hết của nguồn. `inventoryMode: source` không suy diễn số lượng kho: `stockBySize` ban đầu bằng 0; `inStockBySize` quyết định khả năng đặt từng size. Giá 0 không được mở bán.
+- Dashboard luôn có ô số lượng cho từng phân loại. Trong chế độ `source`, số lượng nhập là kho nội bộ để tham khảo, không thay thế giới hạn đặt hàng theo trạng thái. Chọn `tracked` để dùng số lượng làm tồn bán; đơn QR đang giữ phân loại vẫn chặn đổi chế độ kho. Trang danh sách có tổng số lượng và phần mở rộng theo từng dung tích.
 - Giới hạn thao tác là 10 sản phẩm mỗi lượt thêm, 100 sản phẩm mỗi dung tích trong giỏ/đơn; đây là giới hạn ứng dụng, không phải tồn kho của Apaniche.
 - `inventoryMode: tracked` dành cho trường hợp chủ cửa hàng chuyển sang quản lý số lượng thật. Đơn lưu chế độ kho lúc mua; đặt/hủy đơn nguồn không tạo hoặc cộng số lượng giả.
 - Giá và trạng thái là bản chụp tại thời điểm thu thập. **Chưa có tác vụ tự động đồng bộ thay đổi từ Apaniche.** Chủ cửa hàng có thể điều chỉnh catalog; bản gốc vẫn giữ nguyên.
@@ -51,7 +54,9 @@ Thanh phân trang dùng chung hiển thị tối đa bảy vị trí số/dấu 
 
 950 note bao gồm 609 note có tên/liên kết trong hồ sơ sản phẩm và phần URL bổ sung từ sitemap. Nội dung giới thiệu, nguồn gốc và ảnh minh họa chưa được nguồn nghiên cứu thu thập đầy đủ; các mục mang trạng thái `Cần biên soạn`, không tự sinh mô tả để lấp dữ liệu thiếu.
 
-Biểu đồ lưu/tỏa hương, mùa và ngày/đêm giữ giá trị nguồn và dấu hiệu bất thường. Số âm hoặc tỷ lệ ngoài khoảng không được biến thành số hợp lệ giả. Phương pháp tổng hợp chưa được xác minh; biểu đồ mặc định ẩn trên cửa hàng và có thể bật theo từng sản phẩm. Các mùa/thời điểm là chỉ số độc lập, không cần cộng thành 100%.
+Biểu đồ lưu/tỏa hương, mùa và ngày/đêm luôn hiển thị trên trang chi tiết, kể cả sản phẩm cũ còn cờ `assessmentsVisible: false`; dashboard không còn nút bật/tắt. Có thể sửa số lượt và tỷ lệ, thêm/xóa/sắp xếp các kiểu mùi chính. Bản ghi nguồn và dấu hiệu bất thường vẫn được giữ để đối chiếu; giá trị được biên tập không ghi đè `CatalogSource`. Số lượt nhập phải là số nguyên không âm, tỷ lệ từ 0–100% hoặc để trống khi chưa biết. Không tự chuẩn hóa tỷ lệ hay tính từ số lượt vì phương pháp tổng hợp nguồn chưa được xác minh; các kiểu mùi và mùa/thời điểm độc lập, không cần cộng thành 100%.
+
+Bộ ảnh hỗ trợ thêm tối đa 4 ảnh/lượt, thay từng ảnh, sắp xếp, xóa và chọn đại diện. Ảnh đầu là đại diện, được loại khỏi gallery chi tiết; ảnh riêng từng dung tích vẫn độc lập. Ảnh mới tối đa 5 MB/tệp, bộ ảnh tối đa 30 tệp.
 
 ## Vận hành và kiểm tra
 

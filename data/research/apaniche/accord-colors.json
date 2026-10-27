@@ -1,0 +1,666 @@
+{
+  "sourceUrl": "https://apaniche.vn/thu-vien-mui-huong",
+  "collectedAt": "2026-10-27T17:10:37.515Z",
+  "libraryCount": 68,
+  "catalogAccords": 68,
+  "missing": [],
+  "conflicts": [],
+  "receipts": [
+    {
+      "url": "https://apaniche.vn/thu-vien-mui-huong",
+      "fetchedAt": "2026-10-27T17:10:24.067Z",
+      "sha256": "371ed7b8ee3859c7617cbd678746d8ad2f52dcc6c9b00cc3dbc7a4252374f900"
+    },
+    {
+      "url": "https://apaniche.vn/clive-christian-1872-feminine",
+      "fetchedAt": "2026-10-27T17:10:25.163Z",
+      "sha256": "a31d55b317068255d2e0e9fed4504ab38ef0a0d229004de1b6f12d011463c9d5"
+    },
+    {
+      "url": "https://apaniche.vn/dsquared2-potion-royal-black-edp",
+      "fetchedAt": "2026-10-27T17:10:25.820Z",
+      "sha256": "13d373cdac5f69122df913af8c747d73a4d2006da52eaa2765b3e4f470fd6c92"
+    },
+    {
+      "url": "https://apaniche.vn/victorinox-steel-edt-for-him",
+      "fetchedAt": "2026-10-27T17:10:26.421Z",
+      "sha256": "1d625faf7e90e8d1342ae77af3f6c6c46f2dac93d5a249a4de3b843e5c13f42d"
+    },
+    {
+      "url": "https://apaniche.vn/sol-de-janeiro-rio-radiance",
+      "fetchedAt": "2026-10-27T17:10:27.058Z",
+      "sha256": "a9bd7994e7bb7c41f535292f58b73fb7025152075126c05508902274fe627cee"
+    },
+    {
+      "url": "https://apaniche.vn/alexandria-fragrances-dark-knight",
+      "fetchedAt": "2026-10-27T17:10:27.665Z",
+      "sha256": "4a6d83dfcb5c4c8d52a62ffdd73160e98cc0489784d720b8c351518ecff01b02"
+    },
+    {
+      "url": "https://apaniche.vn/lolita-lempicka-edp",
+      "fetchedAt": "2026-10-27T17:10:28.279Z",
+      "sha256": "b4f35aae27f06bd59927518ac75514e935ca58c34b0441a91057140b7ace641a"
+    },
+    {
+      "url": "https://apaniche.vn/maison-francis-kurkdjian-oud-edp",
+      "fetchedAt": "2026-10-27T17:10:28.895Z",
+      "sha256": "c1adf4645f6abd9fa94ebc73e915843620ce332dae69bf1f78094a70eb00fd01"
+    },
+    {
+      "url": "https://apaniche.vn/carolina-herrera-bad-boy-le-parfum-edp",
+      "fetchedAt": "2026-10-27T17:10:29.541Z",
+      "sha256": "7dda37ecc97d45fc98b75dc700a0d85ed45b18bf7689e0c57d599dba907f68ae"
+    },
+    {
+      "url": "https://apaniche.vn/penhaligon-s-roaring-radcliff-edp",
+      "fetchedAt": "2026-10-27T17:10:30.137Z",
+      "sha256": "58476fe59f916d3e0e0fec5b70097ed2e422f46b7f9aa36313455d721d5ee154"
+    },
+    {
+      "url": "https://apaniche.vn/atkinsons-gold-fair-in-mayfair-edp",
+      "fetchedAt": "2026-10-27T17:10:30.739Z",
+      "sha256": "ae5f44f095db399ba5cba7c7a748da116ce9bf6a42ca66cbae69142362dac813"
+    },
+    {
+      "url": "https://apaniche.vn/jo-malone-blackberry-bay",
+      "fetchedAt": "2026-10-27T17:10:31.328Z",
+      "sha256": "9c181cf26ba05da50e930b15f832f33d0441cf9a9d635e565c7a7dbb1cdc4480"
+    },
+    {
+      "url": "https://apaniche.vn/carolina-herrera-212-vip-men-edt",
+      "fetchedAt": "2026-10-27T17:10:31.943Z",
+      "sha256": "d1771b8cbf5cb540d8071d70e7bf588009ec15e74974c22f56eaa01cd3483f0c"
+    },
+    {
+      "url": "https://apaniche.vn/carolina-herrera-very-good-girl-edp",
+      "fetchedAt": "2026-10-27T17:10:32.529Z",
+      "sha256": "2e1958592d1a3356353fe752855572860350f5b82bf23b7ce1700f163b179bad"
+    },
+    {
+      "url": "https://apaniche.vn/louis-vuitton-stellar-times",
+      "fetchedAt": "2026-10-27T17:10:33.103Z",
+      "sha256": "d84f557bf32afcebe871659589e5fdd250ab531191c847ed9a8d7d681fe019f9"
+    },
+    {
+      "url": "https://apaniche.vn/giorgio-armani-acqua-di-gio-profondo-edp",
+      "fetchedAt": "2026-10-27T17:10:33.699Z",
+      "sha256": "0d55f1afed154be4c66d64460c0a9035ff0b6ad7a749b3f9ea024336efd39a4a"
+    },
+    {
+      "url": "https://apaniche.vn/paco-rabanne-fame-edp",
+      "fetchedAt": "2026-10-27T17:10:34.281Z",
+      "sha256": "a4a139ce738305cbf355c0a4c46cda8fca70be9270accb2acb62831144702390"
+    },
+    {
+      "url": "https://apaniche.vn/paco-rabanne-pure-xs-for-men-edt",
+      "fetchedAt": "2026-10-27T17:10:34.859Z",
+      "sha256": "419d7d0328ec250ba74131f603bddc01303316e076b228cac274597f1a02dd62"
+    },
+    {
+      "url": "https://apaniche.vn/versace-eros-edp",
+      "fetchedAt": "2026-10-27T17:10:35.473Z",
+      "sha256": "faff18a814baa88207f7986dc46868f0b2f3f3331f5fc4593c46fefa1d2fc3a7"
+    },
+    {
+      "url": "https://apaniche.vn/atkinsons-24-old-bond-street-edc",
+      "fetchedAt": "2026-10-27T17:10:36.248Z",
+      "sha256": "43393f794eb5c738070caf8d794a86ee635fff1123ecabe3146e318aaf093875"
+    },
+    {
+      "url": "https://apaniche.vn/tamburins-white-darjeeling-edp",
+      "fetchedAt": "2026-10-27T17:10:36.873Z",
+      "sha256": "e64afb41e2d4a233dc78372dcb785363e33a48ac50203fee2afebc27d54a43e5"
+    },
+    {
+      "url": "https://apaniche.vn/mancera-tonka-cola-edp",
+      "fetchedAt": "2026-10-27T17:10:37.493Z",
+      "sha256": "52fe380d4db0816eed673bad892f49585b902e38c42beb2a87adb884c4d69018"
+    }
+  ],
+  "accords": [
+    {
+      "label": "Andehit",
+      "english": "Aldehydes",
+      "url": "https://apaniche.vn/mui-huong-andehit",
+      "background": "#d8e9f6",
+      "foreground": "#0a0a0a",
+      "exampleUrl": "https://apaniche.vn/clive-christian-1872-feminine"
+    },
+    {
+      "label": "Biển",
+      "english": "Marine",
+      "url": "https://apaniche.vn/mui-huong-bien",
+      "background": "#0e529b",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/victorinox-steel-edt-for-him"
+    },
+    {
+      "label": "Ca Cao",
+      "english": "Cacao",
+      "url": "https://apaniche.vn/mui-huong-ca-cao",
+      "background": "#9a3a0d",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/atkinsons-gold-fair-in-mayfair-edp"
+    },
+    {
+      "label": "Cà Phê",
+      "english": "Coffee",
+      "url": "https://apaniche.vn/mui-huong-ca-phe",
+      "background": "#503b1d",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/alexandria-fragrances-dark-knight"
+    },
+    {
+      "label": "Cam Chanh",
+      "english": "Citrus",
+      "url": "https://apaniche.vn/mui-huong-cam-chanh",
+      "background": "#f9ff52",
+      "foreground": "#0a0a0a",
+      "exampleUrl": "https://apaniche.vn/clive-christian-1872-feminine"
+    },
+    {
+      "label": "Cần Sa",
+      "english": "Cannabis",
+      "url": "https://apaniche.vn/mui-huong-can-sa",
+      "background": "#448a33",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/carolina-herrera-bad-boy-le-parfum-edp"
+    },
+    {
+      "label": "Caramen",
+      "english": "Caramel",
+      "url": "https://apaniche.vn/mui-huong-caramen",
+      "background": "#dda356",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/alexandria-fragrances-dark-knight"
+    },
+    {
+      "label": "Cát",
+      "english": "Sand",
+      "url": "https://apaniche.vn/mui-huong-cat",
+      "background": "#e6d9b2",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/sol-de-janeiro-rio-radiance"
+    },
+    {
+      "label": "Cây Lá Kim",
+      "english": "Conifer",
+      "url": "https://apaniche.vn/mui-huong-cay-la-kim",
+      "background": "#1b422f",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/maison-francis-kurkdjian-oud-edp"
+    },
+    {
+      "label": "Cay Mát",
+      "english": "Fresh Spicy",
+      "url": "https://apaniche.vn/mui-huong-cay-mat",
+      "background": "#83c928",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/clive-christian-1872-feminine"
+    },
+    {
+      "label": "Cay Nhẹ",
+      "english": "Soft Spicy",
+      "url": "https://apaniche.vn/mui-huong-cay-nhe",
+      "background": "#e27752",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/lolita-lempicka-edp"
+    },
+    {
+      "label": "Cay Nồng",
+      "english": "Warm Spicy",
+      "url": "https://apaniche.vn/mui-huong-cay-nong",
+      "background": "#cc3300",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/dsquared2-potion-royal-black-edp"
+    },
+    {
+      "label": "Chua",
+      "english": "Sour",
+      "url": "https://apaniche.vn/mui-huong-chua",
+      "background": "#c0e741",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/carolina-herrera-very-good-girl-edp"
+    },
+    {
+      "label": "Coca Cola",
+      "english": "Coca-cola",
+      "url": "https://apaniche.vn/mui-huong-coca-cola",
+      "background": "#7a2f14",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/mancera-tonka-cola-edp"
+    },
+    {
+      "label": "Cồn",
+      "english": "Alcohol",
+      "url": "https://apaniche.vn/mui-huong-con",
+      "background": "#f8ea8c",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/paco-rabanne-pure-xs-for-men-edt"
+    },
+    {
+      "label": "Da Thuộc",
+      "english": "Leather",
+      "url": "https://apaniche.vn/mui-huong-da-thuoc",
+      "background": "#78483a",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/dsquared2-potion-royal-black-edp"
+    },
+    {
+      "label": "Dừa",
+      "english": "Coconut",
+      "url": "https://apaniche.vn/mui-huong-dua",
+      "background": "#f1e8d4",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/sol-de-janeiro-rio-radiance"
+    },
+    {
+      "label": "Đắng",
+      "english": "Bitter",
+      "url": "https://apaniche.vn/mui-huong-dang",
+      "background": "#c1c316",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/atkinsons-gold-fair-in-mayfair-edp"
+    },
+    {
+      "label": "Đất",
+      "english": "Earthy",
+      "url": "https://apaniche.vn/mui-huong-dat",
+      "background": "#544838",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/victorinox-steel-edt-for-him"
+    },
+    {
+      "label": "Động Vật",
+      "english": "Animalic",
+      "url": "https://apaniche.vn/mui-huong-dong-vat",
+      "background": "#8e4b13",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/dsquared2-potion-royal-black-edp"
+    },
+    {
+      "label": "Gỗ",
+      "english": "Woody",
+      "url": "https://apaniche.vn/mui-huong-go",
+      "background": "#774414",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/clive-christian-1872-feminine"
+    },
+    {
+      "label": "Hạnh Nhân",
+      "english": "Almond",
+      "url": "https://apaniche.vn/mui-huong-hanh-nhan",
+      "background": "#f1e3c5",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/alexandria-fragrances-dark-knight"
+    },
+    {
+      "label": "Hạt",
+      "english": "Nutty",
+      "url": "https://apaniche.vn/mui-huong-hat",
+      "background": "#b4955f",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/alexandria-fragrances-dark-knight"
+    },
+    {
+      "label": "Hạt Hồi",
+      "english": "Anis",
+      "url": "https://apaniche.vn/mui-huong-hat-hoi",
+      "background": "#e7ceec",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/lolita-lempicka-edp"
+    },
+    {
+      "label": "Hổ Phách",
+      "english": "Amber",
+      "url": "https://apaniche.vn/mui-huong-ho-phach",
+      "background": "#bc4d10",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/dsquared2-potion-royal-black-edp"
+    },
+    {
+      "label": "Hoa",
+      "english": "Floral",
+      "url": "https://apaniche.vn/mui-huong-hoa",
+      "background": "#ff5f8d",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/clive-christian-1872-feminine"
+    },
+    {
+      "label": "Hoa Diên Vĩ",
+      "english": "Iris",
+      "url": "https://apaniche.vn/mui-huong-hoa-dien-vi",
+      "background": "#b7a7d7",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/lolita-lempicka-edp"
+    },
+    {
+      "label": "Hoa Hồng",
+      "english": "Rose",
+      "url": "https://apaniche.vn/mui-huong-hoa-hong",
+      "background": "#fe016b",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/dsquared2-potion-royal-black-edp"
+    },
+    {
+      "label": "Hoa Huệ",
+      "english": "Tuberose",
+      "url": "https://apaniche.vn/mui-huong-hoa-hue",
+      "background": "#ebfaf3",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/sol-de-janeiro-rio-radiance"
+    },
+    {
+      "label": "Hoa Oải Hương",
+      "english": "Lavender",
+      "url": "https://apaniche.vn/mui-huong-hoa-oai-huong",
+      "background": "#e7ceec",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/victorinox-steel-edt-for-him"
+    },
+    {
+      "label": "Hoa Trắng",
+      "english": "White Floral",
+      "url": "https://apaniche.vn/mui-huong-hoa-trang",
+      "background": "#edf2fb",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/clive-christian-1872-feminine"
+    },
+    {
+      "label": "Hoa Vàng",
+      "english": "Yellow Floral",
+      "url": "https://apaniche.vn/mui-huong-hoa-vang",
+      "background": "#ffdc10",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/sol-de-janeiro-rio-radiance"
+    },
+    {
+      "label": "Hoa Violet",
+      "english": "Violet",
+      "url": "https://apaniche.vn/mui-huong-hoa-violet",
+      "background": "#9c1dff",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/lolita-lempicka-edp"
+    },
+    {
+      "label": "Hoắc Hương",
+      "english": "Patchouli",
+      "url": "https://apaniche.vn/mui-huong-hoac-huong",
+      "background": "#63652e",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/maison-francis-kurkdjian-oud-edp"
+    },
+    {
+      "label": "Khoáng Chất",
+      "english": "Mineral",
+      "url": "https://apaniche.vn/mui-huong-khoang-chat",
+      "background": "#71bbbf",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/giorgio-armani-acqua-di-gio-profondo-edp"
+    },
+    {
+      "label": "Khói",
+      "english": "Smoky",
+      "url": "https://apaniche.vn/mui-huong-khoi",
+      "background": "#827487",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/dsquared2-potion-royal-black-edp"
+    },
+    {
+      "label": "Kim Loại",
+      "english": "Metallic",
+      "url": "https://apaniche.vn/mui-huong-kim-loai",
+      "background": "#97b0b7",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/maison-francis-kurkdjian-oud-edp"
+    },
+    {
+      "label": "Lá Xanh Mát",
+      "english": "Green",
+      "url": "https://apaniche.vn/mui-huong-la-xanh-mat",
+      "background": "#0e8c1d",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/carolina-herrera-bad-boy-le-parfum-edp"
+    },
+    {
+      "label": "Long Não",
+      "english": "Camphor",
+      "url": "https://apaniche.vn/mui-huong-long-nao",
+      "background": "#5d6e27",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/jo-malone-blackberry-bay"
+    },
+    {
+      "label": "Mật Ong",
+      "english": "Honey",
+      "url": "https://apaniche.vn/mui-huong-mat-ong",
+      "background": "#faa907",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/penhaligon-s-roaring-radcliff-edp"
+    },
+    {
+      "label": "Ngọt",
+      "english": "Sweet",
+      "url": "https://apaniche.vn/mui-huong-ngot",
+      "background": "#ee363b",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/clive-christian-1872-feminine"
+    },
+    {
+      "label": "Nhiệt Đới",
+      "english": "Tropical",
+      "url": "https://apaniche.vn/mui-huong-nhiet-doi",
+      "background": "#f6af09",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/sol-de-janeiro-rio-radiance"
+    },
+    {
+      "label": "Nhựa Cây",
+      "english": "Terpenic",
+      "url": "https://apaniche.vn/mui-huong-nhua-cay",
+      "background": "#d89f00",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/paco-rabanne-fame-edp"
+    },
+    {
+      "label": "Nhựa Thơm Balsamic",
+      "english": "Balsamic",
+      "url": "https://apaniche.vn/mui-huong-nhua-thom-balsamic",
+      "background": "#ad8359",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/dsquared2-potion-royal-black-edp"
+    },
+    {
+      "label": "Ozon",
+      "english": "Ozonic",
+      "url": "https://apaniche.vn/mui-huong-ozon",
+      "background": "#c9fdfb",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/victorinox-steel-edt-for-him"
+    },
+    {
+      "label": "Phấn",
+      "english": "Powdery",
+      "url": "https://apaniche.vn/mui-huong-phan",
+      "background": "#eeddcc",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/clive-christian-1872-feminine"
+    },
+    {
+      "label": "Quả Anh Đào",
+      "english": "Cherry",
+      "url": "https://apaniche.vn/mui-huong-qua-anh-dao",
+      "background": "#ce1d33",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/lolita-lempicka-edp"
+    },
+    {
+      "label": "Quế",
+      "english": "Cinnamon",
+      "url": "https://apaniche.vn/mui-huong-que",
+      "background": "#d2691e",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/penhaligon-s-roaring-radcliff-edp"
+    },
+    {
+      "label": "Rêu",
+      "english": "Mossy",
+      "url": "https://apaniche.vn/mui-huong-reu",
+      "background": "#5b6b32",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/victorinox-steel-edt-for-him"
+    },
+    {
+      "label": "Rượu Rum",
+      "english": "Rum",
+      "url": "https://apaniche.vn/mui-huong-ruou-rum",
+      "background": "#ac2005",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/alexandria-fragrances-dark-knight"
+    },
+    {
+      "label": "Rượu Sâm Banh",
+      "english": "Champagne",
+      "url": "https://apaniche.vn/mui-huong-ruou-sam-banh",
+      "background": "#e7ceec",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/tamburins-white-darjeeling-edp"
+    },
+    {
+      "label": "Rượu Vodka",
+      "english": "Vodka",
+      "url": "https://apaniche.vn/mui-huong-ruou-vodka",
+      "background": "#f3faf8",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/carolina-herrera-212-vip-men-edt"
+    },
+    {
+      "label": "Rượu Whisky",
+      "english": "Whiskey",
+      "url": "https://apaniche.vn/mui-huong-ruou-whisky",
+      "background": "#d89e36",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/atkinsons-24-old-bond-street-edc"
+    },
+    {
+      "label": "Sáp Ong",
+      "english": "Beeswax",
+      "url": "https://apaniche.vn/mui-huong-sap-ong",
+      "background": "#f0b642",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/penhaligon-s-roaring-radcliff-edp"
+    },
+    {
+      "label": "Sô Cô La",
+      "english": "Chocolate",
+      "url": "https://apaniche.vn/mui-huong-so-co-la",
+      "background": "#603000",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/alexandria-fragrances-dark-knight"
+    },
+    {
+      "label": "Sữa Kem Ngọt",
+      "english": "Lactonic",
+      "url": "https://apaniche.vn/mui-huong-sua-kem-ngot",
+      "background": "#fbf9f2",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/sol-de-janeiro-rio-radiance"
+    },
+    {
+      "label": "Thảo Dược",
+      "english": "Herbal",
+      "url": "https://apaniche.vn/mui-huong-thao-duoc",
+      "background": "#6ca47f",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/carolina-herrera-bad-boy-le-parfum-edp"
+    },
+    {
+      "label": "Thảo Mộc",
+      "english": "Aromatic",
+      "url": "https://apaniche.vn/mui-huong-thao-moc",
+      "background": "#37a089",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/clive-christian-1872-feminine"
+    },
+    {
+      "label": "Thực Phẩm",
+      "english": "Gourmand",
+      "url": "https://apaniche.vn/mui-huong-thuc-pham",
+      "background": "#f0cb7a",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/versace-eros-edp"
+    },
+    {
+      "label": "Thuốc Lá",
+      "english": "Tobacco",
+      "url": "https://apaniche.vn/mui-huong-thuoc-la",
+      "background": "#ad7727",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/dsquared2-potion-royal-black-edp"
+    },
+    {
+      "label": "Thuỷ Sinh",
+      "english": "Aquatic",
+      "url": "https://apaniche.vn/mui-huong-thuy-sinh",
+      "background": "#63cce2",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/victorinox-steel-edt-for-him"
+    },
+    {
+      "label": "Trái Cây",
+      "english": "Fruity",
+      "url": "https://apaniche.vn/mui-huong-trai-cay",
+      "background": "#fc4b29",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/clive-christian-1872-feminine"
+    },
+    {
+      "label": "Trầm Hương",
+      "english": "Oud",
+      "url": "https://apaniche.vn/mui-huong-tram-huong",
+      "background": "#544136",
+      "foreground": "#ffffff",
+      "exampleUrl": "https://apaniche.vn/maison-francis-kurkdjian-oud-edp"
+    },
+    {
+      "label": "Tươi Mới",
+      "english": "Fresh",
+      "url": "https://apaniche.vn/mui-huong-tuoi-moi",
+      "background": "#9be5ed",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/clive-christian-1872-feminine"
+    },
+    {
+      "label": "Vani",
+      "english": "Vanilla",
+      "url": "https://apaniche.vn/mui-huong-vani",
+      "background": "#fffec0",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/sol-de-janeiro-rio-radiance"
+    },
+    {
+      "label": "Vị Mặn",
+      "english": "Salty",
+      "url": "https://apaniche.vn/mui-huong-vi-man",
+      "background": "#e9fff9",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/victorinox-steel-edt-for-him"
+    },
+    {
+      "label": "Xạ Hương",
+      "english": "Musky",
+      "url": "https://apaniche.vn/mui-huong-xa-huong",
+      "background": "#e7d8ea",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/dsquared2-potion-royal-black-edp"
+    },
+    {
+      "label": "Xà Phòng",
+      "english": "Soapy",
+      "url": "https://apaniche.vn/mui-huong-xa-phong",
+      "background": "#e3f6fc",
+      "foreground": "#000000",
+      "exampleUrl": "https://apaniche.vn/louis-vuitton-stellar-times"
+    }
+  ]
+}

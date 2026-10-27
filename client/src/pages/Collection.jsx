@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
 import CollectionFilterDrawer from "../components/CollectionFilterDrawer";
-import { SearchX, SlidersHorizontal } from "lucide-react";
+import { ArrowRight, Search, SearchX, SlidersHorizontal } from "lucide-react";
 import { formatVnd } from "../utils/money";
 import Pagination from "../components/Pagination";
 import usePaginationScroll from "../hooks/usePaginationScroll";
@@ -19,14 +19,18 @@ const getDisplayedPrice = (product) => {
   return Number.isFinite(price) ? price : Number.POSITIVE_INFINITY;
 };
 
+const brandKey = value => (value || "").normalize("NFC").trim().toLocaleLowerCase("vi-VN");
+
 const Collection = () => {
   useLayoutEffect(() => {
     // Reset when the lazy-loaded page mounts, before its first paint.
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, []);
 
-  const { products, productsLoading, searchQuery, setSearchQuery, categories, currency } = useAppContext();
+  const { products, productsLoading, searchQuery, setSearchQuery, categories, currency, navigate } = useAppContext();
   const [searchParams] = useSearchParams();
+  const selectedBrand = searchParams.get("brand") || "";
+  const selectedBrandKey = brandKey(selectedBrand);
   const allCategories = [...new Set([
     ...categories.map((item) => item.name),
     ...products.map((item) => item.category).filter(Boolean),
@@ -70,6 +74,7 @@ const Collection = () => {
     setMaxPrice(null);
     setSearchQuery("");
     setCurrentPage(1);
+    if (selectedBrand) navigate("/collection", { replace: true });
   };
 
   const toggleFilter = (value, setState) => {
@@ -83,15 +88,17 @@ const Collection = () => {
 
   const availableTypes = useMemo(() => {
     const filteredProds = products.filter((p) =>
-      category.length === 0 || category.includes(p.category),
+      (category.length === 0 || category.includes(p.category)) && (!selectedBrandKey || brandKey(p.brand) === selectedBrandKey),
     );
     return [...new Set(filteredProds.map((p) => p.type))].sort();
-  }, [category, products]);
+  }, [category, products, selectedBrandKey]);
 
   const filteredProducts = useMemo(() => {
     const availableTypeSet = new Set(availableTypes);
     const activeTypes = type.filter((item) => availableTypeSet.has(item));
     let filtered = products.filter(hasAnyAvailableSize);
+
+    if (selectedBrandKey) filtered = filtered.filter(product => brandKey(product.brand) === selectedBrandKey);
 
     if (searchQuery) {
       const normalizedSearch = searchQuery.toLowerCase();
@@ -132,7 +139,7 @@ const Collection = () => {
     }
 
     return filtered;
-  }, [availableTypes, category, products, searchQuery, selectedSort, type, isPriceFiltered, priceFloor, priceLimit]);
+  }, [availableTypes, category, products, searchQuery, selectedBrandKey, selectedSort, type, isPriceFiltered, priceFloor, priceLimit]);
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const activePage = Math.min(currentPage, Math.max(totalPages, 1));
@@ -143,7 +150,7 @@ const Collection = () => {
     startIndex + itemsPerPage,
   );
   const filterCount = category.length + type.filter((item) => availableTypes.includes(item)).length
-    + Number(isPriceFiltered) + Number(Boolean(searchQuery));
+    + Number(isPriceFiltered) + Number(Boolean(searchQuery)) + Number(Boolean(selectedBrand));
 
   return (
     <div className="net-collection max-padd-container">
@@ -152,6 +159,7 @@ const Collection = () => {
           <Link to="/">Trang chủ</Link><span aria-hidden="true">/</span><span>Bộ sưu tập</span>
         </nav>
         <h1>Bộ sưu tập</h1>
+        {selectedBrand && <p className="store-collection-brand">Thương hiệu: <strong>{selectedBrand}</strong><Link to="/collection" onClick={() => setSearchQuery("")}>Xem tất cả</Link></p>}
       </header>
 
       <div className="inessa-collection-toolbar">
@@ -164,6 +172,12 @@ const Collection = () => {
           </button>
           {filterCount > 0 && <button type="button" onClick={resetFilters} className="inessa-collection-reset">Xóa bộ lọc</button>}
         </div>
+        <form className="inessa-collection-search" role="search" onSubmit={event => { event.preventDefault(); setCurrentPage(1); }}>
+          <Search size={17} strokeWidth={1.5} aria-hidden="true" />
+          <input type="search" value={searchQuery} aria-label="Tìm kiếm sản phẩm" placeholder="Tìm kiếm sản phẩm…"
+            onChange={event => { setSearchQuery(event.target.value); setCurrentPage(1); }} />
+          <button type="submit" aria-label="Tìm kiếm"><ArrowRight size={17} strokeWidth={1.5} aria-hidden="true" /></button>
+        </form>
         <div className="inessa-collection-sort-tools">
           <p className="inessa-collection-results" role="status" aria-live="polite">
             {productsLoading ? "Đang tải sản phẩm…" : filteredProducts.length
@@ -182,8 +196,6 @@ const Collection = () => {
 
       {isFilterOpen && <CollectionFilterDrawer
         onClose={() => setIsFilterOpen(false)}
-        searchQuery={searchQuery}
-        onSearchChange={(value) => { setSearchQuery(value); setCurrentPage(1); }}
         categories={allCategories} selectedCategories={category}
         onCategoryChange={(value) => toggleFilter(value, setCategory)}
         types={availableTypes} selectedTypes={type}

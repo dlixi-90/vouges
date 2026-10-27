@@ -5,6 +5,8 @@ import { supportStatuses } from "../../utils/supportChat";
 import SupportThread from "../../components/support/SupportThread";
 import Pagination from "../../components/Pagination";
 import usePaginationScroll from "../../hooks/usePaginationScroll";
+import { Badge, CatalogPage } from "../../components/owner/CatalogUI";
+import { OperationsEmptyState } from "../../components/owner/OperationsUI";
 
 export default function Messages() {
   const [selected, setSelected] = useState(null);
@@ -22,35 +24,22 @@ export default function Messages() {
   const feed = useSupportFeed(`/api/support/inbox/events?${params}`, true);
   const inbox = feed.data;
   const { listRef, changePage } = usePaginationScroll({ page, onPageChange: setPage, ready: Boolean(inbox) });
-  return <main className="net-admin-messages m-1 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-secondary/10 bg-white text-secondary shadow-sm sm:m-3">
-    <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-secondary/10 bg-primary/50 px-5 py-5 sm:px-6">
-      <div><p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#82738d]">Chăm sóc khách hàng Velours</p><h1 className="flex items-center gap-2.5 text-xl font-semibold"><Headset size={23} aria-hidden="true" />Tin nhắn CSKH</h1></div>
-      <span className="rounded-full bg-secondary/5 px-3 py-2 text-xs font-medium">{inbox ? `${inbox.unread} hội thoại chưa đọc` : "Đang kết nối…"}</span>
-    </header>
-    <div className="flex min-h-0 flex-1">
-      <aside aria-label="Danh sách hội thoại" className={`${selected ? "hidden lg:flex" : "flex"} min-h-0 w-full shrink-0 flex-col border-r border-secondary/10 lg:w-72 xl:w-80`}>
-        <div className="shrink-0 space-y-3 border-b border-secondary/10 p-4">
-          <label className="relative block"><Search size={16} className="pointer-events-none absolute left-3 top-3 text-gray-400" aria-hidden="true" /><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} aria-label="Tìm khách hàng theo tên hoặc email" placeholder="Tìm tên hoặc email…" className="w-full rounded-xl border border-secondary/15 py-2.5 pl-9 pr-3 text-xs outline-none focus:border-secondary" /></label>
-          <select aria-label="Lọc hội thoại" value={status} onChange={(event) => { setStatus(event.target.value); setPage(1); }} className="w-full rounded-xl border border-secondary/15 bg-primary/60 px-3 py-2.5 text-xs outline-none focus:border-secondary"><option value="all">Tất cả hội thoại</option><option value="unread">Chưa đọc</option>{Object.entries(supportStatuses).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-          <div ref={listRef} tabIndex={-1} className="pagination-list-start">
-          {!inbox && !feed.error && <p role="status" className="flex items-center justify-center gap-2 py-12 text-xs text-gray-500"><LoaderCircle size={16} className="animate-spin" aria-hidden="true" />Đang tải hộp thư…</p>}
-          {inbox?.conversations.length === 0 && <div className="px-5 py-12 text-center"><MessageSquare size={30} strokeWidth={1.3} className="mx-auto mb-3 text-gray-300" aria-hidden="true" /><p className="text-sm font-medium">Chưa có hội thoại phù hợp</p><p className="mt-2 text-xs leading-5 text-gray-500">Yêu cầu hỗ trợ từ khách sẽ xuất hiện tại đây.</p></div>}
-          {inbox?.conversations.map((conversation) => <button key={conversation._id} type="button" onClick={() => setSelected(conversation)} aria-pressed={selected?._id === conversation._id}
-            className={`flex w-full cursor-pointer items-start gap-3 border-b border-secondary/5 px-4 py-4 text-left transition hover:bg-primary ${selected?._id === conversation._id ? "bg-secondary/5 shadow-[inset_3px_0_0_var(--color-secondary)]" : ""}`}>
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#eee8f2] text-sm font-semibold">{conversation.customerName?.charAt(0).toUpperCase() || "K"}</span>
-            <span className="min-w-0 flex-1"><span className="flex items-center justify-between gap-2"><span className={`truncate text-sm ${conversation.unreadStaff ? "font-bold" : "font-medium"}`}>{conversation.customerName}</span>{conversation.unreadStaff > 0 && <span className="rounded-full bg-secondary px-1.5 py-0.5 text-[10px] font-semibold text-white">{conversation.unreadStaff > 99 ? "99+" : conversation.unreadStaff}</span>}</span><span className="mt-1 block truncate text-xs text-gray-500">{conversation.lastMessage}</span><span className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[10px] text-gray-400"><span className={conversation.status === "waiting" ? "text-amber-700" : conversation.status === "active" ? "text-emerald-700" : ""}>{supportStatuses[conversation.status]}</span><span>{new Date(conversation.lastMessageAt).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Ho_Chi_Minh" })}</span></span></span>
-          </button>)}
-          </div>
-        </div>
-        {feed.error && <p role="alert" className="shrink-0 bg-red-50 p-3 text-xs leading-5 text-red-700">{feed.error}</p>}
-        {inbox && inbox.total > 30 && <Pagination compact className="shrink-0 border-t border-secondary/10 p-3" label="Phân trang hội thoại" page={page} totalPages={Math.ceil(inbox.total / 30)} onPageChange={changePage} />}
+  return <CatalogPage className="admin-operations-page admin-messages-page" title="Tin nhắn & hỗ trợ" description="Tiếp nhận, theo dõi và phản hồi khách hàng trong một không gian." actions={<><Badge>{inbox ? inbox.unread : "—"} hội thoại chưa đọc</Badge><span className="admin-feed-status"><i data-connected={feed.status === "live"} />{feed.status === "live" ? "Đã kết nối" : feed.status === "error" ? "Mất kết nối" : "Đang kết nối…"}</span></>}>
+    <div className="net-admin-messages admin-message-workspace">
+      <aside aria-label="Danh sách hội thoại" className={`admin-message-sidebar${selected ? " is-conversation-selected" : ""}`}>
+        <header className="admin-inbox-heading"><h2>Hộp thư</h2><Badge>{inbox ? inbox.total : "—"} hội thoại</Badge></header>
+        <div className="admin-inbox-filters"><label className="perfume-search"><Search size={16} aria-hidden="true" /><input type="search" value={search} onChange={event => setSearch(event.target.value)} aria-label="Tìm khách hàng theo tên hoặc email" placeholder="Tìm khách hàng, email…" /></label><select aria-label="Lọc hội thoại" value={status} onChange={event => { setStatus(event.target.value); setPage(1); }} className="admin-operation-input"><option value="all">Tất cả hội thoại</option><option value="unread">Chưa đọc</option>{Object.entries(supportStatuses).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
+        <div className="admin-inbox-scroll overflow-y-auto"><div ref={listRef} tabIndex={-1} className="pagination-list-start">
+          {!inbox && !feed.error && <p role="status" className="admin-inbox-loading"><LoaderCircle size={16} className="animate-spin" />Đang tải hộp thư…</p>}
+          {inbox?.conversations.length === 0 && <OperationsEmptyState icon={MessageSquare} title="Chưa có hội thoại phù hợp" description="Yêu cầu hỗ trợ từ khách sẽ xuất hiện tại đây." />}
+          {inbox?.conversations.map(conversation => <button key={conversation._id} type="button" onClick={() => setSelected(conversation)} aria-pressed={selected?._id === conversation._id} className="admin-conversation-row"><span className="admin-conversation-avatar">{conversation.customerName?.charAt(0).toUpperCase() || "K"}</span><span className="admin-conversation-copy"><span className="admin-conversation-top"><strong className={conversation.unreadStaff ? "is-unread" : ""}>{conversation.customerName}</strong>{conversation.unreadStaff > 0 && <b>{conversation.unreadStaff > 99 ? "99+" : conversation.unreadStaff}</b>}</span><span className="admin-conversation-preview">{conversation.lastMessage}</span><span className="admin-conversation-meta"><span>{supportStatuses[conversation.status]}</span><time>{new Date(conversation.lastMessageAt).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Ho_Chi_Minh" })}</time></span></span></button>)}
+        </div></div>
+        {feed.error && <p role="alert" className="perfume-alert admin-inbox-error">{feed.error}</p>}
+        {inbox && inbox.total > 30 && <Pagination compact className="admin-inbox-pagination" label="Phân trang hội thoại" page={page} totalPages={Math.ceil(inbox.total / 30)} onPageChange={changePage} />}
       </aside>
-      <section aria-label="Nội dung hội thoại" className={`${selected ? "flex" : "hidden lg:flex"} min-h-0 min-w-0 flex-1 flex-col`}>
-        {selected ? <><div className="flex shrink-0 items-center gap-3 border-b border-secondary/10 px-4 py-4"><button type="button" onClick={() => setSelected(null)} aria-label="Quay lại danh sách hội thoại" className="cursor-pointer rounded-lg p-2 hover:bg-primary lg:hidden"><ArrowLeft size={18} /></button><div className="min-w-0"><h2 className="truncate text-sm font-semibold">{selected.customerName}</h2><p className="mt-1 truncate text-xs text-gray-500">{selected.customerEmail || "Khách hàng Velours"}</p></div></div><SupportThread key={selected._id} conversationId={selected._id} role="staff" /></>
-          : <div className="flex flex-1 flex-col items-center justify-center p-8 text-center"><span className="mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-[#f4f1f6]"><Headset size={38} strokeWidth={1.4} aria-hidden="true" /></span><h2 className="text-lg font-semibold">Mỗi cuộc trò chuyện là một kết nối</h2><p className="mt-3 max-w-sm text-sm leading-6 text-gray-500">Chọn hội thoại để xem nội dung, tiếp nhận và trả lời khách hàng.</p></div>}
+      <section aria-label="Nội dung hội thoại" className={`admin-message-thread${selected ? " has-conversation" : ""}`}>
+        {selected ? <><header className="admin-thread-heading"><button type="button" onClick={() => setSelected(null)} aria-label="Quay lại danh sách hội thoại" className="perfume-icon-button admin-thread-back"><ArrowLeft size={17} /></button><span className="admin-conversation-avatar">{selected.customerName?.charAt(0).toUpperCase() || "K"}</span><div><h2>{selected.customerName}</h2><p>{selected.customerEmail || "Khách hàng Velours"}</p></div></header><SupportThread key={selected._id} conversationId={selected._id} role="staff" className="admin-support-thread" /></> : <div className="admin-message-welcome"><span><Headset size={35} strokeWidth={1.3} /></span><h2>Mỗi cuộc trò chuyện là một kết nối</h2><p>Chọn một hội thoại để xem nội dung, tiếp nhận và hỗ trợ khách hàng.</p><div><i />Không gian chăm sóc khách hàng Velours</div></div>}
       </section>
     </div>
-  </main>;
+  </CatalogPage>;
 }

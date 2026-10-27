@@ -5,7 +5,7 @@ import ProductReviewForm from "./ProductReviewForm";
 import Pagination from "./Pagination";
 import usePaginationScroll from "../hooks/usePaginationScroll";
 
-export default function ProductReviews({ productId, onSummaryChange }) {
+export default function ProductReviews({ productId, onSummaryChange, embedded = false }) {
   const { user, storeResources } = useAppContext();
   const [page, setPage] = useState(1);
   const [data, setData] = useState(() => storeResources.peekReviews(productId) || null);
@@ -39,7 +39,7 @@ export default function ProductReviews({ productId, onSummaryChange }) {
   } });
 
   return (
-    <section id="reviews" className="mt-10 scroll-mt-24 rounded-xl border border-gray-200 bg-white p-5 sm:p-8">
+    <section id="reviews" className={embedded ? "scroll-mt-24" : "mt-10 scroll-mt-24 rounded-xl border border-gray-200 bg-white p-5 sm:p-8"}>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-xl font-semibold">Đánh giá & nhận xét sản phẩm</h2>
         {data && <div className="flex items-center gap-2 text-sm">

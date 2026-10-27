@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
 
 const secondaryButton =
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#cfdad2] bg-white px-3 py-2 text-sm font-medium text-[#496852] transition hover:bg-[#f2f7f3] disabled:opacity-60";
+  "perfume-button";
 
 const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
   const [name, setName] = useState("");
@@ -23,8 +23,8 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
   };
 
   return (
-    <div>
-      <h3 className="text-sm font-medium text-[#334957]">
+    <div className="admin-category-types">
+      <h3>
         Loại sản phẩm ({types.length})
       </h3>
       <ul className="mt-3 divide-y divide-[#e2e7e4] overflow-hidden rounded-lg border border-[#e2e7e4] bg-white empty:hidden">
@@ -40,7 +40,7 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
                     Tên loại sản phẩm
                   </span>
                   <input
-                    className="admin-input"
+                    className="admin-operation-input"
                     value={editName}
                     onChange={(event) => setEditName(event.target.value)}
                     maxLength={100}
@@ -52,7 +52,7 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="submit"
-                    className="admin-primary-button"
+                    className="perfume-button primary"
                     disabled={disabled}
                   >
                     <Check size={15} /> Lưu
@@ -75,7 +75,7 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
                 <div className="flex shrink-0 items-center gap-1">
                   <button
                     type="button"
-                    className="inline-flex h-10 items-center gap-1.5 rounded-lg px-2.5 text-sm text-[#496852] hover:bg-[#edf6ee] disabled:opacity-60"
+                    className="perfume-icon-button"
                     disabled={disabled}
                     aria-label={`Chỉnh sửa loại sản phẩm ${type.name} trong danh mục ${category.name}`}
                     onClick={() => {
@@ -90,7 +90,7 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
                     disabled={disabled}
                     onClick={() => onDelete(category, type)}
                     aria-label={`Xóa loại sản phẩm ${type.name} trong danh mục ${category.name}`}
-                    className="inline-flex h-10 items-center gap-1.5 rounded-lg px-2.5 text-sm text-red-600 hover:bg-red-50 disabled:opacity-60"
+                    className="perfume-icon-button admin-danger-action"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -114,8 +114,8 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
             Loại sản phẩm mới
           </span>
           <input
-            className="admin-input"
-            placeholder="Ví dụ: Sữa dưỡng thể"
+            className="admin-operation-input"
+            placeholder="Ví dụ: Eau de Toilette"
             value={name}
             onChange={(event) => setName(event.target.value)}
             maxLength={100}
@@ -125,7 +125,7 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
         </label>
         <button
           type="submit"
-          className="admin-primary-button shrink-0 justify-center"
+          className="perfume-button primary"
           disabled={disabled}
         >
           <Plus size={15} /> Thêm loại sản phẩm

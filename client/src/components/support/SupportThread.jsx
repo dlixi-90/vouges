@@ -3,7 +3,7 @@ import { AlertCircle, ArrowDown, CheckCheck, LoaderCircle, Send } from "lucide-r
 import { useSupportApi, useSupportFeed } from "../../hooks/useSupportChat";
 import { SUPPORT_MESSAGE_LIMIT, supportStatuses } from "../../utils/supportChat";
 
-export default function SupportThread({ conversationId, role = "customer", onConversationChange, initialSnapshot }) {
+export default function SupportThread({ conversationId, role = "customer", onConversationChange, initialSnapshot, className = "" }) {
   const api = useSupportApi();
   const feed = useSupportFeed(`/api/support/conversations/${conversationId}/events`, Boolean(conversationId), true, initialSnapshot);
   const [input, setInput] = useState("");
@@ -93,8 +93,8 @@ export default function SupportThread({ conversationId, role = "customer", onCon
     finally { if (alive.current) setLoadingOlder(false); }
   };
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-secondary/10 bg-primary/60 px-4 py-3">
+    <div className={`flex min-h-0 flex-1 flex-col overflow-hidden ${className}`}>
+      <div className="support-thread-status flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-secondary/10 bg-primary/60 px-4 py-3">
         <p className="text-xs text-gray-500">{conversation ? supportStatuses[conversation.status] : "Đang tải hội thoại…"}
           <span className={`ml-2 inline-block h-1.5 w-1.5 rounded-full ${feed.status === "live" ? "bg-emerald-500" : "bg-amber-500"}`} aria-hidden="true" />
           <span className="ml-1.5">{feed.status === "live" ? "Đã kết nối" : feed.status === "error" ? "Mất kết nối" : "Đang kết nối…"}</span>
@@ -110,7 +110,7 @@ export default function SupportThread({ conversationId, role = "customer", onCon
           acknowledged.current = readKey;
           void api.request("post", `/api/support/conversations/${conversationId}/read`, { sequence: conversation.sequence }).catch(() => { if (acknowledged.current === readKey) acknowledged.current = ""; });
         }
-      }} className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-5" aria-label="Lịch sử tin nhắn">
+      }} className="support-thread-history min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-5" aria-label="Lịch sử tin nhắn">
         {!conversation && feed.status !== "error" && <p role="status" className="flex items-center justify-center gap-2 py-10 text-sm text-gray-500"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />Đang tải tin nhắn…</p>}
         {messages[0]?.sequence > 1 && <button type="button" disabled={loadingOlder} onClick={loadOlder} className="block w-full cursor-pointer py-2 text-xs text-secondary underline disabled:opacity-50">{loadingOlder ? "Đang tải…" : "Xem tin nhắn trước"}</button>}
         {conversation?.context?.length > 0 && <details className="rounded-xl border border-secondary/10 bg-primary p-3 text-xs text-gray-600">
@@ -119,7 +119,7 @@ export default function SupportThread({ conversationId, role = "customer", onCon
         </details>}
         {conversation && messages.length === 0 && <p className="mx-auto max-w-xs py-8 text-center text-sm leading-6 text-gray-500">{role === "staff" ? "Khách hàng đang cần hỗ trợ. Hãy gửi lời chào để tiếp nhận hội thoại." : "Yêu cầu đã được gửi đến CSKH. Bạn có thể để lại câu hỏi; nhân viên sẽ phản hồi tại đây."}</p>}
         {messages.map((message) => <div key={message._id} className={`flex ${message.role === role ? "justify-end" : "justify-start"}`}>
-          <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.role === role ? "rounded-br-md bg-secondary text-white" : "rounded-bl-md bg-primary text-secondary"}`}>
+          <div data-own={message.role === role} className={`support-thread-message max-w-[85%] rounded-2xl px-4 py-3 ${message.role === role ? "rounded-br-md bg-secondary text-white" : "rounded-bl-md bg-primary text-secondary"}`}>
             <p className={`mb-1 text-[10px] font-medium ${message.role === role ? "text-white/65" : "text-gray-500"}`}>{message.role === "staff" ? `CSKH · ${message.authorName}` : message.role === role ? "Bạn" : message.authorName}</p>
             <p className="whitespace-pre-wrap break-words text-sm leading-6 [overflow-wrap:anywhere]">{message.content}</p>
             <p className={`mt-1.5 text-right text-[10px] ${message.role === role ? "text-white/60" : "text-gray-400"}`}>{new Date(message.createdAt).toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", timeZone: "Asia/Ho_Chi_Minh" })}</p>
@@ -132,7 +132,7 @@ export default function SupportThread({ conversationId, role = "customer", onCon
         </div>}
       </div>
       {((error && !pendingDelivered) || feed.error) && <p role="alert" className="flex shrink-0 items-start gap-2 bg-red-50 px-4 py-2 text-xs leading-5 text-red-700"><AlertCircle size={14} className="mt-0.5 shrink-0" aria-hidden="true" />{(!pendingDelivered && error) || feed.error}</p>}
-      <form onSubmit={submit} className="shrink-0 border-t border-secondary/10 bg-white p-3">
+      <form onSubmit={submit} className="support-thread-compose shrink-0 border-t border-secondary/10 bg-white p-3">
         {conversation?.status === "resolved" && <p className="mb-2 text-xs text-gray-500"><CheckCheck size={13} className="mr-1 inline" aria-hidden="true" />Gửi tin mới để mở lại hội thoại.</p>}
         <div className="net-field-shell flex items-end gap-2 rounded-2xl border border-secondary/15 bg-primary/60 p-2 focus-within:border-secondary/50">
           <label htmlFor={`support-input-${conversationId}`} className="sr-only">Tin nhắn CSKH</label>

@@ -1,0 +1,212 @@
+/* Shared presentation for orders, categories, vouchers and the support inbox. */
+.admin-operations-page .admin-operation-panel { padding:22px; }
+.admin-operations-page .admin-panel-heading { margin-bottom:20px; }
+.admin-operations-page .admin-panel-heading h2 { font-size:15px; }
+.admin-two-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.admin-orders-analytics { margin-bottom:22px; }
+.admin-order-list { padding:22px; }
+.admin-order-cards { display:grid; gap:18px; }
+.net-admin .admin-orders-page .net-order-card { border:1px solid #e8e8e8; border-radius:9px; background:#fff; }
+.net-admin .admin-orders-page .net-order-card > header { padding:15px 18px; background:#fafafa; border-color:#eaeaea; }
+.net-admin .admin-orders-page .net-order-card :is(h3,h4) { font-size:12px; font-weight:600; }
+.net-admin .admin-orders-page .net-order-label { color:#999; font-size:9px; letter-spacing:.09em; }
+.net-admin .admin-orders-page .net-order-meta { color:#919191; font-size:10px; }
+.net-admin .admin-orders-page .net-order-payment { padding:6px 9px; border:1px solid #e5e5e5; border-radius:6px; background:#f4f4f4; color:#626262; font-size:10px; }
+.net-admin .admin-orders-page .net-order-total { font-size:18px; font-weight:600; color:#262626; }
+.admin-orders-page .net-order-products,.admin-orders-page .net-order-customer { padding:18px; }
+.admin-orders-page .net-order-thumbnail { width:48px; height:55px; }
+.admin-orders-page .net-order-items p { font-size:12px; }
+.admin-orders-page .net-order-customer dl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:16px; }
+.admin-orders-page .net-order-customer dl > div { min-width:0; margin:0; }
+.admin-orders-page .net-order-customer :is(dt,dd) { overflow-wrap:anywhere; }
+.admin-orders-page .net-order-customer dt { font-size:9px; }
+.admin-orders-page .net-order-customer dd { font-size:11px; }
+.net-admin .admin-orders-page .net-order-actions { padding:12px 18px; border-color:#eee; background:#fafafa; }
+.net-admin .admin-orders-page .net-order-status { border-radius:7px; border-color:#ddd; font-size:11px; font-weight:400; }
+.admin-operation-pagination { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-top:20px; padding-top:18px; border-top:1px solid #eee; color:#999; font-size:10px; }
+.admin-sales-ranking { display:grid; gap:2px; }
+.admin-sales-ranking > a { display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid #f0f0f0; }
+.admin-sales-ranking > a:last-child { border:0; }
+.admin-ranking-number { width:14px; font-size:10px; color:#aaa; }
+.admin-sales-ranking > a > span:nth-child(3) { flex:1; min-width:0; }
+.admin-sales-ranking strong { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; font-weight:500; }
+.admin-sales-ranking small { display:block; margin-top:5px; color:#999; font-size:9px; }
+.admin-operation-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:45px 20px; text-align:center; color:#939393; }
+.admin-operation-empty > span { display:flex; align-items:center; justify-content:center; width:53px; height:53px; border-radius:14px; background:#f5f5f5; color:#999; }
+.admin-operation-empty > strong { color:#696969; font-size:12px; font-weight:500; line-height:1.6; }
+.admin-operation-empty > p { max-width:330px; color:#999; font-size:11px; line-height:1.8; }
+.admin-operation-empty > button { margin-top:5px; }
+.admin-management-grid { display:grid; grid-template-columns:300px minmax(0,1fr); align-items:start; gap:22px; }
+.admin-form-column { display:flex; flex-direction:column; gap:18px; min-width:0; }
+.admin-operation-form .perfume-field { margin:0 0 18px; }
+.admin-operation-form .perfume-field > span { color:#777; font-size:11px; }
+.admin-operation-form .perfume-field i { font-style:normal; color:#888; }
+.admin-operation-form .perfume-field :is(input,select) { min-width:0; border-color:#dedede; border-radius:7px; font-size:12px; }
+.admin-operation-form fieldset { min-width:0; }
+.admin-operation-form .perfume-form-grid { gap:0 16px; }
+.admin-field-full { grid-column:1/-1; }
+.admin-form-submit { justify-content:center; width:100%; margin-top:2px; }
+.net-admin .admin-form-help { margin-top:18px; padding-top:16px; border-top:1px solid #eee; font-size:10px; color:#999; line-height:1.8; }
+.admin-operation-tip { display:flex; gap:12px; padding:6px 10px; color:#999; }
+.admin-operation-tip > svg { flex-shrink:0; margin-top:2px; }
+.admin-operation-tip strong { display:block; font-size:11px; font-weight:500; color:#777; }
+.admin-operation-tip p { margin-top:6px; font-size:10px; line-height:1.8; }
+.admin-operation-toolbar { display:flex; align-items:center; gap:15px; margin-bottom:18px; }
+.admin-operation-toolbar > span { flex-shrink:0; color:#999; font-size:10px; }
+.admin-operation-toolbar .perfume-search { max-width:420px; min-width:0; background:#fff; }
+.admin-operation-toolbar .perfume-search input { font-size:11px; }
+.net-admin .admin-operation-input { display:block; width:100%; min-width:0; min-height:38px; padding:10px 12px; border:1px solid #dedede; border-radius:7px; background:#fff; color:#333; font-size:12px; outline:none; }
+.net-admin .admin-danger-action { border-color:transparent; color:#888; }
+.net-admin .admin-danger-action:hover:not(:disabled) { border-color:#eee; background:#f6f6f6; color:#333; }
+.admin-category-list { margin:0 -22px -22px; border-top:1px solid #eee; }
+.admin-category-list > li { border-bottom:1px solid #eee; }
+.admin-category-list > li:last-child { border-bottom:0; }
+.admin-category-row { display:flex; align-items:center; gap:15px; padding:15px 20px; }
+.admin-category-row.is-expanded { background:#fafafa; }
+.admin-category-row:hover { background:#fafafa; }
+.admin-category-toggle { display:flex; flex:1; align-items:center; min-width:0; gap:12px; border:0; padding:0; text-align:left; cursor:pointer; }
+.admin-category-icon { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:36px; height:39px; border:1px solid #eee; border-radius:7px; background:#f8f8f8; color:#888; }
+.admin-category-toggle > span:nth-child(2) { flex:1; min-width:0; }
+.admin-category-toggle strong { display:block; color:#444; font-size:12px; font-weight:500; overflow-wrap:anywhere; }
+.admin-category-toggle small { display:block; margin-top:5px; color:#a0a0a0; font-size:10px; }
+.admin-category-toggle > svg { flex-shrink:0; color:#999; transition:transform .15s; }
+.admin-category-toggle > svg.is-rotated { transform:rotate(180deg); }
+.admin-category-expanded { padding:18px 22px 23px; border-top:1px solid #eee; background:#fcfcfc; }
+.admin-category-rename { margin-bottom:24px; padding:16px; border:1px solid #e5e5e5; border-radius:8px; background:#fff; }
+.net-admin .admin-category-types h3 { font-size:12px; font-weight:500; color:#555; }
+.admin-category-types ul { border-color:#e6e6e6; }
+.admin-category-types :is(label > span,li > div > span) { color:#777; font-size:11px; }
+.admin-category-types .perfume-icon-button { width:30px; min-height:30px; }
+.admin-category-types form > label { min-width:0; }
+.admin-operation-summary { display:flex; align-items:center; flex-wrap:wrap; gap:10px 28px; margin-bottom:22px; padding:0 2px; font-size:11px; color:#999; }
+.admin-operation-summary > span { display:flex; align-items:center; gap:7px; }
+.admin-operation-summary strong { color:#494949; font-size:12px; font-weight:500; }
+.admin-voucher-list { overflow:hidden; }
+.admin-voucher-list > .admin-panel-heading,.admin-voucher-list > .admin-operation-toolbar { padding-inline:22px; }
+.admin-operations-page .admin-voucher-list { padding-inline:0; padding-bottom:0; }
+.admin-voucher-list .perfume-table th,.admin-voucher-list .perfume-table td { padding-inline:20px; }
+.admin-voucher-table { min-width:860px; }
+.admin-voucher-code { font-family:ui-monospace,monospace; font-size:12px; color:#333; }
+.admin-operation-nowrap { white-space:nowrap; }
+.admin-voucher-status { display:flex; align-items:center; gap:10px; }
+.admin-toggle-switch { display:inline-flex; position:relative; align-items:center; flex-shrink:0; cursor:pointer; }
+.admin-toggle-switch input { position:absolute; opacity:0; width:32px; height:18px; margin:0; cursor:pointer; }
+.admin-toggle-switch > span { width:32px; height:18px; background:#ddd; border-radius:10px; pointer-events:none; transition:background .15s; }
+.admin-toggle-switch > span::after { content:""; display:block; width:12px; height:12px; margin:3px; border-radius:50%; background:#fff; transition:transform .15s; box-shadow:0 1px 3px #0002; }
+.admin-toggle-switch input:checked + span { background:#242424; }
+.admin-toggle-switch input:checked + span::after { transform:translateX(14px); }
+.admin-toggle-switch input:focus-visible + span { outline:2px solid #777; outline-offset:3px; }
+.admin-toggle-switch input:disabled + span { opacity:.45; }
+.admin-operation-drawer { position:fixed; inset:0 0 0 auto; width:min(520px,100%); max-width:100%; height:100dvh; max-height:100dvh; margin:0; padding:0; border:0; border-left:1px solid #e5e5e5; border-radius:12px 0 0 12px; background:#fff; color:#222; font-family:Inter,sans-serif; }
+.admin-operation-drawer[open] { display:flex; flex-direction:column; }
+.admin-operation-drawer::backdrop { background:#0006; }
+.admin-operation-drawer > header { display:flex; align-items:flex-start; justify-content:space-between; flex-shrink:0; gap:20px; padding:26px 25px 23px; border-bottom:1px solid #eee; }
+.admin-operation-drawer > header p { margin-bottom:10px; color:#999; font-size:8px; letter-spacing:.16em; }
+.net-admin .admin-operation-drawer h2 { color:#252525; font-family:Inter,sans-serif; font-size:21px; font-weight:600; }
+.admin-operation-drawer > header span { display:block; margin-top:10px; color:#999; font-size:11px; line-height:1.8; }
+.admin-operation-drawer-body { flex:1; min-height:0; overflow-y:auto; padding:24px 25px; }
+.admin-operation-drawer > footer { display:flex; flex-shrink:0; justify-content:flex-end; gap:10px; padding:19px 25px; border-top:1px solid #eee; background:#fff; }
+.admin-operation-drawer .perfume-form-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.admin-operation-drawer input[type=date] { width:100%; min-width:0; }
+
+/* The inbox uses the page header and surface styles of the catalog workspace. */
+.net-admin .is-workspace .velours-admin-route > .admin-messages-page { display:flex; flex:1; flex-direction:column; min-height:0; padding:0; }
+.admin-messages-page > .perfume-page-heading { flex-shrink:0; }
+.admin-feed-status { display:inline-flex; align-items:center; gap:7px; color:#999; font-size:9px; white-space:nowrap; }
+.admin-feed-status i { width:5px; height:5px; border-radius:50%; background:#bbb; }
+.admin-feed-status i[data-connected=true] { background:#383838; }
+.net-admin .admin-message-workspace { display:flex; flex:1; min-height:0; min-width:0; padding:0; overflow:hidden; border:1px solid #e8e8e8; border-radius:12px; background:#fff; }
+.admin-message-sidebar { display:flex; flex-direction:column; width:316px; min-width:0; flex-shrink:0; border-right:1px solid #e9e9e9; }
+.admin-inbox-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:19px 18px; }
+.net-admin .admin-inbox-heading h2 { color:#424242; font-size:14px; font-weight:600; }
+.admin-inbox-filters { display:grid; flex-shrink:0; gap:10px; padding:0 18px 17px; border-bottom:1px solid #eee; }
+.admin-inbox-filters .perfume-search { width:100%; min-width:0; padding:9px 11px; }
+.admin-inbox-filters .perfume-search input { font-size:11px; }
+.admin-inbox-filters .admin-operation-input { font-size:11px; min-height:36px; padding:8px 10px; }
+.admin-inbox-scroll { min-height:0; flex:1; overscroll-behavior:contain; }
+.admin-inbox-loading { display:flex; align-items:center; justify-content:center; gap:8px; padding:45px 12px; color:#999; font-size:11px; }
+.admin-conversation-row { display:flex; align-items:flex-start; width:100%; gap:11px; padding:17px 16px 17px 13px; border-bottom:1px solid #eee; border-left:3px solid transparent; text-align:left; cursor:pointer; }
+.admin-conversation-row:hover { background:#fafafa; }
+.admin-conversation-row[aria-pressed=true] { background:#f6f6f6; border-left-color:#292929; }
+.admin-conversation-avatar { display:flex; flex-shrink:0; align-items:center; justify-content:center; width:35px; height:35px; border-radius:50%; background:#f0f0f0; color:#666; font-size:12px; font-weight:500; }
+.admin-conversation-copy { min-width:0; flex:1; }
+.admin-conversation-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.admin-conversation-top strong { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#555; font-size:11px; font-weight:400; }
+.admin-conversation-top strong.is-unread { color:#252525; font-weight:600; }
+.admin-conversation-top b { display:flex; align-items:center; justify-content:center; min-width:17px; height:17px; padding:0 4px; border-radius:4px; background:#232323; color:#fff; font-size:8px; }
+.admin-conversation-preview { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:6px; color:#999; font-size:10px; line-height:1.6; }
+.admin-conversation-meta { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:5px; margin-top:9px; color:#aaa; font-size:8px; line-height:1.5; }
+.admin-conversation-meta time { white-space:nowrap; }
+.admin-inbox-error { flex-shrink:0; margin:10px; font-size:10px; }
+.admin-inbox-pagination { flex-shrink:0; padding:12px 8px; border-top:1px solid #eee; }
+.admin-message-thread { display:flex; flex:1; min-width:0; min-height:0; flex-direction:column; }
+.admin-thread-heading { display:flex; flex-shrink:0; align-items:center; gap:11px; padding:16px 20px; border-bottom:1px solid #eee; }
+.admin-thread-heading > div { min-width:0; }
+.net-admin .admin-thread-heading h2 { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; font-weight:500; }
+.admin-thread-heading p { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:5px; color:#999; font-size:10px; }
+.admin-thread-back { display:none; }
+.admin-message-welcome { display:flex; flex:1; flex-direction:column; align-items:center; justify-content:center; gap:18px; padding:35px; text-align:center; }
+.admin-message-welcome > span { display:flex; align-items:center; justify-content:center; width:76px; height:76px; margin-bottom:7px; border:1px solid #ededed; border-radius:22px; background:#fafafa; color:#999; }
+.net-admin .admin-message-welcome h2 { max-width:330px; color:#555; font-size:17px; font-weight:500; line-height:1.6; }
+.admin-message-welcome p { max-width:300px; color:#999; font-size:11px; line-height:1.9; }
+.admin-message-welcome > div { display:flex; align-items:center; gap:7px; margin-top:6px; color:#aaa; font-size:9px; }
+.admin-message-welcome i { width:4px; height:4px; border-radius:50%; background:#777; }
+.admin-support-thread .support-thread-status { padding:11px 20px; background:#fff; border-color:#eee; }
+.admin-support-thread .support-thread-status p { font-size:10px; }
+.admin-support-thread .support-thread-status [aria-hidden=true] { background:#888; }
+.admin-support-thread .support-thread-status button { padding:7px 10px; border-color:#e1e1e1; border-radius:6px; font-size:10px; font-weight:400; }
+.admin-support-thread .support-thread-history { background:#fafafa; padding:20px; }
+.admin-support-thread .support-thread-message { border:1px solid #e9e9e9; border-radius:10px; background:#fff; color:#333; }
+.admin-support-thread .support-thread-message[data-own=true] { border-color:#242424; background:#242424; color:#fff; }
+.admin-support-thread .support-thread-message[data-own=true] > p { color:#bfbfbf; }
+.admin-support-thread .support-thread-message[data-own=true] > p:nth-child(2) { color:#fff; }
+.admin-support-thread .support-thread-message > p:nth-child(2) { font-size:12px; line-height:1.8; }
+.admin-support-thread .support-thread-compose { background:#fff; border-color:#eee; }
+.admin-support-thread .support-thread-compose .net-field-shell { border-color:#dedede; border-radius:8px; background:#fff; }
+.admin-support-thread .support-thread-compose textarea { font-size:12px; line-height:1.8; }
+.admin-support-thread .support-thread-compose button[aria-label="Gửi tin nhắn CSKH"] { width:36px; height:36px; border-radius:7px; background:#242424; }
+
+@media(max-width:1200px) { .admin-management-grid { grid-template-columns:280px minmax(0,1fr); gap:18px; }.admin-message-sidebar { width:285px; } }
+@media(max-width:1023px) { .admin-management-grid { grid-template-columns:1fr; }.admin-form-column { gap:12px; }.admin-operation-tip { display:none; }.admin-category-list { margin-top:0; }.admin-message-sidebar { width:100%; border-right:0; }.admin-message-sidebar.is-conversation-selected { display:none; }.admin-message-thread:not(.has-conversation) { display:none; }.admin-thread-back { display:flex; } }
+@media(max-width:767px) {
+  .admin-operations-page .admin-operation-panel,.admin-order-list { padding:18px 15px; }
+  .admin-orders-analytics { margin-bottom:16px; }
+  .admin-operation-empty { padding:35px 15px; }
+  .admin-operation-empty > strong { font-size:11px; }
+  .admin-operation-empty > p { font-size:10px; }
+  .admin-operation-toolbar { flex-wrap:wrap; gap:10px; }
+  .admin-operation-toolbar .perfume-search { width:100%; max-width:none; min-width:0; }
+  .admin-operation-form .perfume-field { margin-bottom:16px; }
+  .admin-category-list { margin-inline:-15px; margin-bottom:-18px; }
+  .admin-category-row { gap:9px; padding:14px 12px; }
+  .admin-category-toggle { gap:9px; }
+  .admin-category-toggle strong { font-size:11px; }
+  .admin-category-toggle small { font-size:9px; }
+  .admin-category-icon { width:30px; height:35px; }
+  .admin-category-row .perfume-toolbar-buttons { gap:4px; }
+  .admin-category-row .perfume-icon-button { width:28px; min-height:30px; }
+  .admin-category-expanded { padding:16px 12px; }
+  .admin-operation-summary { gap:10px 18px; font-size:10px; }
+  .admin-operation-summary strong { font-size:11px; }
+  .admin-operations-page .admin-voucher-list { padding-inline:0; padding-bottom:0; }
+  .admin-voucher-list > .admin-panel-heading,.admin-voucher-list > .admin-operation-toolbar { padding-inline:15px; }
+  .admin-operation-drawer { border-radius:0; }
+  .admin-operation-drawer > header { padding:23px 19px 20px; }
+  .admin-operation-drawer-body { padding:21px 19px; }
+  .admin-operation-drawer > footer { padding:16px 19px; }
+  .admin-operation-drawer .perfume-form-grid { grid-template-columns:1fr; }
+  .admin-feed-status { font-size:8px; }
+  .admin-inbox-heading { padding:17px 15px; }
+  .admin-inbox-filters { padding:0 15px 15px; }
+  .admin-conversation-row { padding-block:16px; }
+  .admin-thread-heading { padding:14px 12px; gap:9px; }
+  .admin-support-thread .support-thread-status { padding-inline:12px; }
+  .admin-support-thread .support-thread-history { padding:16px 12px; }
+  .admin-orders-page .net-order-card > header { padding:14px; }
+  .admin-orders-page .net-order-products,.admin-orders-page .net-order-customer { padding:14px; }
+  .admin-orders-page .net-order-card :is(h3,h4) { font-size:11px; }
+  .admin-orders-page .net-order-items > div { flex-wrap:wrap; gap:10px; }
+  .admin-orders-page .net-order-items > div > div:last-child { margin-left:auto; }
+  .admin-operation-pagination { font-size:9px; }
+}
+@media(prefers-reduced-motion:reduce) { .admin-category-toggle > svg,.admin-toggle-switch > span,.admin-toggle-switch > span::after { transition:none; } }

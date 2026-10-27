@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
-import { ChevronRight, X } from "lucide-react";
+import { X } from "lucide-react";
 
 export default function CollectionFilterDrawer({
-  onClose, searchQuery, onSearchChange, categories, selectedCategories, onCategoryChange,
+  onClose, categories, selectedCategories, onCategoryChange,
   types, selectedTypes, onTypeChange, minPrice, maxPrice, priceCeiling, priceDisabled,
   onMinPriceChange, onMaxPriceChange, formatPrice, resultCount, onReset,
 }) {
@@ -41,12 +41,6 @@ export default function CollectionFilterDrawer({
       </header>
 
       <div className="inessa-filter-content">
-        <form className="inessa-filter-search" role="search" onSubmit={(event) => { event.preventDefault(); onClose(); }}>
-          <input type="search" value={searchQuery} onChange={(event) => onSearchChange(event.target.value)}
-            aria-label="Tìm kiếm sản phẩm" placeholder="Tìm kiếm sản phẩm…" />
-          <button type="submit" aria-label="Tìm kiếm"><ChevronRight size={21} strokeWidth={1.5} aria-hidden="true" /></button>
-        </form>
-
         <section className="inessa-filter-price" aria-labelledby="collection-price-title">
           <h3 id="collection-price-title">Lọc theo<br />giá</h3>
           <div className="inessa-filter-price-range" style={{

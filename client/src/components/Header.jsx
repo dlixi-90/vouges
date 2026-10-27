@@ -2,6 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom";
 import { assets } from "../assets/data";
 import Navbar from "./Navbar";
+import useBrandDirectory from "../hooks/useBrandDirectory";
 import { useClerk, UserButton } from "@clerk/react";
 import { useAppContext } from "../context/AppContext";
 import { Headset, Ticket, X } from "lucide-react";
@@ -28,6 +29,7 @@ const OrdersIcon = () => (
 );
 
 const Header = () => {
+  const brandDirectory = useBrandDirectory();
   const [menuOpened, setMenuOpened] = useState(false);
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
   const [hasOpenedAIChat, setHasOpenedAIChat] = useState(false);
@@ -69,7 +71,7 @@ const Header = () => {
               aria-expanded={menuOpened} aria-controls="store-navigation" className="inessa-menu-toggle">
               <img src={menuOpened ? assets.menuClose : assets.menu} alt="" width={24} height={24} />
             </button>
-            <Navbar group="shop" navigationId="store-shop-navigation" setMenuOpened={setMenuOpened} containerStyles="inessa-desktop-navigation" />
+            <Navbar group="shop" brandDirectory={brandDirectory} navigationId="store-shop-navigation" setMenuOpened={setMenuOpened} containerStyles="inessa-desktop-navigation" />
           </div>
           {/* Logo */}
           <div className="inessa-brand flex">
@@ -77,7 +79,7 @@ const Header = () => {
               <img
                 src={assets.logoImg}
                 alt="Biểu trưng Velours"
-                className="h-11"
+                className="inessa-logo-mark" height={34}
               />
               <span className="inessa-brand-name">
                 elours
@@ -161,7 +163,7 @@ const Header = () => {
               </div>
             </div>
           </div>
-          {menuOpened && <Navbar setMenuOpened={setMenuOpened} containerStyles="inessa-mobile-navigation fixed" />}
+          {menuOpened && <Navbar brandDirectory={brandDirectory} setMenuOpened={setMenuOpened} containerStyles="inessa-mobile-navigation fixed" />}
         </div>
       </header>
 

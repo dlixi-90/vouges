@@ -1,0 +1,410 @@
+{
+  "mui-huong-andehit": {
+    "label": "Andehit",
+    "english": "Aldehydes",
+    "background": "#d8e9f6",
+    "foreground": "#0a0a0a"
+  },
+  "mui-huong-bien": {
+    "label": "Biển",
+    "english": "Marine",
+    "background": "#0e529b",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-ca-cao": {
+    "label": "Ca Cao",
+    "english": "Cacao",
+    "background": "#9a3a0d",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-ca-phe": {
+    "label": "Cà Phê",
+    "english": "Coffee",
+    "background": "#503b1d",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-cam-chanh": {
+    "label": "Cam Chanh",
+    "english": "Citrus",
+    "background": "#f9ff52",
+    "foreground": "#0a0a0a"
+  },
+  "mui-huong-can-sa": {
+    "label": "Cần Sa",
+    "english": "Cannabis",
+    "background": "#448a33",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-caramen": {
+    "label": "Caramen",
+    "english": "Caramel",
+    "background": "#dda356",
+    "foreground": "#000000"
+  },
+  "mui-huong-cat": {
+    "label": "Cát",
+    "english": "Sand",
+    "background": "#e6d9b2",
+    "foreground": "#000000"
+  },
+  "mui-huong-cay-la-kim": {
+    "label": "Cây Lá Kim",
+    "english": "Conifer",
+    "background": "#1b422f",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-cay-mat": {
+    "label": "Cay Mát",
+    "english": "Fresh Spicy",
+    "background": "#83c928",
+    "foreground": "#000000"
+  },
+  "mui-huong-cay-nhe": {
+    "label": "Cay Nhẹ",
+    "english": "Soft Spicy",
+    "background": "#e27752",
+    "foreground": "#000000"
+  },
+  "mui-huong-cay-nong": {
+    "label": "Cay Nồng",
+    "english": "Warm Spicy",
+    "background": "#cc3300",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-chua": {
+    "label": "Chua",
+    "english": "Sour",
+    "background": "#c0e741",
+    "foreground": "#000000"
+  },
+  "mui-huong-coca-cola": {
+    "label": "Coca Cola",
+    "english": "Coca-cola",
+    "background": "#7a2f14",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-con": {
+    "label": "Cồn",
+    "english": "Alcohol",
+    "background": "#f8ea8c",
+    "foreground": "#000000"
+  },
+  "mui-huong-da-thuoc": {
+    "label": "Da Thuộc",
+    "english": "Leather",
+    "background": "#78483a",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-dua": {
+    "label": "Dừa",
+    "english": "Coconut",
+    "background": "#f1e8d4",
+    "foreground": "#000000"
+  },
+  "mui-huong-dang": {
+    "label": "Đắng",
+    "english": "Bitter",
+    "background": "#c1c316",
+    "foreground": "#000000"
+  },
+  "mui-huong-dat": {
+    "label": "Đất",
+    "english": "Earthy",
+    "background": "#544838",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-dong-vat": {
+    "label": "Động Vật",
+    "english": "Animalic",
+    "background": "#8e4b13",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-go": {
+    "label": "Gỗ",
+    "english": "Woody",
+    "background": "#774414",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-hanh-nhan": {
+    "label": "Hạnh Nhân",
+    "english": "Almond",
+    "background": "#f1e3c5",
+    "foreground": "#000000"
+  },
+  "mui-huong-hat": {
+    "label": "Hạt",
+    "english": "Nutty",
+    "background": "#b4955f",
+    "foreground": "#000000"
+  },
+  "mui-huong-hat-hoi": {
+    "label": "Hạt Hồi",
+    "english": "Anis",
+    "background": "#e7ceec",
+    "foreground": "#000000"
+  },
+  "mui-huong-ho-phach": {
+    "label": "Hổ Phách",
+    "english": "Amber",
+    "background": "#bc4d10",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-hoa": {
+    "label": "Hoa",
+    "english": "Floral",
+    "background": "#ff5f8d",
+    "foreground": "#000000"
+  },
+  "mui-huong-hoa-dien-vi": {
+    "label": "Hoa Diên Vĩ",
+    "english": "Iris",
+    "background": "#b7a7d7",
+    "foreground": "#000000"
+  },
+  "mui-huong-hoa-hong": {
+    "label": "Hoa Hồng",
+    "english": "Rose",
+    "background": "#fe016b",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-hoa-hue": {
+    "label": "Hoa Huệ",
+    "english": "Tuberose",
+    "background": "#ebfaf3",
+    "foreground": "#000000"
+  },
+  "mui-huong-hoa-oai-huong": {
+    "label": "Hoa Oải Hương",
+    "english": "Lavender",
+    "background": "#e7ceec",
+    "foreground": "#000000"
+  },
+  "mui-huong-hoa-trang": {
+    "label": "Hoa Trắng",
+    "english": "White Floral",
+    "background": "#edf2fb",
+    "foreground": "#000000"
+  },
+  "mui-huong-hoa-vang": {
+    "label": "Hoa Vàng",
+    "english": "Yellow Floral",
+    "background": "#ffdc10",
+    "foreground": "#000000"
+  },
+  "mui-huong-hoa-violet": {
+    "label": "Hoa Violet",
+    "english": "Violet",
+    "background": "#9c1dff",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-hoac-huong": {
+    "label": "Hoắc Hương",
+    "english": "Patchouli",
+    "background": "#63652e",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-khoang-chat": {
+    "label": "Khoáng Chất",
+    "english": "Mineral",
+    "background": "#71bbbf",
+    "foreground": "#000000"
+  },
+  "mui-huong-khoi": {
+    "label": "Khói",
+    "english": "Smoky",
+    "background": "#827487",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-kim-loai": {
+    "label": "Kim Loại",
+    "english": "Metallic",
+    "background": "#97b0b7",
+    "foreground": "#000000"
+  },
+  "mui-huong-la-xanh-mat": {
+    "label": "Lá Xanh Mát",
+    "english": "Green",
+    "background": "#0e8c1d",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-long-nao": {
+    "label": "Long Não",
+    "english": "Camphor",
+    "background": "#5d6e27",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-mat-ong": {
+    "label": "Mật Ong",
+    "english": "Honey",
+    "background": "#faa907",
+    "foreground": "#000000"
+  },
+  "mui-huong-ngot": {
+    "label": "Ngọt",
+    "english": "Sweet",
+    "background": "#ee363b",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-nhiet-doi": {
+    "label": "Nhiệt Đới",
+    "english": "Tropical",
+    "background": "#f6af09",
+    "foreground": "#000000"
+  },
+  "mui-huong-nhua-cay": {
+    "label": "Nhựa Cây",
+    "english": "Terpenic",
+    "background": "#d89f00",
+    "foreground": "#000000"
+  },
+  "mui-huong-nhua-thom-balsamic": {
+    "label": "Nhựa Thơm Balsamic",
+    "english": "Balsamic",
+    "background": "#ad8359",
+    "foreground": "#000000"
+  },
+  "mui-huong-ozon": {
+    "label": "Ozon",
+    "english": "Ozonic",
+    "background": "#c9fdfb",
+    "foreground": "#000000"
+  },
+  "mui-huong-phan": {
+    "label": "Phấn",
+    "english": "Powdery",
+    "background": "#eeddcc",
+    "foreground": "#000000"
+  },
+  "mui-huong-qua-anh-dao": {
+    "label": "Quả Anh Đào",
+    "english": "Cherry",
+    "background": "#ce1d33",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-que": {
+    "label": "Quế",
+    "english": "Cinnamon",
+    "background": "#d2691e",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-reu": {
+    "label": "Rêu",
+    "english": "Mossy",
+    "background": "#5b6b32",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-ruou-rum": {
+    "label": "Rượu Rum",
+    "english": "Rum",
+    "background": "#ac2005",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-ruou-sam-banh": {
+    "label": "Rượu Sâm Banh",
+    "english": "Champagne",
+    "background": "#e7ceec",
+    "foreground": "#000000"
+  },
+  "mui-huong-ruou-vodka": {
+    "label": "Rượu Vodka",
+    "english": "Vodka",
+    "background": "#f3faf8",
+    "foreground": "#000000"
+  },
+  "mui-huong-ruou-whisky": {
+    "label": "Rượu Whisky",
+    "english": "Whiskey",
+    "background": "#d89e36",
+    "foreground": "#000000"
+  },
+  "mui-huong-sap-ong": {
+    "label": "Sáp Ong",
+    "english": "Beeswax",
+    "background": "#f0b642",
+    "foreground": "#000000"
+  },
+  "mui-huong-so-co-la": {
+    "label": "Sô Cô La",
+    "english": "Chocolate",
+    "background": "#603000",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-sua-kem-ngot": {
+    "label": "Sữa Kem Ngọt",
+    "english": "Lactonic",
+    "background": "#fbf9f2",
+    "foreground": "#000000"
+  },
+  "mui-huong-thao-duoc": {
+    "label": "Thảo Dược",
+    "english": "Herbal",
+    "background": "#6ca47f",
+    "foreground": "#000000"
+  },
+  "mui-huong-thao-moc": {
+    "label": "Thảo Mộc",
+    "english": "Aromatic",
+    "background": "#37a089",
+    "foreground": "#000000"
+  },
+  "mui-huong-thuc-pham": {
+    "label": "Thực Phẩm",
+    "english": "Gourmand",
+    "background": "#f0cb7a",
+    "foreground": "#000000"
+  },
+  "mui-huong-thuoc-la": {
+    "label": "Thuốc Lá",
+    "english": "Tobacco",
+    "background": "#ad7727",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-thuy-sinh": {
+    "label": "Thuỷ Sinh",
+    "english": "Aquatic",
+    "background": "#63cce2",
+    "foreground": "#000000"
+  },
+  "mui-huong-trai-cay": {
+    "label": "Trái Cây",
+    "english": "Fruity",
+    "background": "#fc4b29",
+    "foreground": "#000000"
+  },
+  "mui-huong-tram-huong": {
+    "label": "Trầm Hương",
+    "english": "Oud",
+    "background": "#544136",
+    "foreground": "#ffffff"
+  },
+  "mui-huong-tuoi-moi": {
+    "label": "Tươi Mới",
+    "english": "Fresh",
+    "background": "#9be5ed",
+    "foreground": "#000000"
+  },
+  "mui-huong-vani": {
+    "label": "Vani",
+    "english": "Vanilla",
+    "background": "#fffec0",
+    "foreground": "#000000"
+  },
+  "mui-huong-vi-man": {
+    "label": "Vị Mặn",
+    "english": "Salty",
+    "background": "#e9fff9",
+    "foreground": "#000000"
+  },
+  "mui-huong-xa-huong": {
+    "label": "Xạ Hương",
+    "english": "Musky",
+    "background": "#e7d8ea",
+    "foreground": "#000000"
+  },
+  "mui-huong-xa-phong": {
+    "label": "Xà Phòng",
+    "english": "Soapy",
+    "background": "#e3f6fc",
+    "foreground": "#000000"
+  }
+}

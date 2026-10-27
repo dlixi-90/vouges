@@ -2,6 +2,7 @@ import express from "express";
 import { upload } from "../middleware/multer.js";
 import authUser, { requireOwner } from "../middleware/authMiddleware.js";
 import { listReviews, myReview, saveReview } from "../controllers/reviewController.js";
+import { listBrands } from "../controllers/brandController.js";
 import {
   createProduct,
   deleteProduct,
@@ -22,6 +23,7 @@ productRouter.post(
   createProduct,
 );
 productRouter.get("/", listProduct);
+productRouter.get("/brands", listBrands);
 productRouter.get("/popular", listPopularProducts);
 productRouter.get("/single", singleProduct);
 productRouter.get("/:productId/reviews", listReviews);

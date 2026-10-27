@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, Minus, Plus, ShieldCheck, Star, Truck } from "lucide-react";
-import { useParams } from "react-router-dom";
-import ProductDescription from "../components/ProductDescription";
+import { useLocation, useParams } from "react-router-dom";
+import ProductDetailTabs from "../components/ProductDetailTabs";
 import ProductFeatures from "../components/ProductFeatures";
-import PairWithProducts from "../components/PairWithProducts";
 import RelatedProducts from "../components/RelatedProducts";
 import { useAppContext } from "../context/AppContext";
 import {
@@ -18,9 +17,7 @@ import { FREE_SHIPPING_THRESHOLD } from "../utils/orderPricing";
 import { formatVnd } from "../utils/money";
 import { flyProductToCart } from "../utils/cartAnimation";
 import ProductImage from "../components/ProductImage";
-import ProductReviews from "../components/ProductReviews";
 import { getDetailGallery } from "../utils/productImage";
-import PerfumeProfile from "../components/PerfumeProfile";
 
 const MAX_QUANTITY_PER_ADD = 10;
 
@@ -40,23 +37,32 @@ const RatingStars = ({ average }) => (
 const ProductDetail = () => {
   const { products, currency, addToCart, requireCartLogin, storeResources, axios } = useAppContext();
   const [detail, setDetail] = useState(null);
-  const [detailError, setDetailError] = useState("");
+  const [detailError, setDetailError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [addStatus, setAddStatus] = useState("idle");
   const [reviewSummary, setReviewSummary] = useState(null);
+  const [tabSelection, setTabSelection] = useState(null);
   const productImageRef = useRef(null);
   const addedResetTimerRef = useRef(null);
 
   const { productId } = useParams();
+  const { hash } = useLocation();
+  const activeTab = tabSelection?.productId === productId ? tabSelection.tab : hash === "#reviews" ? "reviews" : "description";
+  const selectTab = tab => setTabSelection({ productId, tab });
+  const openReviews = event => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    selectTab("reviews");
+    window.requestAnimationFrame(() => document.getElementById("reviews")?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" }));
+  };
   useEffect(() => {
     const controller = new AbortController();
-    setDetailError("");
     axios.get("/api/products/single", {params:{productId},signal:controller.signal}).then(({data})=>{
       if (!data.success) throw new Error(data.message);
       setDetail(data.product);
-    }).catch(error=>{if(!controller.signal.aborted)setDetailError(error.response?.data?.message||"Không thể tải chi tiết sản phẩm.");});
+    }).catch(error=>{if(!controller.signal.aborted)setDetailError({ productId, message: error.response?.data?.message||"Không thể tải chi tiết sản phẩm." });});
     return ()=>controller.abort();
   }, [axios, productId]);
   const reviewStats = reviewSummary?.productId === productId ? reviewSummary : storeResources.peekReviews(productId);
@@ -126,7 +132,14 @@ const ProductDetail = () => {
     [],
   );
 
-  if (!product) return <div className="max-padd-container py-32" role={detailError?"alert":"status"}>{detailError||"Đang tải sản phẩm…"}</div>;
+  useEffect(() => {
+    if (!product || hash !== "#reviews") return;
+    const frame = window.requestAnimationFrame(() => document.getElementById("reviews")?.scrollIntoView({ block: "start" }));
+    return () => window.cancelAnimationFrame(frame);
+  }, [hash, product]);
+
+  const loadError = detailError?.productId === productId ? detailError.message : "";
+  if (!product) return <div className="max-padd-container py-32" role={loadError?"alert":"status"}>{loadError||"Đang tải sản phẩm…"}</div>;
 
   return (
     <div className="net-product-detail max-padd-container pb-14 pt-24 sm:pt-28">
@@ -187,7 +200,7 @@ const ProductDetail = () => {
           <p className="mt-2 text-2xl text-[#737373]">
             {formatVnd(size ? product.price?.[size] : 0, currency)}
           </p>
-          <a href="#reviews"
+          <a href="#reviews" onClick={openReviews}
             aria-label={reviewStats && !reviewStats.error
               ? reviewStats.count > 0 ? `${reviewStats.average.toFixed(1)} trên 5 sao, ${reviewStats.count} đánh giá. Xem hoặc viết đánh giá sản phẩm.` : "Chưa có đánh giá. Viết đánh giá sản phẩm."
               : "Xem hoặc viết đánh giá sản phẩm"}
@@ -297,9 +310,6 @@ const ProductDetail = () => {
             </button>
           </div>
 
-          <ProductDescription product={product} selectedSize={size} />
-          <PairWithProducts product={product} productId={productId} />
-
           <div className="mt-5 grid gap-2 text-xs text-[#70756f] sm:grid-cols-2">
             <div className="flex items-center gap-2">
               <Truck size={16} />
@@ -314,8 +324,7 @@ const ProductDetail = () => {
         </section>
       </div>
 
-      <PerfumeProfile product={product} />
-      <ProductReviews key={productId} productId={productId} onSummaryChange={setReviewSummary} />
+      <ProductDetailTabs key={productId} product={product} activeTab={activeTab} onTabChange={selectTab} reviewStats={reviewStats} onSummaryChange={setReviewSummary} />
       <ProductFeatures />
       <RelatedProducts product={product} productId={productId} />
     </div>

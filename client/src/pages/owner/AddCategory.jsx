@@ -14,6 +14,8 @@ import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
 import CategoryTypes from "../../components/owner/CategoryTypes";
 import DeleteCategoryDialog from "../../components/owner/DeleteCategoryDialog";
+import { Badge, CatalogPage, RefreshButton } from "../../components/owner/CatalogUI";
+import { OperationsEmptyState, OperationsPanel } from "../../components/owner/OperationsUI";
 
 const AddCategory = () => {
   const {
@@ -192,309 +194,40 @@ const AddCategory = () => {
     }
   };
 
-  return (
-    <main className="m-1 h-[97vh] overflow-y-auto rounded-xl bg-primary px-3 py-6 shadow sm:m-3 sm:px-5 md:px-8 lg:w-11/12 xl:py-8">
-      <div className="mx-auto w-full max-w-[1120px]">
-        <header className="mb-6 flex flex-col gap-4 border-b border-[#e1e6e3] pb-6 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#6f9a79]">
-              Sản phẩm
-            </p>
-            <h1 className="text-2xl font-semibold tracking-tight text-[#263b4a] sm:text-3xl">
-              Danh mục
-            </h1>
-          </div>
-          {returnTo && (
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => navigate(returnTo, { state: { categorySelection: returnSelection } })}
-              className="admin-primary-button"
-            >
-              Quay lại sản phẩm
-            </button>
-          )}
-        </header>
-
-        <div className="space-y-6">
-          <section className="rounded-2xl border border-[#e2e7e4] bg-white p-5 shadow-sm sm:p-6">
-            <h2 className="text-lg font-semibold text-[#263b4a]">
-              Thông tin danh mục
-            </h2>
-            <form
-              onSubmit={saveCategory}
-              className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end"
-            >
-              <label className="block min-w-0 flex-1">
-                <span className="mb-2 block text-sm font-medium text-[#334957]">
-                  Tên danh mục <span className="text-[#b55f5f]">*</span>
-                </span>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="Ví dụ: Chăm sóc tóc"
-                  className="admin-input"
-                  maxLength={100}
-                  autoComplete="off"
-                  required
-                  disabled={busy}
-                />
-              </label>
-              <label className="block min-w-0 flex-1">
-                <span className="mb-2 block text-sm font-medium text-[#334957]">
-                  Loại sản phẩm <span className="text-[#b55f5f]">*</span>
-                </span>
-                <input
-                  type="text"
-                  value={typeName}
-                  onChange={(event) => setTypeName(event.target.value)}
-                  placeholder="Ví dụ: Dầu gội"
-                  className="admin-input"
-                  maxLength={100}
-                  autoComplete="off"
-                  required
-                  disabled={busy}
-                />
-              </label>
-              <button
-                type="submit"
-                disabled={busy || categoriesLoading || Boolean(categoriesError)}
-                className="admin-primary-button shrink-0 justify-center"
-              >
-                <Plus size={17} />{" "}
-                {saving && !editingId ? "Đang thêm danh mục…" : "Thêm danh mục"}
-              </button>
-            </form>
-            <p className="mt-3 text-xs text-[#71808a]">
-              Thêm loại sản phẩm đầu tiên cho danh mục này. Bạn có thể thêm các loại khác trong danh sách bên dưới.
-            </p>
-          </section>
-
-          <section className="min-w-0 overflow-hidden rounded-2xl border border-[#e2e7e4] bg-white shadow-sm">
-            <div className="flex items-center justify-between gap-3 px-5 pt-5 sm:px-6 sm:pt-6">
-              <div>
-                <h2 className="text-lg font-semibold text-[#263b4a]">
-                  Danh sách danh mục
-                </h2>
-              </div>
-              <span className="rounded-full bg-[#edf6ee] px-3 py-1 text-xs font-medium text-[#557b5e]">
-                {categories.length} danh mục
-              </span>
-            </div>
-            <div className="px-5 py-5 sm:px-6">
-              <label className="relative block">
-                <Search
-                  size={17}
-                  className="pointer-events-none absolute left-3 top-3 text-[#839099]"
-                />
-                <input
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Tìm danh mục hoặc loại sản phẩm…"
-                  aria-label="Tìm danh mục hoặc loại sản phẩm"
-                  className="admin-input !pl-10 !pr-10"
-                  type="search"
-                />
-              </label>
-              {query && (
-                <p className="mt-2 text-xs text-[#839099]" role="status">
-                  {visibleCategories.length} / {categories.length} danh mục
-                </p>
-              )}
-            </div>
-            <div aria-busy={categoriesLoading}>
-              {categoriesLoading ? (
-                <p className="py-8 text-center text-sm text-[#839099]">
-                  Đang tải danh mục…
-                </p>
-              ) : categoriesError ? (
-                <div
-                  role="alert"
-                  className="rounded-lg border border-[#efd4d4] p-4 text-sm text-[#b55f5f]"
-                >
-                  <p>{categoriesError}</p>
-                  <button
-                    type="button"
-                    onClick={fetchCategories}
-                    className="mt-2 font-medium underline"
-                  >
-                    Thử lại
-                  </button>
+  return <CatalogPage className="admin-operations-page admin-categories-page" title="Danh mục" description="Sắp xếp danh mục và các loại nước hoa trong cửa hàng của bạn." actions={<><RefreshButton onClick={fetchCategories} disabled={categoriesLoading || busy} />{returnTo && <button type="button" disabled={busy} onClick={() => navigate(returnTo, { state: { categorySelection: returnSelection } })} className="perfume-button primary">Quay lại sản phẩm</button>}</>}>
+    <div className="admin-management-grid admin-categories-grid">
+      <div className="admin-form-column"><OperationsPanel title="Thêm danh mục" description="Tạo danh mục và loại sản phẩm đầu tiên.">
+        <form onSubmit={saveCategory} className="admin-operation-form">
+          <label className="perfume-field"><span>Tên danh mục <i>*</i></span><input type="text" value={name} onChange={event => setName(event.target.value)} placeholder="Ví dụ: Nước hoa unisex" maxLength={100} autoComplete="off" required disabled={busy} /></label>
+          <label className="perfume-field"><span>Loại sản phẩm <i>*</i></span><input type="text" value={typeName} onChange={event => setTypeName(event.target.value)} placeholder="Ví dụ: Eau de Parfum" maxLength={100} autoComplete="off" required disabled={busy} /></label>
+          <button type="submit" disabled={busy || categoriesLoading || Boolean(categoriesError)} className="perfume-button primary admin-form-submit"><Plus size={15} />{saving && !editingId ? "Đang thêm danh mục…" : "Thêm danh mục"}</button>
+        </form>
+        <p className="admin-form-help">Có thể thêm loại sản phẩm khác, đổi tên và quản lý danh mục ở danh sách bên cạnh.</p>
+      </OperationsPanel><div className="admin-operation-tip"><Tags size={19} strokeWidth={1.5} /><div><strong>Danh mục rõ ràng, dễ tìm kiếm</strong><p>Dùng tên nhất quán để khách dễ chọn nước hoa và tìm thấy sản phẩm phù hợp.</p></div></div></div>
+      <OperationsPanel className="admin-categories-list" title="Danh sách danh mục" description="Quản lý tên danh mục và các loại sản phẩm bên trong." actions={<Badge>{categoriesLoading ? "—" : categories.length} danh mục</Badge>}>
+        <div className="admin-operation-toolbar"><label className="perfume-search"><Search size={16} aria-hidden="true" /><input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Tìm danh mục hoặc loại sản phẩm…" aria-label="Tìm danh mục hoặc loại sản phẩm" /></label>{query && <span role="status">{visibleCategories.length}/{categories.length} danh mục</span>}</div>
+        <div aria-busy={categoriesLoading}>
+          {categoriesLoading ? <p role="status" className="perfume-loading">Đang tải danh mục…</p> : categoriesError ? <div role="alert" className="perfume-alert">{categoriesError}<button type="button" onClick={fetchCategories}>Thử lại</button></div> : !categories.length ? <OperationsEmptyState icon={Tags} title="Chưa có danh mục nào" description="Thêm danh mục đầu tiên bằng biểu mẫu bên cạnh." /> : !visibleCategories.length ? <OperationsEmptyState icon={Search} title="Không tìm thấy danh mục phù hợp" description="Thử tên danh mục hoặc loại sản phẩm khác."><button type="button" className="perfume-button" onClick={() => setSearch("")}>Xóa nội dung tìm kiếm</button></OperationsEmptyState> : <ul className="admin-category-list">
+            {visibleCategories.map(category => {
+              const expanded = expandedId === category._id;
+              const types = category.types || [];
+              return <li key={category._id}>
+                <div className={`admin-category-row${expanded ? " is-expanded" : ""}`}>
+                  <button type="button" className="admin-category-toggle" aria-expanded={expanded} aria-controls={`category-types-${category._id}`} onClick={() => setExpandedId(expanded ? null : category._id)}><span className="admin-category-icon"><Tags size={17} strokeWidth={1.5} /></span><span><strong>{category.name}</strong><small>{types.length} loại sản phẩm</small></span><ChevronDown size={15} className={expanded ? "is-rotated" : ""} /></button>
+                  <div className="perfume-toolbar-buttons"><button type="button" disabled={busy} className="perfume-icon-button" aria-label={`Chỉnh sửa danh mục ${category.name}`} onClick={() => { setEditingId(category._id); setEditName(category.name); setExpandedId(category._id); }}><Pencil size={14} /></button><button type="button" disabled={busy} className="perfume-icon-button admin-danger-action" aria-label={`Xóa danh mục ${category.name}`} onClick={() => requestDelete(category)}><Trash2 size={14} /></button></div>
                 </div>
-              ) : categories.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-[#d5ddd7] px-4 py-8 text-center">
-                  <Tags size={24} className="mx-auto text-[#8ca095]" />
-                  <p className="mt-2 text-sm font-medium text-[#76847c]">
-                    Chưa có danh mục nào
-                  </p>
-                  <p className="mt-1 text-xs text-[#9aa49e]">
-                    Thêm danh mục đầu tiên bằng biểu mẫu.
-                  </p>
+                <div id={`category-types-${category._id}`} hidden={!expanded} className="admin-category-expanded">
+                  {editingId === category._id && <form onSubmit={event => saveCategory(event, category._id)} className="admin-category-rename admin-operation-form"><label className="perfume-field"><span>Tên danh mục</span><input type="text" aria-label="Tên danh mục đang sửa" value={editName} onChange={event => setEditName(event.target.value)} maxLength={100} required autoFocus disabled={busy} /></label><div className="perfume-toolbar-buttons"><button type="submit" disabled={busy} className="perfume-button primary"><Check size={14} />{saving ? "Đang lưu…" : "Lưu thay đổi"}</button><button type="button" disabled={busy} className="perfume-button" onClick={() => { setEditingId(null); setEditName(""); }}><X size={14} />Hủy</button></div></form>}
+                  <CategoryTypes category={category} disabled={busy} onSave={saveType} onDelete={requestDelete} />
                 </div>
-              ) : visibleCategories.length === 0 ? (
-                <div className="border-t border-[#e2e7e4] px-5 py-10 text-center">
-                  <Search size={24} className="mx-auto text-[#8ca095]" />
-                  <p className="mt-3 text-sm text-[#71808a]">
-                    Không tìm thấy danh mục hoặc loại sản phẩm phù hợp.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setSearch("")}
-                    className="mt-2 text-sm font-medium text-[#557b5e] underline"
-                  >
-                    Xóa nội dung tìm kiếm
-                  </button>
-                </div>
-              ) : (
-                <ul className="divide-y divide-[#e2e7e4] border-t border-[#e2e7e4]">
-                  {visibleCategories.map((category) => {
-                    const expanded = expandedId === category._id;
-                    const types = category.types || [];
-                    return (
-                      <li key={category._id}>
-                        <div
-                          className={`flex flex-wrap items-center gap-x-3 gap-y-2 px-5 py-3 sm:flex-nowrap sm:px-6 ${expanded ? "bg-[#f2f7f3]" : "hover:bg-[#fafcfa]"}`}
-                        >
-                          <button
-                            type="button"
-                            disabled={busy}
-                            aria-expanded={expanded}
-                            aria-controls={`category-types-${category._id}`}
-                            onClick={() =>
-                              setExpandedId(expanded ? null : category._id)
-                            }
-                            className="flex min-w-0 flex-1 items-center gap-3 rounded-lg py-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-[#6f9a79] disabled:opacity-60"
-                          >
-                            <ChevronDown
-                              size={18}
-                              className={`shrink-0 text-[#6f9a79] transition-transform ${expanded ? "" : "-rotate-90"}`}
-                            />
-                            <span className="min-w-0 flex-1">
-                              <span className="block break-words text-sm font-semibold text-[#263b4a]">
-                                {category.name}
-                              </span>
-                              <span className="mt-1 block truncate text-xs text-[#839099]">
-                                {types.length
-                                  ? types
-                                      .slice(0, 3)
-                                      .map((type) => type.name)
-                                      .join(" · ") +
-                                    (types.length > 3 ? " …" : "")
-                                  : "Chưa có loại sản phẩm nào"}
-                              </span>
-                            </span>
-                            <span className="shrink-0 rounded-full bg-[#edf6ee] px-2.5 py-1 text-xs font-medium text-[#557b5e]">
-                              {types.length}{" "}
-                              {types.length === 1 ? "type" : "types"}
-                            </span>
-                          </button>
-                          <div className="ml-auto flex shrink-0 items-center gap-1">
-                            <button
-                              type="button"
-                              disabled={busy}
-                              onClick={() => {
-                                setExpandedId(category._id);
-                                setEditingId(category._id);
-                                setEditName(category.name);
-                              }}
-                              aria-label={`Chỉnh sửa ${category.name}`}
-                              title="Chỉnh sửa danh mục"
-                              className="inline-flex h-10 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-[#496852] hover:bg-[#e5efe7] disabled:opacity-60"
-                            >
-                              <Pencil size={15} />
-                            </button>
-                            <button
-                              type="button"
-                              disabled={busy}
-                              onClick={() => requestDelete(category)}
-                              aria-label={`Xóa danh mục ${category.name}`}
-                              title="Xóa danh mục"
-                              className="inline-flex h-10 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-60"
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
-                        </div>
-                        <div
-                          id={`category-types-${category._id}`}
-                          hidden={!expanded}
-                          className="border-t border-[#e2e7e4] bg-[#f8faf8] px-5 py-5 sm:px-6 sm:pl-14"
-                        >
-                          {editingId === category._id && (
-                            <form
-                              onSubmit={(event) =>
-                                saveCategory(event, category._id)
-                              }
-                              className="mb-5 space-y-3 rounded-xl border border-[#e2e7e4] bg-white p-4"
-                            >
-                              <label className="block">
-                                <span className="mb-2 block text-sm font-medium text-[#334957]">
-                                  Tên danh mục
-                                </span>
-                                <input
-                                  type="text"
-                                  value={editName}
-                                  onChange={(event) =>
-                                    setEditName(event.target.value)
-                                  }
-                                  className="admin-input"
-                                  maxLength={100}
-                                  required
-                                  autoFocus
-                                  disabled={busy}
-                                />
-                              </label>
-                              <div className="flex flex-wrap gap-2">
-                                <button
-                                  type="submit"
-                                  disabled={busy}
-                                  className="admin-primary-button"
-                                >
-                                  <Check size={16} />{" "}
-                                  {saving ? "Đang lưu…" : "Lưu thay đổi"}
-                                </button>
-                                <button
-                                  type="button"
-                                  disabled={busy}
-                                  onClick={() => {
-                                    setEditingId(null);
-                                    setEditName("");
-                                  }}
-                                  className="inline-flex items-center gap-2 rounded-lg border border-[#dfe5e8] px-4 py-2.5 text-sm font-medium text-[#52616a] transition hover:bg-white disabled:opacity-60"
-                                >
-                                  <X size={16} /> Hủy
-                                </button>
-                              </div>
-                            </form>
-                          )}
-                          <CategoryTypes
-                            category={category}
-                            disabled={busy}
-                            onSave={saveType}
-                            onDelete={requestDelete}
-                          />
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-          </section>
+              </li>;
+            })}
+          </ul>}
         </div>
-      </div>
-      {deleteTarget && (
-        <DeleteCategoryDialog
-          target={deleteTarget}
-          busy={deleting}
-          error={deleteError}
-          onCancel={() => setDeleteTarget(null)}
-          onConfirm={confirmDelete}
-        />
-      )}
-    </main>
-  );
+      </OperationsPanel>
+    </div>
+    {deleteTarget && <DeleteCategoryDialog target={deleteTarget} busy={deleting} error={deleteError} onCancel={() => setDeleteTarget(null)} onConfirm={confirmDelete} />}
+  </CatalogPage>;
 };
 
 export default AddCategory;

@@ -34,7 +34,7 @@ export default function Sidebar() {
   const [search, setSearch] = useState("");
   const menuOpen = menu.path === pathname && menu.open;
   const activeItem = navigation.flatMap(group => group.items).find(item => (item.activePaths || [item.path]).some(path => matchPath({ path, end: true }, pathname)));
-  const isWorkspacePage = ["/owner/messages", "/owner/vouchers"].includes(pathname);
+  const isWorkspacePage = pathname === "/owner/messages";
   const closeMenu = () => setMenu({ path: pathname, open: false });
   useEffect(() => {
     const mobile = window.matchMedia("(max-width: 767px)");

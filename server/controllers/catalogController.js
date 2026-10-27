@@ -4,6 +4,7 @@ import FragranceTerm from "../models/FragranceTerm.js";
 import CatalogSource from "../models/CatalogSource.js";
 import CatalogMigration from "../models/CatalogMigration.js";
 import Order from "../models/Order.js";
+import { sanitizeFragranceRows } from "../services/fragranceEditing.js";
 import { v2 as cloudinary } from "cloudinary";
 import { unlink } from "node:fs/promises";
 
@@ -86,13 +87,17 @@ export const saveCatalogProduct = catalogAction(async(req,res)=>{
     if(!Number.isSafeInteger(amount)||amount<0)fail(`Giá phải là số VND nguyên không âm: ${size}`);
     if(!Number.isSafeInteger(quantity)||quantity<0)fail(`Tồn kho không hợp lệ: ${size}`);
     const status=body.inStockBySize?.[size]??current.inStockBySize?.[size]??false;if(typeof status!=="boolean")fail("Trạng thái dung tích không hợp lệ");
-    const image=body.sizeImages?.[size]??current.sizeImages?.[size];if(image&&!address(image))fail("Đường dẫn ảnh không hợp lệ");
+    const image=body.sizeImages&&Object.hasOwn(body.sizeImages,size)?body.sizeImages[size]:current.sizeImages?.[size];if(image&&!address(image))fail("Đường dẫn ảnh không hợp lệ");
     price[size]=amount;stock[size]=quantity;enabled[size]=status&&amount>0&&(mode==="source"||quantity>0);if(image)images[size]=image;
   }
   Object.assign(update,{price,stockBySize:stock,inStockBySize:enabled,sizeImages:images,inStock:Object.values(enabled).some(Boolean)});
   if(body.images!==undefined){if(!Array.isArray(body.images)||body.images.length>30||body.images.some((value)=>!address(value)))fail("Bộ ảnh không hợp lệ");update.images=body.images;}
   for(const field of ["isPublished"]){if(body[field]!==undefined){if(typeof body[field]!=="boolean")fail("Trạng thái xuất bản không hợp lệ");update[field]=body[field];}}
-  if(body.assessmentsVisible!==undefined){if(typeof body.assessmentsVisible!=="boolean")fail("Trạng thái biểu đồ không hợp lệ");update.fragrance={...(current.fragrance||{}),assessmentsVisible:body.assessmentsVisible};}
+  // Visibility is permanent; tolerate the obsolete flag from older dashboard clients.
+  update.fragrance={...(current.fragrance||{}),assessmentsVisible:true};
+  for(const field of ["accords","longevity","sillage","suitability"]){
+    if(body[field]!==undefined)update.fragrance[field]=sanitizeFragranceRows(field,body[field],current.fragrance?.[field]||[]);
+  }
   if(body.notes!==undefined){
     if(!body.notes||typeof body.notes!=="object"||Array.isArray(body.notes))fail("Tầng hương không hợp lệ");
     const notes={};for(const phase of ["top","middle","base"]){const list=body.notes[phase]||[];if(!Array.isArray(list)||list.length>60||list.some(item=>!item||typeof item.name!=="string"||item.name.length>160||item.url&& !address(item.url)))fail("Note hương không hợp lệ");notes[phase]=list.map(item=>({name:item.name.trim(),url:item.url||null}));}
