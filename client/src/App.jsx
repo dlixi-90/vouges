@@ -58,7 +58,7 @@ const App = () => {
             <Route path="orders" element={<Dashboard />} />
             <Route path="add-product" element={<AddProduct />} />
             <Route path="add-category" element={<AddCategory />} />
-            <Route path="list-product" element={<PerfumeProducts />} />
+            <Route path="list-product" element={<PerfumeProducts key={location.search} />} />
             <Route path="inventory" element={<PerfumeProducts key="inventory" mode="inventory" />} />
             <Route path="quality" element={<PerfumeProducts key="quality" mode="quality" />} />
             <Route path="data" element={<PerfumeProducts key="source" mode="source" />} />

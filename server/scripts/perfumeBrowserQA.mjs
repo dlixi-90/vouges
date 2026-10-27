@@ -13,6 +13,7 @@ import {catalogSummary,catalogProducts,catalogProduct,libraryTerms} from "../con
 import {listProduct,singleProduct,listPopularProducts} from "../controllers/productController.js";
 import {listCategories} from "../controllers/categoryController.js";
 import {dashboard} from "../controllers/dashboardController.js";
+import {listVouchers} from "../controllers/voucherController.js";
 import Product from "../models/Product.js";
 import {getProductImageUrl} from "../../client/src/utils/productImage.js";
 
@@ -22,6 +23,7 @@ const profile=path.join(artifacts,"chrome-profile");
 const frontend="http://localhost:5188";
 const paginationQA=process.argv.includes("--pagination");
 const typographyQA=process.argv.includes("--typography");
+const dashboardQA=process.argv.includes("--dashboard-design");
 const popularQA=process.argv.includes("--popular-products");
 let popularResponse=null;
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -55,6 +57,7 @@ const api=async request=>{
   if(pathname==="/api/products/popular")return popularQA&&popularResponse ? popularResponse : call(listPopularProducts,req);
   if(pathname==="/api/categories")return call(listCategories,req);
   if(pathname==="/api/orders/dashboard")return call(dashboard,req);
+  if(pathname==="/api/vouchers")return call(listVouchers,req);
   if(pathname.endsWith("/reviews/mine"))return {statusCode:200,body:{success:true,review:null,canReview:false}};
   if(paginationQA&&pathname.endsWith("/reviews")){
     const page=Number(req.query.page||1);
@@ -168,7 +171,29 @@ try{
     checks.push('Lora font files render Vietnamese serif headings with actual glyphs');
   }
   await goto("/owner","document.querySelector('.perfume-source-count')?.textContent.includes('2.444')");await noOverflow();await screenshot("dashboard-desktop");checks.push("overview: 2444 products and zero revenue");
-  if(typographyQA)await checkSerif('.perfume-page-heading h1');
+  if(typographyQA)assert.ok((await evaluate("getComputedStyle(document.querySelector('.perfume-page-heading h1')).fontFamily")).includes('Inter'));
+  if(dashboardQA){
+    await wait("document.querySelectorAll('.admin-overview-table tbody tr').length===5&&document.querySelector('.admin-revenue-chart .recharts-wrapper')");
+    assert.equal(await evaluate("document.querySelectorAll('.admin-metric-card').length"),4);
+    assert.equal(await evaluate("getComputedStyle(document.querySelector('.admin-metric-card.is-primary')).backgroundColor"),'rgb(27, 27, 29)');
+    await noOverflow();await screenshot('admin-overview-desktop');
+    await evaluate("document.querySelector('.admin-products-panel').scrollIntoView({block:'start',behavior:'instant'})");
+    await wait("[...document.querySelectorAll('.admin-overview-table img')].slice(0,3).every(img=>img.complete&&img.naturalWidth>0)");
+    assert.equal(await evaluate("Math.abs(document.querySelector('.admin-sidebar').getBoundingClientRect().top-20)<2"),true,'Desktop navigation stays visible while scrolling');
+    await screenshot('admin-overview-details');
+    await evaluate("(()=>{const select=document.querySelector('[aria-label=\"Khoảng thời gian biểu đồ\"]');select.value='3';select.dispatchEvent(new Event('change',{bubbles:true}));})()");
+    await wait("document.querySelectorAll('.admin-revenue-chart .recharts-xAxis .recharts-cartesian-axis-tick').length===3");
+    for(const term of ['Dior','Chanel']){
+      await input('[aria-label="Tìm nhanh sản phẩm"]',term);
+      await evaluate("document.querySelector('.admin-global-search').requestSubmit()");
+      await wait(`document.querySelector('[aria-label="Tìm sản phẩm hoặc ID nguồn"]')?.value===${JSON.stringify(term)}&&document.querySelector('.perfume-product-cell strong')?.textContent.includes(${JSON.stringify(term)})&&!document.querySelector('.perfume-loading')`);
+    }
+    for(const [url,title] of [['/owner/add-category','Danh mục'],['/owner/add-product','Thêm sản phẩm'],['/owner/vouchers','Quản lý mã giảm giá']]){
+      await goto(url,`document.querySelector('.velours-admin-route h1')?.textContent.includes(${JSON.stringify(title)})`);
+      await noOverflow();await screenshot(`admin-${url.split('/').pop()}-desktop`);
+    }
+    checks.push('monochrome dashboard, actual metrics, chart period control and repeat global searches');
+  }
   await goto("/owner/list-product","document.querySelectorAll('.perfume-table tbody tr').length===25");await noOverflow();
   const firstTitle=await evaluate("document.querySelector('.perfume-product-cell strong').textContent");
   await evaluate("document.querySelector('[aria-label=\"Trang sau\"]').click()");await wait(`document.querySelector('.perfume-product-cell strong')?.textContent!==${JSON.stringify(firstTitle)}&&!document.querySelector('.perfume-loading')`);checks.push("server pagination");
@@ -219,6 +244,30 @@ try{
   assert.equal(await evaluate("document.body.textContent.includes('100 sản phẩm còn trong kho')"),false);await noOverflow();await screenshot("detail-desktop");checks.push("public perfume profile and source inventory copy");
   await send("Emulation.setDeviceMetricsOverride",{width:390,height:844,deviceScaleFactor:1,mobile:true});
   await goto("/owner","document.querySelector('.perfume-source-count')?.textContent.includes('2.444')");await noOverflow();await screenshot("dashboard-mobile");
+  if(dashboardQA){
+    await wait("document.querySelectorAll('.admin-overview-table tbody tr').length===5");
+    await screenshot('admin-overview-mobile');
+    await evaluate("document.querySelector('.admin-menu-toggle').click()");
+    await wait("document.querySelector('.admin-sidebar').classList.contains('is-open')&&document.querySelector('.admin-sidebar').getBoundingClientRect().left>=0");
+    await screenshot('admin-mobile-navigation');
+    await wait("document.activeElement===document.querySelector('.admin-brand')");
+    await evaluate("window.dispatchEvent(new KeyboardEvent('keydown',{key:'Tab',shiftKey:true,bubbles:true,cancelable:true}))");
+    assert.equal(await evaluate("document.activeElement===document.querySelector('.admin-sidebar-footer button')"),true);
+    await evaluate("window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))");
+    await wait("!document.querySelector('.admin-sidebar').classList.contains('is-open')");
+    assert.equal(await evaluate("document.activeElement===document.querySelector('.admin-menu-toggle')&&document.body.style.overflow!=='hidden'"),true);
+    await evaluate("document.querySelector('.admin-menu-toggle').click();document.querySelector('.admin-nav-group a[href=\"/owner/inventory\"]').click()");
+    await wait("location.pathname==='/owner/inventory'&&document.querySelectorAll('.perfume-table tbody tr').length===25&&!document.querySelector('.admin-sidebar').classList.contains('is-open')");
+    await noOverflow();
+    await send("Emulation.setDeviceMetricsOverride",{width:320,height:760,deviceScaleFactor:1,mobile:true});
+    await goto('/owner',"document.querySelector('.perfume-source-count')?.textContent.includes('2.444')");await noOverflow();await screenshot('admin-overview-320');
+    await send("Emulation.setDeviceMetricsOverride",{width:390,height:844,deviceScaleFactor:1,mobile:true});
+    for(const [url,title] of [['/owner/add-category','Danh mục'],['/owner/add-product','Thêm sản phẩm'],['/owner/vouchers','Quản lý mã giảm giá']]){
+      await goto(url,`document.querySelector('.velours-admin-route h1')?.textContent.includes(${JSON.stringify(title)})`);
+      await noOverflow();await screenshot(`admin-${url.split('/').pop()}-mobile`);
+    }
+    checks.push('responsive 390px/320px dashboard and mobile menu, Escape dismissal and inventory navigation');
+  }
   await goto("/owner/list-product","document.querySelectorAll('.perfume-table tbody tr').length===25");await noOverflow();await screenshot("products-mobile");
   await goto(`/owner/edit-product/${sample._id}?tab=variants`,"document.querySelector('.perfume-variant-table')");await noOverflow();await screenshot("variants-mobile");
   await goto("/collection","document.querySelectorAll('.net-product-card').length===16");await wait("[...document.querySelectorAll('.net-product-media img')].slice(0,2).every(img=>img.complete&&img.naturalWidth>0)");await noOverflow();await screenshot("collection-mobile");checks.push("390px responsive layouts without horizontal document overflow");
@@ -242,7 +291,7 @@ try{
     checks.push('compact 320px pagination and conversation list scroll');
   }
   assert.deepEqual(writes,[]);assert.deepEqual(errors,[]);
-  fs.writeFileSync(path.join(artifacts,"result.json"),JSON.stringify({passed:true,checks,errors,actualDatabaseReads:true,mockedAuthentication:true,paginationFixtures:paginationQA,popularFixtures:popularQA,typography:typographyQA,databaseWrites:0},null,2));
+  fs.writeFileSync(path.join(artifacts,"result.json"),JSON.stringify({passed:true,checks,errors,actualDatabaseReads:true,mockedAuthentication:true,paginationFixtures:paginationQA,popularFixtures:popularQA,typography:typographyQA,dashboardDesign:dashboardQA,databaseWrites:0},null,2));
   console.log(JSON.stringify({passed:true,checks,screenshots:artifacts,databaseWrites:0}));
 }finally{
   try{if(ws?.readyState===1)await send("Browser.close");}catch{}ws?.close();chrome?.kill();vite?.kill();

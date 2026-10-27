@@ -9,7 +9,7 @@ import {formatVnd} from "../../utils/money";
 import usePaginationScroll from "../../hooks/usePaginationScroll";
 export default function PerfumeProducts({mode="products"}){
   const [initial]=useSearchParams();const {axios,getToken,fetchProducts}=useAppContext();
-  const [filters,setFilters]=useState({q:"",brand:"",concentration:"",category:"",published:initial.get("published")||"",stock:initial.get("stock")||"",catalogScope:"",quality:mode==="quality"||initial.get("quality")==="issues"?"issues":""});
+  const [filters,setFilters]=useState({q:initial.get("q")||"",brand:"",concentration:"",category:"",published:initial.get("published")||"",stock:initial.get("stock")||"",catalogScope:"",quality:mode==="quality"||initial.get("quality")==="issues"?"issues":""});
   const [page,setPage]=useState(1),[pageSize,setPageSize]=useState(25),[selected,setSelected]=useState(new Set()),[busy,setBusy]=useState(false);
   const params=new URLSearchParams({page:String(page),pageSize:String(pageSize),...Object.fromEntries(Object.entries(filters).filter(([,value])=>value!==""))});
   const query=useCatalog(`/products?${params}`);const rows=query.data?.products||[];const lists=query.data?.filters||{};

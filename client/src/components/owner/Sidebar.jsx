@@ -1,158 +1,121 @@
+import { useEffect, useState } from "react";
+import { Link, Outlet, Navigate, matchPath, useLocation, useNavigate } from "react-router-dom";
+import { UserButton, useClerk } from "@clerk/react";
+import { ArrowUpRight, Bell, ChevronRight, Database, FlaskConical, Grid2X2, Layers3, Library, LogOut, Menu, MessagesSquare, Package, Search, ShieldCheck, ShoppingBag, Ticket, Warehouse, X } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import { assets } from "../../assets/data";
-import { Link, Outlet, Navigate, matchPath, useLocation, useMatch } from "react-router-dom";
-import { UserButton } from "@clerk/react";
-import { ArrowUpRight, MessagesSquare, Database, Library, Tags, Warehouse, ShieldAlert, ShoppingBag } from "lucide-react";
 
-const Sidebar = () => {
+const navigation = [
+  { label: "Tổng quan", items: [
+    { path: "/owner", label: "Dashboard", icon: Grid2X2 },
+    { path: "/owner/orders", label: "Đơn hàng & doanh thu", icon: ShoppingBag },
+    { path: "/owner/list-product", label: "Sản phẩm nước hoa", icon: Package, activePaths: ["/owner/list-product", "/owner/add-product", "/owner/edit-product/:productId"] },
+    { path: "/owner/inventory", label: "Giá & trạng thái hàng", icon: Warehouse },
+  ] },
+  { label: "Quản lý catalog", items: [
+    { path: "/owner/brands", label: "Thương hiệu", icon: FlaskConical },
+    { path: "/owner/add-category", label: "Danh mục", icon: Layers3 },
+    { path: "/owner/library", label: "Thư viện hương", icon: Library },
+    { path: "/owner/quality", label: "Chất lượng dữ liệu", icon: ShieldCheck },
+    { path: "/owner/data", label: "Dữ liệu Apaniche", icon: Database },
+  ] },
+  { label: "Vận hành", items: [
+    { path: "/owner/vouchers", label: "Mã giảm giá", icon: Ticket },
+    { path: "/owner/messages", label: "Tin nhắn & hỗ trợ", icon: MessagesSquare },
+  ] },
+];
+
+export default function Sidebar() {
   const { isOwner, user, profileError, retryUserProfile } = useAppContext();
+  const { signOut } = useClerk();
   const { pathname } = useLocation();
-  const isVoucherPage = Boolean(useMatch("/owner/vouchers"));
-  const isMessagesPage = Boolean(useMatch("/owner/messages"));
-  const isWorkspacePage = isVoucherPage || isMessagesPage;
+  const navigate = useNavigate();
+  const [menu, setMenu] = useState({ path: pathname, open: false });
+  const [search, setSearch] = useState("");
+  const menuOpen = menu.path === pathname && menu.open;
+  const activeItem = navigation.flatMap(group => group.items).find(item => (item.activePaths || [item.path]).some(path => matchPath({ path, end: true }, pathname)));
+  const isWorkspacePage = ["/owner/messages", "/owner/vouchers"].includes(pathname);
+  const closeMenu = () => setMenu({ path: pathname, open: false });
+  useEffect(() => {
+    const mobile = window.matchMedia("(max-width: 767px)");
+    if (!menuOpen || !mobile.matches) return;
+    const sidebar = document.querySelector('.admin-sidebar');
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusable = () => [...sidebar.querySelectorAll('a,button')];
+    // A sliding drawer may still be hidden during its first animation frame.
+    let focusFrame;
+    const focusMenu = () => {
+      const first = focusable()[0];
+      first?.focus({ preventScroll: true });
+      if (first && document.activeElement !== first) focusFrame = window.requestAnimationFrame(focusMenu);
+    };
+    focusFrame = window.requestAnimationFrame(focusMenu);
+    const close = () => setMenu({ path: pathname, open: false });
+    const onKeyDown = event => {
+      if (event.key === "Escape") {
+        close();
+      } else if (event.key === "Tab") {
+        const elements = focusable();
+        const first = elements[0], last = elements.at(-1);
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    mobile.addEventListener("change", close);
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      window.removeEventListener("keydown", onKeyDown);
+      mobile.removeEventListener("change", close);
+      document.body.style.overflow = previousOverflow;
+      document.querySelector('.admin-menu-toggle')?.focus({ preventScroll: true });
+    };
+  }, [menuOpen, pathname]);
 
-  const navItems = [
-    {
-      path: "/owner",
-      label: "Tổng quan",
-      icon: assets.dashboard,
-    },
-    {
-      path: "/owner/messages",
-      label: "Tin nhắn",
-      iconComponent: <MessagesSquare size={18} className="hidden md:block" aria-hidden="true" />,
-    },
-    { path: "/owner/orders", label: "Đơn hàng", iconComponent: <ShoppingBag size={18} className="hidden md:block" /> },
-    {
-      path: "/owner/list-product",
-      label: "Sản phẩm",
-      icon: assets.list,
-      activePaths: ["/owner/list-product", "/owner/add-product", "/owner/edit-product/:productId"],
-    },
-    { path: "/owner/inventory", label: "Giá & trạng thái hàng", iconComponent: <Warehouse size={18} className="hidden md:block" /> },
-    { path: "/owner/data", label: "Dữ liệu Apaniche", iconComponent: <Database size={18} className="hidden md:block" /> },
-    { path: "/owner/brands", label: "Thương hiệu", iconComponent: <Tags size={18} className="hidden md:block" /> },
-    { path: "/owner/library", label: "Thư viện hương", iconComponent: <Library size={18} className="hidden md:block" /> },
-    { path: "/owner/quality", label: "Chất lượng dữ liệu", iconComponent: <ShieldAlert size={18} className="hidden md:block" /> },
-    {
-      path: "/owner/add-category",
-      label: "Danh mục",
-      icon: assets.squarePlus,
-    },
-    { path: "/owner/vouchers", label: "Mã giảm giá", icon: assets.list },
-  ];
+  if (isOwner === null) return <div className="min-h-screen flex items-center justify-center">
+    {profileError ? <div role="alert" className="text-center"><p>{profileError}</p><button type="button" onClick={retryUserProfile} className="btn-outline mt-4">Thử lại</button></div>
+      : <div role="status" aria-label="Đang xác minh tài khoản" className="w-8 h-8 border-4 border-gray-300 border-t-black rounded-full animate-spin" />}
+  </div>;
+  if (!isOwner) return <Navigate to="/" replace />;
 
-  if (isOwner === null) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        {profileError ? (
-          <div role="alert" className="text-center">
-            <p>{profileError}</p>
-            <button
-              type="button"
-              onClick={retryUserProfile}
-              className="btn-outline mt-4"
-            >
-              Thử lại
-            </button>
-          </div>
-        ) : (
-          <div
-            role="status"
-            aria-label="Đang xác minh tài khoản"
-            className="w-8 h-8 border-4 border-gray-300 border-t-black rounded-full animate-spin"
-          />
-        )}
-      </div>
-    );
-  }
-
-  if (!isOwner) {
-    return <Navigate to="/" replace />;
-  }
-
-  return (
-    <div className={`net-admin-layout ${isWorkspacePage ? "fixed inset-0 overflow-hidden" : ""}`}>
-      <div className={`mx-auto max-w-[1440px] flex flex-col md:flex-row ${isWorkspacePage ? "h-full min-h-0 overflow-hidden" : ""}`}>
-        {/* Sidebar */}
-        <div className={`net-sidebar max-md:flexCenter flex flex-col justify-between bg-primary sm:m-3 md:min-w-[20%] rotate-xl shadow ${isWorkspacePage ? "min-h-0 shrink-0 overflow-y-auto overscroll-y-contain max-md:max-h-[40dvh]" : "md:min-h-[97vh]"}`}>
-          <div className="flex flex-col gap-y-6 max-md:items-center md:flex-col md:pt-5">
-            <div className="w-full flex justify-between md:flex-col">
-              {/* Logo */}
-              <div className="flex flex-1 p-3 lg:pl-12">
-                <Link to={"/"} className="flex items-end">
-                  <img src={assets.logoImg} alt="logoImg" className="h-11" />
-                  <span className="bold-24 relative top-1 right-2">elours</span>
-                </Link>
-              </div>
-              <div className="md:hidden flex items-center gap-3 md:bg-primary rounded-b-xl p-2 pl-5 lg:pl-10 md:mt-10">
-                <UserButton
-                  appearance={{
-                    elements: {
-                      userButtonAvatarBox: {
-                        width: "42px",
-                        height: "42px",
-                      },
-                    },
-                  }}
-                />
-                <div className="text-sm font-semibold text-gray-800 ">
-                  {user?.firstName} {user?.lastName}
-                </div>
-              </div>
-            </div>
-            <p className="inessa-admin-label">Không gian quản trị</p>
-            <div className="perfume-admin-nav flex flex-wrap justify-center md:flex-col md:gap-x-5 gap-y-4 md:gap-y-8 md:mt-4">
-              {navItems.map((link) => {
-                const isActive = (link.activePaths || [link.path]).some((path) =>
-                  matchPath({ path, end: true }, pathname),
-                );
-                return (
-                  <Link
-                    key={link.label}
-                    to={link.path}
-                    aria-current={isActive ? "page" : undefined}
-                    className={
-                      isActive
-                        ? "flexStart gap-x-2 p-5 lg:pl-12 bold-13 sm:!text-sm cursor-pointer h-10 bg-secondary/10 max-md:border-b-4 md:border-r-4 border-secondary"
-                        : "flexStart gap-x-2 lg:pl-12 p-5 bold-13 sm:!text-sm cursor-pointer h-10 rounded-xl"
-                    }
-                  >
-                    {link.iconComponent || (
-                      <img
-                        src={link.icon}
-                        alt={link.label}
-                        className="hidden md:block"
-                        width={18}
-                      />
-                    )}
-                    <div>{link.label}</div>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-          <Link to="/" className="inessa-back-to-store">Xem cửa hàng <ArrowUpRight size={14} aria-hidden="true" /></Link>
-          <div className="hidden md:flex items-center gap-3 md:bg-primary border-t border-slate-900/15 rounded-b-xl p-2 pl-5 lg:pl-10 md:mt-10">
-            <UserButton
-              appearance={{
-                elements: {
-                  userButtonAvatarBox: {
-                    width: "42px",
-                    height: "42px",
-                  },
-                },
-              }}
-            />
-            <div className="text-sm font-semibold text-gray-800 ">
-              {user?.firstName} {user?.lastName}
-            </div>
-          </div>
+  return <div className={`net-admin-layout velours-admin-shell${isWorkspacePage ? " is-workspace" : ""}`}>
+    <div className="mx-auto velours-admin-frame">
+      {menuOpen && <button type="button" className="admin-menu-backdrop" aria-label="Đóng menu quản trị" onClick={closeMenu} />}
+      <aside className={`net-sidebar admin-sidebar${menuOpen ? " is-open" : ""}`} aria-label="Điều hướng quản trị" id="admin-navigation">
+        <div className="admin-brand-row">
+          <Link to="/owner" className="admin-brand" aria-label="Velours — Dashboard" onClick={closeMenu}><img src={assets.logoImg} alt="" /><span>elours</span></Link>
+          <button type="button" className="admin-mobile-close" aria-label="Đóng menu" onClick={closeMenu}><X size={20} /></button>
         </div>
-        <Outlet />
+        <span className="admin-brand-caption">PERFUME MANAGEMENT</span>
+        <nav className="perfume-admin-nav admin-navigation">
+          {navigation.map(group => <div className="admin-nav-group" key={group.label}>
+            <p>{group.label}</p>
+            {group.items.map(({ path, label, icon: Icon, activePaths }) => {
+              const active = (activePaths || [path]).some(pattern => matchPath({ path: pattern, end: true }, pathname));
+              return <Link to={path} key={path} onClick={closeMenu} aria-current={active ? "page" : undefined}><Icon size={18} strokeWidth={1.65} aria-hidden="true" /><span>{label}</span>{active && <ChevronRight size={14} className="admin-nav-arrow" aria-hidden="true" />}</Link>;
+            })}
+          </div>)}
+        </nav>
+        <div className="admin-sidebar-footer">
+          <Link to="/" className="admin-store-link"><ArrowUpRight size={18} />Xem cửa hàng</Link>
+          <button type="button" onClick={() => signOut({ redirectUrl: "/" })}><LogOut size={17} />Đăng xuất</button>
+          <span>VELOURS · KHÔNG GIAN QUẢN TRỊ</span>
+        </div>
+      </aside>
+      <div className="velours-admin-main">
+        <header className="admin-topbar">
+          <div className="admin-breadcrumb"><button type="button" className="admin-menu-toggle" onClick={() => setMenu({ path: pathname, open: !menuOpen })} aria-expanded={menuOpen} aria-controls="admin-navigation" aria-label="Mở menu quản trị"><Menu size={21} /></button><Link to="/owner">Quản trị</Link><ChevronRight size={13} aria-hidden="true" /><span>{activeItem?.label || "Quản lý nước hoa"}</span></div>
+          <div className="admin-topbar-tools">
+            <form className="admin-global-search" role="search" onSubmit={event => { event.preventDefault(); if (search.trim()) navigate(`/owner/list-product?q=${encodeURIComponent(search.trim())}`); }}>
+              <Search size={17} aria-hidden="true" /><input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Tìm sản phẩm, thương hiệu…" aria-label="Tìm nhanh sản phẩm" /><button type="submit" aria-label="Tìm kiếm"><ArrowUpRight size={15} /></button>
+            </form>
+            <Link to="/owner/messages" className="admin-notification" aria-label="Mở tin nhắn hỗ trợ"><Bell size={19} strokeWidth={1.6} /></Link>
+            <div className="admin-account"><UserButton appearance={{ elements: { userButtonAvatarBox: { width: "36px", height: "36px" } } }} /><div><strong>{user?.fullName || user?.firstName || "Quản trị viên"}</strong><span>{user?.primaryEmailAddress?.emailAddress || "Quản trị viên Velours"}</span></div></div>
+          </div>
+        </header>
+        <div className="velours-admin-route"><Outlet /></div>
       </div>
     </div>
-  );
-};
-
-export default Sidebar;
+  </div>;
+}

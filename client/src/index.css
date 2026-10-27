@@ -3,6 +3,7 @@
 @import "./inessa-theme.css";
 @import "./white-surfaces.css";
 @import "./perfume-dashboard.css";
+@import "./admin-dashboard.css";
 
 @theme {
   --color-primary: #ffffff;

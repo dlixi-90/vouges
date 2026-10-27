@@ -3,19 +3,19 @@ import {RefreshCw} from "lucide-react";
 import Pagination from "../Pagination";
 import {useAppContext} from "../../context/AppContext";
 
-export function useCatalog(path){
+export function useCatalog(path,apiRoot="/api/catalog"){
   const {axios,getToken}=useAppContext();const [data,setData]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[attempt,setAttempt]=useState(0);
   const reload=useCallback(()=>setAttempt(value=>value+1),[]);
   useEffect(()=>{
     if(!path)return;const controller=new AbortController();
     const timer=setTimeout(async()=>{
       setLoading(true);setError("");
-      try{const result=await axios.get(`/api/catalog${path}`,{headers:{Authorization:`Bearer ${await getToken()}`},signal:controller.signal});if(!result.data.success)throw new Error(result.data.message);if(!controller.signal.aborted)setData(result.data);}
+      try{const result=await axios.get(`${apiRoot}${path}`,{headers:{Authorization:`Bearer ${await getToken()}`},signal:controller.signal});if(!result.data.success)throw new Error(result.data.message);if(!controller.signal.aborted)setData(result.data);}
       catch(err){if(!controller.signal.aborted)setError(err.response?.data?.message||err.message);}
       finally{if(!controller.signal.aborted)setLoading(false);}
     },150);
     return()=>{clearTimeout(timer);controller.abort();};
-  },[path,attempt,axios,getToken]);
+  },[path,apiRoot,attempt,axios,getToken]);
   return {data,loading,error,reload};
 }
 

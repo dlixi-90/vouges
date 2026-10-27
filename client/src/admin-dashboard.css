@@ -1,0 +1,210 @@
+/* The management workspace shares one monochrome shell across every owner route. */
+.net-theme.net-admin { overflow:clip; }
+html:has(.velours-admin-shell),body:has(.velours-admin-shell) { overflow-x:clip; }
+.net-admin .velours-admin-shell { min-height:100dvh; background:#f6f6f7; color:#202020; font-family:Inter,sans-serif; }
+.net-admin .velours-admin-frame { display:flex; align-items:flex-start; width:100%; max-width:1800px; padding:20px; gap:28px; }
+.net-admin .velours-admin-frame > .admin-sidebar { position:sticky; top:20px; display:flex; flex-direction:column; flex-shrink:0; align-self:flex-start; width:224px; min-width:224px; height:calc(100dvh - 40px); min-height:0; max-height:calc(100dvh - 40px); margin:0; padding:24px 13px 14px; overflow-y:auto; border:1px solid #ebebeb; border-radius:16px; background:#fff; box-shadow:none; }
+.net-admin .admin-sidebar .admin-brand-row { display:flex; align-items:center; justify-content:space-between; flex-shrink:0; gap:10px; padding:0 10px; margin:0; width:auto; }
+.net-admin .admin-sidebar .admin-brand { display:flex; align-items:center; gap:0; min-height:35px; margin:0; padding:0; border:0; border-radius:0; background:transparent; color:#181818; box-shadow:none; }
+.admin-brand img { width:42px; height:31px; object-fit:contain; }
+.admin-brand span { margin-left:-5px; font-family:var(--inessa-serif); font-size:27px; font-weight:600; line-height:1; }
+.admin-brand-caption { display:block; padding:10px 11px 24px; font-size:7px; font-weight:500; letter-spacing:.18em; color:#929292; }
+.net-admin .admin-navigation { display:flex; flex-direction:column; flex:1; gap:22px!important; margin:0!important; }
+.admin-nav-group { display:flex; flex-direction:column; gap:5px; }
+.admin-nav-group > p { margin:0 12px 5px; color:#999; font-size:10px; line-height:1.6; }
+.net-admin .admin-navigation .admin-nav-group > a { display:flex; align-items:center; flex-shrink:0; gap:10px; min-height:39px; height:auto; margin:0; padding:10px 12px; border:1px solid transparent; border-radius:8px; color:#656565; font-size:11px; font-weight:400; line-height:1.4; letter-spacing:0; box-shadow:none; }
+.admin-nav-group > a > svg { flex-shrink:0; }
+.admin-nav-arrow { margin-left:auto; }
+.net-admin .admin-navigation .admin-nav-group > a:hover { background:#f4f4f4; color:#181818; }
+.net-admin .admin-navigation .admin-nav-group > a[aria-current="page"] { background:#1d1d1f; color:#fff; border-color:#1d1d1f; box-shadow:0 3px 8px #0000000a; }
+.net-admin .admin-sidebar .admin-sidebar-footer { display:flex; flex-direction:column; gap:5px; margin:24px 0 0; padding:15px 0 0; border-top:1px solid #ededed; border-radius:0; background:#fff; }
+.admin-sidebar-footer > :is(a,button) { display:flex; align-items:center; gap:10px; padding:10px 12px; font-size:11px; color:#666; text-align:left; cursor:pointer; }
+.admin-sidebar-footer > :is(a,button):hover { color:#161616; background:#f7f7f7; border-radius:8px; }
+.admin-sidebar-footer > span { margin:13px 12px 0; color:#a0a0a0; font-size:6px; letter-spacing:.12em; }
+.velours-admin-main { flex:1; min-width:0; }
+.admin-topbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px; min-height:58px; margin:0 0 22px; padding:4px 0 12px; }
+.admin-breadcrumb { display:flex; align-items:center; gap:9px; min-width:0; color:#8d8d8d; font-size:11px; }
+.admin-breadcrumb > span { color:#454545; }
+.admin-topbar-tools { display:flex; align-items:center; gap:16px; min-width:0; }
+.admin-global-search { display:flex; align-items:center; gap:10px; width:clamp(190px,22vw,320px); min-width:0; padding:9px 12px; border:1px solid #e5e5e5; border-radius:30px; background:#fff; color:#777; }
+.admin-global-search input { width:100%; min-width:0; color:#303030; background:transparent; outline:none; font-size:11px; }
+.admin-global-search input::placeholder { color:#a0a0a0; }
+.admin-global-search > svg { flex-shrink:0; }
+.admin-global-search button { display:flex; flex-shrink:0; cursor:pointer; }
+.admin-notification { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:36px; height:36px; border:1px solid #e5e5e5; border-radius:50%; background:#fff; color:#555; }
+.admin-account { display:flex; align-items:center; gap:10px; min-width:0; padding-left:1px; }
+.admin-account > div:last-child { display:flex; flex-direction:column; gap:4px; min-width:0; max-width:160px; }
+.admin-account strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; font-weight:600; }
+.admin-account span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:9px; color:#858585; }
+.admin-menu-toggle,.admin-mobile-close,.admin-menu-backdrop { display:none; }
+.net-admin .velours-admin-main :is(h1,h2,h3,h4) { font-family:Inter,sans-serif; letter-spacing:-.025em; }
+.net-admin .velours-admin-route > .perfume-workspace { padding:0 0 24px; background:transparent; }
+.net-admin .perfume-page-heading { gap:18px; margin-bottom:24px; padding-bottom:0; border:0; }
+.net-admin .perfume-page-heading h1 { font-size:25px; font-weight:600; letter-spacing:-.04em!important; }
+.net-admin .perfume-eyebrow { margin-bottom:7px; color:#949494; font-size:8px!important; letter-spacing:.16em; }
+.net-admin .perfume-page-description { margin-top:8px; font-size:11px; color:#929292; line-height:1.7; }
+.net-admin .perfume-heading-actions { align-self:center; }
+.net-admin .perfume-button { min-height:36px; border-color:#e2e2e2; border-radius:7px; padding:9px 12px; background:#fff; color:#494949; font-size:10px; }
+.net-admin .perfume-button.primary { border-color:#1b1b1b; background:#1b1b1b; color:#fff; }
+.net-admin .perfume-button:hover:not(:disabled) { border-color:#a7a7a7; }
+.net-admin .perfume-button.primary:hover:not(:disabled) { background:#383838; }
+.net-admin .perfume-panel,.net-admin .perfume-table-panel,.net-admin .perfume-editor-summary { background:#fff; border-color:#e9e9e9; border-radius:12px; }
+.net-admin .perfume-filter-bar { padding:16px; background:#fff; border:1px solid #e9e9e9; border-radius:12px; }
+.net-admin .perfume-table-toolbar { padding:16px 20px; border-color:#eee; }
+.net-admin .velours-admin-main th { background:#fafafa; color:#838383; font-size:10px; font-weight:500; letter-spacing:0; padding-block:14px; }
+.net-admin .velours-admin-main td { border-color:#f0f0f0; padding-block:15px; }
+.net-admin .velours-admin-main tbody tr:hover { background:#fafafa; }
+.net-admin .velours-admin-main table :is(button,select) { border-radius:6px; }
+.net-admin .perfume-badge { border:1px solid #e8e8e8; border-radius:5px; background:#f6f6f6; color:#626262; font-size:9px; }
+.net-admin .perfume-badge.tone-green { background:#ededed; color:#333; border-color:#e1e1e1; }
+.net-admin .perfume-badge.tone-amber { background:#fff; color:#555; border-style:dashed; }
+.net-admin .perfume-section-heading h2 { font-size:15px; font-weight:600; }
+.net-admin .perfume-search { background:#fff; }
+.net-admin .perfume-tabs { margin-bottom:24px; padding:0 4px; }
+.net-admin .perfume-tabs button.active { font-weight:600; }
+.net-admin .velours-admin-route > main { width:100%; height:auto; min-width:0; margin:0; padding:24px; border:1px solid #e8e8e8; border-radius:12px; background:#fff; box-shadow:none; overflow:visible; }
+.net-admin .velours-admin-route > main > div { max-width:none; }
+.net-admin .velours-admin-route > main h1 { font-size:25px; font-weight:600; }
+.net-admin .velours-admin-route > main h2 { font-size:17px; font-weight:600; }
+.net-admin .velours-admin-main [class*="text-[#263b4a]"] { color:#292929; }
+.net-admin .velours-admin-main [class*="text-[#6f9a79]"] { color:#8c8c8c; }
+.net-admin .velours-admin-main [class*="text-[#557b5e]"],.net-admin .velours-admin-main [class*="text-[#334957]"] { color:#555; }
+.net-admin .velours-admin-main [class*="text-[#839099]"],.net-admin .velours-admin-main [class*="text-[#71808a]"] { color:#858585; }
+.net-admin .velours-admin-main [class*="bg-[#edf6ee]"] { background:#f5f5f5; border-color:#e4e4e4; }
+.net-admin .velours-admin-route .net-order-card :is(.net-order-number,.net-order-heading,.net-order-total) { color:#292929; }
+.net-admin .velours-admin-route .net-order-card :is(.net-order-label,.net-order-meta,.net-order-customer dt,.net-order-customer dd) { color:#777; }
+.net-admin .velours-admin-route .net-order-card :is(.net-order-variant,.net-order-variant b,.net-order-status,.net-order-payment) { color:#555; border-color:#e4e4e4; }
+.net-admin .inessa-dashboard-metric strong { font-family:Inter,sans-serif; font-size:30px; font-weight:600; }
+.net-admin .is-workspace { height:100dvh; min-height:0; overflow:hidden; }
+.net-admin .is-workspace .velours-admin-frame { height:100%; min-height:0; }
+.net-admin .is-workspace .velours-admin-main { display:flex; flex-direction:column; height:100%; min-height:0; }
+.net-admin .is-workspace .admin-topbar { flex-shrink:0; }
+.net-admin .is-workspace .velours-admin-route { display:flex; flex:1; min-height:0; overflow:hidden; padding-bottom:0; }
+.net-admin .is-workspace .velours-admin-route > main { flex:1; min-height:0; overflow-y:auto; }
+.net-admin .is-workspace .velours-admin-route > .net-admin-messages { padding:0; overflow:hidden; }
+.net-admin .net-admin-messages > header { padding:20px 24px; }
+.net-admin .net-admin-messages > header h1 { font-size:20px; }
+
+/* Overview: four metrics, two analytical panels, then operational lists. */
+.admin-metric-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:18px; margin-bottom:24px; }
+.admin-metric-card { display:flex; flex-direction:column; min-width:0; gap:17px; padding:20px 18px 18px; border:1px solid #eaeaea; border-radius:13px; background:#fff; color:#232323; transition:box-shadow .15s,border-color .15s; }
+.admin-metric-card:hover { border-color:#c8c8c8; box-shadow:0 5px 18px #00000004; }
+.admin-metric-top { display:flex; align-items:center; gap:9px; font-size:11px; }
+.admin-metric-icon { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:32px; height:32px; border-radius:50%; background:#f2f2f2; color:#464646; }
+.admin-metric-arrow { box-sizing:content-box; margin-left:auto; padding:4px; border-radius:50%; background:#f6f6f6; color:#888; flex-shrink:0; }
+.admin-metric-card > strong { font-size:clamp(23px,2.1vw,32px); line-height:1.15; font-weight:600; letter-spacing:-.045em; font-variant-numeric:tabular-nums; }
+.net-admin .admin-metric-card > p { margin-top:-8px; color:#949494; font-size:9px; line-height:1.6; }
+.admin-metric-card.is-primary { background:#1b1b1d; color:#fff; border-color:#1b1b1d; }
+.admin-metric-card.is-primary .admin-metric-icon { background:#fff; color:#1b1b1d; }
+.admin-metric-card.is-primary .admin-metric-arrow { background:#ffffff17; color:#fff; }
+.net-admin .admin-metric-card.is-primary > p { color:#b8b8b8; }
+.admin-overview-grid { display:grid; grid-template-columns:minmax(0,1.8fr) minmax(280px,1fr); gap:22px; align-items:stretch; }
+.admin-dashboard-panel { min-width:0; padding:22px 20px 18px; border:1px solid #eaeaea; border-radius:12px; background:#fff; }
+.admin-panel-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:20px; }
+.net-admin .admin-panel-heading h2 { font-size:15px; font-weight:600; line-height:1.4; letter-spacing:-.03em; }
+.net-admin .admin-panel-heading p { margin-top:6px; color:#979797; font-size:9px; line-height:1.5; }
+.admin-panel-arrow { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:27px; height:27px; border:1px solid #eee; border-radius:7px; color:#777; }
+.admin-period-control { display:flex; align-items:center; gap:6px; padding:7px 8px; border:1px solid #e5e5e5; border-radius:6px; color:#777; }
+.net-admin .admin-period-control select { width:auto; padding:0; border:0; border-radius:0; background:transparent; font-size:10px; outline:none; cursor:pointer; }
+.admin-revenue-chart { position:relative; height:280px; min-width:0; }
+.admin-chart-empty { position:absolute; inset:20% 12% 26%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px; padding:12px; border-radius:10px; background:#fffffff2; color:#999; text-align:center; }
+.admin-chart-empty strong { font-size:12px; font-weight:500; color:#757575; }
+.admin-chart-empty span { font-size:10px; line-height:1.6; }
+.net-admin .recharts-legend-wrapper { font-size:10px; }
+.admin-distribution { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.admin-donut { position:relative; width:180px; height:180px; }
+.admin-donut svg { width:100%; height:100%; }
+.admin-donut > div { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; }
+.admin-donut strong { font-size:28px; line-height:1; font-weight:600; letter-spacing:-.06em; }
+.admin-donut span { color:#a0a0a0; font-size:10px; }
+.admin-distribution ul { display:flex; flex-direction:column; gap:12px; width:100%; padding:0 6px; }
+.admin-distribution li { display:flex; align-items:center; justify-content:space-between; font-size:10px; }
+.admin-distribution li > span { display:flex; align-items:center; gap:8px; color:#858585; }
+.admin-distribution li i { width:7px; height:7px; border-radius:50%; }
+.admin-distribution li strong { color:#444; font-size:11px; font-weight:500; }
+.admin-view-all { display:inline-flex; align-items:center; flex-shrink:0; gap:2px; padding-top:3px; color:#676767; font-size:9px; }
+.admin-view-all:hover { color:#111; text-decoration:underline; text-underline-offset:3px; }
+.admin-products-panel { padding-inline:0; }
+.admin-products-panel > .admin-panel-heading { padding-inline:20px; }
+.admin-overview-table { width:100%; min-width:510px; text-align:left; }
+.net-admin .admin-overview-table th { padding:12px 18px; white-space:nowrap; }
+.net-admin .admin-overview-table td { padding:14px 18px; color:#777; font-size:10px; border-bottom:1px solid #f0f0f0; white-space:nowrap; }
+.net-admin .admin-overview-table tbody tr:last-child td { border:0; }
+.admin-table-product { display:flex; align-items:center; gap:10px; max-width:260px; }
+.admin-product-image { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:38px; height:43px; border:1px solid #eee; border-radius:6px; background:#fafafa; color:#999; }
+.admin-product-image img { width:100%; height:100%; padding:3px; object-fit:contain; }
+.admin-table-product > span:last-child { min-width:0; }
+.admin-table-product strong { display:block; max-width:180px; overflow:hidden; text-overflow:ellipsis; color:#414141; font-size:10px; line-height:1.5; font-weight:500; }
+.admin-table-product small { display:block; margin-top:4px; color:#a2a2a2; font-size:9px; }
+.net-admin .admin-overview-table .admin-price-cell { color:#505050; font-weight:500; }
+.admin-attention-list { display:flex; flex-direction:column; gap:2px; }
+.admin-attention-list > a { display:flex; align-items:center; gap:11px; padding:13px 0; border-bottom:1px solid #f0f0f0; }
+.admin-attention-list > a:last-child { border:0; }
+.admin-attention-list > a > span:nth-child(2) { min-width:0; flex:1; }
+.admin-attention-list strong { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:10px; font-weight:500; color:#505050; }
+.admin-attention-list small { display:block; margin-top:5px; color:#a0a0a0; font-size:9px; }
+.admin-attention-footer { display:flex; align-items:center; gap:7px; margin-top:14px; padding-top:15px; border-top:1px solid #ededed; color:#858585; font-size:9px; }
+.admin-attention-footer svg:last-child { margin-left:auto; }
+.admin-inline-message { margin:0 20px 15px; }
+.admin-catalog-footer { display:grid; grid-template-columns:minmax(0,1.8fr) minmax(280px,1fr); gap:22px; margin-top:22px; }
+.admin-library-links,.admin-source-summary { border:1px solid #eaeaea; border-radius:12px; background:#fff; padding:20px; }
+.admin-footer-title { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+.admin-footer-title strong { font-size:12px; font-weight:500; }
+.admin-library-links > div:last-child { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+.admin-library-links > div:last-child > a { position:relative; display:flex; flex-direction:column; gap:10px; padding:0 12px; border-left:1px solid #eee; }
+.admin-library-links > div:last-child > a:first-child { padding-left:0; border:0; }
+.admin-library-links a span { color:#969696; font-size:9px; }
+.admin-library-links a strong { font-size:22px; font-weight:500; letter-spacing:-.04em; }
+.admin-library-links a svg { position:absolute; right:2px; bottom:3px; color:#a0a0a0; }
+.admin-source-summary { display:flex; align-items:center; gap:14px; }
+.admin-source-summary > div { flex:1; }
+.net-admin .admin-source-summary .perfume-source-count { font-size:28px!important; line-height:1.2!important; font-weight:500; }
+.admin-source-summary > div > span { display:block; margin-top:7px; color:#999; font-size:9px; }
+.admin-source-summary > svg { color:#999; }
+.velours-admin-shell :is(a,button,input,select,textarea):focus-visible { outline:2px solid #555; outline-offset:3px; }
+
+@media(min-width:1600px) { .net-admin .velours-admin-frame { gap:32px; padding:24px 28px; }.net-admin .velours-admin-frame > .admin-sidebar { width:240px; min-width:240px; top:24px; height:calc(100dvh - 48px); max-height:calc(100dvh - 48px); }.admin-metric-card { padding:23px; } }
+@media(max-width:1200px) { .net-admin .velours-admin-frame { gap:20px; padding:16px; }.net-admin .velours-admin-frame > .admin-sidebar { width:202px; min-width:202px; top:16px; height:calc(100dvh - 32px); max-height:calc(100dvh - 32px); padding-inline:9px; }.admin-topbar-tools { gap:10px; }.admin-account > div:last-child { display:none; }.admin-metric-grid { gap:12px; }.admin-metric-card { padding:16px 13px; }.admin-metric-top { gap:7px; font-size:10px; }.admin-metric-icon { width:27px; height:27px; }.admin-overview-grid,.admin-catalog-footer { grid-template-columns:minmax(0,1.55fr) minmax(245px,1fr); gap:16px; }.admin-dashboard-panel { padding:18px 15px; }.admin-products-panel { padding-inline:0; }.admin-panel-heading { gap:8px; }.net-admin .admin-panel-heading h2 { font-size:13px; }.admin-metric-arrow { display:none; } }
+@media(max-width:1023px) { .admin-metric-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.admin-metric-card > strong { font-size:28px; }.admin-overview-grid,.admin-catalog-footer { grid-template-columns:minmax(0,1fr); }.admin-distribution { flex-direction:row; justify-content:center; gap:35px; }.admin-distribution ul { max-width:280px; }.admin-donut { width:160px; height:160px; flex-shrink:0; }.admin-table-product { max-width:none; }.admin-table-product strong { max-width:220px; }.admin-account { display:none; } }
+@media(max-width:767px) {
+  .net-admin .velours-admin-frame { padding:14px; gap:0; }
+  .net-admin .velours-admin-frame > .admin-sidebar { position:fixed; inset:12px auto 12px 12px; z-index:91; width:248px; min-width:248px; height:calc(100dvh - 24px); max-height:calc(100dvh - 24px); padding:22px 12px 14px; visibility:hidden; transform:translateX(calc(-100% - 18px)); transition:transform .2s,visibility .2s; }
+  .net-admin .velours-admin-frame > .admin-sidebar.is-open { visibility:visible; transform:translateX(0); }
+  .admin-menu-backdrop { display:block; position:fixed; inset:0; z-index:90; border:0; background:#0006; }
+  .admin-menu-toggle,.admin-mobile-close { display:flex; align-items:center; justify-content:center; border:0; padding:4px; color:#444; cursor:pointer; }
+  .admin-topbar { gap:16px; margin-bottom:21px; padding:0 0 12px; }
+  .admin-breadcrumb { font-size:10px; gap:7px; }
+  .admin-topbar-tools { width:100%; gap:10px; }
+  .admin-global-search { flex:1; width:auto; padding:10px 13px; }
+  .admin-account { display:flex; }
+  .admin-notification { width:33px; height:33px; }
+  .net-admin .perfume-page-heading { gap:14px; margin-bottom:20px; }
+  .net-admin .perfume-page-heading h1,.net-admin .velours-admin-route > main h1 { font-size:22px; }
+  .net-admin .perfume-heading-actions { align-self:flex-start; }
+  .net-admin .perfume-page-description { font-size:10px; }
+  .admin-metric-grid { gap:10px; margin-bottom:16px; }
+  .admin-metric-card { gap:16px; padding:16px 12px; }
+  .admin-metric-top { gap:7px; font-size:9px; }
+  .admin-metric-card > strong { font-size:25px; }
+  .net-admin .admin-metric-card > p { font-size:8px; }
+  .admin-overview-grid,.admin-catalog-footer { gap:16px; }
+  .admin-dashboard-panel { padding:18px 14px; }
+  .admin-products-panel { padding-inline:0; }
+  .admin-products-panel > .admin-panel-heading { padding-inline:14px; }
+  .admin-distribution { gap:18px; }
+  .admin-donut { width:136px; height:136px; }
+  .admin-donut strong { font-size:23px; }
+  .admin-distribution li { font-size:9px; }
+  .admin-distribution li strong { font-size:10px; }
+  .admin-distribution ul { padding:0; gap:14px; }
+  .admin-library-links,.admin-source-summary { padding:17px; }
+  .admin-library-links > div:last-child { grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 10px; }
+  .admin-library-links > div:last-child > a:nth-child(odd) { border:0; padding-left:0; }
+  .admin-library-links > div:last-child > a { padding-left:18px; }
+  .net-admin .velours-admin-route > main { padding:20px 14px; }
+  .net-admin .is-workspace .velours-admin-route > .net-admin-messages { padding:0; }
+  .net-admin .net-admin-messages > header { padding:18px 14px; }
+  .net-admin .net-admin-messages > header h1 { font-size:18px; }
+}
+@media(max-width:374px) { .admin-account { display:none; }.admin-metric-card > strong { font-size:22px; }.admin-metric-icon { width:24px; height:24px; }.admin-metric-top { gap:5px; }.admin-distribution { gap:10px; }.admin-donut { width:115px; height:115px; }.admin-distribution li { font-size:8px; }.admin-chart-empty { inset:15% 7% 26%; } }
+@media(prefers-reduced-motion:reduce) { .net-admin .velours-admin-frame > .admin-sidebar,.admin-metric-card { transition:none; } }

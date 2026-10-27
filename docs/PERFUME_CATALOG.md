@@ -34,6 +34,8 @@ Catalog Apaniche đã được nhập làm dữ liệu vận hành của databas
 
 Danh mục, voucher và hộp thư CSKH tiếp tục dùng quy trình hiện có. API `/api/catalog/*` yêu cầu tài khoản chủ cửa hàng. Sửa sản phẩm kiểm tra `updatedAt` để tránh ghi đè thay đổi đồng thời. Không được bỏ dung tích hoặc đổi chế độ kho khi còn đơn QR giữ phân loại đó.
 
+Dashboard dùng chung khung quản trị đen trắng: menu chia nhóm, tìm nhanh sản phẩm/thương hiệu, tài khoản và lối vào hộp thư. Trang tổng quan có bốn chỉ số thực tế, biểu đồ giá trị đơn/đã thanh toán theo 3 hoặc 6 tháng và phân bổ trạng thái catalog. Khi chưa có doanh số, bảng sản phẩm hiển thị hồ sơ mới cập nhật; khi có doanh số sẽ chuyển sang xếp hạng bán chạy. Khối cần chú ý lấy hồ sơ thiếu dữ liệu, không suy diễn số lượng tồn kho từ trạng thái còn/hết hàng. Menu trên điện thoại có lớp phủ, phím Escape và giữ thao tác bàn phím trong menu đang mở.
+
 Thanh phân trang dùng chung hiển thị tối đa bảy vị trí số/dấu ba chấm, giữ trang đầu/cuối và các trang quanh trang hiện tại. Khi đổi trang, danh sách cuộn về hàng đầu sau khi dữ liệu mới tải xong; hộp thư cuộn trong vùng hội thoại riêng. Bộ sưu tập, dashboard, thư viện, đánh giá và hộp thư đều dùng cách này.
 
 ## Quy ước tiền và tồn kho
