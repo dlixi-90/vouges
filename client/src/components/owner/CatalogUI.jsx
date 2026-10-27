@@ -1,5 +1,6 @@
 import {useCallback,useEffect,useState} from "react";
-import {ChevronLeft,ChevronRight,RefreshCw} from "lucide-react";
+import {RefreshCw} from "lucide-react";
+import Pagination from "../Pagination";
 import {useAppContext} from "../../context/AppContext";
 
 export function useCatalog(path){
@@ -26,5 +27,7 @@ export function CatalogState({loading,error,reload}){
 }
 export function RefreshButton({onClick,disabled}){return <button type="button" className="perfume-button" disabled={disabled} onClick={onClick}><RefreshCw size={15}/>Làm mới</button>;}
 export function Badge({children,tone="neutral"}){return <span className={`perfume-badge tone-${tone}`}>{children}</span>;}
-export function Pager({page,totalPages,total,onPage,disabled=false}){return <div className="perfume-pagination"><span>{Number(total||0).toLocaleString("vi-VN")} bản ghi · Trang {page}/{totalPages||1}</span><div><button type="button" aria-label="Trang trước" className="perfume-icon-button" disabled={disabled||page<=1} onClick={()=>onPage(page-1)}><ChevronLeft size={18}/></button><button type="button" aria-label="Trang sau" className="perfume-icon-button" disabled={disabled||page>=(totalPages||1)} onClick={()=>onPage(page+1)}><ChevronRight size={18}/></button></div></div>;}
+export function Pager({page,totalPages,total,onPage,disabled=false}){
+  return <div className="perfume-pagination"><span>{Number(total||0).toLocaleString("vi-VN")} bản ghi · Trang {page}/{totalPages||1}</span><Pagination label="Phân trang dữ liệu" page={page} totalPages={totalPages} onPageChange={onPage} disabled={disabled}/></div>;
+}
 export const issueLabels={missing_brand:"Thiếu thương hiệu",missing_concentration:"Thiếu nồng độ",missing_scent_group:"Thiếu nhóm hương",missing_images:"Thiếu ảnh",missing_scent_notes:"Thiếu tầng hương",zero_source_price:"Có dung tích giá 0",source_assessment_anomaly:"Chỉ số nguồn bất thường"};

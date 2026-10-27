@@ -8,8 +8,11 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const countryDisplayNames = new Intl.DisplayNames(["vi"], { type: "region" });
 const getEmailError = (value) => {
   if (!value.trim()) return "Vui lòng nhập địa chỉ thư điện tử.";
-  if (!value.includes("@")) return "Địa chỉ thư điện tử phải có dấu @, ví dụ: ten@gmail.com.";
-  return emailPattern.test(value.trim()) ? "" : "Địa chỉ thư điện tử không đúng định dạng. Ví dụ: ten@gmail.com.";
+  if (!value.includes("@"))
+    return "Địa chỉ email phải có dấu @, ví dụ: ten@gmail.com.";
+  return emailPattern.test(value.trim())
+    ? ""
+    : "Địa chỉ email không đúng định dạng. Ví dụ: ten@gmail.com.";
 };
 
 const contactFields = [
@@ -99,7 +102,11 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
           : [];
 
         if (Array.isArray(data?.data)) {
-          setCountryCodes(Object.fromEntries(data.data.map((country) => [country.name, country.Iso2])));
+          setCountryCodes(
+            Object.fromEntries(
+              data.data.map((country) => [country.name, country.Iso2]),
+            ),
+          );
         }
         setCountries(countryNames);
         setCountriesApiFailed(countryNames.length === 0);
@@ -189,7 +196,8 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
 
     if (name === "phone") {
       if (!/^[\d\s()+]*$/.test(value)) {
-        const message = "Chỉ chấp nhận chữ số, khoảng trắng và tiền tố +84 hoặc (+84).";
+        const message =
+          "Chỉ chấp nhận chữ số, khoảng trắng và tiền tố +84 hoặc (+84).";
         setPhoneError(message);
         event.target.setCustomValidity(message);
         return;
@@ -214,7 +222,8 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
       const result = validateDeliveryPhone(event.target.value);
       setPhoneError(result.error);
       event.target.setCustomValidity(result.error);
-      if (result.valid) setAddress((current) => ({ ...current, phone: result.normalized }));
+      if (result.valid)
+        setAddress((current) => ({ ...current, phone: result.normalized }));
     }
     if (event.target.name === "email") {
       const value = event.target.value.trim();
@@ -258,7 +267,10 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
             className={field.fullWidth ? "sm:col-span-2" : ""}
           >
             <span className="mb-2 block text-sm font-medium">
-              {field.label} <span className="text-red-500" aria-hidden="true">*</span>
+              {field.label}{" "}
+              <span className="text-red-500" aria-hidden="true">
+                *
+              </span>
             </span>
 
             <input
@@ -267,28 +279,59 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
               name={field.name}
               value={address[field.name]}
               onChange={handleChange}
-              inputMode={field.name === "phone" ? "tel" : field.name === "email" ? "email" : undefined}
+              inputMode={
+                field.name === "phone"
+                  ? "tel"
+                  : field.name === "email"
+                    ? "email"
+                    : undefined
+              }
               pattern={field.name === "email" ? emailPattern.source : undefined}
               maxLength={field.name === "email" ? 254 : undefined}
               placeholder={field.name === "email" ? "ten@gmail.com" : undefined}
               onBlur={handleContactBlur}
-              onInvalid={field.name === "email" ? (event) => {
-                const message = getEmailError(event.target.value);
-                setEmailError(message);
-                event.target.setCustomValidity(message);
-              } : undefined}
-              aria-invalid={field.name === "phone" ? Boolean(phoneError) : field.name === "email" ? Boolean(emailError) : undefined}
-              aria-describedby={field.name === "phone" ? phoneHelpId : field.name === "email" ? emailHelpId : undefined}
+              onInvalid={
+                field.name === "email"
+                  ? (event) => {
+                      const message = getEmailError(event.target.value);
+                      setEmailError(message);
+                      event.target.setCustomValidity(message);
+                    }
+                  : undefined
+              }
+              aria-invalid={
+                field.name === "phone"
+                  ? Boolean(phoneError)
+                  : field.name === "email"
+                    ? Boolean(emailError)
+                    : undefined
+              }
+              aria-describedby={
+                field.name === "phone"
+                  ? phoneHelpId
+                  : field.name === "email"
+                    ? emailHelpId
+                    : undefined
+              }
               autoComplete={field.name}
               className={`${inputClass} ${field.name === "email" && emailError ? "border-red-500" : ""}`}
             />
             {field.name === "email" && (
-              <span id={emailHelpId} className={`mt-2 block text-xs ${emailError ? "text-red-600" : "text-gray-500"}`} aria-live="polite">
-                {emailError || "Địa chỉ thư điện tử phải có dấu @, ví dụ: ten@gmail.com."}
+              <span
+                id={emailHelpId}
+                className={`mt-2 block text-xs ${emailError ? "text-red-600" : "text-gray-500"}`}
+                aria-live="polite"
+              >
+                {emailError ||
+                  "Địa chỉ email phải có dấu @, ví dụ: ten@gmail.com."}
               </span>
             )}
             {field.name === "phone" && (
-              <span id={phoneHelpId} className={`mt-2 block text-xs ${phoneError ? "text-red-600" : "text-gray-500"}`} aria-live="polite">
+              <span
+                id={phoneHelpId}
+                className={`mt-2 block text-xs ${phoneError ? "text-red-600" : "text-gray-500"}`}
+                aria-live="polite"
+              >
                 {phoneError}
               </span>
             )}
@@ -297,7 +340,10 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
 
         <label>
           <span className="mb-2 block text-sm font-medium">
-            Quốc gia <span className="text-red-500" aria-hidden="true">*</span>
+            Quốc gia{" "}
+            <span className="text-red-500" aria-hidden="true">
+              *
+            </span>
           </span>
 
           {countriesApiFailed ? (
@@ -321,14 +367,22 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
               className={`${inputClass} disabled:cursor-wait`}
             >
               <option value="">
-                {isLoadingCountries ? "Đang tải danh sách quốc gia…" : "Chọn quốc gia"}
+                {isLoadingCountries
+                  ? "Đang tải danh sách quốc gia…"
+                  : "Chọn quốc gia"}
               </option>
               {address.country && !countries.includes(address.country) && (
-                <option value={address.country}>{countryCodes[address.country] ? countryDisplayNames.of(countryCodes[address.country]) : address.country}</option>
+                <option value={address.country}>
+                  {countryCodes[address.country]
+                    ? countryDisplayNames.of(countryCodes[address.country])
+                    : address.country}
+                </option>
               )}
               {countries.map((country) => (
                 <option key={country} value={country}>
-                  {countryCodes[country] ? countryDisplayNames.of(countryCodes[country]) : country}
+                  {countryCodes[country]
+                    ? countryDisplayNames.of(countryCodes[country])
+                    : country}
                 </option>
               ))}
             </select>
@@ -337,7 +391,10 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
 
         <label>
           <span className="mb-2 block text-sm font-medium">
-            Tỉnh/Thành phố <span className="text-red-500" aria-hidden="true">*</span>
+            Tỉnh/Thành phố{" "}
+            <span className="text-red-500" aria-hidden="true">
+              *
+            </span>
           </span>
 
           {citiesApiFailed ? (
@@ -356,9 +413,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
               name="city"
               value={address.city}
               onChange={handleCityChange}
-              disabled={
-                !address.country || isLoadingCities
-              }
+              disabled={!address.country || isLoadingCities}
               autoComplete="address-level1"
               className={`${inputClass} disabled:cursor-not-allowed`}
             >
@@ -369,7 +424,9 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
                     ? "Chọn tỉnh/thành phố"
                     : "Chọn tỉnh/thành phố"}
               </option>
-              {address.city && !cities.includes(address.city) && <option value={address.city}>{address.city}</option>}
+              {address.city && !cities.includes(address.city) && (
+                <option value={address.city}>{address.city}</option>
+              )}
               {cities.map((city) => (
                 <option key={city} value={city}>
                   {city}
@@ -381,13 +438,15 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
 
         <label>
           <span className="mb-2 block text-sm font-medium">
-            {address.country === "Vietnam"
-              ? "Phường/Xã"
-              : "Bang/Tỉnh"}{" "}
-            <span className="text-red-500" aria-hidden="true">*</span>
+            {address.country === "Vietnam" ? "Phường/Xã" : "Bang/Tỉnh"}{" "}
+            <span className="text-red-500" aria-hidden="true">
+              *
+            </span>
           </span>
 
-          {address.country === "Vietnam" && !citiesApiFailed && (isLoadingCities || wards.length > 0) ? (
+          {address.country === "Vietnam" &&
+          !citiesApiFailed &&
+          (isLoadingCities || wards.length > 0) ? (
             <select
               required
               name="state"
@@ -398,7 +457,9 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
               className={`${inputClass} disabled:cursor-not-allowed`}
             >
               <option value="">Chọn phường/xã</option>
-              {address.state && !wards.includes(address.state) && <option value={address.state}>{address.state}</option>}
+              {address.state && !wards.includes(address.state) && (
+                <option value={address.state}>{address.state}</option>
+              )}
               {wards.map((ward) => (
                 <option key={ward} value={ward}>
                   {ward}

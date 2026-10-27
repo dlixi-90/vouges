@@ -39,7 +39,7 @@ export default function Contact() {
             <input
               type="email"
               className="h-full px-2 w-full outline-none"
-              placeholder="Nhập địa chỉ thư điện tử của bạn"
+              placeholder="Nhập địa chỉ email của bạn"
               required
             />
           </div>

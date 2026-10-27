@@ -7,6 +7,8 @@ import { useAppContext } from "../../context/AppContext";
 import { formatVnd } from "../../utils/money";
 import { usePopularProducts } from "../../hooks/usePopularProducts";
 import ProductImage from "../../components/ProductImage";
+import Pagination from "../../components/Pagination";
+import usePaginationScroll from "../../hooks/usePaginationScroll";
 
 const RevenueChart = lazy(() => import("../../components/owner/RevenueChart"));
 const DASHBOARD_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -34,6 +36,7 @@ const Dashboard = () => {
   const [loadError, setLoadError] = useState("");
   const requestIdRef = useRef(0);
   const [updatingOrderIds, setUpdatingOrderIds] = useState([]);
+  const { listRef, changePage } = usePaginationScroll({ page, onPageChange: setPage, ready: !isLoading && dashboardData.page === page });
 
   const requestDashboardData = useCallback(async (signal) => {
     const token = await getToken();
@@ -223,7 +226,7 @@ const Dashboard = () => {
           </DashboardCard>
         </div>
 
-        <section className="mt-4 rounded-xl border border-[#e2e7eb] bg-white p-4 shadow-sm sm:p-6">
+        <section ref={listRef} tabIndex={-1} className="pagination-list-start mt-4 rounded-xl border border-[#e2e7eb] bg-white p-4 shadow-sm sm:p-6">
           <div className="mb-5 flex items-center justify-between border-b border-[#edf0f2] pb-4">
             <div>
               <h2 className="text-lg font-medium text-[#263b4a]">
@@ -253,13 +256,7 @@ const Dashboard = () => {
             ))}
             {!isLoading && !loadError && !orders.length && <EmptyState text="Chưa có đơn hàng nào" />}
           </div>
-          {dashboardData.totalPages > 1 && (
-            <div className="mt-5 flex items-center justify-center gap-4 text-sm">
-              <button type="button" disabled={isLoading || updatingOrderIds.length > 0 || page <= 1} onClick={() => setPage((current) => current - 1)} className="btn-light !px-4 !py-2 disabled:opacity-40">Trước</button>
-              <span>Trang {page} / {dashboardData.totalPages}</span>
-              <button type="button" disabled={isLoading || updatingOrderIds.length > 0 || page >= dashboardData.totalPages} onClick={() => setPage((current) => current + 1)} className="btn-secondary !px-4 !py-2 disabled:opacity-40">Tiếp</button>
-            </div>
-          )}
+          <Pagination className="mt-5" label="Phân trang đơn hàng" page={page} totalPages={dashboardData.totalPages} onPageChange={changePage} disabled={isLoading || updatingOrderIds.length > 0} />
         </section>
       </div>
     </main>

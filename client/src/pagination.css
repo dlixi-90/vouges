@@ -1,0 +1,20 @@
+.velours-pagination { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:4px; max-width:100%; }
+.velours-pagination button { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; min-width:32px; height:36px; padding:0 7px; border:1px solid #dedede; border-radius:6px; background:#fff; color:#444; font:500 12px/1 Inter,sans-serif; font-variant-numeric:tabular-nums; cursor:pointer; transition:background-color .15s,border-color .15s; }
+.velours-pagination button[aria-current="page"] { border-color:#171717; background:#171717; color:#fff; }
+.velours-pagination button:hover:not(:disabled):not([aria-current="page"]) { border-color:#999; background:#f7f7f7; }
+.velours-pagination button:focus-visible { outline:2px solid #171717; outline-offset:3px; }
+.velours-pagination button:disabled { opacity:.35; cursor:not-allowed; }
+.velours-pagination-gap { display:inline-flex; align-items:center; justify-content:center; width:16px; color:#888; font-size:12px; }
+.velours-pagination.is-compact { gap:2px; }
+.velours-pagination.is-compact button { min-width:26px; height:32px; padding-inline:4px; font-size:11px; }
+.velours-pagination.is-compact .velours-pagination-gap { width:13px; }
+.pagination-list-start { scroll-margin-top:24px; outline:none; }
+@media(max-width:480px) {
+  .velours-pagination { gap:2px; }
+  .velours-pagination button { min-width:28px; height:34px; padding-inline:4px; font-size:11px; }
+  .velours-pagination-gap { width:14px; }
+}
+@media(max-width:360px) {
+  .velours-pagination button { min-width:26px; padding-inline:3px; }
+  .velours-pagination-gap { width:13px; }
+}

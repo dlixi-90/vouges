@@ -5,10 +5,6 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
   Package,
   Pencil,
   Plus,
@@ -17,6 +13,8 @@ import {
 } from "lucide-react";
 import { getSizeQuantity, hasAnyEnabledSize } from "../../utils/productStock";
 import { formatVnd } from "../../utils/money";
+import Pagination from "../../components/Pagination";
+import usePaginationScroll from "../../hooks/usePaginationScroll";
 
 const PAGE_SIZE = 10;
 
@@ -85,6 +83,7 @@ const ListProduct = () => {
 
   const pageCount = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
   const activePage = Math.min(page, pageCount - 1);
+  const { listRef, changePage } = usePaginationScroll({ page: activePage + 1, onPageChange: (value) => setPage(value - 1) });
   const visibleProducts = filteredProducts.slice(
     activePage * PAGE_SIZE,
     (activePage + 1) * PAGE_SIZE,
@@ -267,7 +266,7 @@ const ListProduct = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] caption-bottom text-sm">
+            <table ref={listRef} tabIndex={-1} className="pagination-list-start w-full min-w-[760px] caption-bottom text-sm">
               <thead>
                 <tr className="border-b border-[#edf0f2] text-left text-[#69747e]">
                   <th className="px-4 py-3 font-medium">Hình ảnh</th>
@@ -639,39 +638,7 @@ const ListProduct = () => {
 
           <div className="flex flex-col items-center justify-between gap-4 px-4 py-4 text-sm text-[#69747e] sm:flex-row">
             <span>Số dòng mỗi trang {PAGE_SIZE}</span>
-            <div className="flex items-center gap-2">
-              <span>
-                Trang {activePage + 1} / {pageCount}
-              </span>
-              <PaginationButton
-                label="Đến trang đầu"
-                disabled={activePage === 0}
-                onClick={() => setPage(0)}
-              >
-                <ChevronsLeft size={16} />
-              </PaginationButton>
-              <PaginationButton
-                label="Đến trang trước"
-                disabled={activePage === 0}
-                onClick={() => setPage(activePage - 1)}
-              >
-                <ChevronLeft size={16} />
-              </PaginationButton>
-              <PaginationButton
-                label="Đến trang tiếp"
-                disabled={activePage >= pageCount - 1}
-                onClick={() => setPage(activePage + 1)}
-              >
-                <ChevronRight size={16} />
-              </PaginationButton>
-              <PaginationButton
-                label="Đến trang cuối"
-                disabled={activePage >= pageCount - 1}
-                onClick={() => setPage(pageCount - 1)}
-              >
-                <ChevronsRight size={16} />
-              </PaginationButton>
-            </div>
+            <Pagination label="Phân trang sản phẩm quản trị" page={activePage + 1} totalPages={pageCount} onPageChange={changePage} />
           </div>
         </section>
       </div>
@@ -698,18 +665,6 @@ const SortableHeader = ({ label, active, direction, onClick }) => (
       )}
     </button>
   </th>
-);
-
-const PaginationButton = ({ label, disabled, onClick, children }) => (
-  <button
-    type="button"
-    aria-label={label}
-    disabled={disabled}
-    onClick={onClick}
-    className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#dfe5e8] bg-white text-[#69747e] transition hover:bg-[#f2f7f3] disabled:cursor-not-allowed disabled:opacity-40"
-  >
-    {children}
-  </button>
 );
 
 export default ListProduct;

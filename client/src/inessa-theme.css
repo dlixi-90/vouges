@@ -1,7 +1,8 @@
 /* Inessa presentation layer with white surfaces.
    Product colours remain owned by Item.jsx. */
 :root {
-  --inessa-serif: "Cormorant Garamond", "Times New Roman", serif;
+  --inessa-serif: "Lora", serif;
+  --inessa-serif-weight: 500;
   --inessa-ink: #161616;
   --inessa-muted: #686868;
   --inessa-line: #e6e3df;
@@ -13,8 +14,8 @@
 }
 .net-theme { --color-primary: #fff; --color-primary-dark: #fff; --net-space: clamp(64px, 7vw, 110px); }
 .net-theme .max-padd-container { max-width: 1500px; padding-inline: clamp(22px, 5.5vw, 80px); }
-.net-theme :is(h1,h2,h3,h4,h5,h6) { font-family: var(--inessa-serif); font-weight: 400; letter-spacing: -.025em; line-height: 1.12; }
-.net-theme :is(.h1,.h2,.h3,.h4,.h5) { font-weight: 400; }
+.net-theme :is(h1,h2,h3,h4,h5,h6) { font-family: var(--inessa-serif); font-weight: var(--inessa-serif-weight); letter-spacing: -.015em; line-height: 1.25; }
+.net-theme :is(.h1,.h2,.h3,.h4,.h5) { font-weight: var(--inessa-serif-weight); }
 .net-theme .h3 { font-size: clamp(38px, 4.4vw, 62px); }
 .net-theme p { line-height: 1.8; }
 .net-theme :is(.btn-dark,.btn-secondary,.btn-light,.btn-white,.btn-outline,.admin-primary-button) {
@@ -85,8 +86,8 @@
 }
 .inessa-hero-inner { display: flex; align-items: center; min-height: inherit; padding-block: 65px 80px; }
 .inessa-hero-copy { width: 54%; max-width: 650px; }
-.net-theme .inessa-hero h1 { margin: 22px 0; font-size: clamp(58px, 6.7vw, 100px); line-height: .99; text-transform: uppercase; }
-.inessa-hero h1 em { font-weight: 400; }
+.net-theme .inessa-hero h1 { margin: 22px 0; font-size: clamp(58px, 6.7vw, 100px); line-height: 1.2; text-transform: uppercase; }
+.inessa-hero h1 em { font-weight: var(--inessa-serif-weight); }
 .net-theme .inessa-hero-description { max-width: 350px; margin: 25px 0 28px; color: #545454; font-size: 12px; }
 .inessa-hero-caption { position: absolute; bottom: 26px; right: clamp(22px, 5.5vw, 80px); font-size: 9px; letter-spacing: .22em; color: #555; }
 .inessa-stories { padding-top: clamp(70px, 8vw, 120px); }
@@ -96,7 +97,7 @@
 .inessa-story-inset { position: absolute; left: 0; top: 16%; width: 36%; height: auto; aspect-ratio: .79; border-radius: var(--inessa-radius-card); object-fit: cover; box-shadow: 0 12px 25px #0000000c; }
 .inessa-image-index { display: block; margin-top: 18px; color: #7a7a7a; font-size: 9px; letter-spacing: .18em; }
 .inessa-story-copy { padding-block: 24px; }
-.net-theme .inessa-story h2 { margin: 20px 0 25px; font-size: clamp(44px, 5vw, 76px); line-height: 1.02; text-transform: uppercase; }
+.net-theme .inessa-story h2 { margin: 20px 0 25px; font-size: clamp(44px, 5vw, 76px); line-height: 1.2; text-transform: uppercase; }
 .inessa-story-copy > p:not(.inessa-eyebrow) { max-width: 360px; font-size: 12px; color: #666; }
 .inessa-story-copy .inessa-button { margin-top: 28px; }
 .inessa-story:not(.inessa-story-reverse) .inessa-story-copy { text-align: right; }
@@ -109,14 +110,14 @@
 .net-theme :is(.net-new-arrivals,.net-popular-products) { padding-top: 25px; margin-top: 0; padding-bottom: 55px; }
 .inessa-section-eyebrow { text-align: center; margin-bottom: 12px; }
 .net-theme :is(.net-new-arrivals,.net-popular-products) .net-section-title { text-align: center; padding-bottom: 42px; }
-.net-theme :is(.net-new-arrivals,.net-popular-products) .net-section-title :is(h3,h3 > span) { font-weight: 400; text-transform: uppercase; }
+.net-theme :is(.net-new-arrivals,.net-popular-products) .net-section-title :is(h3,h3 > span) { font-weight: var(--inessa-serif-weight); text-transform: uppercase; }
 .net-section-title > div { margin-inline: auto; margin-top: 25px; }
 .net-theme .net-product-card { border-radius: var(--inessa-radius-small); background: #fff; cursor: pointer; }
 .net-product-card > div:first-child { height: auto; aspect-ratio: 1; border-radius: var(--inessa-radius-small); }
 .net-product-card > div:first-child > img { width: 76%; height: 76%; object-fit: contain; transition: transform .4s ease; }
 .net-product-card:is(:hover,:focus-visible) > div:first-child > img { transform: scale(1.04); }
 .net-product-card > div:nth-child(2) { padding: 13px 18px 18px; background: #fff; text-align: left; }
-.net-product-card h5 { margin: 5px 0 4px; font-family: var(--inessa-serif); font-size: 20px; font-weight: 400; line-height: 1.35; letter-spacing: 0; }
+.net-product-card h5 { margin: 5px 0 4px; font-family: var(--inessa-serif); font-size: 20px; font-weight: var(--inessa-serif-weight); line-height: 1.35; letter-spacing: 0; }
 .net-product-card .net-product-category { margin: 0; color: #999; font-size: 13px; line-height: 1.6; }
 .net-product-card .net-product-price { margin-top: 4px; color: #555; font-size: 16px; font-weight: 700; line-height: 1.5; }
 .net-product-card > div:first-child > p { padding-inline: 10px; font-size: 9px; letter-spacing: .04em; }
@@ -136,7 +137,7 @@
 .inessa-category { position: relative; display: block; min-width: 0; overflow: hidden; border-radius: var(--inessa-radius-card); }
 .inessa-category > img { display: block; width: 100%; aspect-ratio: 1.1; object-fit: cover; transition: transform .5s; }
 .inessa-category:hover > img { transform: scale(1.04); }
-.inessa-category-label { position: absolute; display: flex; justify-content: space-between; align-items: center; gap: 8px; inset: auto 12px 12px; min-height: 44px; background: #ffffffed; padding: 10px 14px; font-family: var(--inessa-serif); font-size: 18px; line-height: 1.3; border-radius: var(--inessa-radius-control); }
+.inessa-category-label { position: absolute; display: flex; justify-content: space-between; align-items: center; gap: 8px; inset: auto 12px 12px; min-height: 44px; background: #ffffffed; padding: 10px 14px; font-family: var(--inessa-serif); font-size: 18px; font-weight: var(--inessa-serif-weight); line-height: 1.4; border-radius: var(--inessa-radius-control); }
 .inessa-category-label > span { min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
 .inessa-category-label > svg { width: 18px; height: 18px; flex-shrink: 0; }
 .net-features { border-top: 1px solid var(--inessa-line); padding-top: 45px; }
@@ -151,7 +152,7 @@
 .inessa-collection-heading { padding-block: 64px 100px; }
 .inessa-collection-breadcrumb { display: flex; flex-wrap: wrap; gap: 8px; color: #777; font-size: 13px; }
 .inessa-collection-breadcrumb a:hover { color: #171717; }
-.net-theme .inessa-collection-heading h1 { margin-top: 25px; font-size: clamp(56px, 7vw, 100px); font-weight: 400; line-height: 1.1; text-transform: uppercase; }
+.net-theme .inessa-collection-heading h1 { margin-top: 25px; font-size: clamp(56px, 7vw, 100px); font-weight: var(--inessa-serif-weight); line-height: 1.2; text-transform: uppercase; }
 .net-collection .inessa-collection-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px 28px; padding-bottom: 34px; }
 .inessa-collection-filter-tools,.inessa-collection-sort-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 18px; }
 .inessa-collection-filter-trigger { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: #171717; font-size: 14px; font-weight: 500; cursor: pointer; }
@@ -159,17 +160,16 @@
 .inessa-collection-reset { min-height: 44px; color: #777; font-size: 11px; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
 .net-theme .inessa-collection-results { color: #888; font-size: 11px; }
 .net-collection .inessa-collection-sort-tools select { min-height: 44px; max-width: 100%; padding: 8px 24px 8px 6px; border: 0; border-radius: var(--inessa-radius-control); background: #fff; color: #666; font-size: 13px; cursor: pointer; }
+.net-collection .inessa-collection-page-arrows { flex-shrink: 0; flex-wrap: nowrap; gap: 6px; }
+.net-collection .inessa-collection-page-arrows button { width: 38px; min-width: 38px; height: 38px; padding: 0; }
+.net-collection .inessa-collection-grid.pagination-list-start { scroll-margin-top: 100px; }
 .net-collection .inessa-collection-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px 26px; min-height: 260px; }
 .net-collection .net-product-card > div:nth-child(2) { padding: 13px 18px 18px; }
 .net-collection .net-product-card h5 { font-size: 20px; line-height: 1.35; -webkit-line-clamp: 2; }
 .inessa-collection-empty { display: flex; grid-column: 1 / -1; flex-direction: column; align-items: center; justify-content: center; gap: 16px; min-height: 260px; padding: 36px 20px; text-align: center; }
 .net-theme .inessa-collection-empty h2 { font-size: 32px; }
 .net-theme .inessa-collection-empty p { max-width: 420px; color: #777; font-size: 13px; }
-.inessa-collection-pagination { display: flex; justify-content: center; flex-wrap: wrap; gap: 9px; padding-block: 48px 72px; }
-.inessa-collection-pagination button { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; min-height: 38px; padding: 8px 12px; border: 1px solid #dedede; background: #fff; color: #444; font-size: 11px; cursor: pointer; border-radius: var(--inessa-radius-small); }
-.inessa-collection-pagination button[aria-current="page"] { border-color: #171717; background: #171717; color: #fff; }
-.inessa-collection-pagination button:hover:not(:disabled):not([aria-current="page"]) { border-color: #888; background: #fff; }
-.inessa-collection-pagination button:disabled { opacity: .35; cursor: not-allowed; }
+.inessa-collection-pagination { padding-block: 28px 48px; }
 
 /* The shop filter slides in from the left, matching the reference shop. */
 .net-theme dialog.inessa-filter-drawer { position: fixed; inset: 0 auto 0 0; width: min(100%, 380px); max-width: 100%; height: 100dvh; max-height: 100dvh; margin: 0 auto 0 0; padding: 0; overflow: hidden; border: 0; border-radius: 0 var(--inessa-radius-panel) var(--inessa-radius-panel) 0; background: #fff; color: #171717; font-family: Inter, sans-serif; box-shadow: 12px 0 40px #00000012; }
@@ -183,7 +183,7 @@
 .inessa-filter-search input { min-width: 0; flex: 1; min-height: 44px; padding: 10px 12px; border: 1px solid #ddd; border-radius: var(--inessa-radius-control); background: #fff; font-size: 12px; }
 .net-theme dialog.inessa-filter-drawer .inessa-filter-search button { display: flex; flex-shrink: 0; align-items: center; justify-content: center; width: 38px; min-height: 44px; border-radius: var(--inessa-radius-control); background: #171717; color: #fff; cursor: pointer; }
 .inessa-filter-price { margin-top: 48px; }
-.net-theme .inessa-filter-price h3 { font-size: 58px; font-weight: 400; line-height: 1.08; }
+.net-theme .inessa-filter-price h3 { font-size: 58px; font-weight: var(--inessa-serif-weight); line-height: 1.2; }
 .inessa-filter-price-range { position: relative; height: 24px; margin-top: 24px; }
 .inessa-filter-price-range::before { position: absolute; inset: 11px 0 auto; height: 2px; background: linear-gradient(to right,#ddd 0 var(--range-min),#171717 var(--range-min) var(--range-max),#ddd var(--range-max) 100%); content: ""; }
 .inessa-filter-price-range input { position: absolute; inset: 0; width: 100%; height: 24px; margin: 0; appearance: none; pointer-events: none; background: transparent; }
@@ -201,7 +201,7 @@
 .inessa-filter-price-inputs label > span { color: #666; font-size: 11px; }
 .inessa-filter-price-inputs output { color: #888; font-size: 10px; overflow-wrap: anywhere; }
 .inessa-filter-group { margin-top: 48px; }
-.net-theme .inessa-filter-group h3 { font-size: 22px; font-weight: 400; line-height: 1.3; text-transform: uppercase; }
+.net-theme .inessa-filter-group h3 { font-size: 22px; font-weight: var(--inessa-serif-weight); line-height: 1.3; text-transform: uppercase; }
 .inessa-filter-options { display: flex; flex-direction: column; gap: 2px; margin-top: 24px; }
 .inessa-filter-options label { display: flex; align-items: center; gap: 12px; min-height: 36px; color: #222; font-size: 13px; line-height: 1.6; cursor: pointer; }
 .inessa-filter-options input { width: 13px; height: 13px; flex-shrink: 0; accent-color: #171717; }
@@ -223,12 +223,18 @@
   .net-collection .net-product-card h5 { font-size: 16px; }
   .net-collection .net-product-card .net-product-price { font-size: 14px; }
   .net-collection .net-product-card > div:first-child > p { max-width: calc(100% - 12px); padding-inline: 6px; font-size: 8px; }
-  .inessa-collection-pagination { gap: 6px; padding-block: 30px 45px; }
+  .inessa-collection-pagination { padding-block: 24px 36px; }
 }
-@media (max-width: 480px) { .net-theme dialog.inessa-filter-drawer { width: 100%; } }
+@media (max-width: 480px) {
+  .net-theme dialog.inessa-filter-drawer { width: 100%; }
+  .inessa-collection-sort-tools { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; }
+  .inessa-collection-sort-tools .inessa-collection-results { grid-column: 1 / -1; }
+  .inessa-collection-page-arrows { justify-self: end; }
+  .net-collection .inessa-collection-grid.pagination-list-start { scroll-margin-top: 120px; }
+}
 @media (prefers-reduced-motion: reduce) { .net-theme dialog.inessa-filter-drawer[open] { animation: none; } }
 .net-product-detail { padding-top: 48px; }
-.net-product-detail h1 { font-size: clamp(32px, 3.4vw, 48px); font-weight: 400; }
+.net-product-detail h1 { font-size: clamp(32px, 3.4vw, 48px); font-weight: var(--inessa-serif-weight); }
 .net-product-detail button[class*="bg-[#242424]"],.net-product-detail button.bg-secondary { border-radius: var(--inessa-radius-control); }
 .net-product-detail [class*="bg-[#f5f5f0]"] { border-radius: var(--inessa-radius-card); }
 /* About replaces the former beauty journal with the reference's brand story. */
@@ -238,9 +244,9 @@
 .inessa-about-hero::after { position: absolute; inset: 0; z-index: -1; background: linear-gradient(0deg, #0009, #0002 75%); content: ""; }
 .inessa-about-hero-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; min-height: inherit; padding-block: 180px 52px; }
 .inessa-about-hero .inessa-eyebrow { color: #fff; }
-.net-theme .inessa-about-hero h1 { margin-top: 12px; color: #fff; font-size: clamp(56px, 7vw, 100px); font-weight: 400; line-height: 1.05; text-transform: uppercase; }
+.net-theme .inessa-about-hero h1 { margin-top: 12px; color: #fff; font-size: clamp(56px, 7vw, 100px); font-weight: var(--inessa-serif-weight); line-height: 1.2; text-transform: uppercase; }
 .inessa-about-intro,.inessa-about-companion { padding-block: clamp(65px, 7.5vw, 110px); }
-.net-theme .inessa-about-intro h2 { max-width: 1150px; margin-block: 24px; color: #252525; font-size: clamp(32px, 4vw, 56px); line-height: 1.18; text-transform: uppercase; text-wrap: balance; }
+.net-theme .inessa-about-intro h2 { max-width: 1150px; margin-block: 24px; color: #252525; font-size: clamp(32px, 4vw, 56px); line-height: 1.2; text-transform: uppercase; text-wrap: balance; }
 .net-theme .inessa-about-intro > p:last-child,.net-theme .inessa-about-prose p { color: #777; font-size: 14px; line-height: 1.95; }
 .inessa-about-intro > p:last-child { max-width: 1130px; }
 .inessa-about-wide-photo img { display: block; width: 100%; height: auto; border-radius: var(--inessa-radius-card); }
@@ -257,7 +263,7 @@
 .inessa-about-story-photo { min-width: 0; aspect-ratio: 1; overflow: hidden; border-radius: var(--inessa-radius-card); }
 .inessa-about-story-photo > img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .inessa-about-story-copy { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: clamp(28px, 4vw, 64px); text-align: center; }
-.net-theme .inessa-about-story-copy h2 { margin-block: 22px; font-size: clamp(38px, 4.4vw, 64px); line-height: 1.08; text-transform: uppercase; }
+.net-theme .inessa-about-story-copy h2 { margin-block: 22px; font-size: clamp(38px, 4.4vw, 64px); line-height: 1.2; text-transform: uppercase; }
 .net-theme .inessa-about-story-copy > p:not(.inessa-eyebrow) { max-width: 390px; color: #777; font-size: 13px; line-height: 1.95; }
 .inessa-about-story-copy .inessa-button { margin-top: 26px; padding-inline: 20px; font-size: 9px; }
 @media (max-width: 767px) {
@@ -275,11 +281,11 @@
 }
 .net-contact { padding-block: 60px 80px; background: #fff; }
 .net-contact form { border-radius: var(--inessa-radius-panel); padding: 45px; max-width: 720px; }
-.net-contact form h1 { font-size: clamp(36px, 4vw, 55px); font-weight: 400; }
+.net-contact form h1 { font-size: clamp(36px, 4vw, 55px); font-weight: var(--inessa-serif-weight); }
 .net-contact form > p:first-child { color: #555; background: transparent; font-size: 10px; text-transform: uppercase; letter-spacing: .16em; }
 .net-contact form .h-10,.net-contact textarea { border-radius: var(--inessa-radius-control); }
 .net-cart { padding-top: 45px; background: #fff; }
-.net-cart-heading h1,.net-orders h1 { font-family: var(--inessa-serif); font-size: clamp(36px, 4vw, 54px); font-weight: 400; text-transform: uppercase; }
+.net-cart-heading h1,.net-orders h1 { font-family: var(--inessa-serif); font-size: clamp(36px, 4vw, 54px); font-weight: var(--inessa-serif-weight); text-transform: uppercase; }
 .net-cart :is(section,article).bg-white,.net-orders article,.net-cart-item,.net-cart-table-head { border-color: var(--inessa-line); border-radius: var(--inessa-radius-card); }
 .net-cart .btn-dark { border-radius: var(--inessa-radius-control) !important; }
 
@@ -288,7 +294,7 @@
 .net-theme .inessa-cart-page > .max-padd-container { max-width: 1360px; }
 .inessa-cart-section,.inessa-cart-products { min-width: 0; }
 .net-cart .inessa-cart-heading { padding: 0 0 clamp(30px, 4vw, 56px); text-align: center; }
-.net-cart .inessa-cart-heading h1 { margin: 0; font-size: clamp(48px, 5.8vw, 82px); line-height: 1.05; }
+.net-cart .inessa-cart-heading h1 { margin: 0; font-size: clamp(48px, 5.8vw, 82px); line-height: 1.2; }
 .inessa-cart-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 30%); align-items: start; gap: 28px; }
 .inessa-cart-table-wrap { border: 1px solid var(--inessa-line); border-radius: var(--inessa-radius-card); }
 .inessa-cart-table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; color: #555; font-size: 13px; }
@@ -398,7 +404,7 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
 .inessa-checkout-back { display: inline-flex; align-items: center; gap: 8px; padding-block: 4px; color: #777; font-size: 12px; cursor: pointer; }
 .inessa-checkout-back:hover:not(:disabled) { color: #171717; text-decoration: underline; text-underline-offset: 4px; }
 .net-theme .inessa-checkout-heading h1 { margin-top: 16px; font-size: clamp(38px, 4vw, 52px); }
-.net-theme .inessa-checkout-details :is(h2,legend) { padding: 0; color: #242424; font-family: var(--inessa-serif); font-size: 26px; font-weight: 400; line-height: 1.2; }
+.net-theme .inessa-checkout-details :is(h2,legend) { padding: 0; color: #242424; font-family: var(--inessa-serif); font-size: 26px; font-weight: var(--inessa-serif-weight); line-height: 1.2; }
 .inessa-checkout-address { min-width: 0; }
 .inessa-checkout-address > fieldset > div { margin-top: 22px; gap: 18px; }
 .inessa-checkout-address label { color: #555; font-size: 13px; font-weight: 400; }
@@ -493,7 +499,7 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
 .inessa-overview-confirmation { display: flex; align-items: center; gap: 18px; margin-top: 30px; }
 .inessa-overview-confirmation-icon { display: flex; flex-shrink: 0; color: #444; }
 .net-cart .inessa-overview-confirmation p { margin-bottom: 8px; color: #888; font-size: 12px; }
-.net-theme .inessa-overview-confirmation h1 { font-size: clamp(34px, 3.5vw, 48px); line-height: 1.1; overflow-wrap: anywhere; }
+.net-theme .inessa-overview-confirmation h1 { font-size: clamp(34px, 3.5vw, 48px); line-height: 1.2; overflow-wrap: anywhere; }
 .net-cart .inessa-overview-message { margin-top: 22px; max-width: 510px; color: #777; font-size: 13px; }
 .inessa-overview-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-block: 28px; padding-block: 22px; border-block: 1px solid var(--inessa-line); }
 .inessa-overview-meta > div:last-child { grid-column: 1 / -1; }
@@ -604,7 +610,7 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
 
 .net-orders { padding-top: 45px; }
 .net-theme.net-storefront .net-membership { padding-top: 45px; --member-ink: #262626; --member-muted: #737373; --member-accent: #333; --member-line: #e6e3df; background: #fff; }
-.net-membership .net-member-header h1 { font-family: var(--inessa-serif); font-size: clamp(36px, 4vw, 54px); font-weight: 400; text-transform: uppercase; }
+.net-membership .net-member-header h1 { font-family: var(--inessa-serif); font-size: clamp(36px, 4vw, 54px); font-weight: var(--inessa-serif-weight); text-transform: uppercase; }
 .net-membership .net-member-panel { border-radius: var(--inessa-radius-card); }
 .net-membership .net-member-profile-cover { background: #fff; border-color: #e0deda; }
 .net-membership :is(.net-member-date,.net-member-gift) { background: #fff; border-color: #e6e3df; border-radius: var(--inessa-radius-card); }
@@ -632,7 +638,7 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
 .net-sidebar .inessa-back-to-store { display: flex; align-items: center; gap: 8px; padding: 15px 31px; margin-top: auto; color: #777; font-size: 11px; }
 .net-admin-layout > div > main { margin: 0; height: 100dvh; border: 0; border-radius: var(--inessa-radius-panel); background: #fff; padding: clamp(24px, 3vw, 48px); }
 .net-admin-layout > div > main > div { max-width: 1320px; }
-.net-admin :is(h1,h2,h3) { font-family: var(--inessa-serif); font-weight: 400; }
+.net-admin :is(h1,h2,h3) { font-family: var(--inessa-serif); font-weight: var(--inessa-serif-weight); }
 .net-admin h1 { font-size: clamp(34px, 3.5vw, 48px); letter-spacing: -.025em; }
 .net-admin h2 { font-size: 25px; }
 .net-admin header { border-color: var(--inessa-line); }
@@ -641,7 +647,7 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
 .inessa-dashboard-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
 .inessa-dashboard-metric { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px; border: 1px solid var(--inessa-line); border-radius: var(--inessa-radius-card); background: #fff; }
 .inessa-dashboard-metric > div > p { color: #777; font-size: 9px; text-transform: uppercase; letter-spacing: .16em; }
-.inessa-dashboard-metric strong { display: block; margin-top: 8px; font-family: var(--inessa-serif); font-size: clamp(30px, 3vw, 42px); font-weight: 400; line-height: 1.2; }
+.inessa-dashboard-metric strong { display: block; margin-top: 8px; font-family: var(--inessa-serif); font-size: clamp(30px, 3vw, 42px); font-weight: var(--inessa-serif-weight); line-height: 1.2; }
 .inessa-dashboard-metric > span { display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: var(--inessa-radius-control); background: #fff; color: #777; }
 .net-admin table { font-size: 12px; }
 .net-admin th { background: #fff; color: #777; letter-spacing: .1em; font-size: 9px; text-transform: uppercase; }
@@ -704,7 +710,7 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
   .inessa-hero-image { object-position: 57% center; }
   .inessa-hero-inner { padding-block: 65px; }
   .inessa-hero-copy { width: 85%; }
-  .net-theme .inessa-hero h1 { font-size: clamp(48px, 9vw, 70px); }
+  .net-theme .inessa-hero h1 { font-size: clamp(36px, 9vw, 60px); }
   .net-theme .inessa-hero-description { max-width: 270px; }
   .inessa-hero-caption { font-size: 8px; bottom: 20px; }
   .inessa-stories { padding-top: 65px; }

@@ -3,7 +3,7 @@
 @media(min-width:768px){.net-admin-layout>.mx-auto>.net-sidebar{min-width:210px;width:210px;flex-shrink:0;align-self:flex-start;position:sticky;top:12px;max-height:calc(100dvh - 24px);overflow-y:auto}}
 .perfume-page-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid #e8e8e8}
 .perfume-eyebrow{font-size:10px!important;letter-spacing:.18em;color:#838383;margin-bottom:9px;text-transform:uppercase}
-.perfume-page-heading h1{font-size:clamp(25px,2.6vw,36px);font-weight:500;letter-spacing:-.05em!important;line-height:1.15!important}
+.perfume-page-heading h1{font-size:clamp(25px,2.6vw,36px);font-weight:500;letter-spacing:-.025em!important;line-height:1.25!important}
 .perfume-page-description{font-size:12px;color:#777;max-width:620px;margin-top:10px}
 .perfume-heading-actions,.perfume-toolbar-buttons,.perfume-inline-badges{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .perfume-button,.perfume-icon-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;border:1px solid #dedede;border-radius:7px;padding:8px 12px;background:#fff;font-size:11px;line-height:1.3;cursor:pointer;white-space:nowrap;transition:border-color .15s,background .15s}
@@ -38,7 +38,7 @@
 .perfume-product-cell{display:flex;align-items:center;gap:12px;min-width:220px;max-width:350px}.perfume-product-cell>span:last-child{min-width:0}.perfume-product-cell strong{font-size:11px;line-height:1.6;display:block}
 .perfume-product-thumb{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:48px;height:58px;border:1px solid #eee;border-radius:6px;overflow:hidden}.perfume-product-thumb img{width:100%;height:100%;object-fit:contain;padding:3px}
 .perfume-status-stack{display:flex;flex-direction:column;align-items:flex-start;gap:5px}.perfume-status-stack small{margin-top:0}
-.perfume-pagination{display:flex;align-items:center;justify-content:space-between;gap:15px;border-top:1px solid #e9e9e9;padding:14px 18px;color:#888;font-size:10px}.perfume-pagination>div{display:flex;gap:6px}
+.perfume-pagination{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid #e9e9e9;padding:14px 18px;color:#888;font-size:10px}
 .perfume-loading,.perfume-empty{font-size:12px;padding:20px;color:#888}.perfume-alert{display:flex;justify-content:space-between;gap:12px;border:1px solid #e6c9c9;background:#fff;color:#9a4949;padding:13px 16px;border-radius:8px;font-size:12px;margin:15px 0}.perfume-alert button{text-decoration:underline}
 .perfume-tabs{display:flex;gap:24px;border-bottom:1px solid #ddd;overflow-x:auto;margin-bottom:24px;overscroll-behavior-x:contain}.perfume-tabs button{border-bottom:2px solid transparent;padding:12px 0;font-size:11px;color:#888;white-space:nowrap;cursor:pointer}.perfume-tabs button.active{color:#1a1a1a;border-bottom-color:#222}
 .perfume-editor-summary{display:flex;align-items:center;gap:20px;padding:18px 20px;border:1px solid #e5e5e5;border-radius:10px;margin-bottom:18px}.perfume-editor-summary>div{flex:1}.perfume-editor-summary p{font-size:11px;color:#888;margin-top:8px}.perfume-editor-thumb{width:62px;height:74px;display:flex;flex-shrink:0}.perfume-editor-thumb img{width:100%;height:100%;object-fit:contain}

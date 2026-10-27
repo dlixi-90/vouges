@@ -5,6 +5,8 @@ import { useAppContext } from "../context/AppContext";
 import CollectionFilterDrawer from "../components/CollectionFilterDrawer";
 import { SearchX, SlidersHorizontal } from "lucide-react";
 import { formatVnd } from "../utils/money";
+import Pagination from "../components/Pagination";
+import usePaginationScroll from "../hooks/usePaginationScroll";
 import {
   getAvailableSizes,
   hasAnyAvailableSize,
@@ -39,7 +41,7 @@ const Collection = () => {
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 16;
   const maxProductPrice = useMemo(() => products.reduce((highest, product) => {
     const price = getDisplayedPrice(product);
     return Number.isFinite(price) ? Math.max(highest, price) : highest;
@@ -134,6 +136,7 @@ const Collection = () => {
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const activePage = Math.min(currentPage, Math.max(totalPages, 1));
+  const { listRef, changePage } = usePaginationScroll({ page: activePage, onPageChange: setCurrentPage });
   const startIndex = (activePage - 1) * itemsPerPage;
   const paginatedProducts = filteredProducts.slice(
     startIndex,
@@ -173,6 +176,7 @@ const Collection = () => {
             <option value="low">Giá: thấp đến cao</option>
             <option value="high">Giá: cao đến thấp</option>
           </select>
+          <Pagination arrowsOnly className="inessa-collection-page-arrows" label="Chuyển trang sản phẩm" page={activePage} totalPages={totalPages} onPageChange={changePage} disabled={productsLoading} />
         </div>
       </div>
 
@@ -190,7 +194,7 @@ const Collection = () => {
         formatPrice={formatPrice} resultCount={filteredProducts.length} onReset={resetFilters}
       />}
 
-      <div className="inessa-collection-grid" aria-busy={productsLoading}>
+      <div ref={listRef} tabIndex={-1} className="inessa-collection-grid pagination-list-start" aria-busy={productsLoading}>
         {paginatedProducts.map((product) => <Item product={product} key={product._id} />)}
         {!productsLoading && paginatedProducts.length === 0 && <div className="inessa-collection-empty">
           <SearchX size={32} strokeWidth={1.2} aria-hidden="true" />
@@ -200,16 +204,7 @@ const Collection = () => {
         </div>}
       </div>
 
-      {filteredProducts.length > 0 && <nav className="inessa-collection-pagination" aria-label="Phân trang sản phẩm">
-        <button type="button" disabled={activePage === 1} onClick={() => setCurrentPage((previous) => previous - 1)} aria-label="Trang trước">Trước</button>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button type="button" key={index + 1} onClick={() => setCurrentPage(index + 1)}
-            aria-label={`Trang ${index + 1}`} aria-current={activePage === index + 1 ? "page" : undefined}>
-            {index + 1}
-          </button>
-        ))}
-        <button type="button" disabled={activePage === totalPages} onClick={() => setCurrentPage((previous) => previous + 1)} aria-label="Trang sau">Tiếp</button>
-      </nav>}
+      <Pagination className="inessa-collection-pagination" label="Phân trang sản phẩm" page={activePage} totalPages={totalPages} onPageChange={changePage} disabled={productsLoading} />
     </div>
   );
 };

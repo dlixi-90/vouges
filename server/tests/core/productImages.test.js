@@ -6,7 +6,7 @@ import Product from "../../models/Product.js";
 import Category from "../../models/Category.js";
 import { createProduct, updateProduct } from "../../controllers/productController.js";
 import { planProductImages, resolveSizeImages, getSizeImage } from "../../utils/productImages.js";
-import { getSizeImage as clientSizeImage } from "../../../client/src/utils/productImage.js";
+import { getSizeImage as clientSizeImage, getDetailGallery } from "../../../client/src/utils/productImage.js";
 import { saveVariantEdit } from "../../../client/src/utils/productVariantEdit.js";
 import { restoreProductDraft } from "../../../client/src/utils/productDraft.js";
 import { File } from "node:buffer";
@@ -67,6 +67,20 @@ test("client and server use the selected size with a gallery fallback for older 
     assert.equal(select({ images: ["legacy.png"] }, "50ml"), "legacy.png");
     assert.equal(select(null, "50ml"), null);
   }
+});
+
+test("detail gallery excludes the avatar and prioritizes the selected size photo", () => {
+  const product={images:["avatar.webp","front.jpg","back.jpg","avatar.webp"],sizeImages:{"50ml":"size-50.jpg","100ml":"back.jpg"}};
+  assert.deepEqual(getDetailGallery(product,"50ml"),["size-50.jpg","front.jpg","back.jpg"]);
+  assert.deepEqual(getDetailGallery(product,"100ml"),["back.jpg","front.jpg"]);
+  assert.equal(product.images.length,4);
+});
+
+test("detail gallery cannot reintroduce the avatar through size photos or an empty fallback", () => {
+  assert.deepEqual(getDetailGallery({images:["avatar.jpg","gallery.jpg"],sizeImages:{M:"avatar.jpg"}},"M"),["gallery.jpg"]);
+  assert.deepEqual(getDetailGallery({images:["avatar.jpg"],sizeImages:{M:"avatar.jpg"}},"M"),[]);
+  assert.deepEqual(getDetailGallery(null,"M"),[]);
+  assert.equal(clientSizeImage({images:["avatar.jpg"]},"M"),"avatar.jpg");
 });
 
 test("editing, cancelling and restoring drafts retain the actual size image file independently", () => {

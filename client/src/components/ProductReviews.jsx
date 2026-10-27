@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import ProductReviewForm from "./ProductReviewForm";
+import Pagination from "./Pagination";
+import usePaginationScroll from "../hooks/usePaginationScroll";
 
 export default function ProductReviews({ productId, onSummaryChange }) {
   const { user, storeResources } = useAppContext();
@@ -30,11 +32,11 @@ export default function ProductReviews({ productId, onSummaryChange }) {
     return () => { active = false; };
   }, [load, attempt, productId, onSummaryChange]);
 
-  const changePage = (nextPage) => {
+  const { listRef, changePage } = usePaginationScroll({ page, ready: Boolean(data), onPageChange: (nextPage) => {
     setData(storeResources.peekReviews(productId, nextPage) || null);
     setError("");
     setPage(nextPage);
-  };
+  } });
 
   return (
     <section id="reviews" className="mt-10 scroll-mt-24 rounded-xl border border-gray-200 bg-white p-5 sm:p-8">
@@ -54,7 +56,7 @@ export default function ProductReviews({ productId, onSummaryChange }) {
         <button type="button" onClick={() => setAttempt((value) => value + 1)} className="ml-2 cursor-pointer underline">Thử lại</button>
       </div>}
       {!data && !error && <p role="status" className="mt-4 text-sm text-gray-500">Đang tải đánh giá…</p>}
-      <div className="mt-5 divide-y divide-gray-100">{data?.reviews.map((review) => (
+      <div ref={listRef} tabIndex={-1} className="pagination-list-start mt-5 divide-y divide-gray-100">{data?.reviews.map((review) => (
         <article key={review._id} className="py-5">
           <div className="flex flex-wrap items-center gap-3">
             <p className="font-semibold">{review.authorName || "Khách hàng"}</p>
@@ -64,11 +66,7 @@ export default function ProductReviews({ productId, onSummaryChange }) {
           <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6">{review.comment}</p>
         </article>
       ))}</div>
-      {data?.count > 10 && <div className="mt-4 flex items-center gap-4 text-sm">
-        <button type="button" disabled={page <= 1} onClick={() => changePage(page - 1)} className="cursor-pointer underline disabled:opacity-40">Trang trước</button>
-        <span>Trang {page}</span>
-        <button type="button" disabled={page * 10 >= data.count} onClick={() => changePage(page + 1)} className="cursor-pointer underline disabled:opacity-40">Trang sau</button>
-      </div>}
+      {data?.count > 10 && <Pagination className="mt-5" label="Phân trang đánh giá" page={page} totalPages={Math.ceil(data.count / 10)} onPageChange={changePage} />}
     </section>
   );
 }

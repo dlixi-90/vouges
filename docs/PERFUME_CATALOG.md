@@ -34,6 +34,8 @@ Catalog Apaniche đã được nhập làm dữ liệu vận hành của databas
 
 Danh mục, voucher và hộp thư CSKH tiếp tục dùng quy trình hiện có. API `/api/catalog/*` yêu cầu tài khoản chủ cửa hàng. Sửa sản phẩm kiểm tra `updatedAt` để tránh ghi đè thay đổi đồng thời. Không được bỏ dung tích hoặc đổi chế độ kho khi còn đơn QR giữ phân loại đó.
 
+Thanh phân trang dùng chung hiển thị tối đa bảy vị trí số/dấu ba chấm, giữ trang đầu/cuối và các trang quanh trang hiện tại. Khi đổi trang, danh sách cuộn về hàng đầu sau khi dữ liệu mới tải xong; hộp thư cuộn trong vùng hội thoại riêng. Bộ sưu tập, dashboard, thư viện, đánh giá và hộp thư đều dùng cách này.
+
 ## Quy ước tiền và tồn kho
 
 - Toàn bộ giá, phí giao hàng, voucher tiền mặt, tổng đơn, email, AI và QR dùng **VND nguyên đồng**. `1250000` hiển thị `1.250.000 ₫`; không nhân/chia 1.000 tại ranh giới API.

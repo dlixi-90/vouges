@@ -1,5 +1,14 @@
 export const getSizeImage = (product, size) => product?.sizeImages?.[size] || product?.images?.[0] || null;
 
+// The first image belongs to product cards, not the detail gallery.
+export const getDetailGallery = (product, size) => {
+  const avatar = product?.images?.[0];
+  return [...new Set([
+    product?.sizeImages?.[size],
+    ...(product?.images?.slice(1) || []),
+  ].filter((image) => Boolean(image) && image !== avatar))];
+};
+
 // Transform only the versioned Cloudinary uploads used by our catalog.
 // Local, signed and already transformed image URLs keep their original behavior.
 export const getProductImageUrl = (src, width = 320) => {

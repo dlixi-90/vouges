@@ -19,7 +19,7 @@ import { formatVnd } from "../utils/money";
 import { flyProductToCart } from "../utils/cartAnimation";
 import ProductImage from "../components/ProductImage";
 import ProductReviews from "../components/ProductReviews";
-import { getSizeImage } from "../utils/productImage";
+import { getDetailGallery } from "../utils/productImage";
 import PerfumeProfile from "../components/PerfumeProfile";
 
 const MAX_QUANTITY_PER_ADD = 10;
@@ -72,10 +72,10 @@ const ProductDetail = () => {
     ? selectedSize
     : (availableSizes[0] ?? product?.sizes?.[0] ?? null);
   const sizeImage = product?.sizeImages?.[size];
-  const gallery = [...new Set([sizeImage, ...(product?.images || [])].filter(Boolean))];
+  const gallery = getDetailGallery(product, size);
   const image = selectedImage?.productId === productId && selectedImage?.size === size && gallery.includes(selectedImage.url)
     ? selectedImage.url
-    : getSizeImage(product, size);
+    : (gallery[0] || null);
   const selectedSizeAvailable = product
     ? isSizeAvailable(product, size)
     : false;
@@ -136,7 +136,7 @@ const ProductDetail = () => {
           aria-label="Thư viện ảnh sản phẩm"
         >
           <div className="flex gap-2 sm:gap-3">
-            <div className="flex w-16 shrink-0 flex-col gap-2 sm:w-[72px]">
+            {gallery.length > 0 && <div className="flex w-16 shrink-0 flex-col gap-2 sm:w-[72px]">
               {gallery.map((item, index) => (
                 <button
                   type="button"
@@ -158,10 +158,10 @@ const ProductDetail = () => {
                   />
                 </button>
               ))}
-            </div>
+            </div>}
 
             <div className="flex min-h-[320px] flex-1 items-center justify-center overflow-hidden rounded-2xl bg-[#f5f5f0] p-8 sm:min-h-[420px] sm:p-12 lg:min-h-[480px] lg:max-h-[520px]">
-              <ProductImage
+              {image ? <ProductImage
                 ref={productImageRef}
                 src={image}
                 imageWidth={960}
@@ -169,7 +169,7 @@ const ProductDetail = () => {
                 fetchPriority="high"
                 alt={`${product.title}${sizeImage && image === sizeImage ? ` - ${size}` : ""}`}
                 className="h-auto max-h-[470px] w-auto max-w-[82%] object-contain"
-              />
+              /> : <p role="status" className="text-center text-sm text-gray-500">Chưa có ảnh chi tiết cho sản phẩm này.</p>}
             </div>
           </div>
         </section>

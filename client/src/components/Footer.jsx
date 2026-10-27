@@ -9,14 +9,19 @@ const Footer = () => {
           <div className="max-w-80">
             <div className="flex flex-1">
               <Link to={"/"} className="flex items-end">
-                <img src={assets.logoImg} alt="Biểu trưng Velours" className="h-11" />
+                <img
+                  src={assets.logoImg}
+                  alt="Biểu trưng Velours"
+                  className="h-11"
+                />
                 <span className="bold-24 relative top-1 right-2 text-black">
                   elours
                 </span>
               </Link>
             </div>
             <p className="text-sm mt-5">
-              Khám phá bộ sưu tập nước hoa, tìm dấu ấn hương thơm riêng và cảm hứng cho những khoảnh khắc mỗi ngày.
+              Khám phá bộ sưu tập nước hoa, tìm dấu ấn hương thơm riêng và cảm
+              hứng cho những khoảnh khắc mỗi ngày.
             </p>
             <div className="flex items-center gap-3 mt-7">
               <img src={assets.facebook} alt="" />
@@ -71,16 +76,20 @@ const Footer = () => {
           <div className="w-full max-w-80">
             <p className="h4 text-black/80">NHẬN TIN MỚI NHẤT</p>
             <p className="mt-3 text-sm">
-              Đăng ký nhận bản tin để cập nhật bí quyết làm đẹp và ưu đãi đặc biệt.
+              Đăng ký nhận bản tin để cập nhật bí quyết làm đẹp và ưu đãi đặc
+              biệt.
             </p>
             <div className="net-field-shell flex h-[46px] w-full items-center gap-2 overflow-hidden rounded-full border border-gray-500/30 p-1 pl-4 mt-6">
               <input
                 className="h-full min-w-0 flex-1 outline-none text-sm text-gray-500"
-                aria-label="Địa chỉ thư điện tử nhận bản tin"
-                placeholder="Địa chỉ thư điện tử của bạn"
+                aria-label="Địa chỉ email nhận bản tin"
+                placeholder="Địa chỉ email của bạn"
                 type="text"
               />
-              <button type="button" className="btn-dark inline-flex h-full shrink-0 items-center justify-center whitespace-nowrap font-medium !px-4 !py-0 !text-sm">
+              <button
+                type="button"
+                className="btn-dark inline-flex h-full shrink-0 items-center justify-center whitespace-nowrap font-medium !px-4 !py-0 !text-sm"
+              >
                 Đăng ký
               </button>
             </div>
@@ -88,7 +97,8 @@ const Footer = () => {
         </div>
         <div className="flex flex-col md:flex-row gap-2 items-center justify-between py-5 mt-8">
           <p>
-            © {new Date().getFullYear()} <a href="#">Velours</a>. Bảo lưu mọi quyền.
+            © {new Date().getFullYear()} <a href="#">Velours</a>. Bảo lưu mọi
+            quyền.
           </p>
           <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
             <li>
