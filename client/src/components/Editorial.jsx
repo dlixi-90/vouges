@@ -32,7 +32,7 @@ export function EditorialStories() {
             <br />
             từ những
             <br />
-            <em>điều tinh tế.</em>
+            <br>điều tinh tế.</br>
           </h2>
           <p>
             Từ hương thơm yêu thích đến một làn da rạng rỡ. Tìm thấy những sản
@@ -54,7 +54,7 @@ export function EditorialStories() {
             <br />
             Cuốn hút.
             <br />
-            <em>Là chính bạn.</em>
+            <br>Là chính bạn.</br>
           </h2>
           <p>
             Chăm sóc bản thân bắt đầu từ những lựa chọn nhỏ. Để mỗi ngày đều là
@@ -108,7 +108,7 @@ export function EditorialCampaign() {
         <h2 id="campaign-title">
           Một dấu hương.
           <br />
-          Ngàn <em>cảm xúc.</em>
+          Ngàn cảm xúc.
         </h2>
         <p>
           Vẻ đẹp không chỉ được nhìn thấy, mà còn được cảm nhận. Khám phá bộ sưu
@@ -139,7 +139,7 @@ export function ShopCategories() {
       <header className="inessa-section-heading">
         <p className="inessa-eyebrow">Thế giới làm đẹp của bạn</p>
         <h2 id="categories-title">
-          Khám phá <em>danh mục</em>
+          Khám phá danh mục
         </h2>
         <span className="inessa-rule" />
       </header>
