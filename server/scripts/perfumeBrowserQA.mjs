@@ -262,7 +262,7 @@ try{
     await evaluate("document.querySelector('[data-product-tab=\"profile\"]').click()");
     await wait("document.querySelector('.perfume-accord-meters').getBoundingClientRect().height>0");
     await evaluate("document.querySelector('.perfume-accord-meters').scrollIntoView({block:'center',behavior:'instant'})");
-    await inspect('.perfume-profile',expected);await noOverflow();await screenshot('accord-colors-detail-desktop');
+    await inspect('.product-detail-accords',expected);await noOverflow();await screenshot('accord-colors-detail-desktop');
     await goto(`/owner/edit-product/${fragrant._id}?tab=fragrance`,"document.querySelector('.perfume-editor-preview .perfume-accord-meters')");
     await inspect('.perfume-editor-preview',expected);
     await input('[aria-label="Tỷ lệ kiểu mùi 1"]','1.5');
@@ -285,7 +285,7 @@ try{
       await evaluate("document.querySelector('[data-product-tab=\"profile\"]').click()");
       await wait("document.querySelector('.perfume-accord-meters').getBoundingClientRect().height>0");
       await evaluate("document.querySelector('.perfume-accord-meters').scrollIntoView({block:'center',behavior:'instant'})");
-      await inspect('.perfume-profile',expected);await noOverflow();await screenshot(`accord-colors-detail-${width}`);
+      await inspect('.product-detail-accords',expected);await noOverflow();await screenshot(`accord-colors-detail-${width}`);
     }
     checks.push('68 exact source accord colors, proportional vertical bars, matching dashboard preview, unsaved edits, tiny/zero/unknown values and 390px/320px layouts');
     await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});

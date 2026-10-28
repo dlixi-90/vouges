@@ -18,6 +18,7 @@ import { formatVnd } from "../utils/money";
 import { flyProductToCart } from "../utils/cartAnimation";
 import ProductImage from "../components/ProductImage";
 import ProductFacts from "../components/ProductFacts";
+import FragranceAccords from "../components/FragranceAccords";
 import { getDetailGallery } from "../utils/productImage";
 
 const MAX_QUANTITY_PER_ADD = 10;
@@ -189,9 +190,10 @@ const ProductDetail = () => {
         </section>
 
         <section
-          className="min-w-0 py-1 lg:py-2"
+          className="product-detail-info min-w-0 py-1 lg:py-2"
           aria-label="Thông tin sản phẩm"
         >
+          <div className="product-detail-buying">
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#858b87]">
             {product.category} · {product.type.replaceAll("-", " ")}
           </p>
@@ -205,7 +207,7 @@ const ProductDetail = () => {
             aria-label={reviewStats && !reviewStats.error
               ? reviewStats.count > 0 ? `${reviewStats.average.toFixed(1)} trên 5 sao, ${reviewStats.count} đánh giá. Xem hoặc viết đánh giá sản phẩm.` : "Chưa có đánh giá. Viết đánh giá sản phẩm."
               : "Xem hoặc viết đánh giá sản phẩm"}
-            className="mt-3 inline-flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md py-1 text-sm text-secondary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary">
+            className="product-detail-review-link mt-3 inline-flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md py-1 text-sm text-secondary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary">
             {reviewStats && !reviewStats.error ? (
               <>
                 <span className="border-b border-current leading-5">{reviewStats.count > 0 ? reviewStats.average.toFixed(1) : "Chưa có đánh giá"}</span>
@@ -218,7 +220,7 @@ const ProductDetail = () => {
             ) : <span className="text-gray-500">{reviewStats?.error ? "Xem đánh giá sản phẩm" : "Đang tải đánh giá…"}</span>}
           </a>
 
-          <div className="mt-6 border-t border-[#dededb] pt-5">
+          <div className="product-detail-size-options mt-6 border-t border-[#dededb] pt-5">
             <div className="mb-3 flex items-center justify-between gap-4">
               <p className="text-xs font-medium uppercase tracking-[0.12em] text-[#4c4c4c]">
                 Chọn dung tích
@@ -310,10 +312,14 @@ const ProductDetail = () => {
               </span>
             </button>
           </div>
+          </div>
 
-          <ProductFacts product={product} />
+          <div className={`product-detail-summary${product.fragrance?.accords?.length ? " has-accords" : ""}`}>
+            <ProductFacts product={product} />
+            {product.fragrance?.accords?.length > 0 && <section className="product-detail-accords" aria-label="Mùi hương chính"><h2>Mùi hương chính</h2><FragranceAccords accords={product.fragrance.accords} /></section>}
+          </div>
 
-          <div className="mt-5 grid gap-2 text-xs text-[#70756f] sm:grid-cols-2">
+          <div className="product-detail-assurances mt-5 grid gap-2 text-xs text-[#70756f] sm:grid-cols-2">
             <div className="flex items-center gap-2">
               <Truck size={16} />
               Miễn phí giao hàng cho đơn từ{" "}

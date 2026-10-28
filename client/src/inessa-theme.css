@@ -253,6 +253,27 @@
 .product-detail-facts a { color: #242424; text-decoration: underline; text-decoration-color: #ccc; text-underline-offset: 3px; }
 .product-detail-facts a:hover { text-decoration-color: currentColor; }
 .product-detail-facts .product-fact-missing { color: #999; }
+.product-detail-info { container-type: inline-size; }
+.product-detail-buying { width: 100%; max-width: 560px; }
+.product-detail-buying .product-detail-review-link { margin-top: 8px; }
+.product-detail-buying .product-detail-size-options { margin-top: 16px; padding-top: 14px; }
+.product-detail-size-options > div:first-child { margin-bottom: 8px; }
+.product-detail-info .product-detail-purchase-actions { margin-top: 14px; }
+.product-detail-purchase-actions > :is(div,button) { height: 44px; }
+.product-detail-summary { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 20px; margin-top: 18px; }
+.product-detail-summary:not(.has-accords) { max-width: 560px; }
+.product-detail-summary .product-detail-facts { margin-top: 0; }
+.product-detail-summary .product-detail-facts > div { gap: 12px; padding: 6px 0; }
+.product-detail-summary .product-detail-facts dd { font-size: 12px; line-height: 1.6; }
+.product-detail-accords { min-width: 0; }
+.net-theme .product-detail-accords h2 { margin: 0 0 10px; font-size: 16px; line-height: 1.4; }
+.product-detail-accords .perfume-accord-meters { max-width: none; }
+.product-detail-accords .perfume-accord-meter { height: 28px; font-size: 12px; line-height: 28px; }
+.product-detail-accords .perfume-accord-label { padding-inline: 9px; }
+.product-detail-info .product-detail-assurances { margin-top: 14px; max-width: 560px; }
+@container (min-width: 580px) {
+  .product-detail-summary.has-accords { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 24px; }
+}
 @media (min-width: 640px) {
   .product-detail-thumbnails { width: 60px; max-height: 380px; }
   .product-detail-gallery-stage { height: 380px; padding: 24px; }
