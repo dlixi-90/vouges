@@ -1,7 +1,7 @@
 // Input formatting is separate from numeric integer-VND storage and API payloads.
 export const formatVndInput = value => {
   if (value === "" || value == null) return "";
-  return Number.isSafeInteger(value) && value >= 0 ? value.toLocaleString("vi-VN") : "";
+  return Number.isSafeInteger(value) && value >= 0 ? `${value.toLocaleString("vi-VN")} ₫` : "";
 };
 
 export const parseVndInput = text => {
@@ -15,9 +15,12 @@ export const parseVndInput = text => {
 
 export const vndCaretPosition = (formatted, digitsBeforeCaret) => {
   if (digitsBeforeCaret <= 0) return 0;
-  let digits = 0;
+  let digits = 0, lastDigitEnd = 0;
   for (let index = 0; index < formatted.length; index++) {
-    if (/\d/.test(formatted[index]) && ++digits === digitsBeforeCaret) return index + 1;
+    if (/\d/.test(formatted[index])) {
+      lastDigitEnd = index + 1;
+      if (++digits === digitsBeforeCaret) return lastDigitEnd;
+    }
   }
-  return formatted.length;
+  return lastDigitEnd;
 };

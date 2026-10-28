@@ -17,6 +17,7 @@ import { FREE_SHIPPING_THRESHOLD } from "../utils/orderPricing";
 import { formatVnd } from "../utils/money";
 import { flyProductToCart } from "../utils/cartAnimation";
 import ProductImage from "../components/ProductImage";
+import ProductFacts from "../components/ProductFacts";
 import { getDetailGallery } from "../utils/productImage";
 
 const MAX_QUANTITY_PER_ADD = 10;
@@ -143,13 +144,13 @@ const ProductDetail = () => {
 
   return (
     <div className="net-product-detail max-padd-container pb-14 pt-24 sm:pt-28">
-      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,720px)_minmax(390px,1fr)] xl:gap-14">
+      <div className="product-detail-overview">
         <section
-          className="w-full max-w-[720px] lg:sticky lg:top-24"
+          className="product-detail-gallery lg:sticky lg:top-24"
           aria-label="Thư viện ảnh sản phẩm"
         >
-          <div className="flex gap-2 sm:gap-3">
-            {gallery.length > 0 && <div className="flex w-16 shrink-0 flex-col gap-2 sm:w-[72px]">
+          <div className="product-detail-gallery-layout">
+            {gallery.length > 0 && <div className="product-detail-thumbnails">
               {gallery.map((item, index) => (
                 <button
                   type="button"
@@ -173,7 +174,7 @@ const ProductDetail = () => {
               ))}
             </div>}
 
-            <div className="flex min-h-[320px] flex-1 items-center justify-center overflow-hidden rounded-2xl bg-[#f5f5f0] p-8 sm:min-h-[420px] sm:p-12 lg:min-h-[480px] lg:max-h-[520px]">
+            <div className="product-detail-gallery-stage">
               {image ? <ProductImage
                 ref={productImageRef}
                 src={image}
@@ -181,7 +182,7 @@ const ProductDetail = () => {
                 loading="eager"
                 fetchPriority="high"
                 alt={`${product.title}${sizeImage && image === sizeImage ? ` - ${size}` : ""}`}
-                className="h-auto max-h-[470px] w-auto max-w-[82%] object-contain"
+                className="product-detail-main-image"
               /> : <p role="status" className="text-center text-sm text-gray-500">Chưa có ảnh chi tiết cho sản phẩm này.</p>}
             </div>
           </div>
@@ -260,7 +261,7 @@ const ProductDetail = () => {
             )}
           </div>
 
-          <div className="mt-5 flex gap-2">
+          <div className="product-detail-purchase-actions mt-5 flex gap-2">
             <div className="flex h-12 shrink-0 items-center overflow-hidden rounded-lg border border-[#cfcfcb]">
               <button
                 type="button"
@@ -309,6 +310,8 @@ const ProductDetail = () => {
               </span>
             </button>
           </div>
+
+          <ProductFacts product={product} />
 
           <div className="mt-5 grid gap-2 text-xs text-[#70756f] sm:grid-cols-2">
             <div className="flex items-center gap-2">

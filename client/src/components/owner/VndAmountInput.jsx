@@ -4,6 +4,11 @@ import { formatVndInput, parseVndInput, vndCaretPosition } from "../../utils/mon
 export default function VndAmountInput({ value, onValueChange, className = "", ...props }) {
   const inputRef = useRef(null), pendingCaret = useRef(null);
   const formatted = formatVndInput(value);
+  const numberEnd = formatted ? formatted.length - 2 : 0;
+  const keepCaretBeforeSuffix = event => {
+    const input = event.currentTarget;
+    if (input.selectionStart === input.selectionEnd && input.selectionStart > numberEnd) input.setSelectionRange(numberEnd, numberEnd);
+  };
   useLayoutEffect(() => {
     const input = inputRef.current;
     if (pendingCaret.current !== null && document.activeElement === input) input.setSelectionRange(pendingCaret.current, pendingCaret.current);
@@ -28,6 +33,10 @@ export default function VndAmountInput({ value, onValueChange, className = "", .
   const onKeyDown = event => {
     const input = event.currentTarget, caret = input.selectionStart;
     if (event.ctrlKey || event.metaKey || event.altKey || caret !== input.selectionEnd) return;
+    if (event.key === "End" && !event.shiftKey) {
+      event.preventDefault(); input.setSelectionRange(numberEnd, numberEnd); return;
+    }
+    if (event.key === "Delete" && caret >= numberEnd) { event.preventDefault(); return; }
     const backspace = event.key === "Backspace" && input.value[caret - 1] === ".";
     const forwardDelete = event.key === "Delete" && input.value[caret] === ".";
     if (!backspace && !forwardDelete) return;
@@ -36,5 +45,5 @@ export default function VndAmountInput({ value, onValueChange, className = "", .
     const digits = input.value.replace(/\D/g, ""), removeAt = backspace ? before - 1 : before;
     commit(input, digits.slice(0, removeAt) + digits.slice(removeAt + 1), backspace ? before - 1 : before);
   };
-  return <input {...props} ref={inputRef} type="text" inputMode="numeric" pattern="[0-9]{1,3}([.][0-9]{3})*" autoComplete="off" maxLength={32} className={`perfume-money-input ${className}`.trim()} value={formatted} onChange={onChange} onKeyDown={onKeyDown} />;
+  return <input {...props} ref={inputRef} type="text" inputMode="numeric" pattern="[0-9]{1,3}([.][0-9]{3})* ₫" autoComplete="off" maxLength={32} className={`perfume-money-input ${className}`.trim()} value={formatted} onChange={onChange} onKeyDown={onKeyDown} onFocus={keepCaretBeforeSuffix} onSelect={keepCaretBeforeSuffix} />;
 }

@@ -409,7 +409,7 @@ try{
     const size=sample.sizes.find(size=>sample.inStockBySize[size]&&sample.price[size]>0);assert.ok(size);
     await input(`[aria-label=${JSON.stringify(`Tồn kho ${size}`)}]`,'7');
     const priceSelector=`[aria-label=${JSON.stringify(`Giá ${size} VND`)}]`;
-    const priceState=async(value,caret)=>wait(`(()=>{const price=document.querySelector(${JSON.stringify(priceSelector)});return price.value===${JSON.stringify(value)}${caret==null?'':`&&price.selectionStart===${caret}`}})()`);
+    const priceState=async(value,caret)=>wait(`(()=>{const price=document.querySelector(${JSON.stringify(priceSelector)});return price.value===${JSON.stringify(value ? value+' ₫' : '')}${caret==null?'':`&&price.selectionStart===${caret}`}})()`);
     const caretAt=async(start,end=start)=>evaluate(`(()=>{const price=document.querySelector(${JSON.stringify(priceSelector)});price.focus();price.setSelectionRange(${start},${end});})()`);
     const key=async key=>{await send('Input.dispatchKeyEvent',{type:'keyDown',key,code:key});await send('Input.dispatchKeyEvent',{type:'keyUp',key,code:key});};
     assert.equal(await evaluate("!document.querySelector('.admin-brand-caption')&&!document.querySelector('.perfume-inventory-notice')&&!document.querySelector('.perfume-variant-table small')&&!document.querySelector('.perfume-variant-table').textContent.includes('Trạng thái nguồn')"),true);
@@ -419,7 +419,10 @@ try{
     await input(priceSelector,'349000');await caretAt(4);await key('Backspace');await priceState('34.000',2);
     await input(priceSelector,'349000');await caretAt(3);await key('Delete');await priceState('34.900',4);
     await input(priceSelector,'1234567');await caretAt(3);await send('Input.insertText',{text:'9'});await priceState('12.934.567',4);
-    await caretAt(0,10);await send('Input.insertText',{text:'2.000.000 ₫'});await priceState('2.000.000',9);
+    await caretAt(0,12);await send('Input.insertText',{text:'2.000.000 ₫'});await priceState('2.000.000',9);
+    await key('End');await priceState('2.000.000',9);await key('Delete');await priceState('2.000.000',9);
+    assert.equal(await evaluate(`document.querySelector(${JSON.stringify(priceSelector)}).checkValidity()`),true);
+    await input(priceSelector,'1000000');await priceState('1.000.000',9);
     await input(priceSelector,'');await wait(`document.querySelector(${JSON.stringify(priceSelector)}).validity.valueMissing`);
     await input(priceSelector,'0');await priceState('0',1);
     await input(priceSelector,'349000');

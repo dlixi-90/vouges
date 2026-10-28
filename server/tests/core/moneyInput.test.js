@@ -6,8 +6,9 @@ test("VND input groups thousands and keeps exact integer values for storage", ()
   for (const amount of [0,1,349000,499000,2000000,123456789,Number.MAX_SAFE_INTEGER]) {
     assert.equal(parseVndInput(formatVndInput(amount)), amount);
   }
-  assert.equal(formatVndInput(349000), "349.000");
-  assert.equal(formatVndInput(2000000), "2.000.000");
+  assert.equal(formatVndInput(349000), "349.000 ₫");
+  assert.equal(formatVndInput(1000000), "1.000.000 ₫");
+  assert.equal(formatVndInput(2000000), "2.000.000 ₫");
 });
 
 test("cleared input differs from zero and formatted currency can be pasted", () => {
@@ -33,4 +34,7 @@ test("caret follows the digit being edited when grouping separators move", () =>
   assert.equal(vndCaretPosition("12.934.567", 3), 4);
   assert.equal(vndCaretPosition("0", 10), 1);
   assert.equal(vndCaretPosition("", 0), 0);
+  assert.equal(vndCaretPosition("1.000.000 ₫", 7), 9);
+  assert.equal(vndCaretPosition("1.000.000 ₫", 20), 9);
+  assert.equal(vndCaretPosition("0 ₫", 10), 1);
 });
