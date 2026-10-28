@@ -60,6 +60,14 @@ Biểu đồ lưu/tỏa hương, mùa và ngày/đêm luôn hiển thị trên t
 
 Bộ ảnh hỗ trợ thêm tối đa 4 ảnh/lượt, thay từng ảnh, sắp xếp, xóa và chọn đại diện. Ảnh đầu là đại diện, được loại khỏi gallery chi tiết; ảnh riêng từng dung tích vẫn độc lập. Ảnh mới tối đa 5 MB/tệp, bộ ảnh tối đa 30 tệp.
 
+## Mô tả dạng bài viết
+
+Dashboard có trình soạn thảo trong phần **Thông tin chung → Mô tả sản phẩm**, áp dụng cả tạo mới và chỉnh sửa. Có tiêu đề lớn/nhỏ, cỡ và màu chữ, đậm/nghiêng/gạch chân/gạch ngang, căn lề, danh sách, trích dẫn, liên kết, đường phân cách, hoàn tác và xem trước. Có thể chèn tối đa 4 ảnh/lượt, thay hoặc xóa ảnh đang chọn, sửa mô tả/chú thích ảnh và chọn chiều rộng 50%, 75% hoặc 100%. Ảnh bài viết độc lập với ảnh đại diện, gallery và ảnh từng dung tích.
+
+Bài viết tối đa 30.000 ký tự và 30 ảnh; mỗi tệp PNG/JPEG/WebP không quá 5 MB. Lưu bằng nút **Lưu thay đổi** của sản phẩm. Nội dung đang soạn được giữ khi chuyển tab; nút lưu và chuyển tab tạm khóa trong lúc tải ảnh. Trang chi tiết trình bày bài viết trong tab **Mô tả**, với ba tầng hương vẫn nằm phía dưới.
+
+Trường `descriptionContent` lưu tài liệu có cấu trúc đã kiểm tra ở API; chỉ các kiểu nội dung, định dạng và URL cho phép được lưu. Trang cửa hàng dựng nội dung bằng React, không chèn HTML tùy ý. `description` tiếp tục giữ văn bản thuần tối đa 5.000 ký tự để tương thích danh sách, tìm kiếm và AI. Mô tả cũ không bị thay đổi khi triển khai; chỉ tạo tài liệu định dạng khi biên tập. Cần triển khai cả frontend và backend để lưu và đọc trường mới.
+
 ## Vận hành và kiểm tra
 
 Chạy trong thư mục `server`:

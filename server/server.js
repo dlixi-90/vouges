@@ -38,7 +38,7 @@ app.use(
   express.raw({ type: "application/json" }),
   clerkWebhooks,
 );
-app.use(express.json()); //Enables JSON request body parsing
+app.use(express.json({ limit: "512kb" })); // Allows structured product articles; individual fields retain validation.
 // Cron uses its own bearer secret, not a Clerk session token.
 app.get("/api/vouchers/birthdays", awardBirthdays);
 app.use(clerkMiddleware());

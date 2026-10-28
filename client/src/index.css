@@ -8,6 +8,7 @@
 @import "./admin-operations.css";
 @import "./brand-menu.css";
 @import "./fragrance-charts.css";
+@import "./product-article.css";
 
 @theme {
   --color-primary: #ffffff;

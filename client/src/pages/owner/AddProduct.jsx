@@ -10,6 +10,8 @@ import {
 import { saveVariantEdit } from "../../utils/productVariantEdit";
 import ProductVariantRow from "../../components/owner/ProductVariantRow";
 import ProductImageUpload from "../../components/owner/ProductImageUpload";
+import ProductArticleEditor from "../../components/owner/ProductArticleEditor";
+import { sanitizeArticle } from "../../utils/productArticle";
 
 const createEmptyImages = () => ({
   1: null,
@@ -21,6 +23,7 @@ const createEmptyImages = () => ({
 const createEmptyInputs = () => ({
   title: "",
   description: "",
+  descriptionContent: null,
   ingredients: "",
   brand: "",
   origin: "",
@@ -98,6 +101,7 @@ const ProductForm = () => {
   const [newSizeImage, setNewSizeImage] = useState(() => restoredDraft?.newSizeImage || null);
 
   const [loading, setLoading] = useState(false);
+  const [articleUploading, setArticleUploading] = useState(false);
   const [imageInputVersion, setImageInputVersion] = useState(0);
 
   const [loadedProductId, setLoadedProductId] = useState(
@@ -170,6 +174,7 @@ const ProductForm = () => {
     setInputs({
       title: product.title || "",
       description: product.description || "",
+      descriptionContent: product.descriptionContent ?? null,
       ingredients: product.ingredients || "",
       category: product.category || "",
       type: product.type || "",
@@ -346,12 +351,13 @@ const ProductForm = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
+    if (articleUploading || loading) return;
     if (hasVariantEdits) {
       toast.error("Vui lòng lưu hoặc hủy thay đổi dung tích trước khi lưu sản phẩm");
       return;
     }
 
-    if (!inputs.title.trim() || !inputs.description.trim() || !selectedType) {
+    if (!inputs.title.trim() || !inputs.description.trim() && !inputs.descriptionContent || !selectedType) {
       toast.error("Vui lòng điền đầy đủ các trường bắt buộc");
       return;
     }
@@ -436,6 +442,7 @@ const ProductForm = () => {
       const productData = {
         title: inputs.title.trim(),
         description: inputs.description.trim(),
+        descriptionContent: sanitizeArticle(inputs.descriptionContent ?? null),
         ingredients: inputs.ingredients.trim(),
         brand: (inputs.brand || "").trim(),
         origin: (inputs.origin || "").trim(),
@@ -559,18 +566,10 @@ const ProductForm = () => {
                 <Field label="Thương hiệu"><input value={inputs.brand||""} onChange={event=>updateInput("brand",event.target.value)} maxLength={200} placeholder="Ví dụ: Dior" className="admin-input"/></Field>
                 <Field label="Xuất xứ"><input value={inputs.origin||""} onChange={event=>updateInput("origin",event.target.value)} maxLength={200} placeholder="Ví dụ: Pháp" className="admin-input"/></Field>
               </div>
-              <Field label="Mô tả" required>
-                <textarea
-                  value={inputs.description}
-                  onChange={(event) =>
-                    updateInput("description", event.target.value)
-                  }
-                  placeholder="Nhập mô tả sản phẩm…"
-                  rows={6}
-                  className="admin-input min-h-36 resize-y"
-                  required
-                />
-              </Field>
+              <div><p className="mb-2 text-sm font-medium">Mô tả sản phẩm</p>
+                <ProductArticleEditor key={loadedProductId || "new-article"} value={inputs.descriptionContent} text={inputs.description} disabled={loading} onUploadingChange={setArticleUploading}
+                  onChange={(descriptionContent, description) => setInputs(current => ({ ...current, descriptionContent, description }))} />
+              </div>
 
               <Field label="Thành phần">
                 <textarea
@@ -793,7 +792,7 @@ const ProductForm = () => {
 
               <button
                 type="submit"
-                disabled={loading || hasVariantEdits}
+                disabled={loading || articleUploading || hasVariantEdits}
                 className="admin-primary-button w-full justify-center"
               >
                 <PackagePlus size={17} />

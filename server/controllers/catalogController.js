@@ -5,6 +5,7 @@ import CatalogSource from "../models/CatalogSource.js";
 import CatalogMigration from "../models/CatalogMigration.js";
 import Order from "../models/Order.js";
 import { sanitizeFragranceRows } from "../services/fragranceEditing.js";
+import { sanitizeArticle, articleToPlainText } from "../../client/src/utils/productArticle.js";
 import { v2 as cloudinary } from "cloudinary";
 import { unlink } from "node:fs/promises";
 
@@ -72,6 +73,12 @@ export const saveCatalogProduct = catalogAction(async(req,res)=>{
     if(body[field]!==undefined){if(typeof body[field]!=="string"||body[field].length>(field==="description"?5000:200))fail("Thông tin sản phẩm không hợp lệ");update[field]=body[field].trim();}
   }
   if(update.title==="")fail("Tên sản phẩm không được trống");
+  if(body.descriptionContent!==undefined){
+    update.descriptionContent=sanitizeArticle(body.descriptionContent);
+    if(update.descriptionContent)update.description=articleToPlainText(update.descriptionContent).trim().slice(0,5000)||(update.title||current.title);
+  }else if(update.description!==undefined&&update.description!==current.description){
+    update.descriptionContent=null;
+  }
   if(update.concentration!==undefined)update.type=update.concentration||"Chưa xác định nồng độ";
   if(body.isPublished===true&&current.catalogScope==="other")fail("Sản phẩm ngoài danh mục nước hoa chỉ được giữ để đối chiếu, không mở bán trên Velours.");
   const sizes=body.sizes??current.sizes;

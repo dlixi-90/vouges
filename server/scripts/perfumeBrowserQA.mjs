@@ -24,6 +24,7 @@ import {sanitizeFragranceRows} from "../services/fragranceEditing.js";
 import {createOperationsFixtures} from "./qa/operationsFixtures.mjs";
 import accordPalette from "../../client/src/data/accordColors.json" with { type: "json" };
 import {getAccordColors} from "../../client/src/utils/accordColors.js";
+import {sanitizeArticle,articleToPlainText} from "../../client/src/utils/productArticle.js";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
 const artifacts=path.join(root,".qa-perfume");fs.mkdirSync(artifacts,{recursive:true});
@@ -72,7 +73,9 @@ const api=async request=>{
     for(const field of ['accords','longevity','sillage','suitability'])fragrance[field]=sanitizeFragranceRows(field,body[field],editorProduct.fragrance[field]);
     const inStockBySize=Object.fromEntries(body.sizes.map(size=>[size,Boolean(body.inStockBySize[size]&&body.price[size]>0&&(body.inventoryMode==='source'||body.stockBySize[size]>0))]));
     const sizeImages=Object.fromEntries(body.sizes.filter(size=>body.sizeImages[size]).map(size=>[size,body.sizeImages[size]]));
-    editorProduct={...editorProduct,fragrance,images:body.images,sizes:body.sizes,inventoryMode:body.inventoryMode,stockBySize:body.stockBySize,price:body.price,inStockBySize,sizeImages,inStock:Object.values(inStockBySize).some(Boolean),updatedAt:new Date().toISOString()};
+    const descriptionContent=body.descriptionContent===undefined?editorProduct.descriptionContent:sanitizeArticle(body.descriptionContent);
+    const description=descriptionContent?articleToPlainText(descriptionContent).trim().slice(0,5000)||editorProduct.title:body.description??editorProduct.description;
+    editorProduct={...editorProduct,descriptionContent,description,fragrance,images:body.images,sizes:body.sizes,inventoryMode:body.inventoryMode,stockBySize:body.stockBySize,price:body.price,inStockBySize,sizeImages,inStock:Object.values(inStockBySize).some(Boolean),updatedAt:new Date().toISOString()};
     return {statusCode:200,body:{success:true,product:editorProduct}};
   }
   if(editorQA&&request.method==="POST"&&pathname==="/api/catalog/media")return {statusCode:200,body:{success:true,images:editorUploadImages}};

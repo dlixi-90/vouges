@@ -8,6 +8,7 @@ import User from "../models/User.js";
 import { unlink } from "node:fs/promises";
 import { getPopularProducts } from "../services/popularProducts.js";
 import { planProductImages, productImageFiles, resolveSizeImages } from "../utils/productImages.js";
+import { sanitizeArticle, articleToPlainText } from "../../client/src/utils/productArticle.js";
 import {
   getSizeQuantity,
   isSourceInventory,
@@ -63,7 +64,8 @@ const parseProductData = (rawProductData) => {
 
 const normalizeProductData = (productData, currentProduct = null) => {
   const title = typeof productData.title === "string" ? productData.title.trim() : "";
-  const description =
+  const descriptionContent = productData.descriptionContent !== undefined ? sanitizeArticle(productData.descriptionContent) : undefined;
+  const description = descriptionContent ? articleToPlainText(descriptionContent).trim().slice(0,5000) || title :
     typeof productData.description === "string"
       ? productData.description.trim()
       : "";
@@ -136,6 +138,7 @@ const normalizeProductData = (productData, currentProduct = null) => {
   return {
     title,
     description,
+    ...(descriptionContent !== undefined ? { descriptionContent } : currentProduct && description !== currentProduct.description ? { descriptionContent: null } : {}),
     ingredients,
     category,
     type,
