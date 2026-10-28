@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from "react";
-import { ArrowUpRight, Banknote, CalendarDays, ChevronRight, Database, Layers3, Library, Package, ShoppingBag, Sparkles } from "lucide-react";
+import { ArrowUpRight, Banknote, CalendarDays, ChevronRight, Layers3, Library, Package, ShoppingBag, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CatalogPage, CatalogState, RefreshButton, useCatalog, Badge, issueLabels } from "../../components/owner/CatalogUI";
 import ProductImage from "../../components/ProductImage";
@@ -77,7 +77,7 @@ export default function PerfumeOverview() {
         {!sales.loading && !sales.error && <div className="admin-revenue-chart"><Suspense fallback={<p className="perfume-loading">Đang tải biểu đồ…</p>}><RevenueChart data={monthlyData} currency="₫" /></Suspense>{!hasSales && <div className="admin-chart-empty"><Banknote size={23} strokeWidth={1.4} /><strong>Chưa có giao dịch trong kỳ</strong><span>Biểu đồ sẽ cập nhật khi phát sinh đơn hàng.</span></div>}</div>}
       </section>
       <section className="admin-dashboard-panel">
-        <header className="admin-panel-heading"><div><h2>Trạng thái danh mục</h2><p>Phân bổ catalog hiện tại</p></div><Link to="/owner/inventory" aria-label="Xem trạng thái hàng" className="admin-panel-arrow"><ArrowUpRight size={16} /></Link></header>
+        <header className="admin-panel-heading"><div><h2>Trạng thái danh mục</h2><p>Phân bổ catalog hiện tại</p></div><Link to="/owner/list-product" aria-label="Xem trạng thái hàng" className="admin-panel-arrow"><ArrowUpRight size={16} /></Link></header>
         <CatalogDistribution metrics={metrics} />
       </section>
 
@@ -97,9 +97,8 @@ export default function PerfumeOverview() {
       </section>
     </div>
 
-    <section className="admin-catalog-footer" aria-label="Thư viện và dữ liệu">
+    <section className="admin-catalog-footer" aria-label="Thư viện mùi hương">
       <div className="admin-library-links"><div className="admin-footer-title"><Library size={17} /><strong>Thư viện mùi hương</strong></div><div>{[{ kind: "brand", label: "Thương hiệu" }, { kind: "group", label: "Nhóm hương" }, { kind: "accord", label: "Kiểu mùi" }, { kind: "note", label: "Note hương" }].map(({ kind, label }) => <Link key={kind} to={kind === "brand" ? "/owner/brands" : `/owner/library?kind=${kind}`}><span>{label}</span><strong>{count(libraries[kind]?.count)}</strong><ArrowUpRight size={14} /></Link>)}</div></div>
-      <Link className="admin-source-summary" to="/owner/data"><span className="admin-metric-icon"><Database size={20} /></span><div><strong className="perfume-source-count">{count(data?.sourceCount)}</strong><span>Bản ghi Apaniche · VND</span></div><ArrowUpRight size={17} /></Link>
     </section>
   </CatalogPage>;
 }

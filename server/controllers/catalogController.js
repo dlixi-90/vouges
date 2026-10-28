@@ -2,7 +2,6 @@ import { isValidObjectId } from "mongoose";
 import Product from "../models/Product.js";
 import FragranceTerm from "../models/FragranceTerm.js";
 import CatalogSource from "../models/CatalogSource.js";
-import CatalogMigration from "../models/CatalogMigration.js";
 import Order from "../models/Order.js";
 import { sanitizeFragranceRows } from "../services/fragranceEditing.js";
 import { sanitizeArticle, articleToPlainText } from "../../client/src/utils/productArticle.js";
@@ -29,18 +28,17 @@ export const catalogAction = (handler) => async (req,res) => {
 };
 
 export const catalogSummary = catalogAction(async (_req,res) => {
-  const [metrics, libraries, sourceCount, migration, orders] = await Promise.all([
+  const [metrics, libraries, orders] = await Promise.all([
     Product.aggregate([{ $match:{isDeleted:{$ne:true}} },{$facet:{
       total:[{$count:"count"}], published:[{$match:{isPublished:true}},{$count:"count"}], available:[{$match:{inStock:true,isPublished:true}},{$count:"count"}],
       issues:[{$match:{"qualityIssues.0":{$exists:true}}},{$count:"count"}], hidden:[{$match:{isPublished:false}},{$count:"count"}],
       sources:[{$match:{inventoryMode:"source"}},{$count:"count"}],
     }}]),
     FragranceTerm.aggregate([{$group:{_id:"$kind",count:{$sum:1},incomplete:{$sum:{$cond:[{$eq:["$contentStatus","linked"]},1,0]}}}}]),
-    CatalogSource.countDocuments(), CatalogMigration.findOne({key:"apaniche-vnd-v2"}).select("-backupPath").lean(),
     Order.aggregate([{$group:{_id:null,count:{$sum:1},revenue:{$sum:{$cond:[{$and:["$isPaid",{$in:["$status",["Order Placed","Packing","Shipping","Delivery"]]}]},"$amount",0]}}}}]),
   ]);
   res.set("Cache-Control","private, no-store");
-  res.json({success:true,metrics:Object.fromEntries(Object.entries(metrics[0]||{}).map(([key,value])=>[key,value[0]?.count||0])),libraries,sourceCount,migration,orders:orders[0]||{count:0,revenue:0},currency:"VND"});
+  res.json({success:true,metrics:Object.fromEntries(Object.entries(metrics[0]||{}).map(([key,value])=>[key,value[0]?.count||0])),libraries,orders:orders[0]||{count:0,revenue:0},currency:"VND"});
 });
 
 export const catalogProducts = catalogAction(async (req,res) => {

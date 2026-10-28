@@ -59,14 +59,14 @@ const App = () => {
             <Route path="add-product" element={<AddProduct />} />
             <Route path="add-category" element={<AddCategory />} />
             <Route path="list-product" element={<PerfumeProducts key={location.search} />} />
-            <Route path="inventory" element={<PerfumeProducts key="inventory" mode="inventory" />} />
+            <Route path="inventory" element={<Navigate to={{ pathname: "/owner/list-product", search: location.search }} replace />} />
             <Route path="quality" element={<PerfumeProducts key="quality" mode="quality" />} />
-            <Route path="data" element={<PerfumeProducts key="source" mode="source" />} />
             <Route path="brands" element={<FragranceLibrary key="brands" brands />} />
             <Route path="library" element={<FragranceLibrary key="library" />} />
             <Route path="vouchers" element={<Vouchers />} />
             <Route path="messages" element={<Messages />} />
             <Route path="edit-product/:productId" element={<PerfumeEditor />} />
+            <Route path="*" element={<Navigate to="/owner" replace />} />
           </Route>
         </Routes>
       </Suspense>

@@ -588,8 +588,8 @@ try{
     await evaluate("window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))");
     await wait("!document.querySelector('.admin-sidebar').classList.contains('is-open')");
     assert.equal(await evaluate("document.activeElement===document.querySelector('.admin-menu-toggle')&&document.body.style.overflow!=='hidden'"),true);
-    await evaluate("document.querySelector('.admin-menu-toggle').click();document.querySelector('.admin-nav-group a[href=\"/owner/inventory\"]').click()");
-    await wait("location.pathname==='/owner/inventory'&&document.querySelectorAll('.perfume-table tbody tr').length===25&&!document.querySelector('.admin-sidebar').classList.contains('is-open')");
+    await evaluate("document.querySelector('.admin-menu-toggle').click();document.querySelector('.admin-nav-group a[href=\"/owner/list-product\"]').click()");
+    await wait("location.pathname==='/owner/list-product'&&document.querySelectorAll('.perfume-table tbody tr').length===25&&!document.querySelector('.admin-sidebar').classList.contains('is-open')");
     await noOverflow();
     await send("Emulation.setDeviceMetricsOverride",{width:320,height:760,deviceScaleFactor:1,mobile:true});
     await goto('/owner',"document.querySelector('.perfume-source-count')?.textContent.includes('2.444')");await noOverflow();await screenshot('admin-overview-320');
@@ -598,7 +598,7 @@ try{
       await goto(url,`document.querySelector('.velours-admin-route h1')?.textContent.includes(${JSON.stringify(title)})`);
       await noOverflow();await screenshot(`admin-${url.split('/').pop()}-mobile`);
     }
-    checks.push('responsive 390px/320px dashboard and mobile menu, Escape dismissal and inventory navigation');
+    checks.push('responsive 390px/320px dashboard and mobile menu, Escape dismissal and unified product navigation');
   }
   await goto("/owner/list-product","document.querySelectorAll('.perfume-table tbody tr').length===25");await noOverflow();await screenshot("products-mobile");
   await goto(`/owner/edit-product/${sample._id}?tab=variants`,"document.querySelector('.perfume-variant-table')");await noOverflow();await screenshot("variants-mobile");

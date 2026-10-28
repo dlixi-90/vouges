@@ -25,10 +25,9 @@ Storefront hiện tải theo trang 16 sản phẩm, header cố định ba danh 
 | Trang | Chức năng |
 | --- | --- |
 | `/owner` | Tổng số hồ sơ, hiển thị, khả năng đặt hàng, doanh thu thực, chất lượng và độ phủ thư viện |
-| `/owner/list-product` | Tìm theo tên, hãng, ID nguồn; lọc nồng độ, hiển thị, còn/hết, phạm vi và chất lượng; phân trang phía server; ẩn/hiện hàng loạt; xuất CSV trang hiện tại |
-| `/owner/inventory` | Tra cứu giá và trạng thái, mở tab dung tích của sản phẩm |
+| `/owner/list-product` | Sản phẩm: quản lý chung giá, dung tích, tồn kho và trạng thái; tìm/lọc, phân trang phía server, ẩn/hiện hàng loạt và xuất CSV trang hiện tại |
+| `/owner/inventory` | Đường dẫn cũ, chuyển sang `/owner/list-product` và giữ tham số lọc |
 | `/owner/edit-product/:id` | Thông tin chung, giá VND và số lượng từng dung tích, thêm/bỏ dung tích, ảnh riêng, gallery, tầng hương, nhóm hương, phong cách, kiểu mùi/tỷ lệ, chỉ số trải nghiệm và bản ghi nguồn |
-| `/owner/data` | Đối chiếu catalog với JSON nguồn không bị thay đổi khi biên tập |
 | `/owner/brands` | 173 hãng và nội dung giới thiệu có thể biên tập |
 | `/owner/library` | Nhóm hương, kiểu mùi, note; tìm kiếm, phân trang, biên tập nội dung và liên kết nguồn |
 | `/owner/quality` | Hồ sơ thiếu hãng/nồng độ/ảnh/tầng hương, giá 0 và chỉ số nguồn bất thường |

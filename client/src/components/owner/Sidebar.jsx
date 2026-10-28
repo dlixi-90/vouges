@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, Navigate, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { UserButton, useClerk } from "@clerk/react";
-import { ArrowUpRight, Bell, ChevronRight, Database, FlaskConical, Grid2X2, Layers3, Library, LogOut, Menu, MessagesSquare, Package, Search, ShieldCheck, ShoppingBag, Ticket, Warehouse, X } from "lucide-react";
+import { ArrowUpRight, Bell, ChevronRight, FlaskConical, Grid2X2, Layers3, Library, LogOut, Menu, MessagesSquare, Package, Search, ShieldCheck, ShoppingBag, Ticket, X } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import { assets } from "../../assets/data";
 
@@ -9,15 +9,13 @@ const navigation = [
   { label: "Tổng quan", items: [
     { path: "/owner", label: "Dashboard", icon: Grid2X2 },
     { path: "/owner/orders", label: "Đơn hàng & doanh thu", icon: ShoppingBag },
-    { path: "/owner/list-product", label: "Sản phẩm nước hoa", icon: Package, activePaths: ["/owner/list-product", "/owner/add-product", "/owner/edit-product/:productId"] },
-    { path: "/owner/inventory", label: "Giá & trạng thái hàng", icon: Warehouse },
+    { path: "/owner/list-product", label: "Sản phẩm", icon: Package, activePaths: ["/owner/list-product", "/owner/add-product", "/owner/edit-product/:productId"] },
   ] },
   { label: "Quản lý catalog", items: [
     { path: "/owner/brands", label: "Thương hiệu", icon: FlaskConical },
     { path: "/owner/add-category", label: "Danh mục", icon: Layers3 },
     { path: "/owner/library", label: "Thư viện hương", icon: Library },
     { path: "/owner/quality", label: "Chất lượng dữ liệu", icon: ShieldCheck },
-    { path: "/owner/data", label: "Dữ liệu Apaniche", icon: Database },
   ] },
   { label: "Vận hành", items: [
     { path: "/owner/vouchers", label: "Mã giảm giá", icon: Ticket },
