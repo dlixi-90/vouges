@@ -323,7 +323,6 @@ const ProductDetail = () => {
       </div>
 
       <section className="product-detail-experience mt-8" aria-label="Lưu hương, tỏa hương và thời điểm sử dụng">
-        <h2 className="mb-4 text-xl">Lưu hương, tỏa hương và thời điểm sử dụng</h2>
         <FragranceCharts fragrance={product.fragrance || {}} />
         <p className="mt-4 text-xs leading-5 text-gray-500">Thông tin tham khảo từ dữ liệu nguồn và nội dung được Velours biên tập. Trải nghiệm có thể thay đổi theo da và môi trường.</p>
       </section>
