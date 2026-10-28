@@ -3,7 +3,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
 import CollectionFilterDrawer from "../components/CollectionFilterDrawer";
-import { ArrowRight, Search, SearchX, SlidersHorizontal } from "lucide-react";
+import CollectionSearch from "../components/CollectionSearch";
+import { SearchX, SlidersHorizontal } from "lucide-react";
 import { formatVnd } from "../utils/money";
 import Pagination from "../components/Pagination";
 import usePaginationScroll from "../hooks/usePaginationScroll";
@@ -172,18 +173,15 @@ const Collection = () => {
           </button>
           {filterCount > 0 && <button type="button" onClick={resetFilters} className="inessa-collection-reset">Xóa bộ lọc</button>}
         </div>
-        <form className="inessa-collection-search" role="search" onSubmit={event => { event.preventDefault(); setCurrentPage(1); }}>
-          <Search size={17} strokeWidth={1.5} aria-hidden="true" />
-          <input type="search" value={searchQuery} aria-label="Tìm kiếm sản phẩm" placeholder="Tìm kiếm sản phẩm…"
-            onChange={event => { setSearchQuery(event.target.value); setCurrentPage(1); }} />
-          <button type="submit" aria-label="Tìm kiếm"><ArrowRight size={17} strokeWidth={1.5} aria-hidden="true" /></button>
-        </form>
         <div className="inessa-collection-sort-tools">
-          <p className="inessa-collection-results" role="status" aria-live="polite">
-            {productsLoading ? "Đang tải sản phẩm…" : filteredProducts.length
-              ? `${startIndex + 1}–${Math.min(startIndex + itemsPerPage, filteredProducts.length)} / ${filteredProducts.length} sản phẩm`
-              : "0 sản phẩm"}
-          </p>
+          <div className="inessa-collection-results-tools">
+            <CollectionSearch value={searchQuery} onChange={value => { setSearchQuery(value); setCurrentPage(1); }} />
+            <p className="inessa-collection-results" role="status" aria-live="polite">
+              {productsLoading ? "Đang tải sản phẩm…" : filteredProducts.length
+                ? `${startIndex + 1}–${Math.min(startIndex + itemsPerPage, filteredProducts.length)} / ${filteredProducts.length} sản phẩm`
+                : "0 sản phẩm"}
+            </p>
+          </div>
           <select aria-label="Sắp xếp sản phẩm" value={selectedSort}
             onChange={(event) => { setSelectedSort(event.target.value); setCurrentPage(1); }}>
             <option value="relevant">Sắp xếp mặc định</option>

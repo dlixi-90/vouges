@@ -180,6 +180,7 @@ try{
     const chanel=brands.find(brand=>brand.name==='Chanel');
     const chanelIds=(await Product.find({brand:'Chanel'}).select('_id').lean()).map(product=>String(product._id));
     await goto('/collection',"document.querySelectorAll('.net-product-card').length===16");
+    await evaluate("document.querySelector('.inessa-collection-search-toggle').click()");
     await input('[aria-label="Tìm kiếm sản phẩm"]','not-a-brand-result');
     await evaluate("document.querySelector('#store-shop-navigation .store-brand-trigger').click()");
     await wait(`document.querySelectorAll('#store-shop-navigation .store-brand-card').length===${brands.length}`);
@@ -193,7 +194,7 @@ try{
     await wait("document.querySelectorAll('.store-brand-card').length===1");
     await evaluate("document.querySelector('.store-brand-card').click()");
     await wait(`location.search==='?brand=Chanel'&&document.querySelectorAll('.net-product-card').length===16&&document.querySelector('.inessa-collection-results').textContent.includes('/ ${chanel.availableCount} ')`);
-    assert.equal(await evaluate(`(()=>{const allowed=${JSON.stringify(chanelIds)};return [...document.querySelectorAll('.net-product-card')].every(link=>allowed.includes(link.getAttribute('href').split('/').pop()))&&document.querySelector('[aria-label="Tìm kiếm sản phẩm"]').value===''&&!document.querySelector('.store-brand-dropdown')})()`),true);
+    assert.equal(await evaluate(`(()=>{const allowed=${JSON.stringify(chanelIds)};return [...document.querySelectorAll('.net-product-card')].every(link=>allowed.includes(link.getAttribute('href').split('/').pop()))&&(!document.querySelector('[aria-label="Tìm kiếm sản phẩm"]')||document.querySelector('[aria-label="Tìm kiếm sản phẩm"]').value==='')&&!document.querySelector('.store-brand-dropdown')})()`),true);
     await screenshot('brands-chanel-collection');
     await evaluate("document.querySelector('.inessa-collection-page-arrows [aria-label=\"Trang sau\"]')?.click()");
     await evaluate("document.querySelector('.store-collection-brand a').click()");

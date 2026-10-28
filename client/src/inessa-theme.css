@@ -155,11 +155,13 @@
 .net-theme .inessa-collection-heading h1 { margin-top: 25px; font-size: calc(clamp(56px, 7vw, 100px) - 3px); font-weight: var(--inessa-serif-weight); line-height: 1.2; text-transform: uppercase; }
 .net-collection .inessa-collection-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px 28px; padding-bottom: 34px; }
 .inessa-collection-filter-tools,.inessa-collection-sort-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 18px; }
-.inessa-collection-search { display: flex; align-items: center; gap: 9px; flex: 1; min-width: 200px; max-width: 320px; min-height: 44px; padding: 5px 6px 5px 13px; border: 1px solid #e5e5e5; border-radius: var(--inessa-radius-control); background: #fff; color: #999; }
-.inessa-collection-search input { flex: 1; width: 100%; min-width: 0; outline: none; background: transparent; color: #333; font-size: 12px; }
-.inessa-collection-search > svg { flex-shrink: 0; }
-.inessa-collection-search button { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 32px; height: 32px; border-radius: 6px; background: #171717; color: #fff; cursor: pointer; }
-.inessa-collection-search:focus-within { border-color: #999; }
+.inessa-collection-results-tools { display: flex; align-items: center; gap: 6px; }
+.inessa-collection-search { position: relative; flex-shrink: 0; }
+.inessa-collection-search-toggle { display: flex; align-items: center; justify-content: center; width: 32px; height: 44px; padding: 0; border: 0; border-radius: 0; background: transparent; color: #666; cursor: pointer; }
+.inessa-collection-search-toggle:hover { color: #171717; }
+.inessa-collection-search-panel { position: absolute; z-index: 30; top: calc(100% + 8px); left: 0; width: min(320px, calc(100vw - 44px)); padding: 12px; border: 1px solid #e5e5e5; border-radius: var(--inessa-radius-control); background: #fff; box-shadow: 0 8px 24px #0000000d; }
+.inessa-collection-search-panel input { width: 100%; min-width: 0; min-height: 36px; padding: 4px; border: 0; outline: none; background: transparent; color: #333; font-size: 13px; }
+.inessa-collection-search-panel:focus-within { border-color: #999; }
 .inessa-collection-filter-trigger { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: #171717; font-size: 14px; font-weight: 500; cursor: pointer; }
 .inessa-collection-filter-count { display: inline-flex; align-items: center; justify-content: center; min-width: 21px; height: 21px; padding-inline: 5px; border-radius: 50%; background: #fff; font-size: 10px; }
 .inessa-collection-reset { min-height: 44px; color: #777; font-size: 11px; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
@@ -217,7 +219,6 @@
   .inessa-collection-heading { padding-block: 35px 55px; }
   .net-theme .inessa-collection-heading h1 { font-size: calc(clamp(46px, 9vw, 64px) - 3px); margin-top: 20px; }
   .net-collection .inessa-collection-toolbar { gap: 8px 20px; padding-bottom: 24px; }
-  .inessa-collection-search { flex-basis: 100%; max-width: none; }
   .inessa-collection-sort-tools { justify-content: space-between; gap: 10px; width: 100%; }
   .net-collection .inessa-collection-sort-tools select { padding-right: 4px; font-size: 12px; border-radius: var(--inessa-radius-control); }
   .net-collection .inessa-collection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 14px; }
@@ -230,7 +231,7 @@
 @media (max-width: 480px) {
   .net-theme dialog.inessa-filter-drawer { width: 100%; }
   .inessa-collection-sort-tools { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; }
-  .inessa-collection-sort-tools .inessa-collection-results { grid-column: 1 / -1; }
+  .inessa-collection-sort-tools .inessa-collection-results-tools { grid-column: 1 / -1; }
   .inessa-collection-page-arrows { justify-self: end; }
   .net-collection .inessa-collection-grid.pagination-list-start { scroll-margin-top: 120px; }
 }
