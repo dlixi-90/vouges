@@ -146,8 +146,9 @@ const ProductDetail = () => {
   return (
     <div className="net-product-detail max-padd-container pb-14 pt-24 sm:pt-28">
       <div className="product-detail-overview">
+        <div className="product-detail-visual-column">
         <section
-          className="product-detail-gallery lg:sticky lg:top-24"
+          className="product-detail-gallery"
           aria-label="Thư viện ảnh sản phẩm"
         >
           <div className="product-detail-gallery-layout">
@@ -188,6 +189,13 @@ const ProductDetail = () => {
             </div>
           </div>
         </section>
+        {product.fragrance?.accords?.length > 0 && (
+          <section className="product-detail-accords" aria-label="Mùi hương chính">
+            <h2>Mùi hương chính</h2>
+            <FragranceAccords accords={product.fragrance.accords} />
+          </section>
+        )}
+        </div>
 
         <section
           className="product-detail-info min-w-0 py-1 lg:py-2"
@@ -314,9 +322,8 @@ const ProductDetail = () => {
           </div>
           </div>
 
-          <div className={`product-detail-summary${product.fragrance?.accords?.length ? " has-accords" : ""}`}>
+          <div className="product-detail-summary">
             <ProductFacts product={product} />
-            {product.fragrance?.accords?.length > 0 && <section className="product-detail-accords" aria-label="Mùi hương chính"><h2>Mùi hương chính</h2><FragranceAccords accords={product.fragrance.accords} /></section>}
           </div>
 
           <div className="product-detail-assurances mt-5 grid gap-2 text-xs text-[#70756f] sm:grid-cols-2">
@@ -334,8 +341,8 @@ const ProductDetail = () => {
       </div>
 
       <ProductDetailTabs key={productId} product={product} activeTab={activeTab} onTabChange={selectTab} reviewStats={reviewStats} onSummaryChange={setReviewSummary} />
-      <ProductFeatures />
       <RelatedProducts product={product} productId={productId} />
+      <ProductFeatures />
     </div>
   );
 };
