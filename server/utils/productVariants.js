@@ -27,6 +27,7 @@ export const getSizeRenames = (raw, current, sizes) => {
 
 export const buildCartSizeRename = (productId, renames) => {
   const path = (size) => `cartData.${productId}.${size}`;
+  const timestampPath = (size) => `cartAddedAt.${productId}.${size}`;
   const sources = new Set(renames.map(({ from }) => from));
   const targets = new Set(renames.map(({ to }) => to));
   const values = {};
@@ -37,8 +38,9 @@ export const buildCartSizeRename = (productId, renames) => {
         sources.has(to) ? 0 : { $ifNull: [`$${path(to)}`, 0] },
       ],
     };
+    values[timestampPath(to)] = { $ifNull: [`$${timestampPath(from)}`, sources.has(to) ? 0 : { $ifNull: [`$${timestampPath(to)}`, 0] }] };
   }
-  const removed = [...sources].filter((size) => !targets.has(size)).map(path);
+  const removed = [...sources].filter((size) => !targets.has(size)).flatMap(size => [path(size), timestampPath(size)]);
   return {
     filter: { $or: [...sources].map((size) => ({ [path(size)]: { $exists: true } })) },
     pipeline: [{ $set: values }, ...(removed.length ? [{ $unset: removed }] : [])],

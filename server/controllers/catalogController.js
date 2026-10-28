@@ -1,13 +1,18 @@
-import { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import Product from "../models/Product.js";
 import FragranceTerm from "../models/FragranceTerm.js";
 import CatalogSource from "../models/CatalogSource.js";
 import Order from "../models/Order.js";
+import User from "../models/User.js";
+import { getSizeRenames, buildCartSizeRename } from "../utils/productVariants.js";
 import { sanitizeFragranceRows } from "../services/fragranceEditing.js";
 import { sanitizeArticle, articleToPlainText } from "../../client/src/utils/productArticle.js";
 import { v2 as cloudinary } from "cloudinary";
 import { unlink } from "node:fs/promises";
 import { invalidateStorefrontCatalog } from "../services/storefrontCatalog.js";
+import { getDashboardData } from "../services/dashboardService.js";
+import { getPopularProducts } from "../services/popularProducts.js";
+import { placedOrderFilter } from "../utils/orderReporting.js";
 
 const fail = (message, statusCode = 400) => { throw Object.assign(new Error(message), { statusCode }); };
 const pagination = (query) => {
@@ -27,7 +32,7 @@ export const catalogAction = (handler) => async (req,res) => {
   }
 };
 
-export const catalogSummary = catalogAction(async (_req,res) => {
+const readCatalogSummary = async () => {
   const [metrics, libraries, orders] = await Promise.all([
     Product.aggregate([{ $match:{isDeleted:{$ne:true}} },{$facet:{
       total:[{$count:"count"}], published:[{$match:{isPublished:true}},{$count:"count"}], available:[{$match:{inStock:true,isPublished:true}},{$count:"count"}],
@@ -35,10 +40,30 @@ export const catalogSummary = catalogAction(async (_req,res) => {
       sources:[{$match:{inventoryMode:"source"}},{$count:"count"}],
     }}]),
     FragranceTerm.aggregate([{$group:{_id:"$kind",count:{$sum:1},incomplete:{$sum:{$cond:[{$eq:["$contentStatus","linked"]},1,0]}}}}]),
-    Order.aggregate([{$group:{_id:null,count:{$sum:1},revenue:{$sum:{$cond:[{$and:["$isPaid",{$in:["$status",["Order Placed","Packing","Shipping","Delivery"]]}]},"$amount",0]}}}}]),
+    Order.aggregate([{$match:placedOrderFilter()},{$group:{_id:null,count:{$sum:1},revenue:{$sum:{$cond:["$isPaid","$amount",0]}}}}]),
   ]);
+  return {success:true,metrics:Object.fromEntries(Object.entries(metrics[0]||{}).map(([key,value])=>[key,value[0]?.count||0])),libraries,orders:orders[0]||{count:0,revenue:0},currency:"VND"};
+};
+
+export const catalogSummary = catalogAction(async (_req,res) => {
   res.set("Cache-Control","private, no-store");
-  res.json({success:true,metrics:Object.fromEntries(Object.entries(metrics[0]||{}).map(([key,value])=>[key,value[0]?.count||0])),libraries,orders:orders[0]||{count:0,revenue:0},currency:"VND"});
+  res.json(await readCatalogSummary());
+});
+
+export const catalogOverview = catalogAction(async (req,res) => {
+  const timezone=req.query.timezone??"UTC";
+  if(typeof timezone!=="string"||timezone.length>100)fail("Múi giờ không hợp lệ");
+  try{new Intl.DateTimeFormat("en-US",{timeZone:timezone});}catch{fail("Múi giờ không hợp lệ");}
+  const fields="title brand category images price sizes inStock qualityIssues";
+  const [summary,recentProducts,attentionProducts,sales,popularProducts]=await Promise.all([
+    readCatalogSummary(),
+    Product.find({isDeleted:{$ne:true}}).select(fields).sort({createdAt:-1,_id:-1}).limit(5).lean(),
+    Product.find({isDeleted:{$ne:true},"qualityIssues.0":{$exists:true}}).select(fields).sort({title:1,_id:1}).limit(4).lean(),
+    getDashboardData({timezone,includeOrders:false}), getPopularProducts(),
+  ]);
+  const cards=products=>products.map(product=>({...product,images:product.images?.slice(0,1)||[]}));
+  res.set("Cache-Control","private, no-store");
+  res.json({...summary,recentProducts:cards(recentProducts),attentionProducts:cards(attentionProducts),popularProducts:cards(popularProducts).slice(0,5),sales:{monthlyData:sales.monthlyData}});
 });
 
 export const catalogProducts = catalogAction(async (req,res) => {
@@ -83,17 +108,23 @@ export const saveCatalogProduct = catalogAction(async(req,res)=>{
   const sizes=body.sizes??current.sizes;
   if(!Array.isArray(sizes)||sizes.length<1||sizes.length>50||sizes.some(size=>typeof size!=="string"||!size.trim()||size!==size.trim()||size.length>50||size.includes(".")||size.startsWith("$")||["__proto__","constructor","prototype"].includes(size))||new Set(sizes.map(size=>size.toLowerCase())).size!==sizes.length)fail("Dung tích phải khác nhau, tối đa 50 ký tự, không chứa dấu chấm hoặc bắt đầu bằng $.");
   update.sizes=sizes;
-  update.variantMetadata=Object.fromEntries(sizes.filter(size=>current.variantMetadata?.[size]).map(size=>[size,current.variantMetadata[size]]));
+  const renames=getSizeRenames(body,current,sizes);
+  const originalSize=new Map(renames.map(({from,to})=>[to,from]));
+  update.variantMetadata=Object.fromEntries(sizes.filter(size=>current.variantMetadata?.[originalSize.get(size)||size]).map(size=>[size,current.variantMetadata[originalSize.get(size)||size]]));
   const removedSizes=current.sizes.filter(size=>!sizes.includes(size));
-  if((removedSizes.length||body.inventoryMode&&body.inventoryMode!==current.inventoryMode)&&await Order.exists({paymentMethod:"QR",isPaid:false,status:"Awaiting Payment",items:{$elemMatch:{product:String(current._id),...(removedSizes.length?{size:{$in:removedSizes}}:{})}}}))fail("Dung tích đang được giữ cho đơn QR. Hoàn tất hoặc hủy giao dịch trước khi thay đổi dung tích hay chế độ kho.",409);
+  const modeChanged=body.inventoryMode&&body.inventoryMode!==current.inventoryMode;
+  const changedSizes=[...new Set([...removedSizes,...renames.flatMap(({from,to})=>[from,...(current.sizes.includes(to)?[to]:[])])])];
+  const reservationFilter={paymentMethod:"QR",isPaid:false,status:"Awaiting Payment",items:{$elemMatch:{product:String(current._id),...(!modeChanged&&changedSizes.length?{size:{$in:changedSizes}}:{})}}};
+  if(!renames.length&&(changedSizes.length||modeChanged)&&await Order.exists(reservationFilter))fail("Dung tích đang được giữ cho đơn QR. Hoàn tất hoặc hủy giao dịch trước khi thay đổi dung tích hay chế độ kho.",409);
   if(body.inventoryMode!==undefined){if(!["tracked","source"].includes(body.inventoryMode))fail("Chế độ tồn kho không hợp lệ");update.inventoryMode=body.inventoryMode;}
   const mode=update.inventoryMode||current.inventoryMode; const price={},stock={},enabled={},images={};
   for(const size of sizes){
-    const amount=body.price?.[size]??current.price?.[size]; const quantity=body.stockBySize?.[size]??current.stockBySize?.[size]??0;
+    const previous=originalSize.get(size)||size;
+    const amount=body.price?.[size]??current.price?.[previous]; const quantity=body.stockBySize?.[size]??current.stockBySize?.[previous]??0;
     if(!Number.isSafeInteger(amount)||amount<0)fail(`Giá phải là số VND nguyên không âm: ${size}`);
     if(!Number.isSafeInteger(quantity)||quantity<0)fail(`Tồn kho không hợp lệ: ${size}`);
-    const status=body.inStockBySize?.[size]??current.inStockBySize?.[size]??false;if(typeof status!=="boolean")fail("Trạng thái dung tích không hợp lệ");
-    const image=body.sizeImages&&Object.hasOwn(body.sizeImages,size)?body.sizeImages[size]:current.sizeImages?.[size];if(image&&!address(image))fail("Đường dẫn ảnh không hợp lệ");
+    const status=body.inStockBySize?.[size]??current.inStockBySize?.[previous]??false;if(typeof status!=="boolean")fail("Trạng thái dung tích không hợp lệ");
+    const image=body.sizeImages&&Object.hasOwn(body.sizeImages,size)?body.sizeImages[size]:current.sizeImages?.[previous];if(image&&!address(image))fail("Đường dẫn ảnh không hợp lệ");
     price[size]=amount;stock[size]=quantity;enabled[size]=status&&amount>0&&(mode==="source"||quantity>0);if(image)images[size]=image;
   }
   Object.assign(update,{price,stockBySize:stock,inStockBySize:enabled,sizeImages:images,inStock:Object.values(enabled).some(Boolean)});
@@ -116,8 +147,14 @@ export const saveCatalogProduct = catalogAction(async(req,res)=>{
   const issues=(current.qualityIssues||[]).filter(issue=>!["missing_brand","missing_concentration","missing_scent_group","missing_images","missing_scent_notes","zero_source_price"].includes(issue));
   if(!(update.fragrance?.group??current.fragrance?.group))issues.push("missing_scent_group");
   if(!brand)issues.push("missing_brand");if(!concentration)issues.push("missing_concentration");if(!(update.images||current.images)?.length)issues.push("missing_images");if(!Object.values(update.fragrance?.notes||current.fragrance?.notes||{}).some(list=>list.length))issues.push("missing_scent_notes");if(Object.values(price).some(value=>value===0))issues.push("zero_source_price");update.qualityIssues=issues;
-  const product=await Product.findOneAndUpdate({_id:current._id,updatedAt:current.updatedAt},{$set:update},{new:true,runValidators:true});
-  if(!product)fail("Dữ liệu đã thay đổi. Vui lòng tải lại.",409);
+  const persist=async(session)=>{
+    if(renames.length&&await Order.exists(reservationFilter).session(session))fail("Dung tích đang được giữ cho đơn QR. Hoàn tất hoặc hủy giao dịch trước khi đổi tên.",409);
+    const saved=await Product.findOneAndUpdate({_id:current._id,updatedAt:current.updatedAt},{$set:update},{new:true,runValidators:true,...(session?{session}:{})});
+    if(!saved)fail("Dữ liệu đã thay đổi. Vui lòng tải lại.",409);
+    if(renames.length){const {filter,pipeline}=buildCartSizeRename(String(current._id),renames);await User.updateMany(filter,pipeline,{session,updatePipeline:true});}
+    return saved;
+  };
+  const product=renames.length?await mongoose.connection.transaction(persist):await persist();
   res.json({success:true,product,message:"Đã lưu sản phẩm"});
 });
 

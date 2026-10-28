@@ -1,12 +1,17 @@
-import test from "node:test";
+import test, { beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { buildPublicBrands } from "../../services/publicBrands.js";
+import { buildPublicBrands, getPublicBrands, invalidatePublicBrands } from "../../services/publicBrands.js";
+import { invalidateStorefrontCatalog } from "../../services/storefrontCatalog.js";
 import { listBrands } from "../../controllers/brandController.js";
 import Product from "../../models/Product.js";
 import FragranceTerm from "../../models/FragranceTerm.js";
 import productRouter from "../../routes/productRoute.js";
 import logos from "../../data/brandImages.json" with { type: "json" };
+import headerDirectory from "../../../client/src/data/brandDirectory.json" with { type: "json" };
+
+beforeEach(invalidatePublicBrands);
+afterEach(invalidatePublicBrands);
 
 const product = (brand, overrides = {}) => ({ brand, sizes: ["50ml"], inStock: true, inventoryMode: "source", inStockBySize: { "50ml": true }, ...overrides });
 
@@ -69,4 +74,52 @@ test("brand endpoint failures do not reveal database details", async t => {
   const res = response(); await listBrands({}, res);
   assert.equal(res.statusCode, 500);
   assert.deepEqual(res.body, {success: false, message: "Không thể tải danh sách thương hiệu"});
+});
+
+test("brand reads share a request and expire after sixty seconds; catalog edits invalidate the directory", async t => {
+  let reads = 0, clock = 100;
+  t.mock.method(Date, "now", () => clock);
+  t.mock.method(Product, "find", () => ({ select: () => ({ lean: async () => { reads++; return [product("Chanel")]; } }) }));
+  const terms = t.mock.method(FragranceTerm, "find", () => ({ select: () => ({ lean: async () => [] }) }));
+  const [first, second] = await Promise.all([getPublicBrands(), getPublicBrands()]);
+  assert.equal(first, second); assert.equal(reads, 1);
+  await getPublicBrands(); assert.equal(reads, 1);
+  clock += 60001; await getPublicBrands(); assert.equal(reads, 2);
+  invalidateStorefrontCatalog(); await getPublicBrands(); assert.equal(reads, 3);
+  assert.equal(terms.mock.callCount(), 3);
+});
+
+test("a directory read started before an edit cannot replace the newer cached directory", async t => {
+  const resolvers = [];
+  t.mock.method(Product, "find", () => ({ select: () => ({ lean: () => new Promise(resolve => resolvers.push(resolve)) }) }));
+  t.mock.method(FragranceTerm, "find", () => ({ select: () => ({ lean: async () => [] }) }));
+  const old = getPublicBrands();
+  invalidateStorefrontCatalog();
+  const current = getPublicBrands();
+  resolvers[1]([product("Dior")]); await current;
+  resolvers[0]([product("Chanel")]); await old;
+  assert.equal((await getPublicBrands())[0].name, "Dior");
+  assert.equal(resolvers.length, 2);
+});
+
+test("failed directory refreshes can be retried without caching a failed promise", async t => {
+  let reads = 0;
+  t.mock.method(Product, "find", () => ({ select: () => ({ lean: async () => { if (++reads === 1) throw new Error("offline"); return [product("Dior")]; } }) }));
+  t.mock.method(FragranceTerm, "find", () => ({ select: () => ({ lean: async () => [] }) }));
+  await assert.rejects(getPublicBrands(), /offline/);
+  assert.equal((await getPublicBrands())[0].name, "Dior"); assert.equal(reads, 2);
+});
+
+test("the immediate header directory contains only public names and working local logos", () => {
+  assert.ok(headerDirectory.brands.length > 100);
+  const names = new Set();
+  for (const brand of headerDirectory.brands) {
+    assert.deepEqual(Object.keys(brand).sort(), ["image", "name"]);
+    assert.ok(brand.name.trim()); assert.equal(names.has(brand.name.toLocaleLowerCase("vi-VN")), false);
+    names.add(brand.name.toLocaleLowerCase("vi-VN"));
+    if (brand.image) {
+      assert.match(brand.image, /^\/images\/brands\/[a-z0-9.-]+$/);
+      assert.ok(fs.statSync(new URL(`../../../client/public${brand.image}`, import.meta.url)).size > 0);
+    }
+  }
 });

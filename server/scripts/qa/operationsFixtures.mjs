@@ -22,13 +22,13 @@ export function createOperationsFixtures(sample) {
   const json = body => ({ statusCode: 200, body: { success: true, ...body } });
   const stream = snapshot => ({ statusCode: 200, mime: "text/event-stream", body: `event: snapshot\ndata: ${JSON.stringify(snapshot)}\n\n` });
   return { requests, respond(request) {
-    const url = new URL(request.url), pathname = url.pathname;
+    const url = new URL(request.url), pathname = url.pathname.replace(/\/$/, "");
     if (!/^\/api\/(orders|vouchers|support)(\/|$)/.test(pathname)) return null;
     const body = request.postData && request.method !== "GET" ? JSON.parse(request.postData) : {};
     const record = () => requests.push({ method: request.method, path: pathname, body });
     if (pathname === "/api/orders/dashboard" && request.method === "GET") {
       const page = Number(url.searchParams.get("page") || 1);
-      const monthlyData = Array.from({ length: 6 }, (_, index) => { const date = new Date(); date.setUTCDate(1); date.setUTCMonth(date.getUTCMonth() - 5 + index); return { key: date.toISOString().slice(0, 7), month: date.toLocaleDateString("vi-VN", { month: "short", timeZone: "UTC" }), total: index === 5 ? orders.reduce((sum, item) => sum + item.amount, 0) : 0, successful: index === 5 ? orders.filter(item => item.isPaid).reduce((sum, item) => sum + item.amount, 0) : 0 }; });
+      const monthlyData = Array.from({ length: 12 }, (_, index) => { const date = new Date(); date.setUTCDate(1); date.setUTCMonth(date.getUTCMonth() - 11 + index); return { key: date.toISOString().slice(0, 7), month: date.toLocaleDateString("vi-VN", { month: "short", timeZone: "UTC" }), total: index === 11 ? orders.reduce((sum, item) => sum + item.amount, 0) : 0, successful: index === 11 ? orders.filter(item => item.isPaid).reduce((sum, item) => sum + item.amount, 0) : 0 }; });
       return json({ dashboardData: { orders: orders.slice((page - 1) * 10, page * 10), totalOrders: orders.length, totalRevenue: orders.filter(item => item.isPaid).reduce((sum, item) => sum + item.amount, 0), monthlyData, page, pageSize: 10, totalPages: 4 } });
     }
     if (pathname === "/api/orders/status" && request.method === "POST") { record(); const order = orders.find(item => item._id === body.orderId); order.status = body.status; if (body.status === "Delivery") { order.isPaid = true; order.paidAt = now; } return json({ order, message: "Đã cập nhật trạng thái" }); }
@@ -38,10 +38,11 @@ export function createOperationsFixtures(sample) {
     }
     if (pathname.startsWith("/api/vouchers/")) {
       const id = pathname.split("/").pop();
-      if (request.method === "PATCH") { record(); vouchers = vouchers.map(voucher => voucher._id === id ? { ...voucher, active: body.active } : voucher); return json({}); }
+        if (request.method === "PATCH") { record(); vouchers = vouchers.map(voucher => voucher._id === id ? { ...voucher, active: body.active } : voucher); return json({ voucher: vouchers.find(voucher => voucher._id === id) }); }
       if (request.method === "DELETE") { record(); vouchers = vouchers.filter(voucher => voucher._id !== id); return json({}); }
     }
     if (pathname === "/api/support/inbox/events") return stream({ total: 1, unread: 0, conversations: [{ ...conversation, lastMessage: messages.at(-1)?.content, lastMessageAt: conversation.updatedAt }] });
+    if (pathname === "/api/support/inbox") return json({ page: 1, total: 1, unread: 0, conversations: [{ ...conversation, lastMessage: messages.at(-1)?.content, lastMessageAt: conversation.updatedAt }] });
     if (pathname.startsWith(`/api/support/conversations/${conversation._id}`)) {
       if (pathname.endsWith("/events")) return stream({ conversation, messages });
       if (pathname.endsWith("/status") && request.method === "PATCH") { record(); conversation = { ...conversation, status: body.status, updatedAt: new Date().toISOString() }; return json({ conversation }); }

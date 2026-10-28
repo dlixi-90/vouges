@@ -1,16 +1,17 @@
 import Order from "../models/Order.js";
+import { placedOrderFilter } from "../utils/orderReporting.js";
 
-export const getDashboardData = async ({ page = 1, pageSize = 10, timezone = "UTC" }) => {
-  const filter = { $or: [{ paymentMethod: "COD" }, { isPaid: true }] };
+export const getDashboardData = async ({ page = 1, pageSize = 10, timezone = "UTC", includeOrders = true }) => {
+  const filter = placedOrderFilter();
   const [orders, summaries] = await Promise.all([
-    Order.find(filter)
+    includeOrders ? Order.find(filter)
       .select("items amount address status paymentMethod isPaid paidAt createdAt")
       .sort({ createdAt: -1, _id: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate({ path: "items.product", select: "title images price" })
       .populate({ path: "address", select: "firstName lastName street state city country zipcode zipCode phone" })
-      .lean(),
+      .lean() : Promise.resolve([]),
     Order.aggregate([
       { $match: filter },
       { $facet: {
@@ -26,7 +27,7 @@ export const getDashboardData = async ({ page = 1, pageSize = 10, timezone = "UT
             successful: { $sum: { $cond: ["$isPaid", "$amount", 0] } },
           } },
           { $sort: { _id: -1 } },
-          { $limit: 6 },
+          { $limit: 12 },
         ],
       } },
     ]),
@@ -37,8 +38,8 @@ export const getDashboardData = async ({ page = 1, pageSize = 10, timezone = "UT
     ? new Date(`${months[0]._id}-01T00:00:00Z`)
     : new Date();
   const byMonth = new Map(months.map((month) => [month._id, month]));
-  const monthlyData = Array.from({ length: 6 }, (_, index) => {
-    const date = new Date(Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth() - 5 + index, 1));
+  const monthlyData = Array.from({ length: 12 }, (_, index) => {
+    const date = new Date(Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth() - 11 + index, 1));
     const key = date.toISOString().slice(0, 7);
     const month = byMonth.get(key);
     return {

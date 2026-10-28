@@ -131,6 +131,24 @@ test("the final header categories exist before any category API response", () =>
   assert.deepEqual(STORE_SHOP_LINKS.map(item => item.title), ["Bộ sưu tập", "Nước hoa nam", "Nước hoa nữ", "Nước hoa unisex"]);
 });
 
+test("brand metadata is reusable on header remount and survives a failed refresh until a successful retry", async () => {
+  let calls = 0, fail = false;
+  const directory = { success: true, brands: [{ name: "Chanel", image: "/chanel.webp" }] };
+  const client = createPublicCatalog({ axios: { get: async url => {
+    assert.equal(url, "/api/products/brands"); calls++;
+    if (fail) throw new Error("offline");
+    return { data: directory };
+  } } });
+  assert.equal(client.peekBrands(), undefined);
+  await Promise.all([client.brands(), client.brands()]); assert.equal(calls, 1);
+  assert.equal(client.peekBrands(), directory);
+  await client.brands(); assert.equal(calls, 1);
+  fail = true; await assert.rejects(client.brands({ force: true }), /offline/);
+  assert.equal(client.peekBrands(), directory);
+  fail = false; await client.brands({ force: true }); assert.equal(calls, 3);
+  client.clear(); assert.equal(client.peekBrands(), undefined);
+});
+
 test("fragrance metadata is lazy and cached separately from the live card/stock snapshot", async (t) => {
   invalidateStorefrontCatalog();
   const projections = [];
@@ -160,6 +178,13 @@ test("dashboard catalog reads share cached requests and clear private snapshots 
   await resources.loadCatalog("/summary", "/api/catalog", { force: true }); assert.equal(calls, 2);
   assert.equal(resources.peekCatalog("/summary").total, 2);
   resources.clear(); assert.equal(resources.peekCatalog("/summary"), undefined);
+});
+
+test("support read requests do not wait for uniqueness index initialization", async (t) => {
+  for (const model of [Conversation, Message, Usage]) t.mock.method(model, "init", () => assert.fail("Read requests must not initialize indexes"));
+  let proceeded = 0;
+  await ensureSupportIndexes({ method: "GET" }, null, () => proceeded++);
+  assert.equal(proceeded, 1);
 });
 
 test("support initialization stays deduplicated and still completes before its requests proceed", async (t) => {

@@ -12,6 +12,8 @@ import ProductVariantRow from "../../components/owner/ProductVariantRow";
 import ProductImageUpload from "../../components/owner/ProductImageUpload";
 import ProductArticleEditor from "../../components/owner/ProductArticleEditor";
 import { sanitizeArticle } from "../../utils/productArticle";
+import { editableFragrance } from "../../utils/fragrance";
+import NewProductFragrance from "../../components/owner/NewProductFragrance";
 
 const createEmptyImages = () => ({
   1: null,
@@ -30,6 +32,8 @@ const createEmptyInputs = () => ({
   category: "",
   type: "",
   typeId: "",
+  fragrance: editableFragrance({ group: "", style: "", notes: { top: [], middle: [], base: [] } }),
+  notesText: { top: "", middle: "", base: "" },
 });
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
@@ -74,7 +78,9 @@ const ProductForm = () => {
     () => restoredDraft?.images || createEmptyImages(),
   );
   const [inputs, setInputs] = useState(
-    () => restoredDraft?.inputs || createEmptyInputs(),
+    () => ({ ...createEmptyInputs(), ...restoredDraft?.inputs,
+      fragrance: editableFragrance(restoredDraft?.inputs?.fragrance || {}),
+    }),
   );
   const selection = getProductTypeSelection(categories, inputs);
   const selectedCategory = selection?.category;
@@ -179,6 +185,8 @@ const ProductForm = () => {
       category: product.category || "",
       type: product.type || "",
       typeId: "",
+      fragrance: editableFragrance(product.fragrance || {}),
+      notesText: Object.fromEntries(["top", "middle", "base"].map(phase => [phase, (product.fragrance?.notes?.[phase] || []).map(note => note.name).join("\n")])),
     });
 
     const variants = (product.sizes || []).map((size) => ({
@@ -218,6 +226,16 @@ const ProductForm = () => {
       [field]: value,
     }));
   };
+
+  const fragranceField = (field, value) => setInputs(current => ({ ...current,
+    fragrance: { ...current.fragrance, [field]: value },
+  }));
+  const updateNotes = (phase, text) => setInputs(current => ({ ...current,
+    notesText: { ...current.notesText, [phase]: text },
+    fragrance: { ...current.fragrance, notes: { ...current.fragrance.notes,
+      [phase]: text.split("\n").map(name => name.trim()).filter(Boolean).map(name => ({ name, url: null })),
+    } },
+  }));
 
   const addSizePrice = () => {
     const size = newSize.trim();
@@ -446,6 +464,7 @@ const ProductForm = () => {
         ingredients: inputs.ingredients.trim(),
         brand: (inputs.brand || "").trim(),
         origin: (inputs.origin || "").trim(),
+        fragrance: inputs.fragrance,
         typeId: selectedType._id,
         price: prices,
         stockBySize,
@@ -821,6 +840,8 @@ const ProductForm = () => {
               )}
             </section>
           </aside>
+          <NewProductFragrance fragrance={inputs.fragrance} notesText={inputs.notesText}
+            onChange={fragranceField} onNotes={updateNotes} disabled={loading || articleUploading} />
         </form>
       </div>
     </main>

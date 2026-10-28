@@ -26,6 +26,10 @@
 .perfume-assessment-group:last-child { grid-column:1/-1; }
 .perfume-assessment-group:last-child table { max-width:600px; }
 .perfume-add-size { margin-top:20px; }
+.perfume-size-name,.perfume-size-edit > div { display:flex; align-items:center; gap:8px; }
+.perfume-size-name > strong { min-width:40px; }
+.perfume-variant-table .perfume-size-edit input { width:130px; min-height:36px; border:1px solid #ddd; border-radius:7px; padding:8px 10px; background:#fff; font-size:12px; }
+.perfume-size-edit small[role=alert] { max-width:240px; color:#b42318; }
 .perfume-add-size > input { min-height:38px; min-width:160px; max-width:260px; padding:9px 12px; border:1px solid #ddd; border-radius:7px; font-size:12px; }
 .perfume-variant-placeholder { display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:#f7f7f7; color:#aaa; border-radius:6px; }
 .perfume-variant-stock { min-width:150px; max-width:220px; padding-top:10px; color:#777; }

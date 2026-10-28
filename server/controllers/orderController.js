@@ -13,6 +13,7 @@ import { validateDeliveryPhone } from "../utils/deliveryPhone.js";
 import { sendOrderConfirmation } from "../services/orderEmail.js";
 import { normalizeOrderNote } from "../utils/orderNote.js";
 import { invalidateStorefrontCatalog } from "../services/storefrontCatalog.js";
+import { placedOrderFilter } from "../utils/orderReporting.js";
 
 // Global variables for payment
 const orderStatuses = ["Order Placed", "Packing", "Shipping", "Delivery"];
@@ -914,9 +915,7 @@ export const userOrders = async (req, res) => {
 // All Orders data for Admin [POST '/']
 export const allOrders = async (req, res) => {
   try {
-    const orders = await Order.find({
-      $or: [{ paymentMethod: "COD" }, { isPaid: true }],
-    })
+    const orders = await Order.find(placedOrderFilter())
       .populate("items.product address")
       .sort({ createdAt: -1 });
 

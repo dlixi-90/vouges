@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Link, Outlet, Navigate, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { UserButton, useClerk } from "@clerk/react";
-import { ArrowUpRight, Bell, ChevronRight, FlaskConical, Grid2X2, Layers3, Library, LogOut, Menu, MessagesSquare, Package, Search, ShieldCheck, ShoppingBag, Ticket, X } from "lucide-react";
+import { ArrowUpRight, Bell, ChevronRight, FlaskConical, Grid2X2, Layers3, Library, LogOut, Menu, MessagesSquare, Package, ShieldCheck, ShoppingBag, Ticket, X } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import { assets } from "../../assets/data";
+import { prefetchOwnerRoute } from "../../utils/ownerPrefetch";
+import QuickProductSearch from "../QuickProductSearch";
 
 const navigation = [
   { label: "Tổng quan", items: [
@@ -24,12 +26,13 @@ const navigation = [
 ];
 
 export default function Sidebar() {
-  const { isOwner, user, profileError, retryUserProfile } = useAppContext();
+  const context = useAppContext();
+  const { isOwner, user, profileError, retryUserProfile } = context;
+  const warm = path => { void prefetchOwnerRoute(path, context); };
   const { signOut } = useClerk();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [menu, setMenu] = useState({ path: pathname, open: false });
-  const [search, setSearch] = useState("");
   const menuOpen = menu.path === pathname && menu.open;
   const activeItem = navigation.flatMap(group => group.items).find(item => (item.activePaths || [item.path]).some(path => matchPath({ path, end: true }, pathname)));
   const isWorkspacePage = pathname === "/owner/messages";
@@ -84,7 +87,7 @@ export default function Sidebar() {
         <div className="admin-brand-row">
           <div className="admin-brand-lockup">
             <Link to="/owner" className="admin-brand" aria-label="Velours — Dashboard" onClick={closeMenu}><img src={assets.logoImg} alt="" /><span>elours</span></Link>
-            <Link to="/" className="admin-store-link" aria-label="Xem cửa hàng" title="Xem cửa hàng" onClick={closeMenu}><ArrowUpRight size={15} aria-hidden="true" /></Link>
+            <Link to="/" className="admin-store-link" aria-label="Xem cửa hàng" title="Xem cửa hàng" onClick={closeMenu}><ArrowUpRight size={24} aria-hidden="true" /></Link>
           </div>
           <button type="button" className="admin-mobile-close" aria-label="Đóng menu" onClick={closeMenu}><X size={20} /></button>
         </div>
@@ -93,7 +96,7 @@ export default function Sidebar() {
             <p>{group.label}</p>
             {group.items.map(({ path, label, icon: Icon, activePaths }) => {
               const active = (activePaths || [path]).some(pattern => matchPath({ path: pattern, end: true }, pathname));
-              return <Link to={path} key={path} onClick={closeMenu} aria-current={active ? "page" : undefined}><Icon size={18} strokeWidth={1.65} aria-hidden="true" /><span>{label}</span>{active && <ChevronRight size={14} className="admin-nav-arrow" aria-hidden="true" />}</Link>;
+              return <Link to={path} key={path} onPointerEnter={() => warm(path)} onFocus={() => warm(path)} onClick={closeMenu} aria-current={active ? "page" : undefined}><Icon size={18} strokeWidth={1.65} aria-hidden="true" /><span>{label}</span>{active && <ChevronRight size={14} className="admin-nav-arrow" aria-hidden="true" />}</Link>;
             })}
           </div>)}
         </nav>
@@ -105,14 +108,12 @@ export default function Sidebar() {
         <header className="admin-topbar">
           <div className="admin-breadcrumb"><button type="button" className="admin-menu-toggle" onClick={() => setMenu({ path: pathname, open: !menuOpen })} aria-expanded={menuOpen} aria-controls="admin-navigation" aria-label="Mở menu quản trị"><Menu size={21} /></button><Link to="/owner">Quản trị</Link><ChevronRight size={13} aria-hidden="true" /><span>{activeItem?.label || "Quản lý nước hoa"}</span></div>
           <div className="admin-topbar-tools">
-            <form className="admin-global-search" role="search" onSubmit={event => { event.preventDefault(); if (search.trim()) navigate(`/owner/list-product?q=${encodeURIComponent(search.trim())}`); }}>
-              <Search size={17} aria-hidden="true" /><input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Tìm sản phẩm, thương hiệu…" aria-label="Tìm nhanh sản phẩm" /><button type="submit" aria-label="Tìm kiếm"><ArrowUpRight size={15} /></button>
-            </form>
-            <Link to="/owner/messages" className="admin-notification" aria-label="Mở tin nhắn hỗ trợ"><Bell size={19} strokeWidth={1.6} /></Link>
+            <QuickProductSearch className="admin-global-search" onSearch={query => navigate(`/owner/list-product?q=${encodeURIComponent(query)}`)} />
+            <Link to="/owner/messages" onPointerEnter={() => warm("/owner/messages")} onFocus={() => warm("/owner/messages")} className="admin-notification" aria-label="Mở tin nhắn hỗ trợ"><Bell size={19} strokeWidth={1.6} /></Link>
             <div className="admin-account"><UserButton appearance={{ elements: { userButtonAvatarBox: { width: "36px", height: "36px" } } }} /><div><strong>{user?.fullName || user?.firstName || "Quản trị viên"}</strong><span>{user?.primaryEmailAddress?.emailAddress || "Quản trị viên Velours"}</span></div></div>
           </div>
         </header>
-        <div className="velours-admin-route"><Outlet /></div>
+        <div className="velours-admin-route"><Suspense fallback={<p className="perfume-loading" role="status">Đang tải nội dung…</p>}><Outlet /></Suspense></div>
       </div>
     </div>
   </div>;

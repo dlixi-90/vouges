@@ -1,0 +1,696 @@
+{
+  "brands": [
+    {
+      "name": "4711",
+      "image": "/images/brands/4711-75e7f4ae.png"
+    },
+    {
+      "name": "Abercrombie & Fitch",
+      "image": "/images/brands/abercrombie-fitch-4310a9c8.webp"
+    },
+    {
+      "name": "Acqua Di Parma",
+      "image": "/images/brands/acqua-di-parma-aad621e4.webp"
+    },
+    {
+      "name": "Afnan Perfumes",
+      "image": "/images/brands/afnan-perfumes-9d7c01d1.webp"
+    },
+    {
+      "name": "Agatho Parfum",
+      "image": "/images/brands/agatho-parfum-3bbbdf9c.webp"
+    },
+    {
+      "name": "Akro",
+      "image": "/images/brands/akro-7aac2bb4.webp"
+    },
+    {
+      "name": "Al Haramain",
+      "image": "/images/brands/al-haramain-a14872ae.webp"
+    },
+    {
+      "name": "Alaia Paris",
+      "image": "/images/brands/alaia-paris-ff6ce55d.webp"
+    },
+    {
+      "name": "Alexandria Fragrances",
+      "image": "/images/brands/alexandria-fragrances-e82e53c7.webp"
+    },
+    {
+      "name": "Amouage",
+      "image": "/images/brands/amouage-84b7cc1a.webp"
+    },
+    {
+      "name": "Anna Sui",
+      "image": "/images/brands/anna-sui-277edd27.webp"
+    },
+    {
+      "name": "Argos",
+      "image": "/images/brands/argos-2e84058b.webp"
+    },
+    {
+      "name": "Ariana Grande",
+      "image": "/images/brands/ariana-grande-8dcb36a7.webp"
+    },
+    {
+      "name": "Aristino Paris",
+      "image": "/images/brands/aristino-paris-b09e0841.webp"
+    },
+    {
+      "name": "Armaf",
+      "image": "/images/brands/armaf-57c3d652.webp"
+    },
+    {
+      "name": "Asdaaf",
+      "image": "/images/brands/asdaaf-1bc221cb.webp"
+    },
+    {
+      "name": "Atelier Cologne",
+      "image": "/images/brands/atelier-cologne-bb0d0955.webp"
+    },
+    {
+      "name": "Atelier Des Ors",
+      "image": "/images/brands/atelier-des-ors-3f5d38c6.webp"
+    },
+    {
+      "name": "Atkinsons",
+      "image": "/images/brands/atkinsons-26f73181.webp"
+    },
+    {
+      "name": "Attar",
+      "image": "/images/brands/attar-0af9c0a3.webp"
+    },
+    {
+      "name": "Azzaro",
+      "image": "/images/brands/azzaro-982dc0fd.webp"
+    },
+    {
+      "name": "BDK Parfum",
+      "image": "/images/brands/bdk-parfum-b1e439c2.webp"
+    },
+    {
+      "name": "Billie Eilish",
+      "image": "/images/brands/billie-eilish-4c8b5806.webp"
+    },
+    {
+      "name": "Boadicea the Victorious",
+      "image": "/images/brands/boadicea-the-victorious-ff938ddc.webp"
+    },
+    {
+      "name": "Bond No.9",
+      "image": "/images/brands/bond-no-9-4c84b933.webp"
+    },
+    {
+      "name": "BORNTOSTANDOUT",
+      "image": "/images/brands/borntostandout-0ad7e7e6.webp"
+    },
+    {
+      "name": "Bottega Veneta",
+      "image": "/images/brands/bottega-veneta-b666d800.webp"
+    },
+    {
+      "name": "Britney Spears",
+      "image": "/images/brands/britney-spears-d6895e69.webp"
+    },
+    {
+      "name": "Burberry",
+      "image": "/images/brands/burberry-817e6047.webp"
+    },
+    {
+      "name": "Butterfly Thai Perfume",
+      "image": "/images/brands/butterfly-thai-perfume-8f0fca87.webp"
+    },
+    {
+      "name": "Bvlgari",
+      "image": "/images/brands/bvlgari-a9c33a05.webp"
+    },
+    {
+      "name": "Byredo",
+      "image": "/images/brands/byredo-05b389dc.webp"
+    },
+    {
+      "name": "Cacharel",
+      "image": "/images/brands/cacharel-582981c8.webp"
+    },
+    {
+      "name": "Calvin Klein",
+      "image": "/images/brands/calvin-klein-a59c9d28.webp"
+    },
+    {
+      "name": "Carner Barcelona",
+      "image": "/images/brands/carner-barcelona-56cc9b25.webp"
+    },
+    {
+      "name": "Carolina Herrera",
+      "image": "/images/brands/carolina-herrera-293e17d6.webp"
+    },
+    {
+      "name": "Cartier",
+      "image": "/images/brands/cartier-141e943f.webp"
+    },
+    {
+      "name": "Chanel",
+      "image": "/images/brands/chanel-58462970.webp"
+    },
+    {
+      "name": "Chasing Scents",
+      "image": "/images/brands/chasing-scents-c36ec1da.webp"
+    },
+    {
+      "name": "Chloé",
+      "image": "/images/brands/chloe-1e0e2581.webp"
+    },
+    {
+      "name": "Chopard",
+      "image": "/images/brands/chopard-485b4e24.webp"
+    },
+    {
+      "name": "Christian Louboutin",
+      "image": "/images/brands/christian-louboutin-cf2930e3.webp"
+    },
+    {
+      "name": "Clive Christian",
+      "image": "/images/brands/clive-christian-f3b7fc4f.webp"
+    },
+    {
+      "name": "Coach",
+      "image": "/images/brands/coach-e9689874.webp"
+    },
+    {
+      "name": "Creed",
+      "image": "/images/brands/creed-51d3af5f.webp"
+    },
+    {
+      "name": "D.S. & Durga",
+      "image": "/images/brands/d-s-durga-be9bd2a2.webp"
+    },
+    {
+      "name": "Davidoff",
+      "image": "/images/brands/davidoff-0500c448.webp"
+    },
+    {
+      "name": "Diesel",
+      "image": "/images/brands/diesel-239e441b.webp"
+    },
+    {
+      "name": "Dior",
+      "image": "/images/brands/dior-3be839e3.webp"
+    },
+    {
+      "name": "Diptyque",
+      "image": "/images/brands/diptyque-286e79cb.webp"
+    },
+    {
+      "name": "DKNY",
+      "image": "/images/brands/dkny-cd84c447.webp"
+    },
+    {
+      "name": "Dolce & Gabbana",
+      "image": "/images/brands/dolce-gabbana-b43dc88f.webp"
+    },
+    {
+      "name": "Dr. Vranjes Firenze",
+      "image": "/images/brands/dr-vranjes-firenze-2712ae1e.webp"
+    },
+    {
+      "name": "DSquared2",
+      "image": "/images/brands/dsquared2-f001468c.webp"
+    },
+    {
+      "name": "Dunhill",
+      "image": "/images/brands/dunhill-0204a1c9.webp"
+    },
+    {
+      "name": "El Ganso",
+      "image": "/images/brands/el-ganso-914673a0.webp"
+    },
+    {
+      "name": "Elie Saab",
+      "image": "/images/brands/elie-saab-ad98f63b.webp"
+    },
+    {
+      "name": "Elizabeth Arden",
+      "image": "/images/brands/elizabeth-arden-bd7bdacb.webp"
+    },
+    {
+      "name": "Ermenegildo Zegna",
+      "image": "/images/brands/ermenegildo-zegna-132abd69.webp"
+    },
+    {
+      "name": "Escentric Molecules",
+      "image": "/images/brands/escentric-molecules-61cbd9de.webp"
+    },
+    {
+      "name": "Essential Parfums",
+      "image": "/images/brands/essential-parfums-bf2ca763.webp"
+    },
+    {
+      "name": "Etat Libre d'Orange",
+      "image": "/images/brands/etat-libre-d-orange-0f948a70.webp"
+    },
+    {
+      "name": "Ex Nihilo",
+      "image": "/images/brands/ex-nihilo-9f93b1a0.webp"
+    },
+    {
+      "name": "Fragrance World",
+      "image": "/images/brands/fragrance-world-302799d1.webp"
+    },
+    {
+      "name": "Franck Boclet",
+      "image": "/images/brands/franck-boclet-d8c5a869.webp"
+    },
+    {
+      "name": "Franck Muller",
+      "image": "/images/brands/franck-muller-dc722174.webp"
+    },
+    {
+      "name": "Frederic Malle",
+      "image": "/images/brands/frederic-malle-ed20b215.webp"
+    },
+    {
+      "name": "French Avenue",
+      "image": "/images/brands/french-avenue-05d520d9.webp"
+    },
+    {
+      "name": "Giorgio Armani",
+      "image": "/images/brands/giorgio-armani-a224f913.webp"
+    },
+    {
+      "name": "Givenchy",
+      "image": "/images/brands/givenchy-ade50fa4.webp"
+    },
+    {
+      "name": "Glossier",
+      "image": "/images/brands/glossier-fb0a30a2.webp"
+    },
+    {
+      "name": "Gritti",
+      "image": "/images/brands/gritti-59422dec.webp"
+    },
+    {
+      "name": "Gucci",
+      "image": "/images/brands/gucci-4af2366e.webp"
+    },
+    {
+      "name": "Guerlain",
+      "image": "/images/brands/guerlain-04281ee2.webp"
+    },
+    {
+      "name": "Guess",
+      "image": "/images/brands/guess-98041566.webp"
+    },
+    {
+      "name": "Hermès",
+      "image": "/images/brands/hermes-10d73c28.webp"
+    },
+    {
+      "name": "House of Sillage",
+      "image": "/images/brands/house-of-sillage-bc1a623a.webp"
+    },
+    {
+      "name": "Hugo Boss",
+      "image": "/images/brands/hugo-boss-67b46d71.webp"
+    },
+    {
+      "name": "Initio Parfums Prives",
+      "image": "/images/brands/initio-parfums-prives-bb79172f.webp"
+    },
+    {
+      "name": "Issey Miyake",
+      "image": "/images/brands/issey-miyake-2b7c47e5.webp"
+    },
+    {
+      "name": "J.U.S Parfums",
+      "image": "/images/brands/j-u-s-parfums-6153a3b8.webp"
+    },
+    {
+      "name": "Jean Paul Gaultier",
+      "image": "/images/brands/jean-paul-gaultier-44943412.webp"
+    },
+    {
+      "name": "Jimmy Choo",
+      "image": "/images/brands/jimmy-choo-0f588b0e.webp"
+    },
+    {
+      "name": "Jo Malone",
+      "image": "/images/brands/jo-malone-62db7aba.webp"
+    },
+    {
+      "name": "John Varvatos",
+      "image": "/images/brands/john-varvatos-17155402.webp"
+    },
+    {
+      "name": "Karl Lagerfeld",
+      "image": "/images/brands/karl-lagerfeld-5f3e616d.webp"
+    },
+    {
+      "name": "Katy Perry",
+      "image": "/images/brands/katy-perry-de1bad8d.webp"
+    },
+    {
+      "name": "Kayali",
+      "image": "/images/brands/kayali-5b96d552.webp"
+    },
+    {
+      "name": "Kenzo",
+      "image": "/images/brands/kenzo-2a635381.webp"
+    },
+    {
+      "name": "Kilian",
+      "image": "/images/brands/kilian-c2080445.webp"
+    },
+    {
+      "name": "Kira",
+      "image": "/images/brands/kira-a98a188f.webp"
+    },
+    {
+      "name": "Lacoste",
+      "image": "/images/brands/lacoste-8c3a5503.webp"
+    },
+    {
+      "name": "Lalique",
+      "image": "/images/brands/lalique-c7389415.webp"
+    },
+    {
+      "name": "Lancôme",
+      "image": "/images/brands/lancome-9499630f.webp"
+    },
+    {
+      "name": "Lanvin",
+      "image": "/images/brands/lanvin-e3c4a8e3.webp"
+    },
+    {
+      "name": "Lattafa",
+      "image": "/images/brands/lattafa-2c87809c.webp"
+    },
+    {
+      "name": "Le Labo",
+      "image": "/images/brands/le-labo-de34877b.webp"
+    },
+    {
+      "name": "Les Liquides Imaginaires",
+      "image": "/images/brands/les-liquides-imaginaires-abbcbf21.webp"
+    },
+    {
+      "name": "Loewe",
+      "image": "/images/brands/loewe-a030b8cb.webp"
+    },
+    {
+      "name": "Lolita Lempicka",
+      "image": "/images/brands/lolita-lempicka-d328ace4.webp"
+    },
+    {
+      "name": "Louis Vuitton",
+      "image": "/images/brands/louis-vuitton-cc15375e.webp"
+    },
+    {
+      "name": "Lusted",
+      "image": "/images/brands/lusted-08393f5e.webp"
+    },
+    {
+      "name": "Mad Et Len",
+      "image": "/images/brands/mad-et-len-3f0dda73.webp"
+    },
+    {
+      "name": "Maison Alhambra",
+      "image": "/images/brands/maison-alhambra-1aa8cc60.webp"
+    },
+    {
+      "name": "Maison Crivelli",
+      "image": "/images/brands/maison-crivelli-b70abc60.webp"
+    },
+    {
+      "name": "Maison Francis Kurkdjian",
+      "image": "/images/brands/maison-francis-kurkdjian-0457024c.webp"
+    },
+    {
+      "name": "Maison Martin Margiela",
+      "image": "/images/brands/maison-martin-margiela-f9b8fc32.webp"
+    },
+    {
+      "name": "Maison Matine",
+      "image": "/images/brands/maison-matine-08c9f009.webp"
+    },
+    {
+      "name": "Mancera",
+      "image": "/images/brands/mancera-b31bfd6f.webp"
+    },
+    {
+      "name": "Marc Jacobs",
+      "image": "/images/brands/marc-jacobs-c964b563.webp"
+    },
+    {
+      "name": "Masque",
+      "image": "/images/brands/masque-2c102986.webp"
+    },
+    {
+      "name": "Matiere Premiere",
+      "image": "/images/brands/matiere-premiere-b899e908.webp"
+    },
+    {
+      "name": "Memo Paris",
+      "image": "/images/brands/memo-paris-0134cbd8.webp"
+    },
+    {
+      "name": "Memoire Des Sens",
+      "image": "/images/brands/memoire-des-sens-23464562.webp"
+    },
+    {
+      "name": "Mendittorosa",
+      "image": "/images/brands/mendittorosa-596d235a.webp"
+    },
+    {
+      "name": "Mercedes-Benz",
+      "image": "/images/brands/mercedes-benz-4b38f1d7.webp"
+    },
+    {
+      "name": "Michael Kors",
+      "image": "/images/brands/michael-kors-2e803c8a.webp"
+    },
+    {
+      "name": "Missoni",
+      "image": "/images/brands/missoni-f47d7c36.webp"
+    },
+    {
+      "name": "Mode Creation Munich (MCM)",
+      "image": "/images/brands/mode-creation-munich-mcm--2ec8a316.webp"
+    },
+    {
+      "name": "Montale",
+      "image": "/images/brands/montale-33609744.webp"
+    },
+    {
+      "name": "Montblanc",
+      "image": "/images/brands/montblanc-d68963e0.webp"
+    },
+    {
+      "name": "Moschino",
+      "image": "/images/brands/moschino-ad4587a5.webp"
+    },
+    {
+      "name": "Nacho Vidal",
+      "image": "/images/brands/nacho-vidal-44590944.webp"
+    },
+    {
+      "name": "Narciso",
+      "image": "/images/brands/narciso-65b5c09d.webp"
+    },
+    {
+      "name": "Nasomatto",
+      "image": "/images/brands/nasomatto-f6eee35b.webp"
+    },
+    {
+      "name": "Nautica",
+      "image": "/images/brands/nautica-da8c217d.webp"
+    },
+    {
+      "name": "Nina Ricci",
+      "image": "/images/brands/nina-ricci-ddd7a96b.webp"
+    },
+    {
+      "name": "Nishane",
+      "image": "/images/brands/nishane-bf8c56b4.webp"
+    },
+    {
+      "name": "Once Perfume",
+      "image": "/images/brands/once-perfume-ebd97162.webp"
+    },
+    {
+      "name": "Original Penguin",
+      "image": "/images/brands/original-penguin-aa5446a8.webp"
+    },
+    {
+      "name": "Ormonde Jayne",
+      "image": "/images/brands/ormonde-jayne-4dbf4f5e.webp"
+    },
+    {
+      "name": "Orto Parisi",
+      "image": "/images/brands/orto-parisi-8bc9a529.webp"
+    },
+    {
+      "name": "Paco Rabanne",
+      "image": "/images/brands/paco-rabanne-7846c60f.webp"
+    },
+    {
+      "name": "Parfums De Marly",
+      "image": "/images/brands/parfums-de-marly-237a9da9.webp"
+    },
+    {
+      "name": "Paul Smith",
+      "image": "/images/brands/paul-smith-fdac5172.webp"
+    },
+    {
+      "name": "Penhaligon's",
+      "image": "/images/brands/penhaligon-s-0be34b07.webp"
+    },
+    {
+      "name": "Perris Monte Carlo",
+      "image": "/images/brands/perris-monte-carlo-f93eb8fa.webp"
+    },
+    {
+      "name": "Prada",
+      "image": "/images/brands/prada-c8c92b27.webp"
+    },
+    {
+      "name": "Profumum Roma",
+      "image": "/images/brands/profumum-roma-9b0a1f93.webp"
+    },
+    {
+      "name": "Ralph Lauren",
+      "image": "/images/brands/ralph-lauren-bd2e745b.webp"
+    },
+    {
+      "name": "Rasasi",
+      "image": "/images/brands/rasasi-2d4a35ab.webp"
+    },
+    {
+      "name": "Reyane Tradition",
+      "image": "/images/brands/reyane-tradition-032a38d0.webp"
+    },
+    {
+      "name": "Roja Dove",
+      "image": "/images/brands/roja-dove-a426d080.webp"
+    },
+    {
+      "name": "Salvatore Ferragamo",
+      "image": "/images/brands/salvatore-ferragamo-397ed565.webp"
+    },
+    {
+      "name": "Sensxsent",
+      "image": "/images/brands/sensxsent-ccc4cac1.webp"
+    },
+    {
+      "name": "Serge Lutens",
+      "image": "/images/brands/serge-lutens-0b53ed34.webp"
+    },
+    {
+      "name": "Sol de Janeiro",
+      "image": "/images/brands/sol-de-janeiro-553c64d6.webp"
+    },
+    {
+      "name": "Sospiro",
+      "image": "/images/brands/sospiro-67ea28fe.webp"
+    },
+    {
+      "name": "State Of Mind",
+      "image": "/images/brands/state-of-mind-78dbe8ca.webp"
+    },
+    {
+      "name": "Stéphane Humbert Lucas 777",
+      "image": "/images/brands/stephane-humbert-lucas-777-8798b353.webp"
+    },
+    {
+      "name": "Tamburins",
+      "image": "/images/brands/tamburins-e4e5e577.webp"
+    },
+    {
+      "name": "Tauer",
+      "image": "/images/brands/tauer-e6da7edc.webp"
+    },
+    {
+      "name": "Thameen",
+      "image": "/images/brands/thameen-af7dd227.webp"
+    },
+    {
+      "name": "The Merchant of Venice",
+      "image": "/images/brands/the-merchant-of-venice-7e6f6290.webp"
+    },
+    {
+      "name": "The Woods Collection",
+      "image": "/images/brands/the-woods-collection-8a7d5263.webp"
+    },
+    {
+      "name": "Thierry Mugler",
+      "image": "/images/brands/thierry-mugler-3164fbcb.webp"
+    },
+    {
+      "name": "Thomas Kosmala",
+      "image": "/images/brands/thomas-kosmala-dc57729d.webp"
+    },
+    {
+      "name": "Tiziana Terenzi",
+      "image": "/images/brands/tiziana-terenzi-6bf539c6.webp"
+    },
+    {
+      "name": "Tom Ford",
+      "image": "/images/brands/tom-ford-1a60ae9d.webp"
+    },
+    {
+      "name": "Tommy Hilfiger",
+      "image": "/images/brands/tommy-hilfiger-a7fa3001.webp"
+    },
+    {
+      "name": "Trussardi",
+      "image": "/images/brands/trussardi-cf30fee3.webp"
+    },
+    {
+      "name": "Valentino",
+      "image": "/images/brands/valentino-b299abdc.webp"
+    },
+    {
+      "name": "Van Cleef & Arpels",
+      "image": "/images/brands/van-cleef-arpels-47a28079.webp"
+    },
+    {
+      "name": "Velixir",
+      "image": "/images/brands/velixir-19cd548b.webp"
+    },
+    {
+      "name": "Vera Wang",
+      "image": "/images/brands/vera-wang-3b6276f3.webp"
+    },
+    {
+      "name": "Versace",
+      "image": "/images/brands/versace-343a8739.webp"
+    },
+    {
+      "name": "Victoria's Secret",
+      "image": "/images/brands/victoria-s-secret-887f79f9.webp"
+    },
+    {
+      "name": "Victorinox",
+      "image": "/images/brands/victorinox-3d673503.webp"
+    },
+    {
+      "name": "Viktor & Rolf",
+      "image": "/images/brands/viktor-rolf-b67128ce.webp"
+    },
+    {
+      "name": "Xerjoff",
+      "image": "/images/brands/xerjoff-bfc6dd36.webp"
+    },
+    {
+      "name": "Yves Saint Laurent",
+      "image": "/images/brands/yves-saint-laurent-a908d42d.webp"
+    },
+    {
+      "name": "Zadig & Voltaire",
+      "image": "/images/brands/zadig-voltaire-c2e8e874.webp"
+    },
+    {
+      "name": "Zara",
+      "image": "/images/brands/zara-bab01e3f.webp"
+    }
+  ]
+}

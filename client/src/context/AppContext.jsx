@@ -120,7 +120,12 @@ export const AppContextProvider = ({ children }) => {
 
   // Clerk
   const { user } = useUser();
-  const { getToken, userId: authUserId, isLoaded } = useAuth();
+  const { getToken: clerkGetToken, userId: authUserId, isLoaded } = useAuth();
+  const tokenReader = useRef(clerkGetToken);
+  useEffect(() => { tokenReader.current = clerkGetToken; }, [clerkGetToken]);
+  const getToken = useCallback((...args) => tokenReader.current(...args), []);
+  // The factory stores this callback; it reads the ref only during async requests.
+  // eslint-disable-next-line react-hooks/refs
   const storeResources = useMemo(() => createStoreResources({ axios, userId: authUserId, getToken }), [authUserId, getToken]);
   useEffect(() => () => storeResources.clear(), [storeResources]);
   const isOwner = !isLoaded ? null : !authUserId ? false
@@ -129,7 +134,7 @@ export const AppContextProvider = ({ children }) => {
   const { openSignIn } = useClerk();
 
   useEffect(() => () => dashboardCache.clear(), [dashboardCache, authUserId, isOwner]);
-  useEffect(() => () => storeResources.invalidateCatalog(), [storeResources, isOwner]);
+  useEffect(() => () => { storeResources.invalidateCatalog(); storeResources.invalidateSupport(); }, [storeResources, isOwner]);
   useEffect(() => () => setCartDrawer((current) => current?.locationKey === locationKey ? null : current), [locationKey]);
 
   useEffect(() => () => {

@@ -10,6 +10,7 @@ import { getPopularProducts } from "../services/popularProducts.js";
 import { planProductImages, productImageFiles, resolveSizeImages } from "../utils/productImages.js";
 import { sanitizeArticle, articleToPlainText } from "../../client/src/utils/productArticle.js";
 import { invalidateStorefrontCatalog } from "../services/storefrontCatalog.js";
+import { sanitizeNewProductFragrance } from "../services/fragranceEditing.js";
 import {
   getSizeQuantity,
   isSourceInventory,
@@ -169,7 +170,10 @@ export const createProduct = async (req, res) => {
     }
     perfumeFields.concentration=productData.type;
     perfumeFields.gender=({"Nước hoa nam":"Nam","Nước hoa nữ":"Nữ","Nước hoa unisex":"Unisex"})[productData.category]||"";
-    perfumeFields.qualityIssues=["missing_scent_group","missing_scent_notes",...(!perfumeFields.brand?["missing_brand"]:[])];
+    perfumeFields.fragrance=sanitizeNewProductFragrance(rawProductData.fragrance);
+    perfumeFields.qualityIssues=[...(!perfumeFields.fragrance.group?["missing_scent_group"]:[]),
+      ...(!Object.values(perfumeFields.fragrance.notes).some(rows=>rows.length)?["missing_scent_notes"]:[]),
+      ...(!perfumeFields.brand?["missing_brand"]:[])];
 
     const imageData = await uploadProductImages(plan);
 

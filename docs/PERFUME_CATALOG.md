@@ -27,13 +27,22 @@ Storefront hiện tải theo trang 16 sản phẩm, header cố định ba danh 
 | `/owner` | Tổng số hồ sơ, hiển thị, khả năng đặt hàng, doanh thu thực, chất lượng và độ phủ thư viện |
 | `/owner/list-product` | Sản phẩm: quản lý chung giá, dung tích, tồn kho và trạng thái; tìm/lọc, phân trang phía server, ẩn/hiện hàng loạt và xuất CSV trang hiện tại |
 | `/owner/inventory` | Đường dẫn cũ, chuyển sang `/owner/list-product` và giữ tham số lọc |
+| `/owner/add-product` | Tạo sản phẩm với ảnh, dung tích/giá/kho; nhập ngay hồ sơ mùi và đánh giá trải nghiệm trong hai tab ở cuối biểu mẫu |
 | `/owner/edit-product/:id` | Thông tin chung, giá VND và số lượng từng dung tích, thêm/bỏ dung tích, ảnh riêng, gallery, tầng hương, nhóm hương, phong cách, kiểu mùi/tỷ lệ, chỉ số trải nghiệm và bản ghi nguồn |
 | `/owner/brands` | 173 hãng và nội dung giới thiệu có thể biên tập |
 | `/owner/library` | Nhóm hương, kiểu mùi, note; tìm kiếm, phân trang, biên tập nội dung và liên kết nguồn |
 | `/owner/quality` | Hồ sơ thiếu hãng/nồng độ/ảnh/tầng hương, giá 0 và chỉ số nguồn bất thường |
 | `/owner/orders` | Quy trình đơn hàng, COD/QR và biểu đồ doanh thu thực tế |
 
+Khi thêm mới, hai tab **Hồ sơ mùi** và **Đánh giá trải nghiệm** dùng cùng các trường nhập và phần xem trước của màn hình chỉnh sửa: nhóm hương, phong cách, ba tầng hương, kiểu mùi chính, lưu hương, tỏa hương, mùa và thời điểm sử dụng. Các trường này không bắt buộc; để trống khi chưa có dữ liệu, không tự điền 0. Bản nháp giữ các dữ liệu này khi chuyển sang quản lý thư viện/danh mục rồi quay lại. Backend kiểm tra hồ sơ trước khi upload ảnh hoặc tạo sản phẩm, tính lại cảnh báo thiếu nhóm/tầng hương theo dữ liệu đã nhập và luôn bật hiển thị trải nghiệm. Không nhận metadata nguồn do client tự cung cấp. Đợt bổ sung đã đạt 409 kiểm thử backend, lint/build frontend và kiểm tra Chrome với thao tác tạo mô phỏng (không tạo sản phẩm thật).
+
 Danh mục, voucher và hộp thư CSKH tiếp tục dùng quy trình hiện có. API `/api/catalog/*` yêu cầu tài khoản chủ cửa hàng. Sửa sản phẩm kiểm tra `updatedAt` để tránh ghi đè thay đổi đồng thời. Không được bỏ dung tích hoặc đổi chế độ kho khi còn đơn QR giữ phân loại đó.
+
+**Quy tắc đếm đơn thống nhất (29/10/2026):** Tổng quan, danh sách/biểu đồ Đơn hàng & doanh thu và API quản trị đơn cũ cùng dùng `placedOrderFilter()`. Chỉ tính đơn COD đã đặt hoặc đơn QR có `isPaid: true`, với trạng thái `Order Placed`, `Packing`, `Shipping` hoặc `Delivery`. QR chờ thanh toán, hết hạn, đã hủy hoặc `Payment Review` không được tính vào tổng đơn hay doanh thu. COD chưa thu tiền vẫn được tính là một đơn, nhưng doanh thu chỉ cộng khi đã thanh toán. Bản ghi đơn không bị xóa. Kiểm tra chỉ đọc trên dữ liệu hiện tại xác nhận hai trang cùng trả 0 đơn/0 ₫; 32 tổ hợp trạng thái/phương thức/thanh toán đã được đối chiếu bằng MongoDB aggregate không ghi dữ liệu. 411 kiểm thử backend, lint và build frontend đạt.
+
+Trong tab **Dung tích & giá**, nút bút chì tại mỗi hàng cho phép sửa tên dung tích. Nhấn dấu tích hoặc Enter để xác nhận; dấu X hoặc Escape để hủy. Sau đó chọn **Lưu thay đổi** để lưu sản phẩm. Khi đang nhập tên, lưu và chuyển tab tạm khóa để tránh bỏ sót chỉnh sửa. Giá, số lượng, trạng thái bán, ảnh riêng và metadata đi theo hàng được đổi tên; đổi nhiều lần trước khi lưu vẫn nhận diện đúng dung tích gốc. Tên trùng/không hợp lệ bị chặn. API đổi tên sản phẩm và khóa dung tích trong giỏ hàng trong cùng giao dịch, giữ thứ tự thêm giỏ; không đổi lịch sử đơn hoặc bản ghi nguồn. Dung tích còn được giữ cho QR chờ thanh toán không thể đổi tên.
+
+Đã kiểm tra thao tác đổi tên cũ/mới, tên trùng/trống, hủy và tải lại bằng Chrome với lưu giả lập, gồm màn hình 390/320 px; không sửa database thật. Toàn bộ 397 kiểm thử tự động, build frontend và ESLint các file thay đổi đều đạt. Cần triển khai cả frontend và backend để dùng đầy đủ việc đổi tên và chuyển khóa giỏ hàng.
 
 Dashboard dùng chung khung quản trị đen trắng: menu chia nhóm, tìm nhanh sản phẩm/thương hiệu, tài khoản và lối vào hộp thư. Trang tổng quan có bốn chỉ số thực tế, biểu đồ giá trị đơn/đã thanh toán theo 3 hoặc 6 tháng và phân bổ trạng thái catalog. Khi chưa có doanh số, bảng sản phẩm hiển thị hồ sơ mới cập nhật; khi có doanh số sẽ chuyển sang xếp hạng bán chạy. Khối cần chú ý lấy hồ sơ thiếu dữ liệu, không suy diễn số lượng tồn kho từ trạng thái còn/hết hàng. Menu trên điện thoại có lớp phủ, phím Escape và giữ thao tác bàn phím trong menu đang mở.
 

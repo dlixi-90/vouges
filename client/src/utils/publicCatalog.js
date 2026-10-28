@@ -17,6 +17,7 @@ export const createPublicCatalog = ({ axios, cache = createResourceCache({ maxAg
     detail: (id, options) => cache.load(`detail:${id}`, signal => read("/api/products/single", { productId: id }, signal), options),
     related: id => cache.load(`related:${id}`, signal => read("/api/products/related", { productId: id }, signal)),
     brands: options => metadata.load("brands", signal => read("/api/products/brands", {}, signal), options),
+    peekBrands: () => metadata.peek("brands"),
     filters: options => metadata.load("filters", signal => read("/api/products/filters", {}, signal), options),
     peekFilters: () => metadata.peek("filters"),
     batch: async ids => {

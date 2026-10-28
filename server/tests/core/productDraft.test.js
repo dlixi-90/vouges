@@ -15,6 +15,22 @@ const makeDraft = () => ({
   categoryId: "cat", typeId: "type",
 });
 
+test("new product drafts retain profile notes, accords and unknown assessment values across category navigation", () => {
+  const draft = makeDraft();
+  draft.inputs.fragrance = { group: "Woody", notes: { top: [{ name: "Bergamot" }] },
+    accords: [{ label: "Woody", displayedPercent: 80 }],
+    longevity: [{ label: "Khá 6-8H", displayedCount: 0, displayedPercent: null }],
+    sillage: [{ label: "Gần", displayedCount: null, displayedPercent: 25 }],
+    suitability: [{ label: "Ngày", displayedPercent: 60 }],
+  };
+  draft.inputs.notesText = { top: "Bergamot\n", middle: "", base: "" };
+  const restored = restoreProductDraft(draft, categories, { categoryId: "cat", typeId: "type" });
+  assert.deepEqual(restored.inputs.fragrance, draft.inputs.fragrance);
+  assert.equal(restored.inputs.notesText.top, "Bergamot\n");
+  assert.equal(restored.inputs.fragrance.longevity[0].displayedCount, 0);
+  assert.equal(restored.inputs.fragrance.longevity[0].displayedPercent, null);
+});
+
 test("returning from categories retains text, actual image files, variant edits and unfinished variant inputs", async () => {
   const draft = makeDraft();
   const restored = restoreProductDraft(draft, categories);

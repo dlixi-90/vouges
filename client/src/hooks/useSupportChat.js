@@ -3,7 +3,7 @@ import { useAppContext } from "../context/AppContext";
 import { createSupportEventParser, mergeSupportSnapshot } from "../utils/supportChat";
 
 export const useSupportApi = () => {
-  const { axios, getToken } = useAppContext();
+  const { axios, getToken, storeResources } = useAppContext();
   const tokenRef = useRef(getToken);
   useEffect(() => { tokenRef.current = getToken; }, [getToken]);
   return useMemo(() => ({
@@ -16,21 +16,25 @@ export const useSupportApi = () => {
       const { data } = await axios.request({ method, url: path, data: body, signal, timeout: 15000,
         headers: { Authorization: `Bearer ${token}` } });
       if (!data.success) throw new Error(data.message || "Không thể tải cuộc trò chuyện.");
+      if (method.toLowerCase() !== "get") storeResources.invalidateSupport();
       return data;
     },
-  }), [axios]);
+  }), [axios, storeResources]);
 };
 
 export const useSupportFeed = (path, enabled, conversationFeed = false, initialData) => {
   const api = useSupportApi();
-  const { user } = useAppContext();
+  const { user, storeResources } = useAppContext();
   const userId = user?.id;
   const key = `${userId}:${path}`;
+  const inboxPath = !conversationFeed && path?.startsWith("/api/support/inbox/events") ? path.replace("/inbox/events", "/inbox") : null;
+  const cached = inboxPath ? storeResources.peekSupportInbox(inboxPath) : null;
   const [result, setResult] = useState(() => initialData ? { key, data: initialData } : null);
   const [connection, setConnection] = useState({ key: "", status: "connecting", error: "" });
-  const update = useCallback((snapshot) => setResult((previous) => ({ key,
-    data: conversationFeed ? mergeSupportSnapshot(previous?.key === key ? previous.data : null, snapshot) : snapshot,
-  })), [key, conversationFeed]);
+  const update = useCallback((snapshot) => {
+    if (inboxPath) storeResources.setSupportInbox(inboxPath, snapshot);
+    setResult(previous => ({ key, data: conversationFeed ? mergeSupportSnapshot(previous?.key === key ? previous.data : null, snapshot) : snapshot }));
+  }, [key, conversationFeed, inboxPath, storeResources]);
   useEffect(() => {
     if (!enabled || !userId || !path) return undefined;
     let active = true;
@@ -38,6 +42,12 @@ export const useSupportFeed = (path, enabled, conversationFeed = false, initialD
     let reconnect;
     let failures = 0;
     let generation = 0;
+    let liveSnapshots = 0;
+    // A normal JSON response works even when a proxy buffers SSE frames. Never
+    // let this older bootstrap replace a snapshot already received live.
+    if (inboxPath) void storeResources.loadSupportInbox(inboxPath).then(snapshot => {
+      if (active && liveSnapshots === 0) update(snapshot);
+    }).catch(() => {}); // The live connection retains its existing retry/error UI.
     const connect = async () => {
       if (!active || document.hidden) return;
       const epoch = ++generation;
@@ -60,6 +70,7 @@ export const useSupportFeed = (path, enabled, conversationFeed = false, initialD
         const parse = createSupportEventParser((snapshot) => {
           if (!current()) return;
           failures = 0;
+          liveSnapshots++;
           update(snapshot);
           setConnection({ key, status: "live", error: "" });
         });
@@ -94,7 +105,7 @@ export const useSupportFeed = (path, enabled, conversationFeed = false, initialD
       controller?.abort();
       document.removeEventListener("visibilitychange", visibility);
     };
-  }, [api, path, enabled, userId, key, update]);
-  return { data: result?.key === key ? result.data : null, update,
+  }, [api, path, enabled, userId, key, update, inboxPath, storeResources]);
+  return { data: result?.key === key ? result.data : cached, update,
     status: connection.key === key ? connection.status : "connecting", error: connection.key === key ? connection.error : "" };
 };

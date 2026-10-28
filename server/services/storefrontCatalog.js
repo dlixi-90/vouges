@@ -1,4 +1,5 @@
 import Product from "../models/Product.js";
+import { invalidatePublicBrands } from "./publicBrands.js";
 import { isSizeAvailable, hasAnyAvailableSize } from "../utils/productStock.js";
 import { selectRelatedProducts } from "../../client/src/utils/relatedProducts.js";
 import { productFilterValues, parsePerfumeFilters, matchesPerfumeFilters } from "./perfumeFilters.js";
@@ -11,7 +12,7 @@ const entries = new Map();
 let revision = 0;
 // A small, bounded server snapshot shares simultaneous public reads. Prices and
 // stock are always checked again by the cart/checkout APIs against MongoDB.
-export const invalidateStorefrontCatalog = () => { revision++; entries.clear(); };
+export const invalidateStorefrontCatalog = () => { revision++; entries.clear(); invalidatePublicBrands(); };
 const snapshot = (key, maxAge, read) => {
   const existing = entries.get(key);
   if (existing?.pending) return existing.pending;

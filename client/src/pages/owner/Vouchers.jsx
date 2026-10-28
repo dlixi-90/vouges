@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import toast from "react-hot-toast";
 import { LoaderCircle, Plus, Search, Ticket, Trash2 } from "lucide-react";
 import DeleteVoucherDialog from "../../components/owner/DeleteVoucherDialog";
 import { useAppContext } from "../../context/AppContext";
 import { formatVnd } from "../../utils/money";
 import { getVoucherValidityPeriod, getVoucherStatus, formatVoucherDate, formatVoucherExpiryDate } from "../../utils/voucherDates";
-import { Badge, CatalogPage, RefreshButton } from "../../components/owner/CatalogUI";
+import { Badge, CatalogPage, RefreshButton, useCatalog } from "../../components/owner/CatalogUI";
 import { OperationsEmptyState, OperationsPanel } from "../../components/owner/OperationsUI";
 import OperationsDrawer from "../../components/owner/OperationsDrawer";
 
@@ -20,10 +20,11 @@ const voucherStatuses = {
 export default function Vouchers() {
   const { axios, getToken, storeResources } = useAppContext();
   const [draft, setDraft] = useState(initial);
-  const [vouchers, setVouchers] = useState([]);
-  const [error, setError] = useState("");
+  const listing = useCatalog("/", "/api/vouchers");
+  const vouchers = listing.data?.vouchers || [];
+  const { error, loading } = listing;
+  const remember = items => storeResources.setCatalog("/", "/api/vouchers", { success: true, vouchers: items });
   const [busy, setBusy] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteError, setDeleteError] = useState("");
@@ -31,33 +32,22 @@ export default function Vouchers() {
   const formId = useId();
   const query = search.trim().toLowerCase();
   const visibleVouchers = vouchers.filter((voucher) => voucher.code.toLowerCase().includes(query));
-  const load = useCallback(async (signal) => {
-    const { data } = await axios.get("/api/vouchers", { headers: { Authorization: `Bearer ${await getToken()}` }, signal });
-    if (!data.success) throw new Error(data.message || "Không thể tải mã giảm giá.");
-    return data.vouchers;
-  }, [axios, getToken]);
-  useEffect(() => {
-    const controller = new AbortController();
-    load(controller.signal).then((items) => {
-      if (!controller.signal.aborted) { setVouchers(items); setError(""); }
-    }).catch((err) => { if (!controller.signal.aborted) setError(err.response?.data?.message || err.message); })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
-    return () => controller.abort();
-  }, [load]);
   const create = async (event) => {
     event.preventDefault();
     if (busy) return;
     setBusy(true);
     try {
-      await axios.post("/api/vouchers", {
+      const { data } = await axios.post("/api/vouchers", {
         ...draft, value: Number(draft.value),
         minSubtotal: Number(draft.minSubtotal),
         maxDiscount: draft.maxDiscount === "" ? null : Number(draft.maxDiscount),
         maxUses: Number(draft.maxUses),
         ...getVoucherValidityPeriod(draft.startsAt, draft.expiresAt),
       }, { headers: { Authorization: `Bearer ${await getToken()}` } });
+      if (!data.success) throw new Error(data.message || "Không thể tạo mã giảm giá.");
       storeResources.invalidateMembership();
-      setDraft(initial); setVouchers(await load()); setShowCreate(false); toast.success("Đã tạo mã giảm giá.");
+      remember([data.voucher, ...vouchers].slice(0, 100));
+      setDraft(initial); setShowCreate(false); toast.success("Đã tạo mã giảm giá.");
     } catch (err) { toast.error(err.response?.data?.message || err.message); }
     finally { setBusy(false); }
   };
@@ -65,9 +55,10 @@ export default function Vouchers() {
     if (busy) return;
     setBusy(true);
     try {
-      await axios.patch(`/api/vouchers/${voucher._id}`, { active: !voucher.active }, { headers: { Authorization: `Bearer ${await getToken()}` } });
+      const { data } = await axios.patch(`/api/vouchers/${voucher._id}`, { active: !voucher.active }, { headers: { Authorization: `Bearer ${await getToken()}` } });
+      if (!data.success) throw new Error(data.message || "Không thể cập nhật mã giảm giá.");
       storeResources.invalidateMembership();
-      setVouchers(await load());
+      remember(vouchers.map(item => item._id === voucher._id ? data.voucher : item));
     } catch (err) { toast.error(err.response?.data?.message || err.message); }
     finally { setBusy(false); }
   };
@@ -80,7 +71,7 @@ export default function Vouchers() {
         headers: { Authorization: `Bearer ${await getToken()}` },
       });
       if (!data.success) throw new Error(data.message || "Không thể xóa mã giảm giá.");
-      setVouchers((current) => current.filter((voucher) => voucher._id !== deleteTarget._id));
+      remember(vouchers.filter(voucher => voucher._id !== deleteTarget._id));
       storeResources.invalidateMembership();
       setDeleteTarget(null);
       toast.success("Đã xóa mã giảm giá.");
@@ -89,12 +80,7 @@ export default function Vouchers() {
     } finally { setBusy(false); }
   };
   const field = (name, value) => setDraft((current) => ({ ...current, [name]: value }));
-  const retry = async () => {
-    setLoading(true);
-    try { setVouchers(await load()); setError(""); }
-    catch (err) { setError(err.response?.data?.message || err.message); }
-    finally { setLoading(false); }
-  };
+  const retry = listing.reload;
 
   return <CatalogPage className="admin-operations-page admin-vouchers-page" title="Mã giảm giá" actions={<><RefreshButton onClick={retry} disabled={loading || busy} /><button type="button" className="perfume-button primary" onClick={() => setShowCreate(true)} disabled={busy}><Plus size={15} />Thêm mã giảm giá</button></>}>
     <div className="admin-operation-summary"><span><Ticket size={15} />Tổng cộng <strong>{loading ? "—" : vouchers.length}</strong> mã</span><span>Có thể sử dụng <strong>{loading ? "—" : vouchers.filter(voucher => getVoucherStatus(voucher) === "available").length}</strong></span><span>Đã tắt <strong>{loading ? "—" : vouchers.filter(voucher => !voucher.active).length}</strong></span></div>

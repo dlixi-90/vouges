@@ -30,7 +30,7 @@ const now = new Date("2026-10-03T00:00:00+07:00");
 const coupon = (overrides = {}) => ({ _id: voucherId, code: "SAVE10", type: "percent", value: 10,
   minSubtotal: 300000, maxDiscount: 100000, startsAt: new Date("2020-01-01"), expiresAt: new Date("2099-01-01"),
   maxUses: 10, usedCount: 0, userId: null, ...overrides });
-const response = () => ({ statusCode: 200, status(code) { this.statusCode = code; return this; },
+const response = () => ({ statusCode: 200, headers: {}, set(key, value) { this.headers[key] = value; return this; }, status(code) { this.statusCode = code; return this; },
   json(body) { this.body = body; return this; } });
 const query = (value) => ({ session: async () => value });
 const setEnv = (t, key, value) => {

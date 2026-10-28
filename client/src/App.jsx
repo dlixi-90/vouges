@@ -44,7 +44,7 @@ const App = () => {
       >
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/collection" element={<Collection key={location.search} />} />
+          <Route path="/collection" element={<Collection key={`${location.search}:${location.state?.headerSearch || ""}`} />} />
           <Route path="/collection/:productId" element={<ProductDetail />} />
           <Route path="/about" element={<About />} />
           <Route path="/blog" element={<Navigate to="/about" replace />} />

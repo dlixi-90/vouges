@@ -31,6 +31,58 @@ test("gallery and individual size photos are saved separately on creation", asyn
   assert.equal(saved.concentration,"Lotion");
   assert.ok(saved.qualityIssues.includes("missing_brand"));
   await new Product(saved).validate();
+  assert.equal(saved.fragrance.assessmentsVisible, true);
+  assert.deepEqual(saved.fragrance.longevity, []);
+  assert.ok(saved.qualityIssues.includes("missing_scent_group"));
+});
+
+test("new perfumes save their full scent profile and assessments without accepting source metadata", async t => {
+  category(t);
+  t.mock.method(cloudinary.uploader, "upload", async () => ({ secure_url: "https://example.com/new.png" }));
+  const save = t.mock.method(Product, "create", async value => ({ ...value, _id: id }));
+  const fragrance = {
+    group: "  Woody Spicy  ", style: " Elegant ", assessmentsVisible: false, source: { provider: "forged" },
+    notes: { top: [{ name: " Bergamot ", source: "forged" }], middle: [{ name: "Rose" }], base: [{ name: "Cedar" }] },
+    accords: [{ label: "Woody", displayedPercent: 100, sourceValue: -999 }, { label: "Citrus", displayedPercent: 75.5 }],
+    longevity: [{ label: "Khá 6-8H", displayedCount: 12, displayedPercent: 60, sourceValue: 999 }],
+    sillage: [{ label: "Gần", displayedCount: 0, displayedPercent: null }],
+    suitability: [{ label: "Xuân", displayedPercent: 80 }],
+  };
+  const res = response();
+  await createProduct({ body: { productData: JSON.stringify({ ...data, brand: "Velours", fragrance }) }, files: [{ path: "new" }] }, res);
+  assert.equal(res.statusCode, 201);
+  const saved = save.mock.calls[0].arguments[0];
+  assert.equal(saved.fragrance.group, "Woody Spicy"); assert.equal(saved.fragrance.style, "Elegant");
+  assert.equal(saved.fragrance.assessmentsVisible, true); assert.equal(saved.fragrance.source, undefined);
+  assert.deepEqual(saved.fragrance.notes, { top: [{ name: "Bergamot", url: null }], middle: [{ name: "Rose", url: null }], base: [{ name: "Cedar", url: null }] });
+  assert.deepEqual(saved.fragrance.accords.map(row => row.displayedPercent), [100, 75.5]);
+  assert.equal(saved.fragrance.accords[0].sourceValue, undefined);
+  assert.equal(saved.fragrance.longevity[0].displayedCount, 12);
+  assert.equal(saved.fragrance.longevity[0].sourceValue, undefined);
+  assert.equal(saved.fragrance.sillage[0].displayedCount, 0); assert.equal(saved.fragrance.sillage[0].displayedPercent, null);
+  assert.equal(saved.fragrance.suitability[0].displayedPercent, 80);
+  assert.deepEqual(saved.qualityIssues, []);
+  await new Product(saved).validate();
+});
+
+test("invalid new scent profiles fail before any uploads or product writes", async t => {
+  category(t);
+  const upload = t.mock.method(cloudinary.uploader, "upload", () => assert.fail("Invalid profiles must not upload images"));
+  const save = t.mock.method(Product, "create", () => assert.fail("Invalid profiles must not create products"));
+  for (const fragrance of [null, [], "bad", { group: 1 }, { style: "x".repeat(501) },
+    { notes: [] }, { notes: { top: [{ name: " " }] } }, { notes: { top: [{ name: "Rose", url: "javascript:alert(1)" }] } },
+    { notes: { base: Array.from({ length: 61 }, () => ({ name: "Rose" })) } },
+    { accords: [{ label: "Woody", displayedPercent: 101 }] },
+    { accords: [{ label: "Woody" }, { label: " woody " }] },
+    { longevity: [{ label: "Long", displayedCount: -1 }] },
+    { sillage: [{ label: "Near", displayedCount: 1.5 }] },
+    { suitability: [{ label: "Day", displayedPercent: -10 }] },
+  ]) {
+    const res = response();
+    await createProduct({ body: { productData: JSON.stringify({ ...data, fragrance }) }, files: [{ path: "new" }] }, res);
+    assert.equal(res.statusCode, 400, JSON.stringify(fragrance));
+  }
+  assert.equal(upload.mock.callCount(), 0); assert.equal(save.mock.callCount(), 0);
 });
 
 test("updating replaces and removes size photos without replacing gallery photos", async (t) => {

@@ -332,6 +332,8 @@ Các bài kiểm thử tập trung vào những phần ảnh hưởng trực ti�
 
 Lần kiểm tra cục bộ ngày 28/10/2026 ghi nhận **380/380 bài kiểm thử backend đạt**, cùng kiểm tra lint và build frontend thành công. Kiểm tra Chrome chỉ đọc dữ liệu đã bao gồm bộ lọc kết hợp, phân trang/cuộn, giỏ hàng, dashboard, cache và font tiếng Việt trên máy tính/điện thoại. Bộ test có sử dụng mock/stub; chưa gửi email thật, thực hiện thanh toán thật hoặc triển khai production trong đợt này. Chi tiết tối ưu và số đo tại [STOREFRONT_PERFORMANCE.md](docs/STOREFRONT_PERFORMANCE.md).
 
+Cập nhật ngày 29/10/2026: tối ưu bốn tab Tổng quan, Đơn hàng & doanh thu, Mã giảm giá và Tin nhắn & hỗ trợ; **406/406 kiểm thử backend**, lint và build frontend đạt. Số đo, kiểm tra trình duyệt và phạm vi triển khai được ghi tại [DASHBOARD_PERFORMANCE.md](docs/DASHBOARD_PERFORMANCE.md).
+
 ---
 
 <div align="center">

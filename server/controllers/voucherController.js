@@ -28,6 +28,7 @@ export const listMyVouchers = async (req, res, next) => {
 
 export const listVouchers = async (_req, res, next) => {
   try {
+    res.set("Cache-Control", "private, no-store");
     res.json({ success: true, vouchers: await Voucher.find({ kind: "general", deletedAt: null }).sort({ createdAt: -1 }).limit(100).lean() });
   } catch (error) { next(error); }
 };

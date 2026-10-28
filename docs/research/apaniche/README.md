@@ -2,6 +2,8 @@
 
 Ngày khảo sát: **26/10/2026**, múi giờ Asia/Bangkok.
 
+Cập nhật **29/10/2026**: đã xác minh quan hệ số học của thanh lưu/tỏa hương và phân biệt với nguồn gốc bình chọn còn chưa rõ. Xem [Xác minh biểu đồ lưu hương và tỏa hương](ASSESSMENT_METHOD.md).
+
 Đã đọc các nhóm trang công khai, quan sát bằng Chrome ở 1440 × 1000 và trang chủ ở 390 × 844, kiểm tra HTML/DOM và thống kê toàn bộ sitemap được công bố. Đây là khảo sát sản phẩm, giao diện và nội dung; không phải quyền truy cập hệ quản trị hoặc cơ sở dữ liệu của Apaniche. Chưa đặt đơn, thanh toán hoặc kiểm chứng vận hành nội bộ.
 
 ## 1. Quy mô nội dung được lập danh mục

@@ -12,13 +12,14 @@ import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {spawn} from "node:child_process";
 import mongoose from "mongoose";
-import {catalogSummary,catalogProducts,catalogProduct,libraryTerms} from "../controllers/catalogController.js";
+import {catalogSummary,catalogOverview,catalogProducts,catalogProduct,libraryTerms} from "../controllers/catalogController.js";
 import {listProduct,singleProduct,listPopularProducts} from "../controllers/productController.js";
 import {listBrands} from "../controllers/brandController.js";
 import {browseProducts,batchProducts,relatedProducts,productFilters} from "../controllers/storefrontController.js";
 import {listCategories} from "../controllers/categoryController.js";
 import {dashboard} from "../controllers/dashboardController.js";
 import {listVouchers} from "../controllers/voucherController.js";
+import {getSupportInbox} from "../controllers/supportController.js";
 import Product from "../models/Product.js";
 import {getProductImageUrl} from "../../client/src/utils/productImage.js";
 import {sanitizeFragranceRows} from "../services/fragranceEditing.js";
@@ -83,6 +84,7 @@ const api=async request=>{
   if(request.method!=="GET"){writes.push({method:request.method,path:pathname,body:request.postData});return {statusCode:405,body:{success:false,message:"Browser QA is read-only"}};}
   if(pathname==="/api/users")return {statusCode:200,body:{success:true,role:"owner",cartData:{},cartAddedAt:{}}};
   if(pathname==="/api/catalog/summary")return call(catalogSummary,req);
+  if(pathname==="/api/catalog/overview")return call(catalogOverview,req);
   if(pathname==="/api/catalog/products")return call(catalogProducts,req);
   if(pathname.startsWith("/api/catalog/products/")){req.params.id=pathname.split("/").pop();const result=await call(catalogProduct,req);if(editorQA&&req.params.id===editorProduct?._id)result.body.product=editorProduct;return result;}
   if(pathname==="/api/catalog/terms")return call(libraryTerms,req);
@@ -97,6 +99,8 @@ const api=async request=>{
   if(pathname==="/api/categories")return call(listCategories,req);
   if(pathname==="/api/orders/dashboard")return call(dashboard,req);
   if(pathname==="/api/vouchers")return call(listVouchers,req);
+  if(pathname==="/api/vouchers/")return call(listVouchers,req);
+  if(pathname==="/api/support/inbox")return call(getSupportInbox,req);
   if(pathname.endsWith("/reviews/mine"))return {statusCode:200,body:{success:true,review:null,eligible:productTabsQA,canReview:false}};
   if(paginationQA&&pathname.endsWith("/reviews")){
     const page=Number(req.query.page||1);
@@ -501,7 +505,7 @@ try{
     await goto('/about',"document.querySelector('.inessa-about-hero h1')");await checkSerif('.inessa-about-hero h1');await noOverflow();await screenshot('typography-about-desktop');
     checks.push('Lora font files render Vietnamese serif headings with actual glyphs');
   }
-  await goto("/owner","document.querySelector('.perfume-source-count')?.textContent.includes('2.444')");await noOverflow();await screenshot("dashboard-desktop");checks.push("overview: 2444 products and zero revenue");
+  await goto("/owner","document.querySelectorAll('.admin-metric-card strong')[2]?.textContent.includes('2.444')");await noOverflow();await screenshot("dashboard-desktop");checks.push("overview: 2444 products and zero revenue");
   if(typographyQA)assert.ok((await evaluate("getComputedStyle(document.querySelector('.perfume-page-heading h1')).fontFamily")).includes('Inter'));
   if(dashboardQA){
     await wait("document.querySelectorAll('.admin-overview-table tbody tr').length===5&&document.querySelector('.admin-revenue-chart .recharts-wrapper')");
@@ -575,7 +579,7 @@ try{
   if(paginationQA){await evaluate("document.querySelector('[data-product-tab=\"reviews\"]').click()");await wait("document.querySelector('[aria-label=\"Phân trang đánh giá\"]')");await selectPage('[aria-label="Phân trang đánh giá"]','#reviews .pagination-list-start',2);checks.push("asynchronous review pagination scroll");}
   assert.equal(await evaluate("document.body.textContent.includes('100 sản phẩm còn trong kho')"),false);await noOverflow();await screenshot("detail-desktop");checks.push("public perfume profile and source inventory copy");
   await send("Emulation.setDeviceMetricsOverride",{width:390,height:844,deviceScaleFactor:1,mobile:true});
-  await goto("/owner","document.querySelector('.perfume-source-count')?.textContent.includes('2.444')");await noOverflow();await screenshot("dashboard-mobile");
+  await goto("/owner","document.querySelectorAll('.admin-metric-card strong')[2]?.textContent.includes('2.444')");await noOverflow();await screenshot("dashboard-mobile");
   if(dashboardQA){
     await wait("document.querySelectorAll('.admin-overview-table tbody tr').length===5");
     await screenshot('admin-overview-mobile');
@@ -592,7 +596,7 @@ try{
     await wait("location.pathname==='/owner/list-product'&&document.querySelectorAll('.perfume-table tbody tr').length===25&&!document.querySelector('.admin-sidebar').classList.contains('is-open')");
     await noOverflow();
     await send("Emulation.setDeviceMetricsOverride",{width:320,height:760,deviceScaleFactor:1,mobile:true});
-    await goto('/owner',"document.querySelector('.perfume-source-count')?.textContent.includes('2.444')");await noOverflow();await screenshot('admin-overview-320');
+    await goto('/owner',"document.querySelectorAll('.admin-metric-card strong')[2]?.textContent.includes('2.444')");await noOverflow();await screenshot('admin-overview-320');
     await send("Emulation.setDeviceMetricsOverride",{width:390,height:844,deviceScaleFactor:1,mobile:true});
     for(const [url,title] of [['/owner/add-category','Danh mục'],['/owner/add-product','Thêm sản phẩm'],['/owner/vouchers','Mã giảm giá']]){
       await goto(url,`document.querySelector('.velours-admin-route h1')?.textContent.includes(${JSON.stringify(title)})`);

@@ -29,6 +29,7 @@ Giữ catalog, ảnh sản phẩm, giao diện đã chốt và logic bán hàng.
 - Thẻ sản phẩm và giá/tồn dùng snapshot backend 10 giây, các yêu cầu đồng thời dùng chung truy vấn. Thao tác lưu catalog/sản phẩm và giao dịch đơn hàng làm hết hiệu lực snapshot sau khi hoàn tất.
 - Hồ sơ dùng cho bộ lọc được tải riêng và giữ 5 phút, ghép với giá/tồn mới. Mở trang đầu không phải chờ tải toàn bộ hồ sơ hương.
 - Trình duyệt giữ trang/chi tiết công khai 15 giây, tối đa 60 kết quả; danh sách thương hiệu và lựa chọn bộ lọc 5 phút. Những cache này chỉ ở bộ nhớ, không lưu lịch sử người dùng vào localStorage.
+- Menu thương hiệu hiển thị ngay 173 tên/logo từ `client/src/data/brandDirectory.json`, bản xuất chỉ đọc từ catalog đã chốt; không chờ API/MongoDB mới dựng menu. Rê chuột, focus hoặc mở menu cập nhật danh sách ngầm qua cache metadata. Trong lúc tải lại hoặc lỗi mạng, danh sách hiện có vẫn tìm kiếm và điều hướng được; có nút thử lại. Mười logo đầu tải ngay khi mở, các logo bên dưới tải khi cuộn. API thương hiệu chia sẻ truy vấn đồng thời và cache trong server 60 giây; sửa catalog/thư viện làm hết hiệu lực cache. Khi thay catalog hàng loạt, có thể cập nhật bản đi kèm bằng `node scripts/exportBrandDirectory.mjs` trong thư mục `server`; script chỉ đọc database và ghi JSON tên/logo công khai, không mang giá/tồn hay dữ liệu khách hàng.
 - Giỏ hàng và checkout luôn kiểm tra tồn/giá thật tại backend. Các số lượng trên thẻ có thể chậm hơn một nhịp cache; không dùng chúng để quyết định chấp nhận đơn.
 - Dashboard tái sử dụng kết quả trong bộ nhớ theo tài khoản 30 giây, có làm mới cưỡng bức và hủy cache khi đổi tài khoản/quyền. Các API riêng tư vẫn yêu cầu xác thực và trả `private, no-store`.
 - Font Lora/Inter được lưu tại `client/public/fonts`, gồm Latin và tiếng Việt, có giấy phép OFL. Không cần gọi Google Fonts khi mở trang. File font có tên theo hash và cache dài hạn; ảnh tĩnh có cache một ngày kèm revalidation.
@@ -52,5 +53,7 @@ Kiểm tra chỉ đọc cùng database hiện tại:
 Đã kiểm tra bằng Chrome: header trước khi tải danh mục; phân trang và cuộn; quay lại trang dùng cache; kết hợp 11 nhóm tiêu chí chọn trên dữ liệu thật; tìm kiếm; chi tiết/ảnh/tồn; giỏ hàng chỉ lấy một ID mẫu; dashboard và cache khi quay lại; font tiếng Việt; màn hình 1440/390/320 px. Không ghi đơn, kho hay gửi email trong các kiểm tra này.
 
 Frontend và backend cần được triển khai cùng nhau vì storefront dùng các endpoint mới. Chưa triển khai lên production trong đợt này.
+
+Kiểm tra bổ sung menu thương hiệu: cố ý giữ API chưa trả lời, xác nhận danh sách 173 hãng và mười logo đầu đã hiện, tìm kiếm/liên kết vẫn dùng được; phản hồi mới cập nhật ngầm mà không cần đóng menu. Khi API lỗi, danh sách vẫn giữ và thử lại phục hồi được. Đã kiểm tra máy tính và màn hình 390/320 px, không ghi database. 22 kiểm thử liên quan tới cache, thương hiệu và storefront đạt; build và ESLint các file thay đổi đạt.
 
 Kiểm tra tự động: 380 bài kiểm thử backend đạt, build frontend và toàn bộ ESLint đạt. Kiểm tra chỉ dùng mock hoặc dữ liệu đọc; các dịch vụ email/thanh toán bên ngoài chưa được kiểm thử bằng giao dịch thật.

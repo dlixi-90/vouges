@@ -1,13 +1,12 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { ArrowUpRight, Banknote, CalendarDays, ChevronRight, Layers3, Library, Package, ShoppingBag, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CatalogPage, CatalogState, RefreshButton, useCatalog, Badge, issueLabels } from "../../components/owner/CatalogUI";
 import ProductImage from "../../components/ProductImage";
-import { usePopularProducts } from "../../hooks/usePopularProducts";
 import { formatVnd } from "../../utils/money";
+import { ownerOverviewPath } from "../../utils/ownerPrefetch";
 
 const RevenueChart = lazy(() => import("../../components/owner/RevenueChart"));
-const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const count = value => value == null ? "—" : Number(value).toLocaleString("vi-VN");
 const priceFrom = product => {
   const prices = Object.values(product.price || {}).filter(value => Number.isFinite(value) && value > 0);
@@ -46,35 +45,31 @@ function CatalogDistribution({ metrics }) {
 }
 
 export default function PerfumeOverview() {
-  const query = useCatalog("/summary");
-  const recent = useCatalog("/products?page=1&pageSize=12&sort=newest");
-  const quality = useCatalog("/products?page=1&pageSize=12&quality=issues");
-  const sales = useCatalog(`/dashboard?page=1&pageSize=10&timezone=${encodeURIComponent(timezone)}`, "/api/orders");
-  const { popularProducts, popularProductsError, fetchPopularProducts } = usePopularProducts();
+  const query = useCatalog(ownerOverviewPath);
+  useEffect(() => { void import("../../components/owner/RevenueChart").catch(() => {}); }, []);
   const [months, setMonths] = useState(6);
   const { data } = query;
   const metrics = data?.metrics || {};
-  const monthlyData = (sales.data?.dashboardData?.monthlyData || []).slice(-months);
+  const monthlyData = (data?.sales?.monthlyData || []).slice(-months);
   const hasSales = monthlyData.some(month => month.total > 0 || month.successful > 0);
-  const ranking = popularProducts.length > 0;
-  const products = (ranking ? popularProducts : recent.data?.products || []).slice(0, 5);
+  const ranking = Boolean(data?.popularProducts?.length);
+  const products = ranking ? data.popularProducts : data?.recentProducts || [];
   const libraries = Object.fromEntries((data?.libraries || []).map(item => [item._id, item]));
-  const refresh = () => { query.reload(); recent.reload(); quality.reload(); sales.reload(); void fetchPopularProducts(); };
+  const refresh = query.reload;
 
-  return <CatalogPage title="Tổng quan dashboard" actions={<><RefreshButton onClick={refresh} disabled={query.loading || sales.loading} /><Link to="/owner/list-product" className="perfume-button primary"><Package size={15} />Quản lý sản phẩm</Link></>}>
+  return <CatalogPage title="Tổng quan dashboard" actions={<><RefreshButton onClick={refresh} disabled={query.loading} /><Link to="/owner/list-product" className="perfume-button primary"><Package size={15} />Quản lý sản phẩm</Link></>}>
     <CatalogState {...query} />
     <div className="admin-metric-grid">
       <MetricCard primary label="Tổng doanh thu" value={data ? formatVnd(data.orders.revenue) : "—"} detail="Từ các đơn đã xác nhận thanh toán" to="/owner/orders" icon={Banknote} />
-      <MetricCard label="Tổng đơn hàng" value={count(data?.orders?.count)} detail="Đơn hàng thực tế của Velours" to="/owner/orders" icon={ShoppingBag} />
+      <MetricCard label="Tổng đơn hàng" value={count(data?.orders?.count)} detail="COD đã đặt · QR đã thanh toán" to="/owner/orders" icon={ShoppingBag} />
       <MetricCard label="Tổng sản phẩm" value={count(metrics.total)} detail={`${count(metrics.published)} sản phẩm đang hiển thị`} to="/owner/list-product" icon={Package} />
       <MetricCard label="Có thể đặt hàng" value={count(metrics.available)} detail="Đang hiển thị và còn hàng" to="/owner/list-product?stock=true&published=true" icon={Layers3} />
     </div>
 
     <div className="admin-overview-grid">
       <section className="admin-dashboard-panel admin-revenue-panel">
-        <header className="admin-panel-heading"><div><h2>Doanh thu & giá trị đơn hàng</h2><p>Đơn vị: VND · Theo thời điểm tạo đơn</p></div><label className="admin-period-control"><CalendarDays size={15} /><select aria-label="Khoảng thời gian biểu đồ" value={months} onChange={event => setMonths(Number(event.target.value))}><option value={6}>6 tháng</option><option value={3}>3 tháng</option></select></label></header>
-        <CatalogState {...sales} />
-        {!sales.loading && !sales.error && <div className="admin-revenue-chart"><Suspense fallback={<p className="perfume-loading">Đang tải biểu đồ…</p>}><RevenueChart data={monthlyData} currency="₫" /></Suspense>{!hasSales && <div className="admin-chart-empty"><Banknote size={23} strokeWidth={1.4} /><strong>Chưa có giao dịch trong kỳ</strong><span>Biểu đồ sẽ cập nhật khi phát sinh đơn hàng.</span></div>}</div>}
+        <header className="admin-panel-heading"><div><h2>Doanh thu & giá trị đơn hàng</h2><p>Đơn vị: VND · Theo thời điểm tạo đơn</p></div><label className="admin-period-control"><CalendarDays size={15} /><select aria-label="Khoảng thời gian biểu đồ" value={months} onChange={event => setMonths(Number(event.target.value))}><option value={12}>1 năm</option><option value={6}>6 tháng</option><option value={3}>3 tháng</option></select></label></header>
+        {!query.loading && !query.error && <div className="admin-revenue-chart"><Suspense fallback={<p className="perfume-loading">Đang tải biểu đồ…</p>}><RevenueChart data={monthlyData} currency="₫" /></Suspense>{!hasSales && <div className="admin-chart-empty"><Banknote size={23} strokeWidth={1.4} /><strong>Chưa có giao dịch trong kỳ</strong><span>Biểu đồ sẽ cập nhật khi phát sinh đơn hàng.</span></div>}</div>}
       </section>
       <section className="admin-dashboard-panel">
         <header className="admin-panel-heading"><div><h2>Trạng thái danh mục</h2><p>Phân bổ catalog hiện tại</p></div><Link to="/owner/list-product" aria-label="Xem trạng thái hàng" className="admin-panel-arrow"><ArrowUpRight size={16} /></Link></header>
@@ -83,16 +78,13 @@ export default function PerfumeOverview() {
 
       <section className="admin-dashboard-panel admin-products-panel">
         <header className="admin-panel-heading"><div><h2>{ranking ? "Sản phẩm bán chạy" : "Sản phẩm mới cập nhật"}</h2><p>{ranking ? "Theo số lượng đã thanh toán" : "Những hồ sơ mới nhất trong catalog"}</p></div><Link to="/owner/list-product" className="admin-view-all">Xem tất cả <ChevronRight size={13} /></Link></header>
-        <CatalogState {...recent} />
-        {popularProductsError && <p role="alert" className="perfume-muted admin-inline-message">{popularProductsError}</p>}
         <div className="perfume-table-scroll"><table className="admin-overview-table"><thead><tr><th>Sản phẩm</th><th>{ranking ? "Đã bán" : "Phân loại"}</th><th>Giá từ</th><th>Trạng thái</th></tr></thead><tbody>{products.map(product => <tr key={product._id}><td><Link className="admin-table-product" to={`/owner/edit-product/${product._id}`}><span className="admin-product-image">{product.images?.[0] ? <ProductImage src={product.images[0]} alt="" imageWidth={100} /> : <Package size={21} />}</span><span><strong>{product.title}</strong><small>{product.brand || product.category}</small></span></Link></td><td>{ranking ? count(product.soldQuantity) : `${product.sizes?.length || 0} dung tích`}</td><td className="admin-price-cell">{priceFrom(product)}</td><td><Badge>{product.inStock ? "Còn hàng" : "Hết hàng"}</Badge></td></tr>)}</tbody></table></div>
-        {!recent.loading && !recent.error && !products.length && <p className="perfume-empty">Chưa có sản phẩm trong catalog.</p>}
+        {!query.loading && !query.error && !products.length && <p className="perfume-empty">Chưa có sản phẩm trong catalog.</p>}
       </section>
       <section className="admin-dashboard-panel admin-attention-panel">
         <header className="admin-panel-heading"><div><h2>Hồ sơ cần hoàn thiện</h2><p>{count(metrics.issues)} sản phẩm cần kiểm tra</p></div><Link to="/owner/quality" className="admin-view-all">Xem tất cả</Link></header>
-        <CatalogState {...quality} />
-        <div className="admin-attention-list">{(quality.data?.products || []).slice(0, 4).map(product => <Link key={product._id} to={`/owner/edit-product/${product._id}`}><span className="admin-product-image">{product.images?.[0] ? <ProductImage src={product.images[0]} alt="" imageWidth={100} /> : <Package size={20} />}</span><span><strong>{product.title}</strong><small>{issueLabels[product.qualityIssues?.[0]] || "Cần kiểm tra thông tin"}</small></span><Badge>{product.qualityIssues?.length || 0} mục</Badge></Link>)}</div>
-        {!quality.loading && !quality.error && !quality.data?.products?.length && <p className="perfume-empty">Các hồ sơ đã có đủ trường thông tin cơ bản.</p>}
+        <div className="admin-attention-list">{(data?.attentionProducts || []).map(product => <Link key={product._id} to={`/owner/edit-product/${product._id}`}><span className="admin-product-image">{product.images?.[0] ? <ProductImage src={product.images[0]} alt="" imageWidth={100} /> : <Package size={20} />}</span><span><strong>{product.title}</strong><small>{issueLabels[product.qualityIssues?.[0]] || "Cần kiểm tra thông tin"}</small></span><Badge>{product.qualityIssues?.length || 0} mục</Badge></Link>)}</div>
+        {!query.loading && !query.error && !data?.attentionProducts?.length && <p className="perfume-empty">Các hồ sơ đã có đủ trường thông tin cơ bản.</p>}
         <Link to="/owner/quality" className="admin-attention-footer"><Sparkles size={15} />Hoàn thiện trải nghiệm sản phẩm<ArrowUpRight size={14} /></Link>
       </section>
     </div>

@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { STORE_CATEGORIES } from "../data/storeNavigation";
 import { ArrowUpRight } from "lucide-react";
-import banner from "../assets/banner.webp";
 
 export function EditorialStories() {
   return (
@@ -124,9 +123,9 @@ export function EditorialCampaign() {
 
 export function ShopCategories() {
   const images = [
-    "/images/inessa/bg-03.jpg",
-    "/images/inessa/bg-04.jpg",
-    banner,
+    "/images/categories/men.webp",
+    "/images/categories/women.webp",
+    "/images/categories/unisex.webp",
   ];
   const items = STORE_CATEGORIES.map(name => ({ name }));
   if (!items.length) return null;
@@ -149,7 +148,14 @@ export function ShopCategories() {
             to={`/collection?category=${encodeURIComponent(category.name)}`}
             className="inessa-category"
           >
-            <img src={images[index]} alt={category.name} loading="lazy" />
+            <img
+              src={images[index]}
+              alt={category.name}
+              loading="lazy"
+              decoding="async"
+              width="640"
+              height="640"
+            />
             <span className="inessa-category-label">
               <span>{category.name}</span>
               <ArrowUpRight size={22} strokeWidth={1.2} aria-hidden="true" />

@@ -12,14 +12,15 @@ import Pagination from "../../components/Pagination";
 import usePaginationScroll from "../../hooks/usePaginationScroll";
 import { Badge, CatalogPage, RefreshButton } from "../../components/owner/CatalogUI";
 import { OperationsEmptyState, OperationsMetric, OperationsPanel } from "../../components/owner/OperationsUI";
+import { ownerDashboardKey, readOwnerDashboard } from "../../utils/ownerPrefetch";
 
 const RevenueChart = lazy(() => import("../../components/owner/RevenueChart"));
-const DASHBOARD_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 const ORDER_STATUSES = ["Order Placed", "Packing", "Shipping", "Delivery"];
 
 const Dashboard = () => {
-  const { authenticatedUserId: userId, currency, axios, getToken, dashboardCache } = useAppContext();
+  const { authenticatedUserId: userId, currency, axios, getToken, dashboardCache, storeResources } = useAppContext();
+  useEffect(() => { void import("../../components/owner/RevenueChart").catch(() => {}); }, []);
   const {
     popularProducts,
     popularProductsLoading,
@@ -28,7 +29,7 @@ const Dashboard = () => {
   } = usePopularProducts();
   const [page, setPage] = useState(1);
   const [months, setMonths] = useState(6);
-  const cacheKey = `${userId}:${DASHBOARD_TIMEZONE}:${page}`;
+  const cacheKey = ownerDashboardKey(userId, page);
   const [dashboardData, setDashboardData] = useState(() => dashboardCache.peek(cacheKey) || {
     orders: [],
     totalOrders: null,
@@ -43,20 +44,7 @@ const Dashboard = () => {
   const { listRef, changePage } = usePaginationScroll({ page, onPageChange: setPage, ready: !isLoading && dashboardData.page === page });
 
   const requestDashboardData = useCallback(async (signal) => {
-    const token = await getToken();
-    signal.throwIfAborted();
-    const { data } = await axios.get("/api/orders/dashboard", {
-      params: { page, pageSize: 10, timezone: DASHBOARD_TIMEZONE },
-      headers: { Authorization: `Bearer ${token}` },
-      signal,
-      timeout: 15000,
-    });
-
-    if (!data.success) {
-      throw new Error(data.message || "Không thể tải dữ liệu tổng quan");
-    }
-
-    return data.dashboardData;
+    return readOwnerDashboard({ axios, getToken, page, signal });
   }, [axios, getToken, page]);
 
   const getDashboardData = useCallback(async ({ background = false, force = false } = {}) => {
@@ -98,6 +86,7 @@ const Dashboard = () => {
       );
 
       if (data.success) {
+        storeResources.invalidateCatalog();
         dashboardCache.updateOrder({ ...data.order, _id: orderId });
         setDashboardData((current) => ({
           ...current,
@@ -143,10 +132,10 @@ const Dashboard = () => {
     {loadError && <div role="alert" className="perfume-alert">{loadError}<button type="button" onClick={() => void getDashboardData({ force: true })}>Thử lại</button></div>}
     <div className="admin-metric-grid admin-two-metrics">
       <OperationsMetric primary icon={Banknote} label="Doanh thu đã thanh toán" value={dashboardData.totalRevenue === null ? "—" : formatVnd(dashboardData.totalRevenue, currency)} detail="Tổng tiền từ các đơn đã thanh toán" />
-      <OperationsMetric icon={ShoppingBag} label="Tổng đơn hàng" value={dashboardData.totalOrders == null ? "—" : dashboardData.totalOrders.toLocaleString("vi-VN")} detail="Đơn COD và đơn đã thanh toán" />
+      <OperationsMetric icon={ShoppingBag} label="Tổng đơn hàng" value={dashboardData.totalOrders == null ? "—" : dashboardData.totalOrders.toLocaleString("vi-VN")} detail="COD đã đặt · QR đã thanh toán" />
     </div>
     <div className="admin-overview-grid admin-orders-analytics">
-      <OperationsPanel title="Doanh thu theo tháng" description="Giá trị đơn hàng và số tiền đã thanh toán · VND" actions={<label className="admin-period-control"><CalendarDays size={15} /><select aria-label="Khoảng thời gian doanh thu" value={months} onChange={event => setMonths(Number(event.target.value))}><option value={6}>6 tháng</option><option value={3}>3 tháng</option></select></label>}>
+      <OperationsPanel title="Doanh thu theo tháng" description="Giá trị đơn hàng và số tiền đã thanh toán · VND" actions={<label className="admin-period-control"><CalendarDays size={15} /><select aria-label="Khoảng thời gian doanh thu" value={months} onChange={event => setMonths(Number(event.target.value))}><option value={12}>1 năm</option><option value={6}>6 tháng</option><option value={3}>3 tháng</option></select></label>}>
         <div className="admin-revenue-chart"><Suspense fallback={<p className="perfume-loading" role="status">Đang tải biểu đồ…</p>}><RevenueChart data={dashboardData.monthlyData.slice(-months)} currency={currency} /></Suspense>{!isLoading && !loadError && !dashboardData.monthlyData.slice(-months).some(month => month.total > 0 || month.successful > 0) && <div className="admin-chart-empty"><Banknote size={23} strokeWidth={1.4} /><strong>Chưa có giao dịch trong kỳ</strong><span>Biểu đồ cập nhật khi có đơn hàng.</span></div>}</div>
       </OperationsPanel>
       <OperationsPanel title="Sản phẩm bán chạy" description="Xếp hạng theo số lượng đã thanh toán">

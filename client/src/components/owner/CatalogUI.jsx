@@ -17,7 +17,7 @@ export function useCatalog(path,apiRoot="/api/catalog"){
     const forceRead=force.current;force.current=false;
     const timer=setTimeout(async()=>{
       try{const data=await storeResources.loadCatalog(path,apiRoot,{force:forceRead});if(active)setResult({key,data,error:""});}
-      catch(err){if(active)setResult(current=>({data:current.key===key?current.data:null,key,error:err.response?.data?.message||err.message}));}
+      catch(err){if(active&&err.name!=="AbortError"&&err.code!=="ERR_CANCELED")setResult(current=>({data:current.key===key?current.data:null,key,error:err.response?.data?.message||err.message}));}
     },/[?&]q=[^&]+/.test(path)?120:0);
     return()=>{clearTimeout(timer);active=false;};
   },[path,apiRoot,attempt,storeResources,key]);

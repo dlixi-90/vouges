@@ -26,11 +26,27 @@ export const buildPublicBrands = (products, terms, images = brandImages.brands) 
   return [...grouped.values()].sort((a, b) => a.name.localeCompare(b.name, "vi", { sensitivity: "base", numeric: true }));
 };
 
-export const getPublicBrands = async () => {
+let cached, pending, expiresAt = 0, revision = 0;
+export const invalidatePublicBrands = () => { revision++; cached = undefined; pending = undefined; expiresAt = 0; };
+
+const readPublicBrands = async () => {
   const [products, terms] = await Promise.all([
     Product.find({ isPublished: { $ne: false }, isDeleted: { $ne: true }, brand: { $type: "string", $ne: "" } })
       .select("brand sizes inventoryMode stockBySize inStockBySize inStock isPublished isDeleted").lean(),
     FragranceTerm.find({ kind: "brand" }).select("name image sourceUrl").lean(),
   ]);
   return buildPublicBrands(products, terms);
+};
+
+// Share cold reads; never let a read started before an edit refill the cache.
+export const getPublicBrands = () => {
+  if (pending) return pending;
+  if (cached && Date.now() < expiresAt) return Promise.resolve(cached);
+  const generation = revision;
+  const request = readPublicBrands().then(brands => {
+    if (generation === revision) { cached = brands; expiresAt = Date.now() + 60000; }
+    return brands;
+  }).finally(() => { if (pending === request) pending = undefined; });
+  pending = request;
+  return request;
 };

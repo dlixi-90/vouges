@@ -2,6 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom";
 import { assets } from "../assets/data";
 import Navbar from "./Navbar";
+import QuickProductSearch from "./QuickProductSearch";
 import useBrandDirectory from "../hooks/useBrandDirectory";
 import { useClerk, UserButton } from "@clerk/react";
 import { useAppContext } from "../context/AppContext";
@@ -36,7 +37,7 @@ const Header = () => {
   const chatLauncherRef = useRef(null);
   const { openSignIn } = useClerk();
 
-  const { navigate, openCart, isCartOpen, isCartPage, user, getCartCount, isOwner, storeResources } =
+  const { navigate, setSearchQuery, openCart, isCartOpen, isCartPage, user, getCartCount, isOwner, storeResources } =
     useAppContext();
 
   const prefetchMembership = () => {
@@ -87,6 +88,11 @@ const Header = () => {
             </Link>
           </div>
           <div className="inessa-header-right">
+            <QuickProductSearch className="store-header-search" onSearch={query => {
+              setSearchQuery(query);
+              setMenuOpened(false);
+              navigate("/collection", { state: { headerSearch: Date.now() } });
+            }} />
             <Navbar group="info" navigationId="store-info-navigation" setMenuOpened={setMenuOpened} containerStyles="inessa-desktop-navigation" />
             {/* Buttons & Profile icon */}
             <div className="net-header-actions">
