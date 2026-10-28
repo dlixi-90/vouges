@@ -1,24 +1,13 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { useAppContext } from "../context/AppContext";
+import { STORE_SHOP_LINKS } from "../data/storeNavigation";
 import BrandMenu from "./BrandMenu";
+import { prefetchRoute } from "../utils/prefetchRoute";
 
 const Navbar = ({ containerStyles, setMenuOpened, brandDirectory, group = "all", navigationId = "store-navigation" }) => {
-  const { categories } = useAppContext();
   const { pathname, search } = useLocation();
   const selectedCategory = new URLSearchParams(search).get("category");
   const selectedBrand = new URLSearchParams(search).get("brand");
-  const shoppingLinks = [
-    { path: "/collection", title: "Bộ sưu tập" },
-    ...[...categories].sort((a,b)=>{
-      const order=["Nước hoa nam","Nước hoa nữ","Nước hoa unisex"];
-      const rank=value=>order.indexOf(value)<0?99:order.indexOf(value);
-      return rank(a.name)-rank(b.name);
-    }).slice(0, 3).map((category) => ({
-      path: `/collection?category=${encodeURIComponent(category.name)}`,
-      title: category.name,
-      category: category.name,
-    })),
-  ];
+  const shoppingLinks = STORE_SHOP_LINKS;
   const informationLinks = [
     { path: "/about", title: "Về chúng tôi" },
     { path: "/contact", title: "Liên hệ" },
@@ -26,6 +15,7 @@ const Navbar = ({ containerStyles, setMenuOpened, brandDirectory, group = "all",
   const renderLinks = links => links.map((link) => (
         <NavLink
           onClick={() => setMenuOpened(false)}
+          onPointerEnter={() => prefetchRoute(link.path)} onFocus={() => prefetchRoute(link.path)}
           key={link.path}
           to={link.path}
           title={link.title}

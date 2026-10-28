@@ -1,9 +1,11 @@
 import express from "express";
 import authUser, { requireOwner } from "../middleware/authMiddleware.js";
 import { supportRateLimit } from "../middleware/supportRateLimit.js";
+import { ensureSupportIndexes } from "../middleware/supportIndexes.js";
 import { getMySupport, startSupport, getSupportMessages, postSupportMessage, markSupportRead, setSupportStatus, getSupportInbox, streamSupportInbox, streamSupportConversation } from "../controllers/supportController.js";
 const router = express.Router();
 router.use(authUser);
+router.use(ensureSupportIndexes);
 router.get("/mine", getMySupport);
 router.post("/mine", supportRateLimit, startSupport);
 router.get("/inbox", requireOwner, getSupportInbox);

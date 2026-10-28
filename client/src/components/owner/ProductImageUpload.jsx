@@ -1,16 +1,15 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef } from "react";
 import { ImagePlus, X } from "lucide-react";
 
 const ProductImageUpload = ({ file, label, onChange, onRemove, disabled = false }) => {
   const id = useId();
-  const [preview, setPreview] = useState("");
+  const imageRef = useRef(null);
   useEffect(() => {
     if (!file || typeof file === "string") return;
     const url = URL.createObjectURL(file);
-    setPreview(url);
+    if (imageRef.current) imageRef.current.src = url;
     return () => URL.revokeObjectURL(url);
   }, [file]);
-  const src = typeof file === "string" ? file : file ? preview : "";
   return (
     <div className="relative aspect-square">
       <input
@@ -27,7 +26,7 @@ const ProductImageUpload = ({ file, label, onChange, onRemove, disabled = false 
         }}
       />
       <label htmlFor={id} className={`flex h-full flex-col items-center justify-center overflow-hidden rounded-lg border border-dashed border-[#cfd9d2] bg-white text-center peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 ${disabled ? "opacity-50" : "cursor-pointer hover:border-[#777]"}`}>
-        {src ? <img src={src} alt={label} className="h-full w-full object-contain p-1" /> : (
+        {file ? <img ref={imageRef} src={typeof file === "string" ? file : undefined} alt={label} className="h-full w-full object-contain p-1" /> : (
           <span className="flex flex-col items-center gap-2 px-2 text-gray-500">
             <ImagePlus size={20} />
             <span className="text-xs">{label}</span>

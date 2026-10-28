@@ -15,7 +15,7 @@ test("Vercel entry exports a callable Express app alongside config without openi
   assert.equal(result.expressHandler, true);
   assert.equal(result.listenCalls, 0);
   assert.equal(result.databaseCalls, 1);
-  assert.equal(result.indexCalls, 3);
+  assert.equal(result.indexCalls, 0);
   assert.equal(result.duration, 60);
   assert.equal(result.healthRoute, true);
 });

@@ -17,14 +17,10 @@ import supportRouter from "./routes/supportRoute.js";
 import catalogRouter from "./routes/catalogRoute.js";
 import { awardBirthdays } from "./controllers/voucherController.js";
 import multer from "multer";
-import SupportConversation from "./models/SupportConversation.js";
-import SupportMessage from "./models/SupportMessage.js";
-import SupportUsage from "./models/SupportUsage.js";
 
 export const config = { maxDuration: 60 };
 
 await connectDB(); // Establish connection to the database
-await Promise.all([SupportConversation.init(), SupportMessage.init(), SupportUsage.init()]);
 await connectCloudinary(); //Setup cloudinary for image storage
 
 const app = express(); // Initialize Express Application

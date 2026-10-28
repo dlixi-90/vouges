@@ -15,6 +15,7 @@ import mongoose from "mongoose";
 import {catalogSummary,catalogProducts,catalogProduct,libraryTerms} from "../controllers/catalogController.js";
 import {listProduct,singleProduct,listPopularProducts} from "../controllers/productController.js";
 import {listBrands} from "../controllers/brandController.js";
+import {browseProducts,batchProducts,relatedProducts,productFilters} from "../controllers/storefrontController.js";
 import {listCategories} from "../controllers/categoryController.js";
 import {dashboard} from "../controllers/dashboardController.js";
 import {listVouchers} from "../controllers/voucherController.js";
@@ -86,6 +87,10 @@ const api=async request=>{
   if(pathname.startsWith("/api/catalog/products/")){req.params.id=pathname.split("/").pop();const result=await call(catalogProduct,req);if(editorQA&&req.params.id===editorProduct?._id)result.body.product=editorProduct;return result;}
   if(pathname==="/api/catalog/terms")return call(libraryTerms,req);
   if(pathname==="/api/products")return call(listProduct,req);
+  if(pathname==="/api/products/browse")return call(browseProducts,req);
+  if(pathname==="/api/products/filters")return call(productFilters,req);
+  if(pathname==="/api/products/batch")return call(batchProducts,req);
+  if(pathname==="/api/products/related")return call(relatedProducts,req);
   if(pathname==="/api/products/brands")return call(listBrands,req);
   if(pathname==="/api/products/single"){const result=await call(singleProduct,req);if(editorQA&&req.query.productId===editorProduct?._id)result.body.product=editorProduct;return result;}
   if(pathname==="/api/products/popular")return popularQA&&popularResponse ? popularResponse : call(listPopularProducts,req);

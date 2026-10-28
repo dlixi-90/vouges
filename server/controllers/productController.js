@@ -9,6 +9,7 @@ import { unlink } from "node:fs/promises";
 import { getPopularProducts } from "../services/popularProducts.js";
 import { planProductImages, productImageFiles, resolveSizeImages } from "../utils/productImages.js";
 import { sanitizeArticle, articleToPlainText } from "../../client/src/utils/productArticle.js";
+import { invalidateStorefrontCatalog } from "../services/storefrontCatalog.js";
 import {
   getSizeQuantity,
   isSourceInventory,
@@ -182,6 +183,7 @@ export const createProduct = async (req, res) => {
       ...imageData,
       inStock: hasStock,
     });
+    invalidateStorefrontCatalog();
 
     return res.status(201).json({ success: true, productId: String(createdProduct._id), message: "Đã thêm sản phẩm" });
   } catch (error) {
@@ -326,6 +328,7 @@ export const toggleStock = async (req, res) => {
       product.markModified("inStockBySize");
 
       await product.save();
+      invalidateStorefrontCatalog();
 
       return res.json({
         success: true,
@@ -361,6 +364,7 @@ export const toggleStock = async (req, res) => {
     product.inStock = hasAnyEnabledSize(product);
 
     await product.save();
+    invalidateStorefrontCatalog();
 
     return res.json({
       success: true,
@@ -443,6 +447,7 @@ export const updateProduct = async (req, res) => {
       }
       return updated;
     });
+    invalidateStorefrontCatalog();
 
     return res.json({
       success: true,
@@ -503,6 +508,8 @@ export const deleteProduct = async (req, res) => {
         message: "Không tìm thấy sản phẩm hoặc sản phẩm đã bị xóa",
       });
     }
+
+    invalidateStorefrontCatalog();
 
     // Xóa sản phẩm khỏi giỏ hàng của tất cả người dùng.
     const cartProductPath = `cartData.${productId}`;

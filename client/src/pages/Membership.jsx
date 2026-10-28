@@ -3,7 +3,6 @@ import { useClerk } from "@clerk/react";
 import {
   ArrowRight,
   ArrowUpRight,
-  BadgeCheck,
   CalendarDays,
   Copy,
   Gift,
@@ -13,7 +12,6 @@ import {
   RefreshCw,
   Settings,
   ShoppingBag,
-  Sparkles,
   Ticket,
 } from "lucide-react";
 import { Link } from "react-router-dom";

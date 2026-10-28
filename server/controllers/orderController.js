@@ -2,7 +2,6 @@ import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 import { getSizeImage } from "../utils/productImages.js";
 import User from "../models/User.js";
-import transporter from "../config/nodemailer.js";
 import crypto from "crypto";
 import Address from "../models/Address.js";
 import mongoose, { isObjectIdOrHexString } from "mongoose";
@@ -11,8 +10,9 @@ import { getShippingPricing, SHIPPING_METHODS } from "../utils/orderPricing.js";
 import { validateVoucher, calculateDiscount, reserveVoucher, releaseVoucher } from "../services/voucherService.js";
 import { getCartAddedAt } from "../utils/cartOrder.js";
 import { validateDeliveryPhone } from "../utils/deliveryPhone.js";
-import { buildOrderConfirmationEmail } from "../emails/orderConfirmation.js";
+import { sendOrderConfirmation } from "../services/orderEmail.js";
 import { normalizeOrderNote } from "../utils/orderNote.js";
+import { invalidateStorefrontCatalog } from "../services/storefrontCatalog.js";
 
 // Global variables for payment
 const orderStatuses = ["Order Placed", "Packing", "Shipping", "Delivery"];
@@ -62,6 +62,7 @@ const runInTransaction = async (operation) => {
     await session.withTransaction(async () => {
       result = await operation(session);
     });
+    invalidateStorefrontCatalog();
 
     return result;
   } finally {
@@ -475,17 +476,7 @@ export const placeOrderCOD = async (req, res) => {
     const populatedOrder = await Order.findById(orderId).populate(
       "items.product address",
     );
-    const user = await User.findById(userId);
-
-    try {
-      if (user.email) await transporter.sendMail({
-        from: { name: "Velours", address: process.env.SMTP_SENDER_EMAIL },
-        to: user.email,
-        ...buildOrderConfirmationEmail(populatedOrder),
-      });
-    } catch (emailError) {
-      console.log("Could not send COD confirmation email:", emailError.message);
-    }
+    await sendOrderConfirmation(populatedOrder);
 
     return res.status(201).json({
       success: true,
@@ -820,7 +811,7 @@ export const sepayWebhook = async (req, res) => {
       const order = await Order.findOne({ paymentCode }).session(session);
 
       if (!order || order.isPaid) {
-        return "ignored";
+        return { outcome: "ignored" };
       }
 
       const expectedAmount = Number(order.qrAmount);
@@ -830,11 +821,11 @@ export const sepayWebhook = async (req, res) => {
         expectedAmount <= 0 ||
         receivedAmount < expectedAmount
       ) {
-        return "insufficient";
+        return { outcome: "insufficient" };
       }
 
       if (!["Awaiting Payment", "Payment Expired"].includes(order.status)) {
-        return "ignored";
+        return { outcome: "ignored" };
       }
 
       order.isPaid = true;
@@ -847,7 +838,7 @@ export const sepayWebhook = async (req, res) => {
         if (order.voucherId) {
           order.status = "Payment Review";
           await order.save({ session });
-          return "review";
+          return { outcome: "review", orderId: order._id };
         }
         try {
           const validatedOrder = await validateOrderItems(order.items, session);
@@ -857,7 +848,7 @@ export const sepayWebhook = async (req, res) => {
           await order.save({ session });
           await removeOrderItemsFromCart(order.userId, order.items, session);
 
-          return "paid";
+          return { outcome: "paid", orderId: order._id };
         } catch (error) {
           if (!(error instanceof OrderRequestError)) throw error;
 
@@ -866,7 +857,7 @@ export const sepayWebhook = async (req, res) => {
           order.status = "Payment Review";
           await order.save({ session });
 
-          return "review";
+          return { outcome: "review", orderId: order._id };
         }
       }
 
@@ -875,11 +866,17 @@ export const sepayWebhook = async (req, res) => {
       await order.save({ session });
       await removeOrderItemsFromCart(order.userId, order.items, session);
 
-      return "paid";
+      return { outcome: "paid", orderId: order._id };
     });
 
-    if (paymentResult === "review") {
+    if (paymentResult.outcome === "review") {
       console.log(`Late QR payment requires review: ${paymentCode}`);
+    }
+
+    // Ignored/insufficient transfers and repeated webhook deliveries never send
+    // another receipt. The transaction has completed before contacting SMTP.
+    if (paymentResult.outcome === "paid" && paymentResult.orderId) {
+      await sendOrderConfirmation(paymentResult.orderId);
     }
 
     return res.json({ success: true });

@@ -2,6 +2,8 @@
 
 Catalog Apaniche đã được nhập làm dữ liệu vận hành của database `vouges`. Kết quả thực tế nằm trong [import-result.json](../data/research/apaniche/import-result.json).
 
+Storefront hiện tải theo trang 16 sản phẩm, header cố định ba danh mục nước hoa và hỗ trợ 12 tiêu chí lọc. Các thay đổi tối ưu không sửa catalog/kho trong database. Xem quy tắc lọc, cache, số đo và danh sách dọn dẹp tại [STOREFRONT_PERFORMANCE.md](STOREFRONT_PERFORMANCE.md).
+
 ## Dữ liệu sau chuyển đổi
 
 | Nội dung | Số lượng |
@@ -44,12 +46,12 @@ Thanh phân trang dùng chung hiển thị tối đa bảy vị trí số/dấu 
 
 - Toàn bộ giá, phí giao hàng, voucher tiền mặt, tổng đơn, email, AI và QR dùng **VND nguyên đồng**. `1250000` hiển thị `1.250.000 ₫`; không nhân/chia 1.000 tại ranh giới API.
 - Miễn phí giao tiêu chuẩn từ tổng tiền hàng 1.000.000đ trước voucher; dưới ngưỡng là 30.000đ. Giao nhanh 50.000đ; hỏa tốc thu phí riêng theo quy trình cũ.
-- Người dùng đã chọn đặt hàng theo trạng thái còn/hết của nguồn. `inventoryMode: source` không suy diễn số lượng kho: `stockBySize` ban đầu bằng 0; `inStockBySize` quyết định khả năng đặt từng size. Giá 0 không được mở bán.
-- Dashboard luôn có ô số lượng cho từng phân loại. Trong chế độ `source`, số lượng nhập là kho nội bộ để tham khảo, không thay thế giới hạn đặt hàng theo trạng thái. Chọn `tracked` để dùng số lượng làm tồn bán; đơn QR đang giữ phân loại vẫn chặn đổi chế độ kho. Trang danh sách có tổng số lượng và phần mở rộng theo từng dung tích.
-- Ngày 28/10/2026, toàn bộ 2.444 sản phẩm đã được bổ sung số lượng nội bộ theo yêu cầu mới nhất: **1–30 cho mỗi dung tích còn hàng, 0 cho dung tích hoặc sản phẩm hết hàng**. Số lượng được phân bổ ổn định theo mã sản phẩm và dung tích. Có 4.846 phân loại còn hàng, 618 phân loại bằng 0, tổng số lượng 74.792; toàn bộ các mức từ 1 đến 30 đều có trong catalog. Đây là mức khởi tạo của cửa hàng, không phải số tồn kho Apaniche công bố. Giá, trạng thái mở bán, chế độ `source` và dữ liệu nguồn giữ nguyên. [Kết quả phân bổ hiện tại](../data/inventory-range-distribution.json), [lần phân bổ theo giá trước đó](../data/inventory-distribution.json) và [lần khởi tạo ban đầu](../data/inventory-initialization.json) ghi lại số liệu cùng vị trí bản sao lưu.
+- Catalog hiện dùng **`inventoryMode: tracked`** theo yêu cầu đồng bộ số lượng mua với tồn kho ngày 28/10/2026. Cả 2.444 sản phẩm đã chuyển sang chế độ này, giữ nguyên 5.464 số lượng theo dung tích và giá đã lưu. [Kết quả chuyển đổi và bản sao lưu](../data/tracked-inventory.json). Chế độ `source` trước đây chỉ dựa trên còn/hết, nên đã không giới hạn đơn theo các số lượng mới khởi tạo.
+- Dashboard luôn có ô số lượng cho từng phân loại. Trang chi tiết hiển thị số lượng trong kho của dung tích đang chọn; số có thể thêm là tồn kho trừ số đã có trong giỏ. Khi đủ số lượng trong giỏ hoặc tồn bằng 0, nút tăng và thêm vào giỏ được khóa. Trang danh sách có tổng số lượng và phần mở rộng theo từng dung tích.
+- Ngày 28/10/2026, toàn bộ 2.444 sản phẩm đã được bổ sung số lượng nội bộ theo yêu cầu mới nhất: **1–30 cho mỗi dung tích còn hàng, 0 cho dung tích hoặc sản phẩm hết hàng**. Số lượng được phân bổ ổn định theo mã sản phẩm và dung tích. Có 4.846 phân loại còn hàng, 618 phân loại bằng 0, tổng số lượng 74.792; toàn bộ các mức từ 1 đến 30 đều có trong catalog. Đây là mức khởi tạo của cửa hàng, không phải số tồn kho Apaniche công bố. Giá, trạng thái mở bán và dữ liệu nguồn giữ nguyên. [Kết quả phân bổ ban đầu](../data/inventory-range-distribution.json), [lần phân bổ theo giá trước đó](../data/inventory-distribution.json) và [lần khởi tạo ban đầu](../data/inventory-initialization.json) ghi lại số liệu cùng vị trí bản sao lưu.
 - Script `server/scripts/initializePerfumeStock.js` mặc định chỉ xem trước, yêu cầu `--apply --database=vouges` để ghi trong một giao dịch có sao lưu. `--vary-by-price` thực hiện lần phân bổ theo giá trước đây; `--range=1-30` chuyển lần phân bổ đó sang 1–30. Các bản ghi `perfume-initial-stock-v1`, `perfume-varied-stock-v1` và `perfume-range-stock-v1` chặn chạy lại để tránh đặt lại số lượng sau khi chủ cửa hàng đã điều chỉnh. Script cũng từ chối ghi đè khi số lượng đã được sửa khác lần phân bổ trước.
-- Giới hạn thao tác là 10 sản phẩm mỗi lượt thêm, 100 sản phẩm mỗi dung tích trong giỏ/đơn; đây là giới hạn ứng dụng, không phải tồn kho của Apaniche.
-- `inventoryMode: tracked` dành cho trường hợp chủ cửa hàng chuyển sang quản lý số lượng thật. Đơn lưu chế độ kho lúc mua; đặt/hủy đơn nguồn không tạo hoặc cộng số lượng giả.
+- Mỗi lần thêm tối đa 100 sản phẩm và luôn bị giới hạn bởi số tồn còn có thể thêm của từng dung tích. Cửa hàng hiện có tồn khởi tạo 1–30; số lượng này do cửa hàng chọn, không phải số tồn do Apaniche công bố.
+- `tracked` kiểm tra kho tại API giỏ hàng và đặt hàng; tạo đơn COD/giữ đơn QR trừ kho trong giao dịch, hủy/hết hạn QR hoàn lại theo quy trình hiện có. Đơn giữ chế độ kho lúc mua, nên các đơn nguồn cũ không được cộng kho giả khi hủy. Không đổi chế độ khi còn QR đang chờ. `server/scripts/enableTrackedInventory.js` hỗ trợ xem trước, sao lưu và áp dụng một lần bằng `--apply --database=vouges`.
 - Giá và trạng thái là bản chụp tại thời điểm thu thập. **Chưa có tác vụ tự động đồng bộ thay đổi từ Apaniche.** Chủ cửa hàng có thể điều chỉnh catalog; bản gốc vẫn giữ nguyên.
 
 ## Thư viện và chỉ số

@@ -1,4 +1,5 @@
 .product-article { width: 100%; max-width: 880px; margin-inline: auto; color: #414141; font-family: Inter, sans-serif; font-size: 16px; line-height: 1.9; overflow-wrap: anywhere; }
+.product-description-copy > .product-article { margin-inline: 0 auto; }
 .net-theme .product-article :is(h2,h3),.net-admin .velours-admin-main .product-article :is(h2,h3) { font-family: var(--inessa-serif); font-weight: var(--inessa-serif-weight); letter-spacing: -.015em; }
 .net-theme .product-article p,.net-theme .product-description-copy .product-article p { margin: 0 0 1.2em; color: inherit; font-size: inherit; line-height: inherit; white-space: pre-wrap; }
 .net-theme .product-article h2 { margin: 1.5em 0 .7em; font-size: 30px; line-height: 1.4; }

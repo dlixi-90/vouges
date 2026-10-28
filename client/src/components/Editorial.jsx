@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useAppContext } from "../context/AppContext";
+import { STORE_CATEGORIES } from "../data/storeNavigation";
 import { ArrowUpRight } from "lucide-react";
 import banner from "../assets/banner.webp";
 
@@ -123,13 +123,12 @@ export function EditorialCampaign() {
 }
 
 export function ShopCategories() {
-  const { categories } = useAppContext();
   const images = [
     "/images/inessa/bg-03.jpg",
     "/images/inessa/bg-04.jpg",
     banner,
   ];
-  const items = categories.slice(0, 3);
+  const items = STORE_CATEGORIES.map(name => ({ name }));
   if (!items.length) return null;
   return (
     <section

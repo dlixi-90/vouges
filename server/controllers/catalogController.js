@@ -8,6 +8,7 @@ import { sanitizeFragranceRows } from "../services/fragranceEditing.js";
 import { sanitizeArticle, articleToPlainText } from "../../client/src/utils/productArticle.js";
 import { v2 as cloudinary } from "cloudinary";
 import { unlink } from "node:fs/promises";
+import { invalidateStorefrontCatalog } from "../services/storefrontCatalog.js";
 
 const fail = (message, statusCode = 400) => { throw Object.assign(new Error(message), { statusCode }); };
 const pagination = (query) => {
@@ -21,7 +22,7 @@ const pattern = (value) => {
 };
 const address = (value) => typeof value === "string" && value.length <= 2000 && (/^https?:\/\//i.test(value) || /^\/images\//.test(value));
 export const catalogAction = (handler) => async (req,res) => {
-  try { await handler(req,res); } catch(error) {
+  try { await handler(req,res); if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) invalidateStorefrontCatalog(); } catch(error) {
     if (!error.statusCode) console.error(error);
     res.status(error.statusCode || 500).json({success:false,message:error.statusCode ? error.message : "Không thể xử lý dữ liệu catalog"});
   }

@@ -1,19 +1,22 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import Title from "./Title";
 import Item from "./Item";
 import { useAppContext } from "../context/AppContext";
-import { selectRelatedProducts } from "../utils/relatedProducts";
 
 const RelatedProducts = ({ product, productId }) => {
-  const { products } = useAppContext();
-
-  const { products: relatedProducts, isFallback } = useMemo(
-    () => selectRelatedProducts(products, product, productId),
-    [product, productId, products],
-  );
+  const { publicCatalog } = useAppContext();
+  const id = productId || product._id;
+  const [result, setResult] = useState(null);
+  useEffect(() => {
+    let active = true;
+    publicCatalog.related(id).then(data => { if (active) setResult({ id, ...data }); }).catch(() => {});
+    return () => { active = false; };
+  }, [publicCatalog, id]);
+  const relatedProducts = result?.id === id ? result.products : [];
+  const isFallback = result?.isFallback;
 
   if (relatedProducts.length === 0) return null;
 

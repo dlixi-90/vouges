@@ -8,7 +8,7 @@ import {
   isSizeAvailable,
 } from "../../../utils/productStock.js";
 
-const MAX_ADD_QUANTITY = 10;
+import { MAX_CART_ADD_QUANTITY as MAX_ADD_QUANTITY } from "../../../../client/src/utils/purchaseQuantity.js";
 const ALLOWED_ARGUMENT_KEYS = new Set(["productId", "size", "quantity"]);
 
 export const prepareAddToCartToolDefinition = {

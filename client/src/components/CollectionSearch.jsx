@@ -28,22 +28,20 @@ export default function CollectionSearch({ value, onChange }) {
     };
   }, [open]);
 
-  return <div className="inessa-collection-search" ref={containerRef}>
+  return <div className={`inessa-collection-search${open ? " is-open" : ""}`} ref={containerRef}>
+    {open && <form id={panelId} className="inessa-collection-search-panel" role="search"
+      onSubmit={event => {
+        event.preventDefault();
+        onChange(value);
+      }}>
+      <input ref={inputRef} type="search" value={value} aria-label="Tìm kiếm sản phẩm"
+        placeholder="Tìm kiếm sản phẩm…" onChange={event => onChange(event.target.value)} />
+    </form>}
     <button ref={triggerRef} type="button" className="inessa-collection-search-toggle"
       aria-label={open ? "Đóng tìm kiếm sản phẩm" : "Mở tìm kiếm sản phẩm"}
       title="Tìm kiếm sản phẩm" aria-expanded={open} aria-controls={panelId}
       onClick={() => setOpen(current => !current)}>
       <Search size={20} strokeWidth={1.5} aria-hidden="true" />
     </button>
-    {open && <form id={panelId} className="inessa-collection-search-panel" role="search"
-      onSubmit={event => {
-        event.preventDefault();
-        onChange(value);
-        setOpen(false);
-        triggerRef.current?.focus({ preventScroll: true });
-      }}>
-      <input ref={inputRef} type="search" value={value} aria-label="Tìm kiếm sản phẩm"
-        placeholder="Tìm kiếm sản phẩm…" onChange={event => onChange(event.target.value)} />
-    </form>}
   </div>;
 }

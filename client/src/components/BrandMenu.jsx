@@ -34,7 +34,10 @@ export default function BrandMenu({ directory, compact = false, onNavigate }) {
     setSearchQuery(""); setOpenedAt(null); onNavigate?.();
   };
   return <div ref={ref} className={`store-brand-menu${compact ? " is-compact" : ""}`}>
-    <button ref={buttonRef} type="button" className={`store-brand-trigger${active ? " is-active" : ""}`} aria-expanded={open} aria-controls={id} onClick={() => { if (!open) setQuery(""); setOpenedAt(open ? null : location.key); }} onKeyDown={event => { if (event.key === "ArrowDown") { event.preventDefault(); setOpenedAt(location.key); window.requestAnimationFrame(() => searchRef.current?.focus()); } }}>Thương hiệu<ChevronDown size={13} aria-hidden="true" /></button>
+    <button ref={buttonRef} type="button" className={`store-brand-trigger${active ? " is-active" : ""}`} aria-expanded={open} aria-controls={id}
+      onPointerEnter={() => directory?.load()} onFocus={() => directory?.load()}
+      onClick={() => { if (!open) { setQuery(""); void directory?.load(); } setOpenedAt(open ? null : location.key); }}
+      onKeyDown={event => { if (event.key === "ArrowDown") { event.preventDefault(); void directory?.load(); setOpenedAt(location.key); window.requestAnimationFrame(() => searchRef.current?.focus()); } }}>Thương hiệu<ChevronDown size={13} aria-hidden="true" /></button>
     {open && <div id={id} className="store-brand-dropdown" role="region" aria-label="Danh sách thương hiệu nước hoa">
       <header><div><strong>Thương hiệu nước hoa</strong><span>{brands.length} thương hiệu trong bộ sưu tập</span></div><button type="button" onClick={() => { setOpenedAt(null); buttonRef.current?.focus(); }} aria-label="Đóng danh sách thương hiệu"><X size={17} /></button></header>
       <label className="store-brand-search"><Search size={15} aria-hidden="true" /><input ref={searchRef} type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Tìm thương hiệu…" aria-label="Tìm thương hiệu nước hoa" /></label>

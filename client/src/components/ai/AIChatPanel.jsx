@@ -24,7 +24,7 @@ const SupportChatPanel = lazy(() => import("../support/SupportChatPanel"));
 
 const suggestedPrompts = [
   "Bạn có thể giúp gì cho tôi?",
-  "Hướng dẫn tôi chọn nước hoa phù hợp",
+  "Giúp tôi chọn nước hoa theo ngân sách",
   "Gợi ý nước hoa hương tươi mát cho ban ngày",
   "Đơn hàng gần nhất của tôi đang ở đâu?",
   "Trong giỏ hàng của tôi có gì?",
@@ -309,7 +309,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
               </h2>
               <div className="flex items-center gap-1.5 text-xs text-slate-500">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                Trợ lý mua sắm
+                Tư vấn nước hoa
               </div>
             </div>
           </div>
@@ -938,7 +938,7 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                 rows={1}
                 aria-label="Nhập tin nhắn cho trợ lý AI"
                 placeholder={
-                  user ? "Nhập câu hỏi của bạn..." : "Vui lòng đăng nhập..."
+                  user ? "Hỏi về nước hoa, dung tích, đơn hàng…" : "Vui lòng đăng nhập..."
                 }
                 className="max-h-28 min-h-10 flex-1 resize-none bg-transparent px-2 py-2 text-sm leading-5 text-slate-800 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed"
               />

@@ -82,6 +82,8 @@ const Cart = () => {
     navigate,
     user,
     products,
+    productsLoading,
+    productsError,
     currency,
     cartItems,
     cartAddedAt,
@@ -338,7 +340,7 @@ const Cart = () => {
           <header className="net-cart-heading inessa-cart-heading">
             <h1 id="cart-page-title">Giỏ hàng</h1>
           </header>
-          {cartData.length > 0 ? (
+          {productsError ? <p role="alert">{productsError} <button type="button" onClick={fetchProducts} className="underline">Thử lại</button></p> : productsLoading && !cartData.length ? <p role="status">Đang tải giỏ hàng…</p> : cartData.length > 0 ? (
             <div className="inessa-cart-layout">
               <div className="inessa-cart-products">
                 <div className="inessa-cart-table-wrap">

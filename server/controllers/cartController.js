@@ -4,7 +4,7 @@ import Product from "../models/Product.js";
 import { getPurchaseLimit, isSizeAvailable } from "../utils/productStock.js";
 import { getCartAddedAt, getMissingCartAddedAtUpdates, getNextCartAddedAt } from "../utils/cartOrder.js";
 
-const MAX_ADD_QUANTITY = 10;
+import { MAX_CART_ADD_QUANTITY as MAX_ADD_QUANTITY } from "../../client/src/utils/purchaseQuantity.js";
 const isSafePathSegment = (value) =>
   typeof value === "string" &&
   Boolean(value.trim()) &&

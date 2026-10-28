@@ -4,6 +4,8 @@ import Product from "../../../models/Product.js";
 import User from "../../../models/User.js";
 import {
   getPurchaseLimit,
+  getSizeQuantity,
+  isSourceInventory,
   isSizeAvailable,
 } from "../../../utils/productStock.js";
 
@@ -108,6 +110,8 @@ const createCartItem = (entry, product, currency) => {
       : null,
     isAvailable,
     hasEnoughStock: isAvailable && entry.quantity <= availableStock,
+    stockQuantity: isSourceInventory(product) ? null : getSizeQuantity(product, entry.size),
+    additionalQuantity: isAvailable ? Math.max(0, availableStock - entry.quantity) : 0,
     image: getSizeImage(product, entry.size),
     url: !product.isDeleted ? `/collection/${product._id}` : null,
   };

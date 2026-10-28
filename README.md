@@ -7,8 +7,9 @@ Hỗ trợ khách hàng: [chat với nhân viên CSKH và hộp thư quản tr�
 ### Nước hoa & trải nghiệm mua sắm cùng AI
 
 Dashboard và dữ liệu vận hành: [catalog nước hoa Apaniche, quy ước VND và quản trị](docs/PERFUME_CATALOG.md).
+Kiến thức và dữ liệu của trợ lý AI: [Velours AI chuyên tư vấn nước hoa](docs/AI_PERFUME.md).
 
-**Nền tảng thương mại điện tử kết hợp cửa hàng trực tuyến, thanh toán QR và trợ lý mua sắm AI trong cùng một trải nghiệm.**
+**Cửa hàng nước hoa kết hợp mua sắm trực tuyến, thanh toán QR và trợ lý tư vấn nước hoa AI trong cùng một trải nghiệm.**
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
@@ -57,12 +58,12 @@ Khách hàng có thể khám phá cửa hàng qua danh sách sản phẩm hoặc
 
 ### Khám phá cửa hàng
 
-Trang chủ giới thiệu sản phẩm mới, sản phẩm nổi bật và các nội dung về cửa hàng. Trang bộ sưu tập giúp khách thu hẹp lựa chọn theo nhóm sản phẩm, loại và mức giá thông qua tìm kiếm, bộ lọc và sắp xếp.
+Trang chủ giới thiệu sản phẩm mới, sản phẩm nổi bật và các nội dung về cửa hàng. Bộ sưu tập tải 16 sản phẩm mỗi trang từ backend, hỗ trợ tìm kiếm, sắp xếp giá và 12 tiêu chí lọc nước hoa. Header cố định các mục Bộ sưu tập, Nước hoa nam, Nước hoa nữ, Nước hoa unisex và Thương hiệu; không chờ API danh mục để hiển thị.
 
 | Tính năng | Trải nghiệm |
 | --- | --- |
 | 🔎 **Tìm kiếm sản phẩm** | Tìm sản phẩm theo tên trong danh sách của cửa hàng |
-| 🗂️ **Lọc danh mục và loại** | Kết hợp lựa chọn danh mục với các loại sản phẩm tương ứng |
+| 🗂️ **Bộ lọc nước hoa** | Giới tính, thương hiệu, giá, dung tích, lưu hương, tỏa hương, thời điểm khuyên dùng, note hương, kiểu mùi hương, phong cách, nồng độ và xuất xứ |
 | ↕️ **Sắp xếp theo giá** | Xem sản phẩm theo giá tăng dần hoặc giảm dần |
 | 📄 **Phân trang** | Chia danh sách sản phẩm thành các trang dễ theo dõi |
 | 🧴 **Chi tiết sản phẩm** | Xem hình ảnh, mô tả, thành phần nếu có và các dung tích |
@@ -83,7 +84,7 @@ Giỏ hàng được lưu theo tài khoản để khách tiếp tục mua sắm 
 | ☑️ **Thanh toán hàng đã chọn** | Chọn các mặt hàng cần mua trong giỏ |
 | 📍 **Địa chỉ nhận hàng** | Thêm địa chỉ và chọn lại địa chỉ đã lưu |
 | 🧾 **Tổng tiền rõ ràng** | Hiển thị tiền sản phẩm, phí vận chuyển và tổng thanh toán |
-| 📬 **Email xác nhận COD** | Nhận thông tin đơn và sản phẩm sau khi đặt COD thành công |
+| 📬 **Email xác nhận đơn hàng** | Gửi sau khi đặt COD thành công hoặc thanh toán QR được xác nhận thành công |
 | 🚚 **Theo dõi đơn** | Xem đơn COD và đơn thanh toán QR đã ghi nhận thanh toán, cùng trạng thái xử lý |
 
 ---
@@ -91,7 +92,7 @@ Giỏ hàng được lưu theo tài khoản để khách tiếp tục mua sắm 
 <a id="tro-ly-ai"></a>
 ## 🤖 Trợ lý mua sắm AI
 
-**Velours AI** bổ sung một cách tương tác với cửa hàng thông qua hội thoại. Khách hàng có thể nêu nhu cầu, hỏi thông tin sản phẩm hoặc kiểm tra đơn mà không phải tự chuyển qua nhiều màn hình.
+**Velours AI** tập trung tư vấn nước hoa theo ngân sách, thương hiệu, nhóm hương, tầng hương, nồng độ và dịp sử dụng. Giá VND, dung tích, số tồn và chỉ số trải nghiệm được tra cứu từ catalog hiện tại; khách vẫn có thể kiểm tra giỏ hàng và đơn của mình qua hội thoại.
 
 Trợ lý gọi các công cụ truy vấn dữ liệu của cửa hàng để bổ sung thông tin cho câu trả lời. Kết quả có thể đi kèm thẻ sản phẩm, thông tin đơn, nội dung giỏ và đề xuất thao tác ngay trong khung chat.
 
@@ -143,7 +144,7 @@ Velours hỗ trợ **thanh toán khi nhận hàng (COD)** và **chuyển khoản
 | Ghi nhận đơn | Sau khi thông tin đặt hàng được kiểm tra | Tạo phiên chờ thanh toán và giữ hàng |
 | Xác nhận đã trả tiền | Khi quản trị chuyển đơn sang đã giao | Sau khi webhook SePay được kiểm tra và chấp nhận |
 | Xử lý tồn kho | Trừ kho khi tạo đơn thành công | Giữ kho trong phiên chờ, hoàn lại khi hủy hoặc xử lý hết hạn |
-| Thông báo | Email xác nhận COD | Kết quả thanh toán trên giao diện |
+| Thông báo | Email xác nhận đặt hàng | Chỉ gửi email sau khi thanh toán thành công; phiên chờ, hủy, hết hạn hoặc cần xác minh không gửi email |
 
 ### Luồng mua hàng
 
@@ -156,7 +157,7 @@ flowchart TD
     E -->|COD| F[Ghi nhận đơn và gửi email]
     E -->|QR| G[Hiển thị QR và giữ hàng]
     G --> H[Nhận xác nhận giao dịch SePay]
-    H --> I[Ghi nhận thanh toán]
+    H --> I[Ghi nhận thanh toán và gửi email xác nhận]
     F --> J[Cửa hàng xử lý đơn]
     I --> J
     J --> K[Đóng gói]
@@ -174,7 +175,11 @@ flowchart TD
 - Hệ thống kiểm tra mã giao dịch để hạn chế ghi nhận lặp khi nhận lại webhook.
 - Với đơn đã được xử lý hết hạn nhưng nhận tiền muộn, hệ thống kiểm tra lại hàng; trường hợp không đáp ứng được chuyển sang trạng thái cần xem xét.
 
-Hiện việc giải phóng các phiên hết hạn diễn ra khi có yêu cầu liên quan đến đặt hàng hoặc kiểm tra thanh toán; chưa có tác vụ nền quét độc lập. Email xác nhận tự động được tích hợp cho COD.
+Hiện việc giải phóng các phiên hết hạn diễn ra khi có yêu cầu liên quan đến đặt hàng hoặc kiểm tra thanh toán; chưa có tác vụ nền quét độc lập.
+
+Email dùng mẫu đen trắng, nội dung chuyên về nước hoa, kèm dung tích, số lượng, giá VND, phí giao hàng, giảm giá, địa chỉ và liên kết chi tiết đơn. Thư gửi đến email liên hệ đã nhập khi đặt hàng; nếu thiếu thì dùng email tài khoản. Đơn QR chỉ gửi thư khi giao dịch được SePay xác nhận và đơn chuyển sang `Order Placed` với `isPaid: true`. Tạo/khôi phục phiên chờ, nhận tiền thiếu, hết hạn, hủy hoặc `Payment Review` không gửi thư. Webhook trùng không gửi lại thư. Cần cấu hình `SMTP_USER`, `SMTP_PASS`, `SMTP_SENDER_EMAIL` và `FRONTEND_URL`; lỗi gửi email được ghi log và không làm hủy đơn/thanh toán. Hiện chưa có hàng đợi tự động gửi lại email khi SMTP lỗi.
+
+Giao diện email đồng bộ với cửa hàng: logo đặt giữa trên nền trắng, tiêu đề có chân, các đường phân cách mảnh, nút đen bo góc nhẹ và chân thư đen. Logo được nhúng vào thư bằng ảnh đính kèm nội tuyến. Chạy `npm run preview:email` trong thư mục `server` để tạo hai bản xem trước tại `server/previews/`; lệnh chỉ dùng đơn mẫu, không gửi email hay tạo đơn thật. Có thể xem [mẫu COD](server/previews/order-confirmation.html) và [QR đã thanh toán](server/previews/order-qr-paid.html). Email dùng Lora khi có sẵn trên thiết bị, với Georgia/Times New Roman dự phòng.
 
 ### Phí vận chuyển
 
@@ -267,7 +272,7 @@ Xóa mềm giúp ngừng hiển thị và bán một sản phẩm, đồng thờ
 | **Clerk & Svix** | Xác thực, quản lý phiên và xác minh sự kiện đồng bộ tài khoản |
 | **Cloudinary & Multer** | Tiếp nhận và lưu trữ hình ảnh sản phẩm |
 | **SePay & QR qua vietqr.app** | Đối soát chuyển khoản và hiển thị mã QR |
-| **Nodemailer & Brevo SMTP** | Email xác nhận đơn COD |
+| **Nodemailer & Brevo SMTP** | Email đơn COD và QR đã thanh toán thành công |
 | **Groq** | Xử lý hội thoại AI và yêu cầu gọi công cụ |
 | **Node.js Test Runner & ESLint** | Kiểm thử nghiệp vụ và kiểm tra mã |
 
@@ -283,7 +288,7 @@ flowchart TD
     API <--> DB[(MongoDB - Dữ liệu cửa hàng)]
     API <--> AI[Groq - Trợ lý AI]
     API --> IMG[Cloudinary - Ảnh sản phẩm]
-    API --> MAIL[Brevo - Email COD]
+    API --> MAIL[Brevo - Email COD và QR đã thanh toán]
     PAY[SePay - Giao dịch chuyển khoản] --> API
 ```
 
@@ -325,7 +330,7 @@ Các bài kiểm thử tập trung vào những phần ảnh hưởng trực ti�
 | **Xác nhận giỏ** | Đề xuất AI chưa ghi dữ liệu trước khi được xác nhận |
 | **Quota AI** | Giới hạn lượt dùng và xử lý khi dịch vụ lưu quota gặp lỗi |
 
-Lần kiểm tra cục bộ gần nhất trong quá trình cập nhật tài liệu ghi nhận **64/64 bài kiểm thử backend đạt**, cùng kiểm tra lint và build frontend thành công. Bộ test có sử dụng mock/stub; kết quả này chưa thay thế kiểm thử toàn bộ luồng với các dịch vụ bên ngoài hoặc đánh giá độ chính xác câu trả lời AI.
+Lần kiểm tra cục bộ ngày 28/10/2026 ghi nhận **380/380 bài kiểm thử backend đạt**, cùng kiểm tra lint và build frontend thành công. Kiểm tra Chrome chỉ đọc dữ liệu đã bao gồm bộ lọc kết hợp, phân trang/cuộn, giỏ hàng, dashboard, cache và font tiếng Việt trên máy tính/điện thoại. Bộ test có sử dụng mock/stub; chưa gửi email thật, thực hiện thanh toán thật hoặc triển khai production trong đợt này. Chi tiết tối ưu và số đo tại [STOREFRONT_PERFORMANCE.md](docs/STOREFRONT_PERFORMANCE.md).
 
 ---
 

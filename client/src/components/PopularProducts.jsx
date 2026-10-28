@@ -1,8 +1,7 @@
 import Title from "./Title";
 import { usePopularProducts } from "../hooks/usePopularProducts";
 import ProductCarousel from "./ProductCarousel";
-import { useAppContext } from "../context/AppContext";
-import { hasAnyAvailableSize } from "../utils/productStock";
+import useProductFeed from "../hooks/useProductFeed";
 
 const PopularProducts = () => {
   const {
@@ -11,10 +10,10 @@ const PopularProducts = () => {
     popularProductsError,
     fetchPopularProducts,
   } = usePopularProducts();
-  const { products, productsLoading } = useAppContext();
   const showSuggestions = !popularProductsLoading && !popularProductsError && !popularProducts.length;
+  const { products, loading: productsLoading, error: suggestionsError, reload: reloadSuggestions } = useProductFeed({ limit: 10, availability: "available", enabled: showSuggestions });
   const displayedProducts = showSuggestions
-    ? products.filter(hasAnyAvailableSize).slice(0, 10)
+    ? products
     : popularProducts;
   const isLoading = popularProductsLoading || (showSuggestions && productsLoading);
 
@@ -24,10 +23,10 @@ const PopularProducts = () => {
         {showSuggestions ? "Khám phá cùng Velours" : "Được yêu thích tại Velours"}
       </p>
       <Title title1={showSuggestions ? "Gợi ý" : "Sản phẩm"} title2={showSuggestions ? "cho bạn" : "bán chạy"} titleStyles={"pb-10"} />
-      {popularProductsError && (
+      {(popularProductsError || suggestionsError) && (
         <p role="alert" className="mb-4 text-sm text-red-600">
-          {popularProductsError}{" "}
-          <button type="button" onClick={fetchPopularProducts} className="underline">
+          {popularProductsError || suggestionsError}{" "}
+          <button type="button" onClick={suggestionsError ? reloadSuggestions : fetchPopularProducts} className="underline">
             Thử lại
           </button>
         </p>

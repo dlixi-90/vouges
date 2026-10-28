@@ -1,26 +1,15 @@
-import { useLayoutEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
-import CollectionFilterDrawer from "../components/CollectionFilterDrawer";
+const CollectionFilterDrawer = lazy(() => import("../components/CollectionFilterDrawer"));
 import CollectionSearch from "../components/CollectionSearch";
 import { SearchX, SlidersHorizontal } from "lucide-react";
 import { formatVnd } from "../utils/money";
 import Pagination from "../components/Pagination";
 import usePaginationScroll from "../hooks/usePaginationScroll";
-import {
-  getAvailableSizes,
-  hasAnyAvailableSize,
-} from "../utils/productStock";
-
-const getDisplayedPrice = (product) => {
-  const firstAvailableSize = getAvailableSizes(product)[0];
-  const price = Number(product.price?.[firstAvailableSize]);
-
-  return Number.isFinite(price) ? price : Number.POSITIVE_INFINITY;
-};
-
-const brandKey = value => (value || "").normalize("NFC").trim().toLocaleLowerCase("vi-VN");
+import useCollectionPage from "../hooks/useCollectionPage";
+import { emptyPerfumeFilters } from "../data/perfumeFilters";
 
 const Collection = () => {
   useLayoutEffect(() => {
@@ -28,29 +17,33 @@ const Collection = () => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, []);
 
-  const { products, productsLoading, searchQuery, setSearchQuery, categories, currency, navigate } = useAppContext();
+  const { searchQuery, setSearchQuery, currency, navigate, publicCatalog } = useAppContext();
   const [searchParams] = useSearchParams();
-  const selectedBrand = searchParams.get("brand") || "";
-  const selectedBrandKey = brandKey(selectedBrand);
-  const allCategories = [...new Set([
-    ...categories.map((item) => item.name),
-    ...products.map((item) => item.category).filter(Boolean),
-  ])];
-  const [category, setCategory] = useState(() => {
-    const selected = searchParams.get("category");
-    return selected ? [selected] : [];
+  const routeBrand = searchParams.get("brand") || "";
+  const [settledSearch, setSettledSearch] = useState(searchQuery);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSettledSearch(searchQuery), 180);
+    return () => window.clearTimeout(timer);
+  }, [searchQuery]);
+  const [filters, setFilters] = useState(() => {
+    const category = searchParams.get("category");
+    const gender = ({ "Nước hoa nam": "Nam", "Nước hoa nữ": "Nữ", "Nước hoa unisex": "Unisex" })[category];
+    return { ...emptyPerfumeFilters(), ...(gender ? { gender: [gender] } : {}), ...(routeBrand ? { brands: [routeBrand] } : {}) };
   });
-  const [type, setType] = useState([]);
+  const selectedBrand = filters.brands.length === 1 ? filters.brands[0] : "";
   const [selectedSort, setSelectedSort] = useState("relevant");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 16;
-  const maxProductPrice = useMemo(() => products.reduce((highest, product) => {
-    const price = getDisplayedPrice(product);
-    return Number.isFinite(price) ? Math.max(highest, price) : highest;
-  }, 0), [products]);
+  const { data: collection, loading: pageLoading, error: pageError, reload } = useCollectionPage({
+    page: currentPage, limit: itemsPerPage, q: settledSearch,
+    facets: JSON.stringify(filters), sort: selectedSort,
+    minPrice, ...(maxPrice !== null ? { maxPrice } : {}),
+  });
+  const productsLoading = pageLoading || settledSearch !== searchQuery;
+  const maxProductPrice = collection?.filters.maxPrice || 0;
   // Every price and filter value is integer VND.
   const priceCeiling = Math.max(1, Math.ceil(maxProductPrice));
   const priceLimit = maxPrice === null ? priceCeiling : Math.min(maxPrice, priceCeiling);
@@ -69,89 +62,28 @@ const Collection = () => {
     setCurrentPage(1);
   };
   const resetFilters = () => {
-    setCategory([]);
-    setType([]);
+    setFilters(emptyPerfumeFilters());
     setMinPrice(0);
     setMaxPrice(null);
     setSearchQuery("");
     setCurrentPage(1);
-    if (selectedBrand) navigate("/collection", { replace: true });
+    if (routeBrand || searchParams.get("category")) navigate("/collection", { replace: true });
   };
 
-  const toggleFilter = (value, setState) => {
-    setState((prev) =>
-      prev.includes(value)
-        ? prev.filter((item) => item !== value)
-        : [...prev, value],
-    );
+  const toggleFilter = (field, value) => {
+    setFilters(current => ({ ...current, [field]: current[field].includes(value)
+      ? current[field].filter(item => item !== value) : [...current[field], value] }));
     setCurrentPage(1);
   };
 
-  const availableTypes = useMemo(() => {
-    const filteredProds = products.filter((p) =>
-      (category.length === 0 || category.includes(p.category)) && (!selectedBrandKey || brandKey(p.brand) === selectedBrandKey),
-    );
-    return [...new Set(filteredProds.map((p) => p.type))].sort();
-  }, [category, products, selectedBrandKey]);
-
-  const filteredProducts = useMemo(() => {
-    const availableTypeSet = new Set(availableTypes);
-    const activeTypes = type.filter((item) => availableTypeSet.has(item));
-    let filtered = products.filter(hasAnyAvailableSize);
-
-    if (selectedBrandKey) filtered = filtered.filter(product => brandKey(product.brand) === selectedBrandKey);
-
-    if (searchQuery) {
-      const normalizedSearch = searchQuery.toLowerCase();
-      filtered = filtered.filter((product) =>
-        product.title.toLowerCase().includes(normalizedSearch),
-      );
-    }
-
-    if (category.length > 0) {
-      filtered = filtered.filter((product) =>
-        category.includes(product.category),
-      );
-    }
-
-    if (activeTypes.length > 0) {
-      filtered = filtered.filter((product) =>
-        activeTypes.includes(product.type),
-      );
-    }
-
-    if (isPriceFiltered) {
-      filtered = filtered.filter((product) => {
-        const price = getDisplayedPrice(product);
-        return price >= priceFloor && price <= priceLimit;
-      });
-    }
-
-    if (selectedSort === "low") {
-      return [...filtered].sort(
-        (a, b) => getDisplayedPrice(a) - getDisplayedPrice(b),
-      );
-    }
-
-    if (selectedSort === "high") {
-      return [...filtered].sort(
-        (a, b) => getDisplayedPrice(b) - getDisplayedPrice(a),
-      );
-    }
-
-    return filtered;
-  }, [availableTypes, category, products, searchQuery, selectedBrandKey, selectedSort, type, isPriceFiltered, priceFloor, priceLimit]);
-
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const activePage = Math.min(currentPage, Math.max(totalPages, 1));
-  const { listRef, changePage } = usePaginationScroll({ page: activePage, onPageChange: setCurrentPage });
+  const total = collection?.total || 0;
+  const totalPages = collection?.totalPages || 1;
+  const activePage = !productsLoading && collection ? collection.page : currentPage;
+  const { listRef, changePage } = usePaginationScroll({ page: activePage, onPageChange: setCurrentPage, ready: !productsLoading });
   const startIndex = (activePage - 1) * itemsPerPage;
-  const paginatedProducts = filteredProducts.slice(
-    startIndex,
-    startIndex + itemsPerPage,
-  );
-  const filterCount = category.length + type.filter((item) => availableTypes.includes(item)).length
-    + Number(isPriceFiltered) + Number(Boolean(searchQuery)) + Number(Boolean(selectedBrand));
+  const paginatedProducts = collection?.products || [];
+  const filterCount = Object.values(filters).reduce((count, values) => count + values.length, 0)
+    + Number(isPriceFiltered) + Number(Boolean(searchQuery));
 
   return (
     <div className="net-collection max-padd-container">
@@ -166,6 +98,7 @@ const Collection = () => {
       <div className="inessa-collection-toolbar">
         <div className="inessa-collection-filter-tools">
           <button type="button" onClick={() => setIsFilterOpen(true)} className="inessa-collection-filter-trigger"
+            onPointerEnter={() => { void publicCatalog.filters().catch(() => {}); }} onFocus={() => { void publicCatalog.filters().catch(() => {}); }}
             aria-haspopup="dialog" aria-expanded={isFilterOpen} aria-controls="collection-filter-drawer">
             <SlidersHorizontal size={20} strokeWidth={1.5} aria-hidden="true" />
             Lọc sản phẩm
@@ -177,8 +110,8 @@ const Collection = () => {
           <div className="inessa-collection-results-tools">
             <CollectionSearch value={searchQuery} onChange={value => { setSearchQuery(value); setCurrentPage(1); }} />
             <p className="inessa-collection-results" role="status" aria-live="polite">
-              {productsLoading ? "Đang tải sản phẩm…" : filteredProducts.length
-                ? `${startIndex + 1}–${Math.min(startIndex + itemsPerPage, filteredProducts.length)} / ${filteredProducts.length} sản phẩm`
+              {productsLoading ? "Đang tải sản phẩm…" : total
+                ? `${startIndex + 1}–${Math.min(startIndex + itemsPerPage, total)} / ${total} sản phẩm`
                 : "0 sản phẩm"}
             </p>
           </div>
@@ -192,21 +125,19 @@ const Collection = () => {
         </div>
       </div>
 
-      {isFilterOpen && <CollectionFilterDrawer
+      {isFilterOpen && <Suspense fallback={null}><CollectionFilterDrawer
         onClose={() => setIsFilterOpen(false)}
-        categories={allCategories} selectedCategories={category}
-        onCategoryChange={(value) => toggleFilter(value, setCategory)}
-        types={availableTypes} selectedTypes={type}
-        onTypeChange={(value) => toggleFilter(value, setType)}
+        selectedFilters={filters} onFilterChange={toggleFilter} filtering={productsLoading}
         minPrice={priceFloor} maxPrice={priceLimit} priceCeiling={priceCeiling}
         priceDisabled={maxProductPrice <= 0}
         onMinPriceChange={changeMinPrice} onMaxPriceChange={changeMaxPrice}
-        formatPrice={formatPrice} resultCount={filteredProducts.length} onReset={resetFilters}
-      />}
+        formatPrice={formatPrice} resultCount={total} onReset={resetFilters}
+      /></Suspense>}
 
       <div ref={listRef} tabIndex={-1} className="inessa-collection-grid pagination-list-start" aria-busy={productsLoading}>
+        {pageError && <div role="alert" className="inessa-collection-empty"><p>{pageError}</p><button type="button" onClick={reload} className="inessa-button">Thử lại</button></div>}
         {paginatedProducts.map((product) => <Item product={product} key={product._id} />)}
-        {!productsLoading && paginatedProducts.length === 0 && <div className="inessa-collection-empty">
+        {!productsLoading && !pageError && paginatedProducts.length === 0 && <div className="inessa-collection-empty">
           <SearchX size={32} strokeWidth={1.2} aria-hidden="true" />
           <h2>Không tìm thấy sản phẩm</h2>
           <p>Thử thay đổi từ khóa hoặc bộ lọc để tìm sản phẩm phù hợp.</p>

@@ -1,0 +1,17 @@
+{
+  "key": "perfume-tracked-inventory-v1",
+  "database": "vouges",
+  "inventoryMode": "tracked",
+  "totals": {
+    "products": 2444,
+    "changedProducts": 2444,
+    "sourceProducts": 2444,
+    "variants": 5464,
+    "availableVariants": 4846,
+    "zeroVariants": 618,
+    "totalQuantity": 74792
+  },
+  "appliedAt": "2026-10-28T06:45:22.895Z",
+  "backupPath": "C:\\Users\\nguye\\Desktop\\vouges\\.backups\\tracked-inventory-2026-10-28T06-45-22-478Z",
+  "verified": true
+}

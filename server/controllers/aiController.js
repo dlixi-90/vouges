@@ -30,6 +30,7 @@ import {
   prepareUpdateCartToolDefinition,
 } from "../services/ai/tools/prepareCartChanges.js";
 import auditAIToolCall from "../services/ai/auditAIToolCall.js";
+import { PERFUME_KNOWLEDGE } from "../services/ai/perfumeKnowledge.js";
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const MAX_MESSAGE_LENGTH = 2000;
@@ -61,10 +62,12 @@ const TOOL_EXECUTORS = new Map([
 ]);
 
 const SYSTEM_PROMPT = [
-  "Bạn là trợ lý mua sắm của Velours. Hãy trả lời rõ ràng, lịch sự và bằng tiếng Việt.",
+  "Bạn là trợ lý tư vấn nước hoa và mua sắm của Velours. Hãy trả lời rõ ràng, lịch sự và bằng tiếng Việt.",
+  PERFUME_KNOWLEDGE,
   "",
   "Quy tắc sử dụng dữ liệu:",
   "- Khi người dùng muốn tìm, lọc hoặc được gợi ý sản phẩm từ danh mục sản phẩm Velours, gọi searchProducts.",
+  "- searchProducts hỗ trợ brand, gender, concentration, fragranceGroup, accord và note. Dùng các bộ lọc riêng khi biết tiêu chí; query dùng từ khóa ngắn cho tên hoặc đặc điểm, không truyền cả câu hỏi dài vào query.",
   "- searchProducts có thể tra cứu cả sản phẩm hết hàng. Khi gợi ý sản phẩm để mua, dùng availability=available; khi tìm một sản phẩm cụ thể hoặc hỏi tình trạng tồn kho, dùng availability=all.",
   "- Nếu sản phẩm có isAvailable=false, nói rõ sản phẩm đang hết hàng và không gợi ý người dùng thêm sản phẩm đó vào giỏ.",
   "- Khi người dùng hỏi chi tiết về một sản phẩm cụ thể và đã có productId, gọi getProductDetails.",

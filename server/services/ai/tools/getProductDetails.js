@@ -4,6 +4,7 @@ import {
   getAvailableProductOptions,
   getProductOptions,
   getProductPriceRange,
+  getPerfumeProfile,
 } from "./productToolUtils.js";
 
 const MAX_DESCRIPTION_LENGTH = 2000;
@@ -13,7 +14,7 @@ export const getProductDetailsToolDefinition = {
   function: {
     name: "getProductDetails",
     description:
-      "Lấy thông tin chi tiết của một sản phẩm Velours khi đã biết productId. Dùng khi người dùng hỏi kỹ hơn về một sản phẩm cụ thể, giá theo size, mô tả hoặc tình trạng còn bán.",
+      "Lấy hồ sơ nước hoa thật khi đã biết productId: thương hiệu, xuất xứ, nồng độ, nhóm hương, tầng hương, accords, đánh giá lưu/tỏa và mùa/ngày/đêm; giá, số tồn và giới hạn mua riêng từng dung tích.",
     parameters: {
       type: "object",
       additionalProperties: false,
@@ -48,6 +49,7 @@ export const getProductDetails = async (argumentsValue = {}) => {
     _id: productId,
     isDeleted: { $ne: true },
     isPublished: { $ne: false },
+    catalogScope: { $ne: "other" },
   })
     .select(
       "title description price sizes stockBySize inventoryMode isPublished inStockBySize images category type popular inStock brand origin concentration gender fragrance",
@@ -73,11 +75,7 @@ export const getProductDetails = async (argumentsValue = {}) => {
       description: product.description.slice(0, MAX_DESCRIPTION_LENGTH),
       category: product.category,
       type: product.type,
-      brand: product.brand || null,
-      concentration: product.concentration || null,
-      gender: product.gender || null,
-      origin: product.origin || null,
-      fragrance: {group:product.fragrance?.group||null,style:product.fragrance?.style||null,notes:product.fragrance?.notes||{},accords:(product.fragrance?.accords||[]).map(item=>item.label)},
+      ...getPerfumeProfile(product),
       popular: Boolean(product.popular),
       isAvailable: availableOptions.length > 0,
       availableOptions,

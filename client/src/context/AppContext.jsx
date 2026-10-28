@@ -15,8 +15,10 @@ import { createCartUpdateQueue } from "../utils/cartUpdateQueue";
 import { createUserProfileLoader } from "../utils/userProfileLoader";
 import { createDashboardCache } from "../utils/dashboardCache";
 import { createStoreResources } from "../utils/storeResources";
+import { createPublicCatalog } from "../utils/publicCatalog";
 import { persistCartSizeChange } from "../utils/cartSizeUpdate";
 import { getCartItemKey } from "../utils/cartSelection";
+import { MAX_CART_ADD_QUANTITY } from "../utils/purchaseQuantity";
 import { getOrderedCartItems, setCartLineAddedAt } from "../utils/cartOrder";
 import {
   getPurchaseLimit,
@@ -26,7 +28,6 @@ import {
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
 const AppContext = createContext();
-const MAX_CART_ADD_QUANTITY = 10;
 
 const setCartItemQuantity = (cartData, itemId, size, quantity) => {
   const nextCartData = structuredClone(cartData);
@@ -55,12 +56,34 @@ const getRequestErrorMessage = (error, fallbackMessage) => {
 
 export const AppContextProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
-  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [productsError, setProductsError] = useState("");
+  const [resolvedCartIds, setResolvedCartIds] = useState([]);
+  const [publicCatalog] = useState(() => createPublicCatalog({ axios }));
+  const cartItemsRef = useRef({});
+  const registerProducts = useCallback((items) => {
+    if (!items?.length) return;
+    setProducts(current => {
+      const merged = new Map(current.map(product => [product._id, product]));
+      for (const product of items) {
+        const previous = merged.get(product._id);
+        merged.delete(product._id);
+        merged.set(product._id, { ...previous, ...product });
+      }
+      const required = new Set([...Object.keys(cartItemsRef.current), ...items.map(product => product._id)]);
+      for (const id of merged.keys()) {
+        if (merged.size <= 100) break;
+        if (!required.has(id)) merged.delete(id);
+      }
+      return [...merged.values()];
+    });
+  }, []);
   const [dashboardCache] = useState(() => createDashboardCache());
   const [popularProducts, setPopularProducts] = useState([]);
   const [popularProductsLoading, setPopularProductsLoading] = useState(true);
   const [popularProductsError, setPopularProductsError] = useState("");
   const popularRequestRef = useRef(null);
+  const popularSavedAt = useRef(0);
   const productsRequestRef = useRef(null);
   const [categories, setCategories] = useState([]);
   // Preserve File objects as well as text while navigating between admin forms.
@@ -91,9 +114,7 @@ export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
   const { pathname, key: locationKey } = useLocation();
   const isCartPage = Boolean(useMatch("/cart"));
-  const needsCatalog = !pathname.startsWith("/owner") && pathname !== "/membership"
-    || cartDrawer?.locationKey === locationKey;
-  const needsCategories = needsCatalog || !pathname.startsWith("/owner") || ["/owner/add-product", "/owner/add-category"].includes(pathname);
+  const needsCategories = ["/owner/add-product", "/owner/add-category"].includes(pathname);
   const currency = "₫";
   const delivery_charges = 30000;
 
@@ -108,6 +129,7 @@ export const AppContextProvider = ({ children }) => {
   const { openSignIn } = useClerk();
 
   useEffect(() => () => dashboardCache.clear(), [dashboardCache, authUserId, isOwner]);
+  useEffect(() => () => storeResources.invalidateCatalog(), [storeResources, isOwner]);
   useEffect(() => () => setCartDrawer((current) => current?.locationKey === locationKey ? null : current), [locationKey]);
 
   useEffect(() => () => {
@@ -160,29 +182,37 @@ export const AppContextProvider = ({ children }) => {
   }));
   const getUser = useCallback(() => profileLoader.load(authUserId, getToken), [profileLoader, authUserId, getToken]);
 
-  // Fetch all products
+  // Refresh only products present in the cart, never the full perfume catalog.
   const fetchProducts = useCallback(() => {
     if (productsRequestRef.current) return productsRequestRef.current;
+    if (!Object.keys(cartItemsRef.current).length) return Promise.resolve();
     productsRequestRef.current = (async () => {
       try {
-        const { data } = await axios.get("/api/products");
-        if (data.success) {
-          setProducts(data.products);
-        } else {
-          toast.error(data.message);
-        }
+        setProductsError("");
+        setProductsLoading(true);
+        let ids;
+        do {
+          ids = Object.keys(cartItemsRef.current).sort();
+          const items = await publicCatalog.batch(ids);
+          // Remove an item if it has since been hidden/deleted.
+          const returnedIds = new Set(items.map(product => product._id));
+          setProducts(current => current.filter(product => !ids.includes(product._id) || returnedIds.has(product._id)));
+          registerProducts(items);
+          setResolvedCartIds(ids);
+        } while (ids.join(",") !== Object.keys(cartItemsRef.current).sort().join(","));
       } catch (error) {
-        toast.error(error.message);
+        setProductsError(error.message);
       } finally {
         setProductsLoading(false);
         productsRequestRef.current = null;
       }
     })();
     return productsRequestRef.current;
-  }, []);
+  }, [publicCatalog, registerProducts]);
 
   const fetchPopularProducts = useCallback(() => {
     if (popularRequestRef.current) return popularRequestRef.current;
+    if (Date.now() - popularSavedAt.current < 30000) return Promise.resolve();
     popularRequestRef.current = (async () => {
       try {
         const { data } = await axios.get("/api/products/popular");
@@ -191,6 +221,7 @@ export const AppContextProvider = ({ children }) => {
         }
         setPopularProducts(data.products);
         setPopularProductsError("");
+        popularSavedAt.current = Date.now();
       } catch (error) {
         setPopularProductsError(
           getRequestErrorMessage(error, "Không thể tải sản phẩm bán chạy"),
@@ -536,12 +567,13 @@ export const AppContextProvider = ({ children }) => {
     };
   }, [getUser, isLoaded, authUserId, profileLoader]);
 
+  const cartProductIds = Object.keys(cartItems).sort().join(",");
+  useEffect(() => { cartItemsRef.current = cartItems; }, [cartItems]);
   useEffect(() => {
-    if (!needsCatalog) return undefined;
+    if (!isCartPage && !isCartOpen) return;
     const timeoutId = window.setTimeout(fetchProducts, 0);
-
     return () => window.clearTimeout(timeoutId);
-  }, [fetchProducts, needsCatalog]);
+  }, [fetchProducts, isCartPage, isCartOpen, cartProductIds]);
 
   useEffect(() => {
     if (!needsCategories) return undefined;
@@ -550,6 +582,8 @@ export const AppContextProvider = ({ children }) => {
   }, [fetchCategories, needsCategories]);
 
   const value = {
+    publicCatalog,
+    registerProducts,
     storeResources,
     dashboardCache,
     authenticatedUserId: authUserId,
@@ -563,7 +597,8 @@ export const AppContextProvider = ({ children }) => {
     navigate,
     user,
     products,
-    productsLoading,
+    productsLoading: productsLoading || ((isCartPage || isCartOpen) && !productsError && Object.keys(cartItems).some(id => !resolvedCartIds.includes(id))),
+    productsError,
     categories,
     categoriesLoading,
     categoriesError,

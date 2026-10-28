@@ -11,7 +11,7 @@ import { getSizeImage } from "../utils/productImage";
 
 export default function CartDrawer() {
   const {
-    products, productsLoading, cartItems, cartAddedAt, currency, closeCart, navigate,
+    products, productsLoading, productsError, fetchProducts, cartItems, cartAddedAt, currency, closeCart, navigate,
     updateQuantity, pendingCartKeys, hasPendingCartUpdates,
   } = useAppContext();
   const dialogRef = useRef(null);
@@ -81,6 +81,7 @@ export default function CartDrawer() {
       </header>
 
       {updateError && <p role="alert" className="inessa-cart-drawer-error">{updateError}</p>}
+      {productsError && <p role="alert" className="inessa-cart-drawer-error">{productsError} <button type="button" onClick={fetchProducts} className="underline">Thử lại</button></p>}
 
       <div className="inessa-cart-drawer-items" aria-label="Sản phẩm trong giỏ hàng">
         {loading ? <p role="status" className="inessa-cart-drawer-loading">Đang tải giỏ hàng…</p> : items.length ? items.map((item) => {

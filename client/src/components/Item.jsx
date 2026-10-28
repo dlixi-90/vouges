@@ -3,26 +3,25 @@ import { Link } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { getAvailableSizes } from "../utils/productStock";
 import { formatVnd } from "../utils/money";
+import { getProductPriceRange } from "../utils/productPrice";
 import ProductImage from "./ProductImage";
 
 const Item = ({ product }) => {
-  const { currency, storeResources } = useAppContext();
+  const { currency, storeResources, publicCatalog } = useAppContext();
   const prefetchTimer = useRef(null);
   useEffect(() => () => window.clearTimeout(prefetchTimer.current), []);
   const prefetchProduct = () => {
     void import("../pages/ProductDetail").catch(() => {});
+    void publicCatalog.detail(product._id).catch(() => {});
     void storeResources.loadReviews(product._id).catch(() => {});
   };
   const availableSizes = getAvailableSizes(product);
   const isAvailable = availableSizes.length > 0;
-  const size = availableSizes[0] ?? null;
   const colors = ["#f2f2f2", "#f6f9f6", "#f6f8fe"];
   const bgcolor =
     colors[parseInt(product._id?.slice(-4) || "0", 16) % colors.length];
 
-  const displayedPrice = size
-    ? product.price?.[size]
-    : Math.min(...Object.values(product.price ?? {}).map(Number));
+  const priceRange = getProductPriceRange(product);
 
   return (
     <Link
@@ -62,7 +61,10 @@ const Item = ({ product }) => {
       <div className="net-product-info">
         <p className="net-product-category line-clamp-1">{product.category || product.type}</p>
         <h5 className="line-clamp-2 uppercase">{product.title}</h5>
-        <p className="net-product-price">{formatVnd(displayedPrice, currency)}</p>
+        <p className="net-product-price">{priceRange ? <>
+          <span className="whitespace-nowrap">{formatVnd(priceRange.min, currency)}</span>
+          {priceRange.min !== priceRange.max && <> - <span className="whitespace-nowrap">{formatVnd(priceRange.max, currency)}</span></>}
+        </> : "Chưa có giá"}</p>
       </div>
     </Link>
   );

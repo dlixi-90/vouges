@@ -2,7 +2,7 @@ export const isSourceInventory = (product) => product?.inventoryMode === "source
 export const getSizeQuantity = (product, size) => {
   const quantity = Number(product?.stockBySize?.[size] ?? 0);
 
-  return Number.isFinite(quantity) ? quantity : 0;
+  return Number.isSafeInteger(quantity) && quantity >= 0 ? quantity : 0;
 };
 
 // A source availability flag is not a physical stock count.

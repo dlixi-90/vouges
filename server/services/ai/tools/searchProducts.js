@@ -3,12 +3,17 @@ import {
   getAvailableProductOptions,
   getProductOptions,
   getProductPriceRange,
+  getPerfumeProfile,
 } from "./productToolUtils.js";
 
 const DEFAULT_RESULT_LIMIT = 5;
 const MAX_RESULT_LIMIT = 8;
 const ALLOWED_SORTS = ["relevant", "price_asc", "price_desc", "newest"];
 const ALLOWED_AVAILABILITY = ["all", "available", "out_of_stock"];
+const PERFUME_FILTERS = { brand: "brand", gender: "gender", concentration: "concentration", fragranceGroup: "fragrance.group", accord: "fragrance.accords.label", note: null };
+const NOTE_FIELDS = ["fragrance.notes.top.name", "fragrance.notes.middle.name", "fragrance.notes.base.name"];
+const SEARCH_FIELDS = ["title", "description", "category", "type", "brand", "gender", "concentration", "fragrance.group", "fragrance.style", "fragrance.accords.label", ...NOTE_FIELDS];
+const ALLOWED_ARGUMENTS = new Set(["query", "category", "type", "minPrice", "maxPrice", "sort", "availability", "limit", ...Object.keys(PERFUME_FILTERS)]);
 
 const escapeRegExp = (value) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -31,8 +36,8 @@ const readOptionalPrice = (value, field) => {
 
   const normalizedValue = Number(value);
 
-  if (!Number.isFinite(normalizedValue) || normalizedValue < 0) {
-    throw new Error(`${field} phải là số không âm`);
+  if (!Number.isSafeInteger(normalizedValue) || normalizedValue < 0) {
+    throw new Error(`${field} phải là số VND nguyên không âm`);
   }
 
   return normalizedValue;
@@ -41,10 +46,12 @@ const readOptionalPrice = (value, field) => {
 const getRelevanceScore = (product, normalizedQuery) => {
   if (!normalizedQuery) return product.popular ? 1 : 0;
 
-  const title = product.title.toLowerCase();
-  const category = product.category.toLowerCase();
-  const type = product.type.toLowerCase();
-  const description = product.description.toLowerCase();
+  const title = (product.title || "").toLowerCase();
+  const category = (product.category || "").toLowerCase();
+  const type = (product.type || "").toLowerCase();
+  const description = (product.description || "").toLowerCase();
+  const perfumeText = [product.brand, product.gender, product.concentration, product.fragrance?.group, product.fragrance?.style,
+    ...(product.fragrance?.accords || []).map(row => row.label), ...Object.values(product.fragrance?.notes || {}).flat().map(row => row.name)].filter(Boolean).join(" ").toLowerCase();
 
   return (
     (title === normalizedQuery ? 10 : 0) +
@@ -52,6 +59,7 @@ const getRelevanceScore = (product, normalizedQuery) => {
     (type.includes(normalizedQuery) ? 4 : 0) +
     (category.includes(normalizedQuery) ? 3 : 0) +
     (description.includes(normalizedQuery) ? 1 : 0) +
+    (perfumeText.includes(normalizedQuery) ? 4 : 0) +
     (product.popular ? 1 : 0)
   );
 };
@@ -61,7 +69,7 @@ export const searchProductsToolDefinition = {
   function: {
     name: "searchProducts",
     description:
-      "Tìm sản phẩm thật trong toàn bộ danh mục sản phẩm Velours, bao gồm cả sản phẩm hết hàng. Dùng tool này khi người dùng hỏi về tên sản phẩm, loại, danh mục, giá, size, tình trạng còn hàng hoặc cần gợi ý sản phẩm đang bán.",
+      "Tìm nước hoa thật của Velours theo tên, thương hiệu, giới tính, nồng độ, nhóm hương, accord, note, giá và dung tích; có thể tra cả hàng hết. Kết quả có giá VND, số tồn từng dung tích và hồ sơ mùi để tư vấn.",
     parameters: {
       type: "object",
       additionalProperties: false,
@@ -69,7 +77,7 @@ export const searchProductsToolDefinition = {
         query: {
           type: "string",
           description:
-            "Từ khóa tìm trong tên, mô tả, loại và danh mục sản phẩm.",
+            "Từ khóa ngắn tìm trong tên, hãng, mô tả, nồng độ, nhóm hương, phong cách, accord hoặc note. Ví dụ: Dior, gỗ, vani.",
           maxLength: 100,
         },
         category: {
@@ -79,9 +87,15 @@ export const searchProductsToolDefinition = {
         },
         type: {
           type: "string",
-          description: "Loại sản phẩm cụ thể, ví dụ Serum hoặc Shampoo.",
+          description: "Tên loại/nồng độ đầy đủ nếu biết chính xác. Với tên viết tắt EDT/EDP, dùng concentration.",
           maxLength: 80,
         },
+        brand: { type: "string", maxLength: 100, description: "Thương hiệu, ví dụ Chanel hoặc Jo Malone; khớp tên hãng." },
+        gender: { type: "string", maxLength: 100, description: "Giới tính được ghi trong hồ sơ, ví dụ Nam, Nữ, Unisex." },
+        concentration: { type: "string", maxLength: 100, description: "Nồng độ như EDT, EDP hoặc Extrait; tìm trong trường nồng độ thực tế." },
+        fragranceGroup: { type: "string", maxLength: 100, description: "Nhóm hương, ví dụ Hoa hoặc Gỗ Phương Đông." },
+        accord: { type: "string", maxLength: 100, description: "Một kiểu mùi chính như Cam Chanh, Gỗ, Ngọt." },
+        note: { type: "string", maxLength: 100, description: "Một note trong hương đầu/giữa/cuối, ví dụ Cam Bergamot hoặc Vani." },
         minPrice: {
           type: "number",
           minimum: 0,
@@ -125,10 +139,12 @@ export const searchProducts = async (argumentsValue = {}) => {
   ) {
     throw new Error("Tham số tìm kiếm không hợp lệ");
   }
+  if (Object.keys(argumentsValue).some(key => !ALLOWED_ARGUMENTS.has(key))) throw new Error("Tham số tìm kiếm không được hỗ trợ");
 
   const query = readOptionalText(argumentsValue.query, "query", 100);
   const category = readOptionalText(argumentsValue.category, "category", 100);
   const type = readOptionalText(argumentsValue.type, "type", 80);
+  const perfumeFilters = Object.fromEntries(Object.keys(PERFUME_FILTERS).map(key => [key, readOptionalText(argumentsValue[key], key, 100)]));
   const minPrice = readOptionalPrice(argumentsValue.minPrice, "minPrice");
   const maxPrice = readOptionalPrice(argumentsValue.maxPrice, "maxPrice");
   const sort = argumentsValue.sort || "relevant";
@@ -154,16 +170,12 @@ export const searchProducts = async (argumentsValue = {}) => {
   const databaseFilter = {
     isDeleted: { $ne: true },
     isPublished: { $ne: false },
+    catalogScope: { $ne: "other" },
   };
 
   if (query) {
     const queryPattern = new RegExp(escapeRegExp(query), "i");
-    databaseFilter.$or = [
-      { title: queryPattern },
-      { description: queryPattern },
-      { category: queryPattern },
-      { type: queryPattern },
-    ];
+    databaseFilter.$or = SEARCH_FIELDS.map(field => ({ [field]: queryPattern }));
   }
 
   if (category) {
@@ -173,10 +185,16 @@ export const searchProducts = async (argumentsValue = {}) => {
   if (type) {
     databaseFilter.type = new RegExp(`^${escapeRegExp(type)}$`, "i");
   }
+  for (const [key, field] of Object.entries(PERFUME_FILTERS)) {
+    if (!perfumeFilters[key]) continue;
+    const pattern = new RegExp(["brand", "gender"].includes(key) ? `^${escapeRegExp(perfumeFilters[key])}$` : escapeRegExp(perfumeFilters[key]), "i");
+    if (key === "note") databaseFilter.$and = [{ $or: NOTE_FIELDS.map(name => ({ [name]: pattern })) }];
+    else databaseFilter[field] = pattern;
+  }
 
   const databaseProducts = await Product.find(databaseFilter)
     .select(
-      "title description price sizes stockBySize inventoryMode isPublished inStockBySize images category type popular inStock createdAt",
+      "title description price sizes stockBySize inventoryMode isPublished inStockBySize images category type popular inStock createdAt brand origin concentration gender fragrance",
     )
     .lean();
 
@@ -204,9 +222,10 @@ export const searchProducts = async (argumentsValue = {}) => {
       return {
         id: String(product._id),
         title: product.title,
-        description: product.description.slice(0, 280),
+        description: (product.description || "").slice(0, 280),
         category: product.category,
         type: product.type,
+        ...getPerfumeProfile(product),
         popular: Boolean(product.popular),
         isAvailable,
         availableOptions: isAvailable ? matchingOptions : [],
@@ -248,6 +267,7 @@ export const searchProducts = async (argumentsValue = {}) => {
       query: query || null,
       category: category || null,
       type: type || null,
+      ...Object.fromEntries(Object.entries(perfumeFilters).map(([key, value]) => [key, value || null])),
       minPrice,
       maxPrice,
       sort,

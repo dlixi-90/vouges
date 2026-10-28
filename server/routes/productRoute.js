@@ -3,6 +3,7 @@ import { upload } from "../middleware/multer.js";
 import authUser, { requireOwner } from "../middleware/authMiddleware.js";
 import { listReviews, myReview, saveReview } from "../controllers/reviewController.js";
 import { listBrands } from "../controllers/brandController.js";
+import { browseProducts, batchProducts, relatedProducts, productFilters } from "../controllers/storefrontController.js";
 import {
   createProduct,
   deleteProduct,
@@ -23,6 +24,10 @@ productRouter.post(
   createProduct,
 );
 productRouter.get("/", listProduct);
+productRouter.get("/browse", browseProducts);
+productRouter.get("/filters", productFilters);
+productRouter.get("/batch", batchProducts);
+productRouter.get("/related", relatedProducts);
 productRouter.get("/brands", listBrands);
 productRouter.get("/popular", listPopularProducts);
 productRouter.get("/single", singleProduct);

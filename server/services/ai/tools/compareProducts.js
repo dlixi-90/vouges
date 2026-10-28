@@ -4,6 +4,7 @@ import {
   getAvailableProductOptions,
   getProductOptions,
   getProductPriceRange,
+  getPerfumeProfile,
 } from "./productToolUtils.js";
 
 const MIN_PRODUCTS = 2;
@@ -16,7 +17,7 @@ export const compareProductsToolDefinition = {
   function: {
     name: "compareProducts",
     description:
-      "So sánh từ 2 đến 4 sản phẩm thật trong danh mục sản phẩm Velours khi đã biết productId. Trả dữ liệu khách quan về giá, size khả dụng, danh mục, loại và tình trạng bán; không tự quyết định sản phẩm tốt nhất thay người dùng.",
+      "So sánh 2–4 nước hoa thật theo hãng, nồng độ, nhóm/tầng hương, accords, đánh giá lưu/tỏa/mùa, giá và số tồn từng dung tích; không tự quyết định một sản phẩm tốt nhất cho mọi người.",
     parameters: {
       type: "object",
       additionalProperties: false,
@@ -120,9 +121,10 @@ export const compareProducts = async (argumentsValue = {}) => {
     _id: { $in: productIds },
     isDeleted: { $ne: true },
     isPublished: { $ne: false },
+    catalogScope: { $ne: "other" },
   })
     .select(
-      "title description price sizes stockBySize inventoryMode isPublished inStockBySize images category type popular inStock",
+      "title description price sizes stockBySize inventoryMode isPublished inStockBySize images category type popular inStock brand origin concentration gender fragrance",
     )
     .lean();
   const databaseProductsById = new Map(
@@ -147,6 +149,7 @@ export const compareProducts = async (argumentsValue = {}) => {
         ),
         category: product.category,
         type: product.type,
+        ...getPerfumeProfile(product),
         popular: Boolean(product.popular),
         isAvailable: availableOptions.length > 0,
         availableOptions,

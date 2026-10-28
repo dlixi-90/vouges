@@ -13,6 +13,10 @@ export const createStoreResources = ({ cache = createResourceCache(), axios, use
   };
   return {
     clear: () => cache.clear(),
+    peekCatalog: (path, root = "/api/catalog") => cache.peek(`catalog:${root}${path}`),
+    invalidateCatalog: () => cache.invalidate("catalog:"),
+    loadCatalog: (path, root = "/api/catalog", options) => cache.load(`catalog:${root}${path}`,
+      signal => read(`${root}${path}`, signal, true), options),
     peekMembership: () => cache.peek(memberKey),
     invalidateMembership: () => cache.invalidate(memberKey),
     loadMembership(options) {

@@ -8,8 +8,6 @@ import { useAppContext } from "../context/AppContext";
 import {
   getAvailableSizes,
   getSizeQuantity,
-  getPurchaseLimit,
-  isSourceInventory,
   hasAnyAvailableSize,
   isSizeAvailable,
 } from "../utils/productStock";
@@ -20,8 +18,7 @@ import ProductImage from "../components/ProductImage";
 import ProductFacts from "../components/ProductFacts";
 import FragranceCharts from "../components/FragranceCharts";
 import { getDetailGallery } from "../utils/productImage";
-
-const MAX_QUANTITY_PER_ADD = 10;
+import { getRemainingPurchaseQuantity } from "../utils/purchaseQuantity";
 
 const RatingStars = ({ average }) => (
   <span className="inline-flex shrink-0 items-center gap-0.5" aria-hidden="true">
@@ -37,7 +34,7 @@ const RatingStars = ({ average }) => (
 );
 
 const ProductDetail = () => {
-  const { products, currency, addToCart, requireCartLogin, storeResources, axios } = useAppContext();
+  const { products, cartItems, currency, addToCart, requireCartLogin, storeResources, publicCatalog, registerProducts } = useAppContext();
   const [detail, setDetail] = useState(null);
   const [detailError, setDetailError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -60,13 +57,14 @@ const ProductDetail = () => {
     window.requestAnimationFrame(() => document.getElementById("reviews")?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" }));
   };
   useEffect(() => {
-    const controller = new AbortController();
-    axios.get("/api/products/single", {params:{productId},signal:controller.signal}).then(({data})=>{
-      if (!data.success) throw new Error(data.message);
+    let active = true;
+    publicCatalog.detail(productId).then(data=>{
+      if (!active) return;
       setDetail(data.product);
-    }).catch(error=>{if(!controller.signal.aborted)setDetailError({ productId, message: error.response?.data?.message||"Không thể tải chi tiết sản phẩm." });});
-    return ()=>controller.abort();
-  }, [axios, productId]);
+      registerProducts([data.product]);
+    }).catch(error=>{if(active)setDetailError({ productId, message: error.response?.data?.message||"Không thể tải chi tiết sản phẩm." });});
+    return ()=>{ active = false; };
+  }, [publicCatalog, registerProducts, productId]);
   const reviewStats = reviewSummary?.productId === productId ? reviewSummary : storeResources.peekReviews(productId);
   // Start independently of the catalog request, including on direct links.
   useEffect(() => {
@@ -88,10 +86,8 @@ const ProductDetail = () => {
     ? isSizeAvailable(product, size)
     : false;
   const selectedStock = product ? getSizeQuantity(product, size) : 0;
-  const maxQuantity = Math.max(
-    1,
-    Math.min(MAX_QUANTITY_PER_ADD, product ? getPurchaseLimit(product, size) : 0),
-  );
+  const quantityInCart = Number(cartItems[productId]?.[size] ?? 0);
+  const maxQuantity = product ? getRemainingPurchaseQuantity(product, size, quantityInCart) : 0;
   const safeQuantity = Math.min(quantity, maxQuantity);
 
   const selectSize = (nextSize) => {
@@ -102,7 +98,7 @@ const ProductDetail = () => {
 
   const handleAddToCart = async () => {
     if (!requireCartLogin()) return;
-    if (addStatus === "adding") return;
+    if (addStatus === "adding" || !selectedSizeAvailable || safeQuantity < 1) return;
 
     setAddStatus("adding");
     const showAddedFeedback = () => {
@@ -228,8 +224,8 @@ const ProductDetail = () => {
                 Chọn dung tích
               </p>
               {size && (
-                <span className="text-xs text-[#858585]">
-                  {isSourceInventory(product) ? (selectedSizeAvailable ? "Còn hàng" : "Hết hàng") : `${selectedStock} sản phẩm còn trong kho`}
+                <span className="product-detail-stock text-xs text-[#858585]" role="status" aria-live="polite">
+                  {selectedStock.toLocaleString("vi-VN")} sản phẩm trong kho
                 </span>
               )}
             </div>
@@ -270,9 +266,9 @@ const ProductDetail = () => {
               <button
                 type="button"
                 onClick={() =>
-                  setQuantity((current) => Math.max(1, current - 1))
+                  setQuantity(Math.max(1, safeQuantity - 1))
                 }
-                disabled={!selectedSizeAvailable || safeQuantity <= 1}
+                disabled={!selectedSizeAvailable || safeQuantity <= 1 || addStatus === "adding"}
                 className="flex h-full w-10 items-center justify-center disabled:cursor-not-allowed disabled:opacity-35"
                 aria-label="Giảm số lượng"
               >
@@ -284,9 +280,9 @@ const ProductDetail = () => {
               <button
                 type="button"
                 onClick={() =>
-                  setQuantity((current) => Math.min(maxQuantity, current + 1))
+                  setQuantity(Math.min(maxQuantity, safeQuantity + 1))
                 }
-                disabled={!selectedSizeAvailable || safeQuantity >= maxQuantity}
+                disabled={!selectedSizeAvailable || safeQuantity >= maxQuantity || addStatus === "adding"}
                 className="flex h-full w-10 items-center justify-center disabled:cursor-not-allowed disabled:opacity-35"
                 aria-label="Tăng số lượng"
               >
@@ -297,7 +293,7 @@ const ProductDetail = () => {
             <button
               type="button"
               onClick={handleAddToCart}
-              disabled={!selectedSizeAvailable || addStatus === "adding"}
+              disabled={!selectedSizeAvailable || safeQuantity < 1 || addStatus === "adding"}
               className={`h-12 flex-1 rounded-lg px-5 text-xs font-medium uppercase tracking-[0.12em] text-white transition disabled:cursor-not-allowed disabled:opacity-45 ${
                 addStatus === "added"
                   ? "bg-emerald-600"
@@ -310,10 +306,15 @@ const ProductDetail = () => {
                   ? "Đang thêm…"
                   : addStatus === "added"
                     ? "Đã thêm!"
-                    : "Thêm vào giỏ hàng"}
+                    : !selectedSizeAvailable
+                      ? "Hết hàng"
+                      : maxQuantity === 0
+                        ? "Đã đủ số lượng trong giỏ"
+                        : "Thêm vào giỏ hàng"}
               </span>
             </button>
           </div>
+          {quantityInCart > 0 && <p className="mt-2 text-xs text-gray-500">Đã có {quantityInCart.toLocaleString("vi-VN")} sản phẩm của dung tích này trong giỏ.</p>}
           </div>
 
           <div className="product-detail-summary">

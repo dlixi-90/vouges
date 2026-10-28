@@ -11,6 +11,30 @@ import { FREE_SHIPPING_THRESHOLD as CLIENT_THRESHOLD, SHIPPING_METHODS as CLIENT
 import { hasAnyEnabledSize } from "../../utils/productStock.js";
 import Product from "../../models/Product.js";
 import { toggleStock } from "../../controllers/productController.js";
+import { getProductPriceRange } from "../../../client/src/utils/productPrice.js";
+import { formatVnd } from "../../../client/src/utils/money.js";
+
+test("product cards show the lowest and highest variant prices in VND regardless of variant order", () => {
+  const range = getProductPriceRange({ sizes: ["100ml", "10ml", "50ml"], price: { "100ml": 3950000, "10ml": 350000, "50ml": 2150000 } });
+  assert.deepEqual(range, { min: 350000, max: 3950000 });
+  assert.equal(`${formatVnd(range.min)} - ${formatVnd(range.max)}`, "350.000 ₫ - 3.950.000 ₫");
+});
+
+test("one price or multiple equal prices have a single display value", () => {
+  assert.deepEqual(getProductPriceRange({ sizes: ["50ml"], price: { "50ml": 1000000 } }), { min: 1000000, max: 1000000 });
+  assert.deepEqual(getProductPriceRange({ sizes: ["50ml", "100ml"], price: { "50ml": 1000000, "100ml": 1000000 } }), { min: 1000000, max: 1000000 });
+});
+
+test("a product-wide price range includes sold-out sizes and ignores removed size keys", () => {
+  assert.deepEqual(getProductPriceRange({ sizes: ["10ml", "100ml"], price: { "10ml": 350000, "100ml": 3950000, removed: 9000000 },
+    stockBySize: { "10ml": 1, "100ml": 0 }, displaySize: "10ml" }), { min: 350000, max: 3950000 });
+});
+
+test("missing and invalid prices cannot create a free, negative or infinite price on cards", () => {
+  assert.equal(getProductPriceRange({ price: { a: 0, b: -100, c: null, d: true, e: "", f: Infinity, g: "bad" } }), null);
+  assert.equal(getProductPriceRange(null), null);
+  assert.deepEqual(getProductPriceRange({ price: { a: "350000", b: 3950000 } }), { min: 350000, max: 3950000 });
+});
 
 test("standard shipping is free from 1,000,000 VND before vouchers; express retains its fee", () => {
   assert.equal(FREE_SHIPPING_THRESHOLD, 1000000);

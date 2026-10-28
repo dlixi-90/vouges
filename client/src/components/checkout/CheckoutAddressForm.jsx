@@ -293,7 +293,7 @@ const CheckoutAddressForm = ({
         setCartItems((currentCart) => removePurchasedItems(currentCart, items));
       }
 
-      await fetchProducts();
+      void fetchProducts();
 
       toast.success(data.message);
 

@@ -1,22 +1,27 @@
-import {useCallback,useEffect,useState} from "react";
+import {useCallback,useEffect,useRef,useState} from "react";
 import {RefreshCw} from "lucide-react";
 import Pagination from "../Pagination";
 import {useAppContext} from "../../context/AppContext";
 
+// Preserve the existing shared dashboard hook/component import API.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useCatalog(path,apiRoot="/api/catalog"){
-  const {axios,getToken}=useAppContext();const [data,setData]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[attempt,setAttempt]=useState(0);
-  const reload=useCallback(()=>setAttempt(value=>value+1),[]);
+  const {storeResources,authenticatedUserId}=useAppContext();
+  const key=`${authenticatedUserId}:${apiRoot}${path}`;
+  const cached=path?storeResources.peekCatalog(path,apiRoot):null;
+  const [result,setResult]=useState({key:"",data:null,error:""}),[attempt,setAttempt]=useState(0);
+  const force=useRef(false);
+  const reload=useCallback(()=>{force.current=true;setAttempt(value=>value+1);},[]);
   useEffect(()=>{
-    if(!path)return;const controller=new AbortController();
+    if(!path)return;let active=true;
+    const forceRead=force.current;force.current=false;
     const timer=setTimeout(async()=>{
-      setLoading(true);setError("");
-      try{const result=await axios.get(`${apiRoot}${path}`,{headers:{Authorization:`Bearer ${await getToken()}`},signal:controller.signal});if(!result.data.success)throw new Error(result.data.message);if(!controller.signal.aborted)setData(result.data);}
-      catch(err){if(!controller.signal.aborted)setError(err.response?.data?.message||err.message);}
-      finally{if(!controller.signal.aborted)setLoading(false);}
-    },150);
-    return()=>{clearTimeout(timer);controller.abort();};
-  },[path,apiRoot,attempt,axios,getToken]);
-  return {data,loading,error,reload};
+      try{const data=await storeResources.loadCatalog(path,apiRoot,{force:forceRead});if(active)setResult({key,data,error:""});}
+      catch(err){if(active)setResult(current=>({data:current.key===key?current.data:null,key,error:err.response?.data?.message||err.message}));}
+    },/[?&]q=[^&]+/.test(path)?120:0);
+    return()=>{clearTimeout(timer);active=false;};
+  },[path,apiRoot,attempt,storeResources,key]);
+  return {data:cached||(result.key===key?result.data:null),loading:Boolean(path&&!cached&&result.key!==key),error:result.key===key?result.error:"",reload};
 }
 
 export function CatalogPage({title,actions,children,className=""}){
@@ -30,4 +35,5 @@ export function Badge({children,tone="neutral"}){return <span className={`perfum
 export function Pager({page,totalPages,total,onPage,disabled=false}){
   return <div className="perfume-pagination"><span>{Number(total||0).toLocaleString("vi-VN")} bản ghi · Trang {page}/{totalPages||1}</span><Pagination label="Phân trang dữ liệu" page={page} totalPages={totalPages} onPageChange={onPage} disabled={disabled}/></div>;
 }
+// eslint-disable-next-line react-refresh/only-export-components
 export const issueLabels={missing_brand:"Thiếu thương hiệu",missing_concentration:"Thiếu nồng độ",missing_scent_group:"Thiếu nhóm hương",missing_images:"Thiếu ảnh",missing_scent_notes:"Thiếu tầng hương",zero_source_price:"Có dung tích giá 0",source_assessment_anomaly:"Chỉ số nguồn bất thường"};

@@ -1,5 +1,7 @@
 # Loading improvements
 
+Latest local revision, 2026-10-28: see [storefront performance and perfume filters](docs/STOREFRONT_PERFORMANCE.md). The collection now requests 16 cards instead of the entire 2,324-product catalog (3,635,437 to 10,059 JSON bytes in the read-only comparison). This revision also covers account-scoped dashboard reuse, self-hosted fonts, fixed header categories, legacy-file cleanup, and QR email delivery only after successful payment. Earlier measurements below describe their respective historical revisions.
+
 Measured on 2026-09-29 before deploying these changes:
 
 - The public HTML returned in 467 ms in one request.

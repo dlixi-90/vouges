@@ -6,3 +6,9 @@
 **/.env
 **/.env.*
 **/*.log
+.backups
+.qa-perfume
+.venv-media
+/data
+/docs
+/tools

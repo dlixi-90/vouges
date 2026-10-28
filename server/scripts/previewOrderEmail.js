@@ -5,18 +5,17 @@ import { buildOrderConfirmationEmail } from "../emails/orderConfirmation.js";
 // Sample data only. This command never creates an order or sends an email.
 const order = {
   _id: "6aa03522b1cb60bcd7e92bd7",
-  createdAt: "2026-09-09T03:30:00.000Z",
+  createdAt: "2026-10-28T03:30:00.000Z",
   paymentMethod: "COD",
   isPaid: false,
-  amount: 450000,
+  subtotal: 620000,
+  shipping: 30000,
+  shippingMethod: "standard",
+  amount: 650000,
   items: [
     {
-      title: "Nước hoa mẫu 01", size: "30ml", quantity: 2, unitPrice: 150000,
-      image: "https://res.cloudinary.com/dhsui22lz/image/upload/v1788148769/nyowmwzgpqiwetejxodc.png",
-    },
-    {
-      title: "Nước hoa mẫu 02", size: "10ml", quantity: 1, unitPrice: 120000,
-      image: "https://res.cloudinary.com/dhsui22lz/image/upload/v1788148767/e9ijqwlwq6tovdaez9xx.png",
+      title: "Mercedes Benz Select Night EDP For Men", size: "10ml", quantity: 2, unitPrice: 310000,
+      image: "https://res.cloudinary.com/dhsui22lz/image/upload/v1793042446/velours/catalog-media-v1/e6b3bd03e1c59b9f05c7a1fa-cutout-0c9833db8bf8.webp",
     },
   ],
   address: {
@@ -26,8 +25,15 @@ const order = {
   },
 };
 
-const email = buildOrderConfirmationEmail(order);
 const directory = new URL("../previews/", import.meta.url);
 await mkdir(directory, { recursive: true });
-await writeFile(new URL("order-confirmation.html", directory), email.html, "utf8");
-console.log(`Email preview: ${fileURLToPath(new URL("order-confirmation.html", directory))}`);
+for (const [filename, patch] of [
+  ["order-confirmation.html", {}],
+  ["order-qr-paid.html", { paymentMethod: "QR", status: "Order Placed", isPaid: true }],
+]) {
+  const email = buildOrderConfirmationEmail({ ...order, ...patch });
+  // Preview the same attachment used by SMTP without sending any message.
+  const html = email.html.replaceAll("cid:velours-mark@velours", "../emails/assets/velours-mark.png").replace(/[\t ]+$/gm, "");
+  await writeFile(new URL(filename, directory), html, "utf8");
+  console.log(`Email preview: ${fileURLToPath(new URL(filename, directory))}`);
+}
