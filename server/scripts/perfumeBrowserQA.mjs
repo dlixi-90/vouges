@@ -228,8 +228,10 @@ try{
     const expected=[...fragrant.fragrance.longevity,...fragrant.fragrance.sillage];
     const checkRows=async(selector)=>assert.equal(await evaluate(`(()=>{const expected=${JSON.stringify(expected)},rows=[...document.querySelectorAll(${JSON.stringify(selector+' .perfume-chart-row')})];return rows.length===expected.length&&rows.every((row,index)=>{const data=expected[index],meter=row.querySelector('.perfume-chart-track'),width=meter.getBoundingClientRect().width,fill=meter.firstElementChild.getBoundingClientRect().width,known=Number.isFinite(data.displayedPercent)&&data.displayedPercent>=0&&data.displayedPercent<=100;return row.firstElementChild.textContent===data.label&&row.querySelector('small').textContent===(data.displayedCount==null?'—':data.displayedCount.toLocaleString('vi-VN'))&&Math.abs(fill/width*100-(known?data.displayedPercent:0))<.5&&getComputedStyle(meter.firstElementChild).backgroundColor==='rgb(128, 0, 0)'})})()`),true,'Assessment counts, percentages and source bar color are preserved');
     await goto(`/collection/${fragrant._id}`,"document.querySelector('.perfume-fragrance-charts')");
+    assert.equal(await evaluate("(()=>{const section=document.querySelector('.product-detail-experience'),overview=document.querySelector('.product-detail-overview'),charts=section.querySelector('.perfume-assessment');return section.previousElementSibling===overview&&section.nextElementSibling.classList.contains('product-detail-assurances')&&!section.closest('[role=tabpanel]')&&section.getBoundingClientRect().top>=overview.getBoundingClientRect().bottom&&Math.abs(charts.getBoundingClientRect().width-overview.getBoundingClientRect().width)<2})()"),true,'Assessments remain full width after the overview and before shipping assurances');
+    assert.equal(await evaluate("document.querySelectorAll('.net-product-detail .perfume-assessment').length"),1);
     await evaluate("document.querySelector('[data-product-tab=\"profile\"]').click()");await wait("document.querySelector('.perfume-fragrance-charts').getBoundingClientRect().height>0");
-    await checkRows('.perfume-profile');
+    await checkRows('.product-detail-experience');
     const seasonColors=['rgb(159, 229, 132)','rgb(252, 149, 138)','rgb(249, 190, 110)','rgb(120, 214, 240)','rgb(68, 123, 163)','rgb(252, 244, 135)'];
     assert.equal(await evaluate(`(()=>{const expected=${JSON.stringify(seasonColors)},items=[...document.querySelectorAll('.perfume-suitability-item')];return items.length===6&&items.every((item,i)=>item.querySelector('svg')&&getComputedStyle(item.querySelector('.perfume-chart-track > span')).backgroundColor===expected[i])})()`),true);
     assert.equal(await evaluate("(()=>{const parts=[...document.querySelector('.perfume-fragrance-charts').children].map(element=>element.getBoundingClientRect());return Math.max(...parts.map(p=>p.top+p.height/2))-Math.min(...parts.map(p=>p.top+p.height/2))<3})()"),true,'Wide product profile has three aligned sections');
@@ -247,7 +249,7 @@ try{
       await send('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:width<768});
       await goto(`/collection/${fragrant._id}`,"document.querySelector('.perfume-fragrance-charts')");
       await evaluate("document.querySelector('[data-product-tab=\"profile\"]').click()");await wait("document.querySelector('.perfume-fragrance-charts').getBoundingClientRect().height>0");
-      await checkRows('.perfume-profile');await noOverflow();
+      await checkRows('.product-detail-experience');await noOverflow();
       await evaluate("document.querySelector('.perfume-fragrance-charts').scrollIntoView({block:'center',behavior:'instant'})");await screenshot(`experience-design-${width}`);
     }
     checks.push('source-style experience layout, exact counts/percentages, six seasonal colors/icons, zero versus unknown, editor source issues and 1024px/390px/320px responsiveness');
@@ -298,7 +300,7 @@ try{
     assert.equal(await evaluate("(()=>{const tabs=document.querySelector('.product-detail-tabs').getBoundingClientRect(),detail=document.querySelector('.net-product-detail');const style=getComputedStyle(detail);return Math.abs(tabs.width-(detail.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight)))<2})()"),true);
     await evaluate("document.querySelector('.product-detail-tabs').scrollIntoView({block:'start',behavior:'instant'})");await screenshot('detail-tabs-description-desktop');
     await evaluate("document.querySelector('[data-product-tab=\"profile\"]').click()");await wait(currentTab('profile'));
-    assert.equal(await evaluate("document.querySelector('.perfume-profile .perfume-fragrance-charts').getBoundingClientRect().height>0"),true);
+    assert.equal(await evaluate("document.querySelector('.product-detail-experience .perfume-fragrance-charts').getBoundingClientRect().height>0"),true);
     await noOverflow();await screenshot('detail-tabs-profile-desktop');
     await evaluate("document.querySelector('[data-product-tab=\"profile\"]').dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true,cancelable:true}))");
     await wait(`${currentTab('reviews')}&&document.activeElement===document.querySelector('[data-product-tab="reviews"]')`);
@@ -451,8 +453,8 @@ try{
     assert.deepEqual(editorPatches[0].accords.map(row=>row.label),['Cam chanh','Gỗ']);
     await goto(`${editorUrl}?tab=assessments`,"document.querySelector('.perfume-assessment-editor')");
     assert.equal(await evaluate("document.querySelector('[aria-label=\"Tỷ lệ Mùa và thời điểm Xuân\"]').value"),'88');
-    await goto(`/collection/${sample._id}`,"document.querySelector('.perfume-profile .perfume-fragrance-charts')");
-    assert.equal(await evaluate("Boolean(document.querySelector('.perfume-profile .perfume-suitability [aria-valuenow=\"88\"]'))&&document.querySelector('.perfume-accord-meters').textContent.includes('Cam chanh')"),true);
+    await goto(`/collection/${sample._id}`,"document.querySelector('.product-detail-experience .perfume-fragrance-charts')");
+    assert.equal(await evaluate("Boolean(document.querySelector('.product-detail-experience .perfume-suitability [aria-valuenow=\"88\"]'))&&document.querySelector('.perfume-accord-meters').textContent.includes('Cam chanh')"),true);
     await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
     for(const tab of ['fragrance','assessments','variants','images']){await goto(`${editorUrl}?tab=${tab}`,"document.querySelector('.perfume-editor-body')");await noOverflow();await screenshot(`editor-${tab}-mobile`);}
     await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
@@ -550,7 +552,7 @@ try{
     checks.push(`${lastCollectionPage} pages: compact beginning/middle/end, synchronized toolbar arrows and scroll to first product row`);
   }
   await goto(`/collection/${sample._id}`,"document.querySelector('.perfume-profile')");
-  assert.equal(await evaluate("Boolean(document.querySelector('.perfume-profile .perfume-fragrance-charts'))"),true);
+  assert.equal(await evaluate("Boolean(document.querySelector('.product-detail-experience .perfume-fragrance-charts'))"),true);
   const detailImage='[aria-label="Thư viện ảnh sản phẩm"] img:not([alt=""])';
   await wait(`(()=>{const img=document.querySelector(${JSON.stringify(detailImage)});return img?.complete&&img.naturalWidth>0})()`);
   const excludedAvatar=[sample.images[0],getProductImageUrl(sample.images[0],160),getProductImageUrl(sample.images[0],960)];

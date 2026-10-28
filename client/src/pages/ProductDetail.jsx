@@ -18,6 +18,7 @@ import { formatVnd } from "../utils/money";
 import { flyProductToCart } from "../utils/cartAnimation";
 import ProductImage from "../components/ProductImage";
 import ProductFacts from "../components/ProductFacts";
+import FragranceCharts from "../components/FragranceCharts";
 import { getDetailGallery } from "../utils/productImage";
 
 const MAX_QUANTITY_PER_ADD = 10;
@@ -318,19 +319,25 @@ const ProductDetail = () => {
           <div className="product-detail-summary">
             <ProductFacts product={product} />
           </div>
-
-          <div className="product-detail-assurances mt-5 grid gap-2 text-xs text-[#70756f] sm:grid-cols-2">
-            <div className="flex items-center gap-2">
-              <Truck size={16} />
-              Miễn phí giao hàng cho đơn từ{" "}
-              {(FREE_SHIPPING_THRESHOLD).toLocaleString("vi-VN")}₫
-            </div>
-            <div className="flex items-center gap-2 sm:justify-end">
-              <ShieldCheck size={16} />
-              Sản phẩm chính hãng
-            </div>
-          </div>
         </section>
+      </div>
+
+      <section className="product-detail-experience mt-8" aria-label="Lưu hương, tỏa hương và thời điểm sử dụng">
+        <h2 className="mb-4 text-xl">Lưu hương, tỏa hương và thời điểm sử dụng</h2>
+        <FragranceCharts fragrance={product.fragrance || {}} />
+        <p className="mt-4 text-xs leading-5 text-gray-500">Thông tin tham khảo từ dữ liệu nguồn và nội dung được Velours biên tập. Trải nghiệm có thể thay đổi theo da và môi trường.</p>
+      </section>
+
+      <div className="product-detail-assurances mt-5 grid gap-2 text-xs text-[#70756f] sm:grid-cols-2">
+        <div className="flex items-center gap-2">
+          <Truck size={16} />
+          Miễn phí giao hàng cho đơn từ{" "}
+          {(FREE_SHIPPING_THRESHOLD).toLocaleString("vi-VN")}₫
+        </div>
+        <div className="flex items-center gap-2 sm:justify-end">
+          <ShieldCheck size={16} />
+          Sản phẩm chính hãng
+        </div>
       </div>
 
       <ProductDetailTabs key={productId} product={product} activeTab={activeTab} onTabChange={selectTab} reviewStats={reviewStats} onSummaryChange={setReviewSummary} />
