@@ -4,11 +4,10 @@ html:has(.velours-admin-shell),body:has(.velours-admin-shell) { overflow-x:clip;
 .net-admin .velours-admin-shell { min-height:100dvh; background:#f6f6f7; color:#202020; font-family:Inter,sans-serif; }
 .net-admin .velours-admin-frame { display:flex; align-items:flex-start; width:100%; max-width:1800px; padding:20px; gap:28px; }
 .net-admin .velours-admin-frame > .admin-sidebar { position:sticky; top:20px; display:flex; flex-direction:column; flex-shrink:0; align-self:flex-start; width:224px; min-width:224px; height:calc(100dvh - 40px); min-height:0; max-height:calc(100dvh - 40px); margin:0; padding:24px 13px 14px; overflow-y:auto; border:1px solid #ebebeb; border-radius:16px; background:#fff; box-shadow:none; }
-.net-admin .admin-sidebar .admin-brand-row { display:flex; align-items:center; justify-content:space-between; flex-shrink:0; gap:10px; padding:0 10px; margin:0; width:auto; }
+.net-admin .admin-sidebar .admin-brand-row { display:flex; align-items:center; justify-content:space-between; flex-shrink:0; gap:10px; padding:0 10px; margin:0 0 24px; width:auto; }
 .net-admin .admin-sidebar .admin-brand { display:flex; align-items:center; gap:0; min-height:35px; margin:0; padding:0; border:0; border-radius:0; background:transparent; color:#181818; box-shadow:none; }
 .admin-brand img { width:42px; height:31px; object-fit:contain; }
 .admin-brand span { margin-left:-5px; font-family:var(--inessa-serif); font-size:27px; font-weight:600; line-height:1; }
-.admin-brand-caption { display:block; padding:10px 11px 24px; font-size:7px; font-weight:500; letter-spacing:.18em; color:#929292; }
 .net-admin .admin-navigation { display:flex; flex-direction:column; flex:1; gap:22px!important; margin:0!important; }
 .admin-nav-group { display:flex; flex-direction:column; gap:5px; }
 .admin-nav-group > p { margin:0 12px 5px; color:#999; font-size:10px; line-height:1.6; }

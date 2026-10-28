@@ -87,7 +87,6 @@ export default function Sidebar() {
           <Link to="/owner" className="admin-brand" aria-label="Velours — Dashboard" onClick={closeMenu}><img src={assets.logoImg} alt="" /><span>elours</span></Link>
           <button type="button" className="admin-mobile-close" aria-label="Đóng menu" onClick={closeMenu}><X size={20} /></button>
         </div>
-        <span className="admin-brand-caption">PERFUME MANAGEMENT</span>
         <nav className="perfume-admin-nav admin-navigation">
           {navigation.map(group => <div className="admin-nav-group" key={group.label}>
             <p>{group.label}</p>

@@ -408,6 +408,23 @@ try{
     await clickText('Dung tích & giá');
     const size=sample.sizes.find(size=>sample.inStockBySize[size]&&sample.price[size]>0);assert.ok(size);
     await input(`[aria-label=${JSON.stringify(`Tồn kho ${size}`)}]`,'7');
+    const priceSelector=`[aria-label=${JSON.stringify(`Giá ${size} VND`)}]`;
+    const priceState=async(value,caret)=>wait(`(()=>{const price=document.querySelector(${JSON.stringify(priceSelector)});return price.value===${JSON.stringify(value)}${caret==null?'':`&&price.selectionStart===${caret}`}})()`);
+    const caretAt=async(start,end=start)=>evaluate(`(()=>{const price=document.querySelector(${JSON.stringify(priceSelector)});price.focus();price.setSelectionRange(${start},${end});})()`);
+    const key=async key=>{await send('Input.dispatchKeyEvent',{type:'keyDown',key,code:key});await send('Input.dispatchKeyEvent',{type:'keyUp',key,code:key});};
+    assert.equal(await evaluate("!document.querySelector('.admin-brand-caption')&&!document.querySelector('.perfume-inventory-notice')&&!document.querySelector('.perfume-variant-table small')&&!document.querySelector('.perfume-variant-table').textContent.includes('Trạng thái nguồn')"),true);
+    await evaluate(`document.querySelector(${JSON.stringify(priceSelector)}).focus()`);
+    await input(priceSelector,'349000');await priceState('349.000',7);
+    await send('Input.insertText',{text:'0'});await priceState('3.490.000',9);
+    await input(priceSelector,'349000');await caretAt(4);await key('Backspace');await priceState('34.000',2);
+    await input(priceSelector,'349000');await caretAt(3);await key('Delete');await priceState('34.900',4);
+    await input(priceSelector,'1234567');await caretAt(3);await send('Input.insertText',{text:'9'});await priceState('12.934.567',4);
+    await caretAt(0,10);await send('Input.insertText',{text:'2.000.000 ₫'});await priceState('2.000.000',9);
+    await input(priceSelector,'');await wait(`document.querySelector(${JSON.stringify(priceSelector)}).validity.valueMissing`);
+    await input(priceSelector,'0');await priceState('0',1);
+    await input(priceSelector,'349000');
+    for(const invalid of ['-349000','1e6','9007199254740992']){await input(priceSelector,invalid);await priceState('349.000');}
+    await noOverflow();await screenshot('editor-formatted-prices-desktop');
     await clickText('Hình ảnh');
     let expectedImages=[...sample.images];
     await evaluate("document.querySelector('[aria-label=\"Đưa ảnh 2 lên trước\"]').click()");
@@ -426,16 +443,17 @@ try{
     await wait("document.querySelector('button[form]')?.textContent.includes('Lưu thay đổi')&&!document.querySelector('button[form]').disabled");
     await wait(`document.querySelector('.perfume-editor-summary img')?.getAttribute('src')===${JSON.stringify(getProductImageUrl(expectedImages[0],200))}`);
     assert.equal(editorPatches.length,1);assert.equal(editorPatches[0].stockBySize[size],7);assert.equal(editorPatches[0].inventoryMode,'source');
+    assert.equal(editorPatches[0].price[size],349000);assert.equal(typeof editorPatches[0].price[size],'number');
     assert.equal(editorPatches[0].assessmentsVisible,undefined);assert.deepEqual(editorPatches[0].images,expectedImages);
     assert.deepEqual(editorPatches[0].accords.map(row=>row.label),['Cam chanh','Gỗ']);
     await goto(`${editorUrl}?tab=assessments`,"document.querySelector('.perfume-assessment-editor')");
     assert.equal(await evaluate("document.querySelector('[aria-label=\"Tỷ lệ Mùa và thời điểm Xuân\"]').value"),'88');
     await goto(`/collection/${sample._id}`,"document.querySelector('.perfume-profile .perfume-fragrance-charts')");
-    assert.equal(await evaluate("document.querySelector('.perfume-profile').textContent.includes('88%')&&document.querySelector('.perfume-accord-meters').textContent.includes('Cam chanh')"),true);
+    assert.equal(await evaluate("Boolean(document.querySelector('.perfume-profile .perfume-suitability [aria-valuenow=\"88\"]'))&&document.querySelector('.perfume-accord-meters').textContent.includes('Cam chanh')"),true);
     await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
     for(const tab of ['fragrance','assessments','variants','images']){await goto(`${editorUrl}?tab=${tab}`,"document.querySelector('.perfume-editor-body')");await noOverflow();await screenshot(`editor-${tab}-mobile`);}
     await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
-    checks.push('editor: editable/reordered accords, experience values always visible, per-size quantities, gallery reorder/replace/multiple upload and saved draft reload (in-memory only)');
+    checks.push('editor: formatted VND typing/paste/caret/deletion, integer API prices, removed variant helper text, editable accords/experience, per-size quantities and gallery saves (in-memory only)');
   }
   if(popularQA){
     const showPopularSection=async()=>{
