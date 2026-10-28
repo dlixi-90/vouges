@@ -1,6 +1,5 @@
 import { useEffect, useId, useRef } from "react";
 import ProductDescription from "./ProductDescription";
-import PerfumeProfile from "./PerfumeProfile";
 import ProductReviews from "./ProductReviews";
 
 export default function ProductDetailTabs({ product, activeTab, onTabChange, reviewStats, onSummaryChange }) {
@@ -17,7 +16,6 @@ export default function ProductDetailTabs({ product, activeTab, onTabChange, rev
   }, [activeTab]);
   const tabs = [
     { id: "description", label: "Mô tả", content: <ProductDescription product={product} /> },
-    { id: "profile", label: "Hồ sơ nước hoa", content: <PerfumeProfile product={product} embedded /> },
     { id: "reviews", label: "Đánh giá và nhận xét sản phẩm", content: <ProductReviews productId={product._id} onSummaryChange={onSummaryChange} embedded /> },
   ];
   const moveFocus = (event, index) => {

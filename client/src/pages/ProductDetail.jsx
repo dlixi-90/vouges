@@ -324,7 +324,6 @@ const ProductDetail = () => {
 
       <section className="product-detail-experience" aria-label="Lưu hương, tỏa hương và thời điểm sử dụng">
         <FragranceCharts fragrance={product.fragrance || {}} />
-        <p className="mt-4 text-xs leading-5 text-gray-500">Thông tin tham khảo từ dữ liệu nguồn và nội dung được Velours biên tập. Trải nghiệm có thể thay đổi theo da và môi trường.</p>
       </section>
 
       <div className="product-detail-assurances mt-5 grid gap-2 text-xs text-[#70756f] sm:grid-cols-2">

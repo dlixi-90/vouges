@@ -230,7 +230,7 @@ try{
     await goto(`/collection/${fragrant._id}`,"document.querySelector('.perfume-fragrance-charts')");
     assert.equal(await evaluate("(()=>{const section=document.querySelector('.product-detail-experience'),overview=document.querySelector('.product-detail-overview'),charts=section.querySelector('.perfume-assessment');return section.previousElementSibling===overview&&section.nextElementSibling.classList.contains('product-detail-assurances')&&!section.closest('[role=tabpanel]')&&section.getBoundingClientRect().top>=overview.getBoundingClientRect().bottom&&Math.abs(charts.getBoundingClientRect().width-overview.getBoundingClientRect().width)<2})()"),true,'Assessments remain full width after the overview and before shipping assurances');
     assert.equal(await evaluate("document.querySelectorAll('.net-product-detail .perfume-assessment').length"),1);
-    await evaluate("document.querySelector('[data-product-tab=\"profile\"]').click()");await wait("document.querySelector('.perfume-fragrance-charts').getBoundingClientRect().height>0");
+    await evaluate("document.querySelector('[data-product-tab=\"description\"]').click()");await wait("document.querySelector('.perfume-fragrance-charts').getBoundingClientRect().height>0");
     await checkRows('.product-detail-experience');
     const seasonColors=['rgb(159, 229, 132)','rgb(252, 149, 138)','rgb(249, 190, 110)','rgb(120, 214, 240)','rgb(68, 123, 163)','rgb(252, 244, 135)'];
     assert.equal(await evaluate(`(()=>{const expected=${JSON.stringify(seasonColors)},items=[...document.querySelectorAll('.perfume-suitability-item')];return items.length===6&&items.every((item,i)=>item.querySelector('svg')&&getComputedStyle(item.querySelector('.perfume-chart-track > span')).backgroundColor===expected[i])})()`),true);
@@ -248,7 +248,7 @@ try{
     for(const width of [1024,390,320]){
       await send('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:width<768});
       await goto(`/collection/${fragrant._id}`,"document.querySelector('.perfume-fragrance-charts')");
-      await evaluate("document.querySelector('[data-product-tab=\"profile\"]').click()");await wait("document.querySelector('.perfume-fragrance-charts').getBoundingClientRect().height>0");
+      await evaluate("document.querySelector('[data-product-tab=\"description\"]').click()");await wait("document.querySelector('.perfume-fragrance-charts').getBoundingClientRect().height>0");
       await checkRows('.product-detail-experience');await noOverflow();
       await evaluate("document.querySelector('.perfume-fragrance-charts').scrollIntoView({block:'center',behavior:'instant'})");await screenshot(`experience-design-${width}`);
     }
@@ -261,7 +261,7 @@ try{
     const expected=fragrant.fragrance.accords.map(accord=>({background:rgb(getAccordColors(accord).background),foreground:rgb(getAccordColors(accord).foreground),percent:accord.displayedPercent}));
     const inspect=async(selector,expected)=>assert.equal(await evaluate(`(()=>{const expected=${JSON.stringify(expected)},rows=[...document.querySelectorAll(${JSON.stringify(selector+' .perfume-accord-meter')})];return rows.length===expected.length&&rows.every((row,i)=>{const fill=row.querySelector('.perfume-accord-fill'),color=getComputedStyle(fill),text=getComputedStyle(fill.firstElementChild);return color.backgroundColor===expected[i].background&&text.color===expected[i].foreground&&Math.abs(fill.getBoundingClientRect().width/row.getBoundingClientRect().width*100-expected[i].percent)<.5&&(i===0||row.getBoundingClientRect().top>=rows[i-1].getBoundingClientRect().bottom-1)})})()`),true,'Accords use exact source colors and proportional vertical bars');
     await goto(`/collection/${fragrant._id}`,"document.querySelector('.perfume-accord-meters')");
-    await evaluate("document.querySelector('[data-product-tab=\"profile\"]').click()");
+    await evaluate("document.querySelector('[data-product-tab=\"description\"]').click()");
     await wait("document.querySelector('.perfume-accord-meters').getBoundingClientRect().height>0");
     await evaluate("document.querySelector('.perfume-accord-meters').scrollIntoView({block:'center',behavior:'instant'})");
     await inspect('.product-detail-accords',expected);await noOverflow();await screenshot('accord-colors-detail-desktop');
@@ -284,7 +284,7 @@ try{
     for(const width of [390,320]){
       await send('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:true});
       await goto(`/collection/${fragrant._id}`,"document.querySelector('.perfume-accord-meters')");
-      await evaluate("document.querySelector('[data-product-tab=\"profile\"]').click()");
+      await evaluate("document.querySelector('[data-product-tab=\"description\"]').click()");
       await wait("document.querySelector('.perfume-accord-meters').getBoundingClientRect().height>0");
       await evaluate("document.querySelector('.perfume-accord-meters').scrollIntoView({block:'center',behavior:'instant'})");
       await inspect('.product-detail-accords',expected);await noOverflow();await screenshot(`accord-colors-detail-${width}`);
@@ -293,16 +293,18 @@ try{
     await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   }
   if(productTabsQA){
-    await goto(`/collection/${sample._id}`,"document.querySelectorAll('[data-product-tab]').length===3&&document.querySelector('.product-description-copy p')?.textContent.trim()");
+    await goto(`/collection/${sample._id}`,"document.querySelectorAll('[data-product-tab]').length===2&&document.querySelector('.product-description-copy p')?.textContent.trim()");
     const currentTab=tab=>`document.querySelector('[data-product-tab="${tab}"]')?.getAttribute('aria-selected')==='true'`;
     assert.equal(await evaluate(currentTab('description')),true);
+    const expectedNotes=[['top','Hương đầu'],['middle','Hương giữa'],['base','Hương cuối']].map(([key,label])=>({label,text:sample.fragrance.notes[key]?.map(note=>note.name).join(', ')||'Chưa có dữ liệu'}));
+    assert.deepEqual(await evaluate("[...document.querySelectorAll('.product-description-notes > div')].map(card=>({label:card.querySelector('h3').textContent,text:card.querySelector('p').textContent}))"),expectedNotes);
+    assert.equal(await evaluate("!document.querySelector('.product-description-copy dl')&&!document.querySelector('[data-product-tab=\"profile\"]')&&!document.querySelector('.product-detail-experience > p')"),true,'Only the three note stages move into description; the profile tab and assessment disclaimer are removed');
     assert.equal(await evaluate("document.querySelectorAll('.product-detail-tab-panel:not([hidden])').length===1&&!document.querySelector('#pair-with-title')&&!document.querySelector('[aria-label=\"Thông tin sản phẩm\"] [aria-expanded]')"),true);
     assert.equal(await evaluate("(()=>{const tabs=document.querySelector('.product-detail-tabs').getBoundingClientRect(),detail=document.querySelector('.net-product-detail');const style=getComputedStyle(detail);return Math.abs(tabs.width-(detail.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight)))<2})()"),true);
     await evaluate("document.querySelector('.product-detail-tabs').scrollIntoView({block:'start',behavior:'instant'})");await screenshot('detail-tabs-description-desktop');
-    await evaluate("document.querySelector('[data-product-tab=\"profile\"]').click()");await wait(currentTab('profile'));
     assert.equal(await evaluate("document.querySelector('.product-detail-experience .perfume-fragrance-charts').getBoundingClientRect().height>0"),true);
-    await noOverflow();await screenshot('detail-tabs-profile-desktop');
-    await evaluate("document.querySelector('[data-product-tab=\"profile\"]').dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true,cancelable:true}))");
+    await noOverflow();
+    await evaluate("document.querySelector('[data-product-tab=\"description\"]').dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true,cancelable:true}))");
     await wait(`${currentTab('reviews')}&&document.activeElement===document.querySelector('[data-product-tab="reviews"]')`);
     await wait("document.querySelector('#reviews textarea')");
     await input('#reviews textarea','Bản nhận xét đang nhập, chưa gửi.');
@@ -321,7 +323,7 @@ try{
       await goto(`/collection/${sample._id}`,currentTab('description'));
       await evaluate("document.querySelector('.product-detail-tabs').scrollIntoView({block:'start',behavior:'instant'})");
       await noOverflow();await screenshot(`detail-tabs-description-${width}`);
-      for(const tab of ['profile','reviews']){
+      for(const tab of ['description','reviews']){
         await evaluate(`document.querySelector('[data-product-tab="${tab}"]').click()`);await wait(currentTab(tab));await noOverflow();
         await wait("(()=>{const selected=document.querySelector('[data-product-tab][aria-selected=\"true\"]').getBoundingClientRect(),list=document.querySelector('.product-detail-tab-list').getBoundingClientRect();return selected.left>=list.left-2&&selected.right<=list.right+2})()");
       }
@@ -551,7 +553,7 @@ try{
     await selectPage('.inessa-collection-pagination','.inessa-collection-grid',1);
     checks.push(`${lastCollectionPage} pages: compact beginning/middle/end, synchronized toolbar arrows and scroll to first product row`);
   }
-  await goto(`/collection/${sample._id}`,"document.querySelector('.perfume-profile')");
+  await goto(`/collection/${sample._id}`,"document.querySelector('.product-description-copy')");
   assert.equal(await evaluate("Boolean(document.querySelector('.product-detail-experience .perfume-fragrance-charts'))"),true);
   const detailImage='[aria-label="Thư viện ảnh sản phẩm"] img:not([alt=""])';
   await wait(`(()=>{const img=document.querySelector(${JSON.stringify(detailImage)});return img?.complete&&img.naturalWidth>0})()`);
