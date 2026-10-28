@@ -19,8 +19,8 @@ export function useCatalog(path,apiRoot="/api/catalog"){
   return {data,loading,error,reload};
 }
 
-export function CatalogPage({eyebrow="VELOURS / QUẢN TRỊ NƯỚC HOA",title,description,actions,children,className=""}){
-  return <section className={`perfume-workspace ${className}`}><header className="perfume-page-heading"><div><p className="perfume-eyebrow">{eyebrow}</p><h1>{title}</h1>{description&&<p className="perfume-page-description">{description}</p>}</div><div className="perfume-heading-actions">{actions}</div></header>{children}</section>;
+export function CatalogPage({title,actions,children,className=""}){
+  return <section className={`perfume-workspace ${className}`}><header className="perfume-page-heading"><h1>{title}</h1><div className="perfume-heading-actions">{actions}</div></header>{children}</section>;
 }
 export function CatalogState({loading,error,reload}){
   return error?<div role="alert" className="perfume-alert">{error}<button type="button" onClick={reload}>Thử lại</button></div>:loading?<p className="perfume-loading" role="status">Đang tải dữ liệu…</p>:null;

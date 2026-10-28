@@ -85,6 +85,7 @@ export default function Sidebar() {
       <aside className={`net-sidebar admin-sidebar${menuOpen ? " is-open" : ""}`} aria-label="Điều hướng quản trị" id="admin-navigation">
         <div className="admin-brand-row">
           <Link to="/owner" className="admin-brand" aria-label="Velours — Dashboard" onClick={closeMenu}><img src={assets.logoImg} alt="" /><span>elours</span></Link>
+          <Link to="/" className="admin-store-link" aria-label="Xem cửa hàng" title="Xem cửa hàng" onClick={closeMenu}><ArrowUpRight size={15} aria-hidden="true" /><span>Xem cửa hàng</span></Link>
           <button type="button" className="admin-mobile-close" aria-label="Đóng menu" onClick={closeMenu}><X size={20} /></button>
         </div>
         <nav className="perfume-admin-nav admin-navigation">
@@ -97,9 +98,7 @@ export default function Sidebar() {
           </div>)}
         </nav>
         <div className="admin-sidebar-footer">
-          <Link to="/" className="admin-store-link"><ArrowUpRight size={18} />Xem cửa hàng</Link>
           <button type="button" onClick={() => signOut({ redirectUrl: "/" })}><LogOut size={17} />Đăng xuất</button>
-          <span>VELOURS · KHÔNG GIAN QUẢN TRỊ</span>
         </div>
       </aside>
       <div className="velours-admin-main">

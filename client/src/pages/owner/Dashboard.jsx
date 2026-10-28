@@ -139,7 +139,7 @@ const Dashboard = () => {
 
   const orders = dashboardData.orders || [];
 
-  return <CatalogPage className="admin-operations-page admin-orders-page" title="Đơn hàng & doanh thu" description="Theo dõi giao dịch, thanh toán và quá trình xử lý đơn hàng của Velours." actions={<RefreshButton disabled={isLoading} onClick={() => { void getDashboardData({ force: true }); void fetchPopularProducts(); }} />}>
+  return <CatalogPage className="admin-operations-page admin-orders-page" title="Đơn hàng & doanh thu" actions={<RefreshButton disabled={isLoading} onClick={() => { void getDashboardData({ force: true }); void fetchPopularProducts(); }} />}>
     {loadError && <div role="alert" className="perfume-alert">{loadError}<button type="button" onClick={() => void getDashboardData({ force: true })}>Thử lại</button></div>}
     <div className="admin-metric-grid admin-two-metrics">
       <OperationsMetric primary icon={Banknote} label="Doanh thu đã thanh toán" value={dashboardData.totalRevenue === null ? "—" : formatVnd(dashboardData.totalRevenue, currency)} detail="Tổng tiền từ các đơn đã thanh toán" />

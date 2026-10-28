@@ -4,10 +4,14 @@ html:has(.velours-admin-shell),body:has(.velours-admin-shell) { overflow-x:clip;
 .net-admin .velours-admin-shell { min-height:100dvh; background:#f6f6f7; color:#202020; font-family:Inter,sans-serif; }
 .net-admin .velours-admin-frame { display:flex; align-items:flex-start; width:100%; max-width:1800px; padding:20px; gap:28px; }
 .net-admin .velours-admin-frame > .admin-sidebar { position:sticky; top:20px; display:flex; flex-direction:column; flex-shrink:0; align-self:flex-start; width:224px; min-width:224px; height:calc(100dvh - 40px); min-height:0; max-height:calc(100dvh - 40px); margin:0; padding:24px 13px 14px; overflow-y:auto; border:1px solid #ebebeb; border-radius:16px; background:#fff; box-shadow:none; }
-.net-admin .admin-sidebar .admin-brand-row { display:flex; align-items:center; justify-content:space-between; flex-shrink:0; gap:10px; padding:0 10px; margin:0 0 24px; width:auto; }
+.net-admin .admin-sidebar .admin-brand-row { display:flex; align-items:center; justify-content:space-between; flex-shrink:0; gap:8px; padding:0; margin:0 0 24px; width:auto; }
 .net-admin .admin-sidebar .admin-brand { display:flex; align-items:center; gap:0; min-height:35px; margin:0; padding:0; border:0; border-radius:0; background:transparent; color:#181818; box-shadow:none; }
 .admin-brand img { width:42px; height:31px; object-fit:contain; }
 .admin-brand span { margin-left:-5px; font-family:var(--inessa-serif); font-size:27px; font-weight:600; line-height:1; }
+.admin-brand-row .admin-store-link { display:flex; align-items:center; justify-content:center; gap:4px; min-width:30px; padding:5px; border:1px solid #e7e7e7; border-radius:6px; color:#777; font-size:10px; line-height:1.35; }
+.admin-store-link > svg { flex-shrink:0; }
+.net-admin .admin-brand-row .admin-store-link > span { max-width:44px; font-family:Inter,sans-serif; font-size:10px; font-weight:400; line-height:1.35; letter-spacing:0; }
+.admin-brand-row .admin-store-link:hover { border-color:#aaa; background:#f7f7f7; color:#171717; }
 .net-admin .admin-navigation { display:flex; flex-direction:column; flex:1; gap:22px!important; margin:0!important; }
 .admin-nav-group { display:flex; flex-direction:column; gap:5px; }
 .admin-nav-group > p { margin:0 12px 5px; color:#999; font-size:10px; line-height:1.6; }
@@ -19,7 +23,6 @@ html:has(.velours-admin-shell),body:has(.velours-admin-shell) { overflow-x:clip;
 .net-admin .admin-sidebar .admin-sidebar-footer { display:flex; flex-direction:column; gap:5px; margin:24px 0 0; padding:15px 0 0; border-top:1px solid #ededed; border-radius:0; background:#fff; }
 .admin-sidebar-footer > :is(a,button) { display:flex; align-items:center; gap:10px; padding:10px 12px; font-size:11px; color:#666; text-align:left; cursor:pointer; }
 .admin-sidebar-footer > :is(a,button):hover { color:#161616; background:#f7f7f7; border-radius:8px; }
-.admin-sidebar-footer > span { margin:13px 12px 0; color:#a0a0a0; font-size:6px; letter-spacing:.12em; }
 .velours-admin-main { flex:1; min-width:0; }
 .admin-topbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px; min-height:58px; margin:0 0 22px; padding:4px 0 12px; }
 .admin-breadcrumb { display:flex; align-items:center; gap:9px; min-width:0; color:#8d8d8d; font-size:11px; }
@@ -41,7 +44,6 @@ html:has(.velours-admin-shell),body:has(.velours-admin-shell) { overflow-x:clip;
 .net-admin .perfume-page-heading { gap:18px; margin-bottom:24px; padding-bottom:0; border:0; }
 .net-admin .perfume-page-heading h1 { font-size:25px; font-weight:600; letter-spacing:-.04em!important; }
 .net-admin .perfume-eyebrow { margin-bottom:7px; color:#949494; font-size:8px!important; letter-spacing:.16em; }
-.net-admin .perfume-page-description { margin-top:8px; font-size:11px; color:#929292; line-height:1.7; }
 .net-admin .perfume-heading-actions { align-self:center; }
 .net-admin .perfume-button { min-height:36px; border-color:#e2e2e2; border-radius:7px; padding:9px 12px; background:#fff; color:#494949; font-size:10px; }
 .net-admin .perfume-button.primary { border-color:#1b1b1b; background:#1b1b1b; color:#fff; }
@@ -164,6 +166,7 @@ html:has(.velours-admin-shell),body:has(.velours-admin-shell) { overflow-x:clip;
 
 @media(min-width:1600px) { .net-admin .velours-admin-frame { gap:32px; padding:24px 28px; }.net-admin .velours-admin-frame > .admin-sidebar { width:240px; min-width:240px; top:24px; height:calc(100dvh - 48px); max-height:calc(100dvh - 48px); }.admin-metric-card { padding:23px; } }
 @media(max-width:1200px) { .net-admin .velours-admin-frame { gap:20px; padding:16px; }.net-admin .velours-admin-frame > .admin-sidebar { width:202px; min-width:202px; top:16px; height:calc(100dvh - 32px); max-height:calc(100dvh - 32px); padding-inline:9px; }.admin-topbar-tools { gap:10px; }.admin-account > div:last-child { display:none; }.admin-metric-grid { gap:12px; }.admin-metric-card { padding:16px 13px; }.admin-metric-top { gap:7px; font-size:10px; }.admin-metric-icon { width:27px; height:27px; }.admin-overview-grid,.admin-catalog-footer { grid-template-columns:minmax(0,1.55fr) minmax(245px,1fr); gap:16px; }.admin-dashboard-panel { padding:18px 15px; }.admin-products-panel { padding-inline:0; }.admin-panel-heading { gap:8px; }.net-admin .admin-panel-heading h2 { font-size:13px; }.admin-metric-arrow { display:none; } }
+@media(max-width:1200px) { .admin-brand-row .admin-store-link { width:30px; height:30px; padding:5px; flex-shrink:0; }.admin-store-link > span { display:none; } }
 @media(max-width:1023px) { .admin-metric-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.admin-metric-card > strong { font-size:28px; }.admin-overview-grid,.admin-catalog-footer { grid-template-columns:minmax(0,1fr); }.admin-distribution { flex-direction:row; justify-content:center; gap:35px; }.admin-distribution ul { max-width:280px; }.admin-donut { width:160px; height:160px; flex-shrink:0; }.admin-table-product { max-width:none; }.admin-table-product strong { max-width:220px; }.admin-account { display:none; } }
 @media(max-width:767px) {
   .net-admin .velours-admin-frame { padding:14px; gap:0; }
@@ -180,7 +183,6 @@ html:has(.velours-admin-shell),body:has(.velours-admin-shell) { overflow-x:clip;
   .net-admin .perfume-page-heading { gap:14px; margin-bottom:20px; }
   .net-admin .perfume-page-heading h1,.net-admin .velours-admin-route > main h1 { font-size:22px; }
   .net-admin .perfume-heading-actions { align-self:flex-start; }
-  .net-admin .perfume-page-description { font-size:10px; }
   .admin-metric-grid { gap:10px; margin-bottom:16px; }
   .admin-metric-card { gap:16px; padding:16px 12px; }
   .admin-metric-top { gap:7px; font-size:9px; }

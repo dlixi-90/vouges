@@ -24,7 +24,7 @@ export default function Messages() {
   const feed = useSupportFeed(`/api/support/inbox/events?${params}`, true);
   const inbox = feed.data;
   const { listRef, changePage } = usePaginationScroll({ page, onPageChange: setPage, ready: Boolean(inbox) });
-  return <CatalogPage className="admin-operations-page admin-messages-page" title="Tin nhắn & hỗ trợ" description="Tiếp nhận, theo dõi và phản hồi khách hàng trong một không gian." actions={<><Badge>{inbox ? inbox.unread : "—"} hội thoại chưa đọc</Badge><span className="admin-feed-status"><i data-connected={feed.status === "live"} />{feed.status === "live" ? "Đã kết nối" : feed.status === "error" ? "Mất kết nối" : "Đang kết nối…"}</span></>}>
+  return <CatalogPage className="admin-operations-page admin-messages-page" title="Tin nhắn & hỗ trợ" actions={<><Badge>{inbox ? inbox.unread : "—"} hội thoại chưa đọc</Badge><span className="admin-feed-status"><i data-connected={feed.status === "live"} />{feed.status === "live" ? "Đã kết nối" : feed.status === "error" ? "Mất kết nối" : "Đang kết nối…"}</span></>}>
     <div className="net-admin-messages admin-message-workspace">
       <aside aria-label="Danh sách hội thoại" className={`admin-message-sidebar${selected ? " is-conversation-selected" : ""}`}>
         <header className="admin-inbox-heading"><h2>Hộp thư</h2><Badge>{inbox ? inbox.total : "—"} hội thoại</Badge></header>

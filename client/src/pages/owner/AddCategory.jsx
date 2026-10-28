@@ -194,7 +194,7 @@ const AddCategory = () => {
     }
   };
 
-  return <CatalogPage className="admin-operations-page admin-categories-page" title="Danh mục" description="Sắp xếp danh mục và các loại nước hoa trong cửa hàng của bạn." actions={<><RefreshButton onClick={fetchCategories} disabled={categoriesLoading || busy} />{returnTo && <button type="button" disabled={busy} onClick={() => navigate(returnTo, { state: { categorySelection: returnSelection } })} className="perfume-button primary">Quay lại sản phẩm</button>}</>}>
+  return <CatalogPage className="admin-operations-page admin-categories-page" title="Danh mục" actions={<><RefreshButton onClick={fetchCategories} disabled={categoriesLoading || busy} />{returnTo && <button type="button" disabled={busy} onClick={() => navigate(returnTo, { state: { categorySelection: returnSelection } })} className="perfume-button primary">Quay lại sản phẩm</button>}</>}>
     <div className="admin-management-grid admin-categories-grid">
       <div className="admin-form-column"><OperationsPanel title="Thêm danh mục" description="Tạo danh mục và loại sản phẩm đầu tiên.">
         <form onSubmit={saveCategory} className="admin-operation-form">

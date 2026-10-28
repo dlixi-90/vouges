@@ -516,10 +516,6 @@ const ProductForm = () => {
       <div className="mx-auto w-full max-w-[1120px]">
         <header className="mb-6 flex flex-col gap-4 border-b border-[#e1e6e3] pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#6f9a79]">
-              Sản phẩm
-            </p>
-
             <h1 className="text-2xl font-semibold tracking-tight text-[#263b4a] sm:text-3xl">
               {isEditMode ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm"}
             </h1>

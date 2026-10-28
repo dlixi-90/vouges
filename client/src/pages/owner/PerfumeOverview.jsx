@@ -61,7 +61,7 @@ export default function PerfumeOverview() {
   const libraries = Object.fromEntries((data?.libraries || []).map(item => [item._id, item]));
   const refresh = () => { query.reload(); recent.reload(); quality.reload(); sales.reload(); void fetchPopularProducts(); };
 
-  return <CatalogPage title="Tổng quan dashboard" eyebrow="KHÔNG GIAN QUẢN TRỊ" description="Chào mừng trở lại. Cùng theo dõi hoạt động của Velours hôm nay." actions={<><RefreshButton onClick={refresh} disabled={query.loading || sales.loading} /><Link to="/owner/list-product" className="perfume-button primary"><Package size={15} />Quản lý sản phẩm</Link></>}>
+  return <CatalogPage title="Tổng quan dashboard" actions={<><RefreshButton onClick={refresh} disabled={query.loading || sales.loading} /><Link to="/owner/list-product" className="perfume-button primary"><Package size={15} />Quản lý sản phẩm</Link></>}>
     <CatalogState {...query} />
     <div className="admin-metric-grid">
       <MetricCard primary label="Tổng doanh thu" value={data ? formatVnd(data.orders.revenue) : "—"} detail="Từ các đơn đã xác nhận thanh toán" to="/owner/orders" icon={Banknote} />
