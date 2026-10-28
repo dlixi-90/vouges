@@ -1,0 +1,38 @@
+{
+  "key": "perfume-varied-stock-v1",
+  "database": "vouges",
+  "distribution": {
+    "below1000000": [
+      3,
+      5
+    ],
+    "from1000000": [
+      2,
+      4
+    ],
+    "from5000000": [
+      1,
+      2
+    ]
+  },
+  "totals": {
+    "products": 2444,
+    "changedProducts": 2093,
+    "variants": 5464,
+    "stockedVariants": 4846,
+    "zeroVariants": 618,
+    "totalQuantity": 15172,
+    "quantities": {
+      "0": 618,
+      "1": 399,
+      "2": 1143,
+      "3": 1324,
+      "4": 1385,
+      "5": 595
+    }
+  },
+  "inventoryMode": "source",
+  "appliedAt": "2026-10-28T04:44:29.343Z",
+  "backupPath": "C:\\Users\\nguye\\Desktop\\vouges\\.backups\\varied-stock-2026-10-28T04-44-28-754Z",
+  "verified": true
+}

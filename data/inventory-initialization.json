@@ -1,0 +1,17 @@
+{
+  "key": "perfume-initial-stock-v1",
+  "database": "vouges",
+  "quantity": 3,
+  "totals": {
+    "products": 2444,
+    "changedProducts": 2334,
+    "variants": 5464,
+    "stockedVariants": 4846,
+    "zeroVariants": 618,
+    "totalQuantity": 14538
+  },
+  "inventoryMode": "source",
+  "appliedAt": "2026-10-28T04:41:19.883Z",
+  "backupPath": "C:\\Users\\nguye\\Desktop\\vouges\\.backups\\initial-stock-2026-10-28T04-41-19-560Z",
+  "verified": true
+}
