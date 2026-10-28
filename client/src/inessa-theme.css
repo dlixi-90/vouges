@@ -264,8 +264,7 @@
 .product-detail-summary .product-detail-facts { margin-top: 0; }
 .product-detail-summary .product-detail-facts > div { gap: 12px; padding: 6px 0; }
 .product-detail-summary .product-detail-facts dd { font-size: 12px; line-height: 1.6; }
-.product-detail-accords { width: 100%; max-width: 460px; min-width: 0; margin: 20px auto 0; }
-.net-theme .product-detail-accords h2 { margin: 0 0 10px; font-size: 16px; line-height: 1.4; }
+.product-detail-facts > .product-detail-accords { align-items: start; }
 .product-detail-accords .perfume-accord-meters { max-width: none; }
 .product-detail-accords .perfume-accord-meter { height: 28px; font-size: 12px; line-height: 28px; }
 .product-detail-accords .perfume-accord-label { padding-inline: 9px; }

@@ -18,7 +18,6 @@ import { formatVnd } from "../utils/money";
 import { flyProductToCart } from "../utils/cartAnimation";
 import ProductImage from "../components/ProductImage";
 import ProductFacts from "../components/ProductFacts";
-import FragranceAccords from "../components/FragranceAccords";
 import { getDetailGallery } from "../utils/productImage";
 
 const MAX_QUANTITY_PER_ADD = 10;
@@ -189,12 +188,6 @@ const ProductDetail = () => {
             </div>
           </div>
         </section>
-        {product.fragrance?.accords?.length > 0 && (
-          <section className="product-detail-accords" aria-label="Mùi hương chính">
-            <h2>Mùi hương chính</h2>
-            <FragranceAccords accords={product.fragrance.accords} />
-          </section>
-        )}
         </div>
 
         <section

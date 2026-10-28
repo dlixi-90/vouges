@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
+import FragranceAccords from "./FragranceAccords";
 
 export default function ProductFacts({ product }) {
   const { setSearchQuery } = useAppContext();
@@ -15,5 +16,13 @@ export default function ProductFacts({ product }) {
     {rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>
       {value ? label === "Thương hiệu" ? <Link to={`/collection?brand=${encodeURIComponent(value)}`} onClick={() => setSearchQuery("")}>{value}</Link> : value : <span className="product-fact-missing">Đang cập nhật</span>}
     </dd></div>)}
+    <div className="product-detail-accords">
+      <dt>Mùi hương chính</dt>
+      <dd>
+        {product.fragrance?.accords?.length > 0
+          ? <FragranceAccords accords={product.fragrance.accords} />
+          : <span className="product-fact-missing">Đang cập nhật</span>}
+      </dd>
+    </div>
   </dl>;
 }
