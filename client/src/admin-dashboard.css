@@ -9,7 +9,7 @@ html:has(.velours-admin-shell),body:has(.velours-admin-shell) { overflow-x:clip;
 .net-admin .admin-sidebar .admin-brand { display:flex; align-items:center; gap:0; min-height:35px; margin:0; padding:0; border:0; border-radius:0; background:transparent; color:#181818; box-shadow:none; }
 .admin-brand img { width:42px; height:31px; object-fit:contain; }
 .admin-brand span { margin-left:-5px; font-family:var(--inessa-serif); font-size:27px; font-weight:600; line-height:1; }
-.admin-brand-row .admin-store-link { position:absolute; top:-16px; right:-20px; display:flex; align-items:center; justify-content:center; width:28px; height:28px; padding:0; border:0; border-radius:4px; background:transparent; color:#777; }
+.admin-brand-row .admin-store-link { position:absolute; top:50%; left:100%; transform:translateY(-50%); display:flex; align-items:center; justify-content:center; width:24px; height:28px; padding:0; border:0; border-radius:4px; background:transparent; color:#777; }
 .admin-store-link > svg { flex-shrink:0; }
 .admin-brand-row .admin-store-link:hover { color:#171717; }
 .admin-brand-row .admin-mobile-close { position:absolute; top:50%; right:0; transform:translateY(-50%); }
