@@ -7,19 +7,27 @@ import { productFilterValues, parsePerfumeFilters, matchesPerfumeFilters } from 
 const fields = "title price sizes stockBySize inStockBySize images category type brand gender origin concentration inStock inventoryMode isPublished popular createdAt";
 const profileFields = "fragrance.notes.top.name fragrance.notes.middle.name fragrance.notes.base.name fragrance.accords.label fragrance.style fragrance.longevity.label fragrance.longevity.displayedCount fragrance.sillage.label fragrance.sillage.displayedCount fragrance.suitability.label fragrance.suitability.displayedPercent";
 const profileKeys = ["longevity", "sillage", "suitability", "notes", "accords", "styles"];
+const dominantRows = field => ({ $let: { vars: { rows: { $filter: { input: { $ifNull: [`$fragrance.${field}`, []] }, as: "row", cond: {
+  $and: [{ $isNumber: "$$row.displayedCount" }, { $gt: ["$$row.displayedCount", 0] }, { $lte: ["$$row.displayedCount", Number.MAX_SAFE_INTEGER] }, { $eq: ["$$row.displayedCount", { $trunc: { $convert: { input: "$$row.displayedCount", to: "double", onError: 0, onNull: 0 } } }] }],
+} } } }, in: { $map: { input: { $filter: { input: "$$rows", as: "row", cond: { $eq: ["$$row.displayedCount", { $max: "$$rows.displayedCount" }] } } }, as: "row", in: { label: "$$row.label", displayedCount: "$$row.displayedCount" } } } } });
 const visible = { isPublished: { $ne: false }, isDeleted: { $ne: true } };
 const entries = new Map();
 let revision = 0;
 // A small, bounded server snapshot shares simultaneous public reads. Prices and
 // stock are always checked again by the cart/checkout APIs against MongoDB.
 export const invalidateStorefrontCatalog = () => { revision++; entries.clear(); invalidatePublicBrands(); };
-const snapshot = (key, maxAge, read) => {
+export const catalogSnapshot = (key, maxAge, read) => {
   const existing = entries.get(key);
   if (existing?.pending) return existing.pending;
   if (existing && Date.now() < existing.expiresAt) return Promise.resolve(existing.data);
   const generation = revision;
   const entry = {};
   entries.set(key, entry);
+  // Page/search snapshots share this store; keep it bounded between writes.
+  for (const [oldKey, oldEntry] of entries) {
+    if (entries.size <= 64) break;
+    if (oldKey !== key && !oldEntry.pending) entries.delete(oldKey);
+  }
   entry.pending = Promise.resolve().then(read).then(data => {
     if (revision === generation && entries.get(key) === entry) { entry.data = data; entry.expiresAt = Date.now() + maxAge; }
     return data;
@@ -28,15 +36,20 @@ const snapshot = (key, maxAge, read) => {
 };
 export const needsFragranceProfiles = filters => profileKeys.some(key => filters?.[key]?.length);
 export const getStorefrontCatalog = async (includeProfiles = false) => {
-  const cards = snapshot("cards", 10000, async () => {
-    const products = await Product.find(visible).select(fields).sort({ createdAt: -1, _id: -1 }).lean();
+  const cards = catalogSnapshot("cards", 10000, async () => {
+    const projection = { ...Object.fromEntries(fields.split(" ").map(field => [field, 1])), images: { $slice: 1 } };
+    const products = await Product.find(visible).select(projection).sort({ createdAt: -1, _id: -1 }).lean();
     return products.map(product => ({ ...product, _id: String(product._id), images: product.images?.slice(0, 1) || [], _filters: productFilterValues(product) }));
   });
   if (!includeProfiles) return cards;
   // Fragrance descriptions/votes are loaded only for the advanced filter, and
   // separately cached from frequently changing quantities and prices.
-  const profiles = snapshot("profiles", 300000, async () => {
-    const products = await Product.find(visible).select(profileFields).lean();
+  const profiles = catalogSnapshot("profiles", 300000, async () => {
+    const projection = Object.fromEntries(profileFields.split(" ").filter(field => !field.includes("longevity") && !field.includes("sillage") && !field.includes("suitability")).map(field => [field, 1]));
+    const products = await Product.aggregate([{ $match: visible }, { $project: { ...projection,
+      "fragrance.longevity": dominantRows("longevity"), "fragrance.sillage": dominantRows("sillage"),
+      "fragrance.suitability": { $map: { input: { $filter: { input: { $ifNull: ["$fragrance.suitability", []] }, as: "row", cond: { $and: [{ $isNumber: "$$row.displayedPercent" }, { $gte: ["$$row.displayedPercent", 50] }, { $lte: ["$$row.displayedPercent", 100] }] } } }, as: "row", in: { label: "$$row.label", displayedPercent: "$$row.displayedPercent" } } },
+    } }]);
     return new Map(products.map(product => [String(product._id), productFilterValues(product)]));
   });
   const [products, metadata] = await Promise.all([cards, profiles]);

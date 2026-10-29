@@ -6,7 +6,7 @@ import { formatVnd } from "../utils/money";
 import { getProductPriceRange } from "../utils/productPrice";
 import ProductImage from "./ProductImage";
 
-const Item = ({ product }) => {
+const Item = ({ product, priority = false }) => {
   const { currency, storeResources, publicCatalog } = useAppContext();
   const prefetchTimer = useRef(null);
   useEffect(() => () => window.clearTimeout(prefetchTimer.current), []);
@@ -49,6 +49,8 @@ const Item = ({ product }) => {
           alt=""
           height={144}
           width={144}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
         />
         {!isAvailable && (
           <p className="absolute left-2 top-2 rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 ring-1 ring-red-200">

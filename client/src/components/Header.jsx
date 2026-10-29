@@ -44,6 +44,8 @@ const Header = () => {
     if (!user) return;
     void import("../pages/Membership").catch(() => {});
     void storeResources.loadMembership().catch(() => {});
+    void import("../pages/MyOrders").catch(() => {});
+    void storeResources.loadOrders().catch(() => {});
   };
 
   const toggleMenu = () => {

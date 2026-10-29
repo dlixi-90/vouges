@@ -334,6 +334,10 @@ Lần kiểm tra cục bộ ngày 28/10/2026 ghi nhận **380/380 bài kiểm th
 
 Cập nhật ngày 29/10/2026: tối ưu bốn tab Tổng quan, Đơn hàng & doanh thu, Mã giảm giá và Tin nhắn & hỗ trợ; **406/406 kiểm thử backend**, lint và build frontend đạt. Số đo, kiểm tra trình duyệt và phạm vi triển khai được ghi tại [DASHBOARD_PERFORMANCE.md](docs/DASHBOARD_PERFORMANCE.md).
 
+Đợt tối ưu sản phẩm tiếp theo cùng ngày đạt **416/416 kiểm thử**, lint và build frontend. Các trang khách hàng dùng đường đọc trang sản phẩm nhỏ, tải trước theo thao tác và tải gợi ý song song; đã đối chiếu dữ liệu thật bằng truy vấn chỉ đọc. Số đo trước/sau và hướng dẫn chạy lại tại [STOREFRONT_PERFORMANCE.md](docs/STOREFRONT_PERFORMANCE.md).
+
+Đợt rà soát toàn website ngày 29/10/2026 đạt **423/423 kiểm thử**, lint và build frontend: giảm khoảng 23% CSS tải ban đầu, tách tài nguyên quản trị, phân trang lịch sử đơn, dùng chung dữ liệu địa chỉ/địa lý và tạm dừng polling QR khi tab ẩn. Đã kiểm tra bản production bằng Chrome ở desktop và màn hình 390/320px; chưa triển khai. Chi tiết tại [WEBSITE_PERFORMANCE.md](docs/WEBSITE_PERFORMANCE.md).
+
 ---
 
 <div align="center">

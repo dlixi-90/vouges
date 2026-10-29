@@ -108,6 +108,32 @@ test("membership and checkout share one authenticated request containing profile
   assert.equal(calls, 2);
 });
 
+test("customer order prefetch and history share pages, refresh after checkout and remain account scoped", async () => {
+  const calls=[];
+  const resources=createStoreResources({userId:"buyer",getToken:async()=>"session",axios:{get:async(url,options)=>{
+    assert.equal(options.headers.Authorization,"Bearer session");calls.push(options.params?.page);return {data:{success:true,orders:[],page:options.params?.page}};
+  }}});
+  await Promise.all([resources.loadOrders(),resources.loadOrders()]);assert.deepEqual(calls,[1]);
+  await resources.loadOrders(2);assert.deepEqual(calls,[1,2]);
+  resources.invalidateOrders();assert.equal(resources.peekOrders(),undefined);
+  await resources.loadOrders();assert.deepEqual(calls,[1,2,1]);
+  assert.equal(createStoreResources({userId:"other"}).peekOrders(),undefined);
+  resources.clear();assert.equal(resources.peekOrders(),undefined);
+  assert.equal(await createStoreResources({}).loadOrders(),null);
+});
+
+test("checkout address lists reuse authenticated reads and refresh after address edits", async () => {
+  let reads=0;
+  const resources=createStoreResources({userId:"buyer",getToken:async()=>"session",axios:{get:async(url)=>{
+    assert.equal(url,"/api/addresses");reads++;return {data:{success:true,addresses:[{_id:"home"}]}};
+  }}});
+  await Promise.all([resources.loadAddresses(),resources.loadAddresses()]);assert.equal(reads,1);
+  await resources.loadAddresses();assert.equal(reads,1);
+  resources.invalidateAddresses();await resources.loadAddresses();assert.equal(reads,2);
+  resources.clear();assert.equal(resources.peekAddresses(),undefined);
+  assert.equal(await createStoreResources({}).loadAddresses(),null);
+});
+
 test("account-scoped resources never share private data; guests skip private requests", async () => {
   const alice = createStoreResources({ userId: "alice" });
   const bob = createStoreResources({ userId: "bob" });

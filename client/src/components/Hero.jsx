@@ -1,6 +1,11 @@
 ﻿import { Link } from "react-router-dom";
 
-const Hero = () => (
+import { useAppContext } from "../context/AppContext";
+import { prefetchCollection } from "../utils/prefetchCollection";
+
+const Hero = () => {
+  const { publicCatalog, searchQuery } = useAppContext();
+  return (
   <section className="inessa-hero" aria-labelledby="hero-title">
     <img
       className="inessa-hero-image"
@@ -20,12 +25,13 @@ const Hero = () => (
           <br />
           <span>của bạn.</span>
         </h1>
-        <Link to="/collection" className="inessa-button">
+        <Link to="/collection" className="inessa-button" onPointerEnter={() => prefetchCollection(publicCatalog, "/collection", searchQuery)} onFocus={() => prefetchCollection(publicCatalog, "/collection", searchQuery)}>
           Khám phá bộ sưu tập
         </Link>
       </div>
     </div>
   </section>
 );
+};
 
 export default Hero;

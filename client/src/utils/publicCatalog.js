@@ -1,5 +1,14 @@
 import { createResourceCache } from "./resourceCache.js";
 
+export const normalizeBrowseParams = (params = {}) => {
+  const values = { page: 1, limit: 16, availability: "available", sort: "relevant", minPrice: 0, ...params };
+  try {
+    const facets = values.facets === undefined ? {} : JSON.parse(values.facets);
+    values.facets = JSON.stringify(Object.fromEntries(Object.entries(facets).filter(([, selected]) => selected.length).sort(([a], [b]) => a.localeCompare(b))));
+  } catch { /* Leave malformed filters for the API to reject. */ }
+  return Object.fromEntries(Object.entries(values).filter(([field, value]) => value !== undefined && !(value === "" && ["q", "brand"].includes(field))));
+};
+
 export const createPublicCatalog = ({ axios, cache = createResourceCache({ maxAge: 15000, maxEntries: 60 }) }) => {
   const metadata = createResourceCache({ maxAge: 300000, maxEntries: 4 });
   const read = async (url, params, signal) => {
@@ -10,9 +19,9 @@ export const createPublicCatalog = ({ axios, cache = createResourceCache({ maxAg
   const key = params => JSON.stringify(Object.entries(params).filter(([, value]) => value !== undefined).sort(([a], [b]) => a.localeCompare(b)));
   return {
     clear: () => { cache.clear(); metadata.clear(); },
-    browseKey: params => `browse:${key(params)}`,
-    peekBrowse: params => cache.peek(`browse:${key(params)}`),
-    browse: (params = {}, options) => cache.load(`browse:${key(params)}`, signal => read("/api/products/browse", params, signal), options),
+    browseKey: params => `browse:${key(normalizeBrowseParams(params))}`,
+    peekBrowse: params => cache.peek(`browse:${key(normalizeBrowseParams(params))}`),
+    browse: (params = {}, options) => cache.load(`browse:${key(normalizeBrowseParams(params))}`, signal => read("/api/products/browse", normalizeBrowseParams(params), signal), options),
     peekDetail: id => cache.peek(`detail:${id}`),
     detail: (id, options) => cache.load(`detail:${id}`, signal => read("/api/products/single", { productId: id }, signal), options),
     related: id => cache.load(`related:${id}`, signal => read("/api/products/related", { productId: id }, signal)),

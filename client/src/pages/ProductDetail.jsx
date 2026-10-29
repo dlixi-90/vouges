@@ -71,7 +71,7 @@ const ProductDetail = () => {
     void storeResources.loadReviews(productId).catch(() => {});
     void storeResources.loadOwnReview(productId).catch(() => {});
   }, [storeResources, productId]);
-  const product = detail?._id === productId ? detail : products.find((item) => item._id === productId);
+  const product = detail?._id === productId ? detail : publicCatalog.peekDetail(productId)?.product || products.find((item) => item._id === productId);
   const productAvailable = product ? hasAnyAvailableSize(product) : false;
   const availableSizes = product ? getAvailableSizes(product) : [];
   const size = product?.sizes?.includes(selectedSize)

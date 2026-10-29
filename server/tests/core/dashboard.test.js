@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import Order from "../../models/Order.js";
 import orderRouter from "../../routes/orderRoute.js";
 import authUser, { requireOwner } from "../../middleware/authMiddleware.js";
-import { dashboard } from "../../controllers/dashboardController.js";
+import { dashboard, customerOrdersPage } from "../../controllers/dashboardController.js";
 import { getDashboardData } from "../../services/dashboardService.js";
 import { allOrders } from "../../controllers/orderController.js";
 import { catalogSummary } from "../../controllers/catalogController.js";
@@ -37,6 +37,29 @@ test("dashboard endpoint authenticates and checks owner before returning private
   const route = routes.find((entry) => entry.path === "/dashboard");
   assert.deepEqual(route.stack.map((layer) => layer.handle), [authUser, requireOwner, dashboard]);
   assert.ok(routes.indexOf(route) < routes.findIndex((entry) => entry.path === "/:orderId"));
+});
+
+test("customer order history is authenticated, bounded and scoped to the server account", async t => {
+  const route = orderRouter.stack.find(layer=>layer.route?.path==="/mine").route;
+  assert.deepEqual(route.stack.map(layer=>layer.handle),[authUser,customerOrdersPage]);
+  const calls=setup(t,[],[{_id:"saved-order",items:[{title:"Snapshot",unitPrice:1500000}]}]);
+  const historyFilter={userId:"buyer",$or:[{paymentMethod:"COD"},{isPaid:true}]};
+  t.mock.method(Order,"countDocuments",async filter=>{assert.deepEqual(filter,historyFilter);return 31;});
+  const headers={};const res={set(name,value){headers[name]=value;return this;},json(body){this.body=body;return this;}};
+  await customerOrdersPage({query:{page:2,pageSize:10,userId:"someone-else"},auth:()=>({userId:"buyer"})},res);
+  assert.equal(res.body.totalPages,4);assert.equal(res.body.orders[0].items[0].title,"Snapshot");
+  assert.deepEqual(calls.skip,[10]);assert.deepEqual(calls.limit,[10]);
+  assert.deepEqual(calls.filter,historyFilter);
+  assert.deepEqual(calls.populate[0].select.images,{$slice:1});
+  assert.equal(headers["Cache-Control"],"private, no-store");
+});
+
+test("invalid customer order pagination fails before reading private orders", async t => {
+  t.mock.method(Order,"find",()=>assert.fail("No invalid order read"));
+  for(const query of [{page:0},{page:1.5},{page:100001},{pageSize:1000},{pageSize:0}]) {
+    const res={set(){return this;},status(code){this.code=code;return this;},json(body){this.body=body;}};
+    await customerOrdersPage({query,auth:()=>({userId:"buyer"})},res);assert.equal(res.code,400);
+  }
 });
 
 test("order pagination is bounded while revenue, count and chart cover the whole eligible catalog", async (t) => {

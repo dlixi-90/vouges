@@ -4,6 +4,8 @@ export const createStoreResources = ({ cache = createResourceCache(), axios, use
   const memberKey = `membership:${userId}`;
   const reviewKey = (productId, page = 1) => `reviews:${productId}:${page}`;
   const ownKey = (productId) => `own-review:${userId}:${productId}`;
+  const ordersKey = page => `customer-orders:${userId}:${page}`;
+  const addressesKey = `addresses:${userId}`;
   const read = async (url, signal, authenticated = false, params) => {
     const headers = authenticated ? { Authorization: `Bearer ${await getToken()}` } : undefined;
     signal.throwIfAborted();
@@ -13,6 +15,18 @@ export const createStoreResources = ({ cache = createResourceCache(), axios, use
   };
   return {
     clear: () => cache.clear(),
+    peekOrders: (page = 1) => cache.peek(ordersKey(page)),
+    invalidateOrders: () => cache.invalidate(`customer-orders:${userId}:`),
+    loadOrders(page = 1, options) {
+      if (!userId) return Promise.resolve(null);
+      return cache.load(ordersKey(page), signal => read("/api/orders/mine", signal, true, {page,pageSize:10}), options);
+    },
+    peekAddresses: () => cache.peek(addressesKey),
+    invalidateAddresses: () => cache.invalidate(addressesKey),
+    loadAddresses(options) {
+      if (!userId) return Promise.resolve(null);
+      return cache.load(addressesKey, signal => read("/api/addresses",signal,true), options);
+    },
     peekCatalog: (path, root = "/api/catalog") => cache.peek(`catalog:${root}${path}`),
     setCatalog: (path, root, data) => cache.set(`catalog:${root}${path}`, data),
     invalidateCatalog: () => cache.invalidate("catalog:"),

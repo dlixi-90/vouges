@@ -6,6 +6,10 @@ import { useAppContext } from "../../context/AppContext";
 import { assets } from "../../assets/data";
 import { prefetchOwnerRoute } from "../../utils/ownerPrefetch";
 import QuickProductSearch from "../QuickProductSearch";
+import "../../perfume-dashboard.css";
+import "../../admin-dashboard.css";
+import "../../perfume-editor.css";
+import "../../admin-operations.css";
 
 const navigation = [
   { label: "Tổng quan", items: [

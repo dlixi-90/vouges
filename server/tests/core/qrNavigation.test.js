@@ -2,6 +2,16 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { createQrCancellation, shouldCancelQrNavigation } from "../../../client/src/utils/qrNavigation.js";
+import { pollWhileVisible } from "../../../client/src/utils/visiblePolling.js";
+
+test("QR polling pauses when hidden, checks immediately on return and stops on cleanup", () => {
+  const documentTarget=new EventTarget();documentTarget.hidden=false;let calls=0,tick,cleared=false;
+  const stop=pollWhileVisible(()=>{calls++;},4000,{documentTarget,timers:{setInterval(callback,delay){assert.equal(delay,4000);tick=callback;return 1;},clearInterval(id){assert.equal(id,1);cleared=true;}}});
+  tick();assert.equal(calls,1);
+  documentTarget.hidden=true;documentTarget.dispatchEvent(new Event('visibilitychange'));tick();assert.equal(calls,1);
+  documentTarget.hidden=false;documentTarget.dispatchEvent(new Event('visibilitychange'));assert.equal(calls,2);
+  stop();assert.equal(cleared,true);documentTarget.dispatchEvent(new Event('visibilitychange'));assert.equal(calls,2);
+});
 
 const clientRequire = createRequire(new URL("../../../client/package.json", import.meta.url));
 const { createMemoryRouter } = clientRequire("react-router-dom");

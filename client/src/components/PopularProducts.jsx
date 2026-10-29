@@ -11,11 +11,12 @@ const PopularProducts = () => {
     fetchPopularProducts,
   } = usePopularProducts();
   const showSuggestions = !popularProductsLoading && !popularProductsError && !popularProducts.length;
-  const { products, loading: productsLoading, error: suggestionsError, reload: reloadSuggestions } = useProductFeed({ limit: 10, availability: "available", enabled: showSuggestions });
+  const { products, loading: productsLoading, error: suggestionsError, reload: reloadSuggestions } = useProductFeed({ limit: 10, availability: "available", enabled: popularProductsLoading || showSuggestions });
   const displayedProducts = showSuggestions
     ? products
     : popularProducts;
   const isLoading = popularProductsLoading || (showSuggestions && productsLoading);
+  const visibleError = popularProductsError || (showSuggestions ? suggestionsError : "");
 
   return (
     <section className="net-popular-products max-padd-container">
@@ -23,10 +24,10 @@ const PopularProducts = () => {
         {showSuggestions ? "Khám phá cùng Velours" : "Được yêu thích tại Velours"}
       </p>
       <Title title1={showSuggestions ? "Gợi ý" : "Sản phẩm"} title2={showSuggestions ? "cho bạn" : "bán chạy"} titleStyles={"pb-10"} />
-      {(popularProductsError || suggestionsError) && (
+      {visibleError && (
         <p role="alert" className="mb-4 text-sm text-red-600">
-          {popularProductsError || suggestionsError}{" "}
-          <button type="button" onClick={suggestionsError ? reloadSuggestions : fetchPopularProducts} className="underline">
+          {visibleError}{" "}
+          <button type="button" onClick={showSuggestions && suggestionsError ? reloadSuggestions : fetchPopularProducts} className="underline">
             Thử lại
           </button>
         </p>

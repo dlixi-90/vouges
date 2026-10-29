@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import Product from "../../models/Product.js";
 import Order from "../../models/Order.js";
 import FragranceTerm from "../../models/FragranceTerm.js";
-import { catalogOverview } from "../../controllers/catalogController.js";
+import { catalogOverview, catalogProducts } from "../../controllers/catalogController.js";
+import { invalidateStorefrontCatalog } from "../../services/storefrontCatalog.js";
 import catalogRouter from "../../routes/catalogRoute.js";
 import authUser, { requireOwner } from "../../middleware/authMiddleware.js";
 import { getDashboardData } from "../../services/dashboardService.js";
@@ -54,6 +55,24 @@ test("bad overview timezone input fails before database reads", async t => {
     const res = response(); await catalogOverview({ query: { timezone } }, res); assert.equal(res.statusCode, 400);
   }
   assert.equal(read.mock.callCount(), 0);
+});
+
+test("owner product pages share filter option reads and return just one card image", async t => {
+  invalidateStorefrontCatalog();
+  let optionReads = 0;
+  t.mock.method(Product, "distinct", async () => { optionReads++; return ["Brand A"]; });
+  t.mock.method(Product, "countDocuments", async () => 2);
+  t.mock.method(Product, "find", () => {
+    const query = { select(fields) { assert.deepEqual(fields.images, { $slice: 1 }); return this; }, sort() { return this; }, skip() { return this; }, limit() { return this; }, lean: async () => [card(1)] };
+    return query;
+  });
+  for (const page of [1, 2]) {
+    const res = response(); await catalogProducts({ query: { page } }, res); assert.equal(res.body.success, true);
+  }
+  assert.equal(optionReads, 3);
+  invalidateStorefrontCatalog();
+  await catalogProducts({ query: {} }, response()); assert.equal(optionReads, 6);
+  invalidateStorefrontCatalog();
 });
 
 test("summary-only order analytics preserves totals and twelve months without populating an order page", async t => {

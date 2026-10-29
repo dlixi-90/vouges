@@ -5,6 +5,7 @@ import { removePurchasedItems } from "../utils/cartSelection";
 import { Navigate, useBlocker } from "react-router-dom";
 import { createQrCancellation, shouldCancelQrNavigation } from "../utils/qrNavigation";
 import { URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
+import { pollWhileVisible } from "../utils/visiblePolling";
 
 const getRemainingSeconds = (expiresAt) =>
   Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 1000));
@@ -79,6 +80,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
           }
         } else if (data.order.isPaid) {
           if (!hasSyncedCartRef.current) {
+            storeResources.invalidateOrders();
             dashboardCache.invalidate();
             setCartItems((currentCart) =>
               removePurchasedItems(currentCart, initialOrder.items),
@@ -141,13 +143,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
       return undefined;
     }
 
-    const intervalId = window.setInterval(() => {
-      checkPayment(false);
-    }, 4000);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
+    return pollWhileVisible(()=>checkPayment(false),4000);
   }, [checkPayment, order.isPaid, order.status, isCancelling]);
 
   useEffect(() => {

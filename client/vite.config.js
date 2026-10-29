@@ -16,6 +16,12 @@ export default defineConfig(({ mode }) => {
     } catch { /* An unconfigured service does not need a connection hint. */ }
   }
   return {
+    // Keep stable framework/auth code reusable across application deployments.
+    build: { rolldownOptions: { output: { codeSplitting: { groups: [
+      { name: 'react-runtime', test: /node_modules[\\/](?:react|react-dom|scheduler)(?:[\\/]|$)/, priority: 30 },
+      { name: 'router', test: /node_modules[\\/](?:react-router|react-router-dom)(?:[\\/]|$)/, priority: 20 },
+      { name: 'clerk', test: /node_modules[\\/]@clerk[\\/]/, priority: 10 },
+    ] } } } },
     plugins: [react(), tailwindcss(), {
       name: 'auth-connection-hints',
       transformIndexHtml: () => [...origins].map((href) => ({

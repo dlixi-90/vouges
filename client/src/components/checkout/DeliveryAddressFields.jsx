@@ -1,9 +1,8 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
 import { validateDeliveryPhone } from "../../utils/deliveryPhone";
+import { getDeliveryLocations } from "../../utils/deliveryLocations";
 
-const COUNTRIES_NOW_API = "https://countriesnow.space/api/v0.1";
-const VIETNAM_PROVINCES_API = "https://provinces.open-api.vn/api/v2/?depth=2";
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const countryDisplayNames = new Intl.DisplayNames(["vi"], { type: "region" });
 const getEmailError = (value) => {
@@ -71,6 +70,7 @@ const getUniqueLocationNames = (values, locale) => {
 
 const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
   const { axios } = useAppContext();
+  const locations = useMemo(()=>getDeliveryLocations(axios),[axios]);
   const [phoneError, setPhoneError] = useState("");
   const phoneHelpId = useId();
   const [emailError, setEmailError] = useState("");
@@ -91,9 +91,8 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
       try {
         setIsLoadingCountries(true);
 
-        const { data } = await axios.get(`${COUNTRIES_NOW_API}/countries/iso`, {
-          signal: controller.signal,
-        });
+        const data = await locations.countries();
+        if(controller.signal.aborted)return;
         const countryNames = Array.isArray(data?.data)
           ? getUniqueLocationNames(
               data.data.map((country) => country.name),
@@ -111,7 +110,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
         setCountries(countryNames);
         setCountriesApiFailed(countryNames.length === 0);
       } catch (error) {
-        if (error.code !== "ERR_CANCELED") {
+        if (!controller.signal.aborted && error.code !== "ERR_CANCELED") {
           setCountriesApiFailed(true);
         }
       } finally {
@@ -124,7 +123,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
     loadCountries();
 
     return () => controller.abort();
-  }, [axios]);
+  }, [locations]);
 
   useEffect(() => {
     if (!address.country) return undefined;
@@ -138,9 +137,8 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
         let cityNames = [];
 
         if (address.country === "Vietnam") {
-          const { data } = await axios.get(VIETNAM_PROVINCES_API, {
-            signal: controller.signal,
-          });
+          const data = await locations.provinces();
+          if(controller.signal.aborted)return;
           const provinces = Array.isArray(data) ? data : [];
 
           setVietnamProvinces(provinces);
@@ -149,11 +147,8 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
             "vi",
           );
         } else {
-          const { data } = await axios.post(
-            `${COUNTRIES_NOW_API}/countries/cities`,
-            { country: address.country },
-            { signal: controller.signal },
-          );
+          const data = await locations.cities(address.country);
+          if(controller.signal.aborted)return;
 
           cityNames = Array.isArray(data?.data)
             ? getUniqueLocationNames(data.data, "en")
@@ -163,7 +158,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
         setCities(cityNames);
         setCitiesApiFailed(cityNames.length === 0);
       } catch (error) {
-        if (error.code !== "ERR_CANCELED") {
+        if (!controller.signal.aborted && error.code !== "ERR_CANCELED") {
           setCitiesApiFailed(true);
         }
       } finally {
@@ -176,7 +171,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
     loadCities();
 
     return () => controller.abort();
-  }, [address.country, axios]);
+  }, [address.country, locations]);
 
   const wards = useMemo(() => {
     if (address.country !== "Vietnam" || !address.city) return [];

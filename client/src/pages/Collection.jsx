@@ -136,7 +136,7 @@ const Collection = () => {
 
       <div ref={listRef} tabIndex={-1} className="inessa-collection-grid pagination-list-start" aria-busy={productsLoading}>
         {pageError && <div role="alert" className="inessa-collection-empty"><p>{pageError}</p><button type="button" onClick={reload} className="inessa-button">Thử lại</button></div>}
-        {paginatedProducts.map((product) => <Item product={product} key={product._id} />)}
+        {paginatedProducts.map((product, index) => <Item product={product} key={product._id} priority={index < 4} />)}
         {!productsLoading && !pageError && paginatedProducts.length === 0 && <div className="inessa-collection-empty">
           <SearchX size={32} strokeWidth={1.2} aria-hidden="true" />
           <h2>Không tìm thấy sản phẩm</h2>

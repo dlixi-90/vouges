@@ -12,6 +12,8 @@ import Message from "../../models/SupportMessage.js";
 import Usage from "../../models/SupportUsage.js";
 import { ensureSupportIndexes } from "../../middleware/supportIndexes.js";
 import { createStoreResources } from "../../../client/src/utils/storeResources.js";
+import { readStorefrontBrowse, canPageBrowseDirectly, readStorefrontRelated } from "../../services/storefrontBrowse.js";
+import { prefetchCollection } from "../../../client/src/utils/prefetchCollection.js";
 
 const fixture = (index = 1, patch = {}) => ({ _id: String(index).padStart(24, "0"), title: `Perfume ${index}`, category: "Nước hoa nam", gender: "Nam", type: "EDP", concentration: "EDP", brand: "Brand A", origin: "Pháp",
   inventoryMode: "tracked", inStock: true, isPublished: true, sizes: ["10ml", "100ml"], price: { "10ml": index * 100000, "100ml": index * 1000000 },
@@ -157,12 +159,72 @@ test("fragrance metadata is lazy and cached separately from the live card/stock 
     const query = { sort: () => query, lean: async () => [fixture()] };
     return query;
   } }));
+  t.mock.method(Product, "aggregate", async pipeline => { projections.push(pipeline[1].$project); return [fixture()]; });
   await getStorefrontCatalog();
-  assert.equal(projections.length, 1); assert.doesNotMatch(projections[0], /fragrance/);
+  assert.equal(projections.length, 1); assert.doesNotMatch(Object.keys(projections[0]).join(" "), /fragrance/);
+  assert.deepEqual(projections[0].images, { $slice: 1 });
   const rich = await getStorefrontCatalog(true);
-  assert.equal(projections.length, 2); assert.match(projections[1], /fragrance/);
+  assert.equal(projections.length, 2); assert.match(Object.keys(projections[1]).join(" "), /fragrance/);
   assert.deepEqual(rich[0]._filters.notes, ["Chanh vàng", "Hoa hồng", "Xạ hương"]);
   await getStorefrontCatalog(true); assert.equal(projections.length, 2);
+  invalidateStorefrontCatalog();
+});
+
+test("ordinary browsing returns only one bounded database page and shares metadata across pages", async t => {
+  invalidateStorefrontCatalog();
+  t.mock.method(Product, "find", () => assert.fail("A normal page must not fetch all products"));
+  const pipelines = [];
+  t.mock.method(Product, "aggregate", async pipeline => {
+    pipelines.push(pipeline);
+    const facets = pipeline.at(-1).$facet;
+    if (facets.types) return [{ types: [{ _id: { brand: "Brand A", category: "Nước hoa nam", type: "EDP" } }], categories: [{ _id: "Nước hoa nam" }], price: [{ maximum: 5000000 }] }];
+    assert.deepEqual(facets.products[1], { $limit: 16 });
+    assert.deepEqual(facets.products[2].$project.images, { $slice: [{ $ifNull: ["$images", []] }, 1] });
+    assert.equal(facets.products[2].$project.fragrance, undefined);
+    return [{ total: [{ count: 35 }], products: [fixture()] }];
+  });
+  const [first, same] = await Promise.all([readStorefrontBrowse(options({})), readStorefrontBrowse(options({}))]);
+  assert.equal(first, same); assert.equal(pipelines.length, 2);
+  assert.equal(first.total, 35); assert.equal(first.totalPages, 3); assert.equal(first.filters.maxPrice, 5000000);
+  await readStorefrontBrowse(options({ page: 2 })); assert.equal(pipelines.length, 3);
+  assert.deepEqual(pipelines.at(-1).at(-1).$facet.products[0], { $skip: 16 });
+  invalidateStorefrontCatalog();
+  await readStorefrontBrowse(options({})); assert.equal(pipelines.length, 5);
+  invalidateStorefrontCatalog();
+});
+
+test("advanced size/price/profile filters retain the existing matching and sorting path", () => {
+  assert.equal(canPageBrowseDirectly(options({})), true);
+  assert.equal(canPageBrowseDirectly(options({ facets: JSON.stringify({ gender: ["Nam"], brands: ["Brand A"] }) })), true);
+  for (const query of [{ minPrice: 1 }, { sort: "high" }, { facets: JSON.stringify({ sizes: ["100ml"] }) }, { facets: JSON.stringify({ notes: ["Rose"] }) }, { facets: JSON.stringify({ longevity: ["Khá 6-8H"] }) }]) {
+    assert.equal(canPageBrowseDirectly(options(query)), false);
+  }
+});
+
+test("navigation prefetch and collection mount share the same default and gender-filtered requests", async () => {
+  const calls = [];
+  const client = createPublicCatalog({ axios: { get: async (url, config) => { calls.push({ url, params: config.params }); return { data: { success: true, products: [] } }; } } });
+  prefetchCollection(client);
+  await client.browse({ page: 1, limit: 16, availability: "available", q: "", sort: "relevant", minPrice: 0, facets: JSON.stringify({ gender: [], brands: [], notes: [] }) });
+  assert.equal(calls.length, 1);
+  prefetchCollection(client, `/collection?category=${encodeURIComponent("Nước hoa nam")}`);
+  await client.browse({ facets: JSON.stringify({ gender: ["Nam"], brands: [], notes: [] }) });
+  assert.equal(calls.length, 2);
+  prefetchCollection(client, "/about"); assert.equal(calls.length, 2);
+  await client.browse({}, { force: true }); assert.equal(calls.length, 3);
+});
+
+test("related products read at most six category cards instead of the complete catalog", async t => {
+  invalidateStorefrontCatalog();
+  t.mock.method(Product, "findOne", () => ({ select: () => ({ lean: async () => ({ _id: fixture()._id, category: "Nước hoa nam", type: "EDP" }) }) }));
+  let limit;
+  t.mock.method(Product, "find", filter => {
+    assert.deepEqual(filter._id, { $ne: fixture()._id });
+    const query = { select(fields) { assert.deepEqual(fields.images, { $slice: 1 }); return this; }, sort() { return this; }, limit(value) { limit = value; return this; }, lean: async () => [fixture(2)] };
+    return query;
+  });
+  const result = await readStorefrontRelated(fixture()._id);
+  assert.equal(limit, 6); assert.equal(result.isFallback, false); assert.equal(result.products[0]._id, fixture(2)._id);
   invalidateStorefrontCatalog();
 });
 

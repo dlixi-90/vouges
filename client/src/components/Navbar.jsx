@@ -1,10 +1,12 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { STORE_SHOP_LINKS } from "../data/storeNavigation";
 import BrandMenu from "./BrandMenu";
-import { prefetchRoute } from "../utils/prefetchRoute";
+import { prefetchCollection } from "../utils/prefetchCollection";
+import { useAppContext } from "../context/AppContext";
 
 const Navbar = ({ containerStyles, setMenuOpened, brandDirectory, group = "all", navigationId = "store-navigation" }) => {
   const { pathname, search } = useLocation();
+  const { publicCatalog, searchQuery } = useAppContext();
   const selectedCategory = new URLSearchParams(search).get("category");
   const selectedBrand = new URLSearchParams(search).get("brand");
   const shoppingLinks = STORE_SHOP_LINKS;
@@ -15,7 +17,7 @@ const Navbar = ({ containerStyles, setMenuOpened, brandDirectory, group = "all",
   const renderLinks = links => links.map((link) => (
         <NavLink
           onClick={() => setMenuOpened(false)}
-          onPointerEnter={() => prefetchRoute(link.path)} onFocus={() => prefetchRoute(link.path)}
+          onPointerEnter={() => prefetchCollection(publicCatalog, link.path, searchQuery)} onFocus={() => prefetchCollection(publicCatalog, link.path, searchQuery)}
           key={link.path}
           to={link.path}
           title={link.title}

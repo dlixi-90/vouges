@@ -9,7 +9,7 @@ import { sanitizeFragranceRows } from "../services/fragranceEditing.js";
 import { sanitizeArticle, articleToPlainText } from "../../client/src/utils/productArticle.js";
 import { v2 as cloudinary } from "cloudinary";
 import { unlink } from "node:fs/promises";
-import { invalidateStorefrontCatalog } from "../services/storefrontCatalog.js";
+import { catalogSnapshot, invalidateStorefrontCatalog } from "../services/storefrontCatalog.js";
 import { getDashboardData } from "../services/dashboardService.js";
 import { getPopularProducts } from "../services/popularProducts.js";
 import { placedOrderFilter } from "../utils/orderReporting.js";
@@ -74,17 +74,17 @@ export const catalogProducts = catalogAction(async (req,res) => {
   if(req.query.stock!==undefined&&req.query.stock!=="")filter.inStock=req.query.stock==="true";
   if(req.query.quality==="issues")filter["qualityIssues.0"]={$exists:true};
   const sort={ [({price:"title",brand:"brand",newest:"createdAt"})[req.query.sort]||"title"]:req.query.sort==="newest"?-1:1,_id:1};
-  const [products,total,brands,concentrations,categories]=await Promise.all([
-    Product.find(filter).select("title brand category concentration gender origin images price sizes inStockBySize stockBySize inventoryMode isPublished inStock catalogScope qualityIssues source updatedAt").sort(sort).skip((page-1)*pageSize).limit(pageSize).lean(),
-    Product.countDocuments(filter), Product.distinct("brand",{isDeleted:{$ne:true}}), Product.distinct("concentration",{isDeleted:{$ne:true}}),Product.distinct("category",{isDeleted:{$ne:true}}),
+  const projection={...Object.fromEntries("title brand category concentration gender origin price sizes inStockBySize stockBySize inventoryMode isPublished inStock catalogScope qualityIssues source updatedAt".split(" ").map(field=>[field,1])),images:{$slice:1}};
+  const [products,total,[brands,concentrations,categories]]=await Promise.all([
+    Product.find(filter).select(projection).sort(sort).skip((page-1)*pageSize).limit(pageSize).lean(),
+    Product.countDocuments(filter), catalogSnapshot("owner-filter-options",300000,()=>Promise.all([Product.distinct("brand",{isDeleted:{$ne:true}}),Product.distinct("concentration",{isDeleted:{$ne:true}}),Product.distinct("category",{isDeleted:{$ne:true}})])),
   ]);
   res.set("Cache-Control","private, no-store");res.json({success:true,products,total,page,pageSize,totalPages:Math.max(1,Math.ceil(total/pageSize)),filters:{brands:brands.filter(Boolean).sort(),concentrations:concentrations.filter(Boolean).sort(),categories:categories.filter(Boolean).sort()}});
 });
 
 export const catalogProduct = catalogAction(async(req,res)=>{
   if(!isValidObjectId(req.params.id))fail("Mã sản phẩm không hợp lệ");
-  const product=await Product.findOne({_id:req.params.id,isDeleted:{$ne:true}}).lean();if(!product)fail("Không tìm thấy sản phẩm",404);
-  const source=await CatalogSource.findOne({productId:product._id}).lean();
+  const [product,source]=await Promise.all([Product.findOne({_id:req.params.id,isDeleted:{$ne:true}}).lean(),CatalogSource.findOne({productId:req.params.id}).lean()]);if(!product)fail("Không tìm thấy sản phẩm",404);
   res.set("Cache-Control","private, no-store");res.json({success:true,product,source});
 });
 

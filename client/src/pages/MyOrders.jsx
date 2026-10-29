@@ -1,57 +1,61 @@
 import { getSizeImage } from "../utils/productImage";
 import { getOrderStatusLabel, getPaymentMethodLabel } from "../utils/localization.js";
-import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Package, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import Title from "../components/Title";
 import { useAppContext } from "../context/AppContext";
 import { formatVnd } from "../utils/money";
 import { SHIPPING_METHODS, URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
+import Pagination from "../components/Pagination";
+import usePaginationScroll from "../hooks/usePaginationScroll";
+import ProductImage from "../components/ProductImage";
 
 const ProductReviewDialog = lazy(() => import("../components/ProductReviewDialog"));
 
 const MyOrders = () => {
-  const { currency, user, axios, getToken } = useAppContext();
-  const [orders, setOrders] = useState([]);
+  const { currency, user, storeResources } = useAppContext();
+  const [page,setPage] = useState(1), [attempt,setAttempt] = useState(0);
+  const key = `${user?.id}:${page}`;
+  const userId = user?.id;
+  const [result,setResult] = useState(null);
+  const force = useRef(false);
+  const cached = user ? storeResources.peekOrders(page) : null;
+  const current = result?.key === key ? result : null;
+  const data = cached || current?.data;
+  const orders = data?.orders || [];
+  const loading = Boolean(user && !data && !current?.error);
+  const {listRef,changePage} = usePaginationScroll({page,onPageChange:setPage,ready:!loading && data?.page===page});
   const [reviewProduct, setReviewProduct] = useState(null);
 
-  const requestOrders = useCallback(
-    async () =>
-      axios.post(
-        "/api/orders/userorders",
-        {},
-        {
-          headers: { Authorization: `Bearer ${await getToken()}` },
-        },
-      ),
-    [axios, getToken],
-  );
-
   useEffect(() => {
-    if (!user) return undefined;
+    if (!userId) return undefined;
 
     let isActive = true;
 
-    requestOrders()
-      .then(({ data }) => {
-        if (isActive && data.success) {
-          setOrders(data.orders);
+    const refresh = force.current; force.current = false;
+    storeResources.loadOrders(page, {force:refresh})
+      .then((data) => {
+        if (isActive && data?.success) {
+          setResult({key,data});
         }
       })
       .catch((error) => {
-        console.log(error);
+        if(isActive && error.name!=="AbortError")setResult({key,error:error.response?.data?.message || error.message});
       });
 
     return () => {
       isActive = false;
     };
-  }, [requestOrders, user]);
+  }, [storeResources, userId, page, key, attempt]);
 
   return (
     <main className="net-orders max-padd-container min-h-screen bg-primary py-16 pt-28">
       <Title title1="Đơn hàng" title2="của tôi" titleStyles="pb-10" />
 
-      <div className="space-y-4">
+      <div ref={listRef} tabIndex={-1} className="pagination-list-start space-y-4" aria-busy={loading}>
+        {loading && <p role="status">Đang tải đơn hàng…</p>}
+        {current?.error && <p role="alert">{current.error} <button type="button" className="underline" onClick={()=>{force.current=true;setAttempt(value=>value+1);}}>Thử lại</button></p>}
         {orders.map((order) => (
           <CustomerOrderCard
             key={order._id}
@@ -61,12 +65,13 @@ const MyOrders = () => {
           />
         ))}
 
-        {!orders.length && (
+        {!loading && !current?.error && !orders.length && (
           <div className="rounded-xl border border-[#e2e7eb] bg-white py-16 text-center text-sm text-[#8b949c] shadow-sm">
             Chưa có đơn hàng nào
           </div>
         )}
       </div>
+      <Pagination className="mt-8" label="Phân trang đơn hàng của tôi" page={page} totalPages={data?.totalPages} onPageChange={changePage} disabled={loading} />
       {reviewProduct && <Suspense fallback={<p role="status" className="mt-4 text-sm">Đang mở form đánh giá…</p>}>
         <ProductReviewDialog key={`${reviewProduct.id}::${user?.id || "guest"}`} product={reviewProduct} onClose={() => setReviewProduct(null)} />
       </Suspense>}
@@ -134,7 +139,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
             <p className="text-[11px] uppercase tracking-wide text-[#8b949c]">
               Tổng cộng
             </p>
-            <p className="mt-0.5 text-base font-semibold text-[#263b4a]">
+            <p className="mt-0.5 whitespace-nowrap text-base font-semibold text-[#263b4a]">
               {formatVnd(order.amount, currency)}
             </p>
           </div>
@@ -142,7 +147,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
       </header>
 
       <div className="grid lg:grid-cols-[minmax(0,1.55fr)_minmax(260px,0.75fr)]">
-        <section className="p-4 sm:p-5 lg:border-r lg:border-[#edf0f2]">
+        <section className="min-w-0 p-4 sm:p-5 lg:border-r lg:border-[#edf0f2]">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-semibold text-[#263b4a]">Sản phẩm</h4>
             <span className="text-xs text-[#8b949c]">
@@ -164,13 +169,14 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
               return (
                 <div
                   key={item._id || index}
-                  className="flex items-start gap-4 py-3 first:pt-0 last:pb-0"
+                  className="flex flex-col gap-3 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-start sm:gap-4"
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-3">
                     <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-[#edf0f2] bg-[#f7f9f8] p-1">
                       {productImage ? (
-                        <img
+                        <ProductImage
                           src={productImage}
+                          imageWidth={160}
                           alt={productTitle}
                           className="h-full w-full object-contain"
                         />
@@ -194,7 +200,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
                     </div>
                   </div>
 
-                  <div className="shrink-0 space-y-3 pt-0.5 text-right">
+                  <div className="flex items-center justify-between gap-3 text-right sm:block sm:shrink-0 sm:space-y-3 sm:pt-0.5">
                     <p className="whitespace-nowrap text-sm font-semibold leading-5 text-[#263b4a]">
                       {formatVnd(
                         item.unitPrice ?? product.price?.[item.size] ?? 0,

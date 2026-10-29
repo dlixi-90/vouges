@@ -2,6 +2,32 @@
 
 Giữ catalog, ảnh sản phẩm, giao diện đã chốt và logic bán hàng. Không sửa dữ liệu MongoDB khi kiểm tra đợt này.
 
+## Bổ sung tối ưu ngày 29/10/2026
+
+Nút thắt được đo ở backend: một trang 16 sản phẩm vẫn đọc toàn bộ 2.324 hồ sơ thẻ qua MongoDB khi snapshot 10 giây hết hạn. Bây giờ các lượt duyệt mặc định, tìm tên, giới tính, hãng, xuất xứ và nồng độ được phân trang trực tiếp bằng aggregation; backend nhận đúng các thẻ cần trả, cùng metadata nhỏ cho tổng số/loại/giá trần. Quy tắc tồn kho từng dung tích được giữ nguyên cho cả `tracked` và `source`.
+
+| Đo cục bộ trên cùng catalog, không ghi dữ liệu | Trước | Sau |
+| --- | ---: | ---: |
+| Trang đầu khi cache nguội: thời gian đọc/xử lý | 844 ms | 239 ms |
+| Dữ liệu MongoDB trả về backend cho trang đầu | 2.518.485 byte | 58.488 byte |
+| Trang tiếp theo khi metadata đã có | — | 85 ms / 10.165 byte |
+| Trang đã có cache backend | — | 0 ms / không truy vấn |
+| Sản phẩm liên quan khi cache nguội | — | 64 ms / 4.297 byte |
+
+Đây là kích thước phản hồi driver và thời gian controller/database trong lần đo, không phải tổng tốc độ website production. Phản hồi API trang đầu gửi tới trình duyệt vẫn khoảng 9,9 KB. Các con số không gồm xác thực, cold start của hosting, tải mã JavaScript hoặc mạng của khách.
+
+- Lọc giá/dung tích, sắp xếp giá và các tiêu chí hồ sơ hương tiếp tục dùng đường xử lý cũ để bảo toàn kết quả. Các truy vấn này chỉ lấy ảnh đại diện ngay tại MongoDB; metadata trải nghiệm được rút xuống các mức có thể dùng cho bộ lọc, giữ nguyên đồng hạng và phân biệt thiếu dữ liệu với 0. Bản ghi sản phẩm và số liệu nguồn không bị sửa.
+- Sản phẩm liên quan chỉ đọc tối đa 6 thẻ sau truy vấn tìm sản phẩm gốc. Vẫn ưu tiên cùng danh mục; trường hợp danh mục chỉ có một sản phẩm vẫn dùng thứ tự loại/phổ biến như trước.
+- Cache backend dùng chung cho trang/metadata/ảnh liên quan, tối đa 64 mục hoàn tất, vẫn vô hiệu hóa khi có thay đổi catalog hoặc giao dịch kho. Batch giỏ hàng tiếp tục đọc tồn/giá trực tiếp; các API checkout vẫn kiểm tra lại giá và kho trong giao dịch.
+- Các tham số mặc định và nhóm lọc trống được chuẩn hóa ở client để tải trước và mở trang dùng chung request. Rê chuột/focus danh mục, thương hiệu và nút ở hero tải trước trang bộ sưu tập tương ứng. Lần tìm mới vẫn giữ hành vi tìm kiếm đã có; không tải toàn catalog xuống trình duyệt.
+- Trang chủ tải danh sách gợi ý song song với yêu cầu bán chạy; chỉ hiển thị gợi ý sau khi server xác nhận chưa có sản phẩm bán chạy. Lỗi tải gợi ý nền không che danh sách bán chạy thật.
+- Trang chi tiết dùng ngay dữ liệu đã tải trước. Bốn ảnh hàng đầu của bộ sưu tập được tải ưu tiên. Nút thử lại danh sách/feed có thể làm mới cưỡng bức cache client thay vì trả lại chính phản hồi đang bị lỗi.
+- Danh sách sản phẩm dashboard chỉ lấy một ảnh mỗi thẻ, dùng chung ba danh sách lựa chọn lọc trong 5 phút và xóa cache khi chỉnh sửa. Chi tiết quản trị tải sản phẩm và bản ghi nguồn song song.
+
+Đã đối chiếu chính xác 30 cấu hình tìm/lọc/phân trang, 2.324 bộ giá trị lọc, 42 trường hợp tồn kho và các kết quả liên quan với cách xử lý cũ bằng truy vấn chỉ đọc. Có thể chạy lại từ thư mục `server` bằng `node scripts/verifyStorefrontPerformance.mjs`; script không tạo/sửa sản phẩm hoặc đơn hàng. Chrome đã kiểm tra tải gợi ý khi API bán chạy bị giữ chậm, tải trước không trùng request, phân trang/cuộn, giới tính, chi tiết, giỏ một ID và bố cục 1440/390/320 px với xác thực/giỏ mô phỏng. Không gửi thanh toán, email hoặc thay đổi dữ liệu thật.
+
+Các thay đổi cần triển khai cả frontend và backend. Toàn bộ 416 kiểm thử backend, lint và build frontend đạt; bundle chính vẫn trên ngưỡng cảnh báo 500 KB của Vite.
+
 ## Tải đúng dữ liệu cần dùng
 
 - `GET /api/products/browse`: bộ sưu tập phân trang 16 sản phẩm; lọc, sắp xếp và tổng số kết quả xử lý ở backend. Mỗi thẻ chỉ nhận ảnh đại diện và thông tin cần hiển thị, không mang bài mô tả, bộ ảnh chi tiết hoặc hồ sơ hương.

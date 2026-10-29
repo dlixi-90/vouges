@@ -1,7 +1,8 @@
 import { isObjectIdOrHexString } from "mongoose";
 import Product from "../models/Product.js";
-import { browseCatalog, getStorefrontCatalog, needsFragranceProfiles, parseBrowseQuery, relatedCatalog } from "../services/storefrontCatalog.js";
+import { getStorefrontCatalog, parseBrowseQuery } from "../services/storefrontCatalog.js";
 import { collectPerfumeFilters } from "../services/perfumeFilters.js";
+import { readStorefrontBrowse, readStorefrontRelated } from "../services/storefrontBrowse.js";
 
 const action = handler => async (req, res) => {
   try {
@@ -14,14 +15,14 @@ const action = handler => async (req, res) => {
 };
 export const browseProducts = action(async (req, res) => {
   const options = parseBrowseQuery(req.query);
-  res.json(browseCatalog(await getStorefrontCatalog(needsFragranceProfiles(options.facets)), options));
+  res.json(await readStorefrontBrowse(options));
 });
 export const productFilters = action(async (_req, res) => {
   res.json({ success: true, options: collectPerfumeFilters(await getStorefrontCatalog(true)) });
 });
 export const relatedProducts = action(async (req, res) => {
   if (!isObjectIdOrHexString(req.query.productId)) throw Object.assign(new Error("Mã sản phẩm không hợp lệ"), { statusCode: 400 });
-  res.json(relatedCatalog(await getStorefrontCatalog(), req.query.productId));
+  res.json(await readStorefrontRelated(req.query.productId));
 });
 export const batchProducts = action(async (req, res) => {
   const ids = typeof req.query.ids === "string" ? [...new Set(req.query.ids.split(","))] : [];

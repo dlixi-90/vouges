@@ -12,7 +12,7 @@ import {
   quoteOrder,
 } from "../controllers/orderController.js";
 import authUser, { requireOwner } from "../middleware/authMiddleware.js";
-import { dashboard } from "../controllers/dashboardController.js";
+import { dashboard, customerOrdersPage } from "../controllers/dashboardController.js";
 
 const orderRouter = express.Router();
 
@@ -20,6 +20,7 @@ const orderRouter = express.Router();
 orderRouter.post("/sepay-webhook", sepayWebhook);
 orderRouter.get("/", authUser, requireOwner, allOrders);
 orderRouter.get("/dashboard", authUser, requireOwner, dashboard);
+orderRouter.get("/mine", authUser, customerOrdersPage);
 orderRouter.post("/status", authUser, requireOwner, updateStatus);
 
 // For Payment

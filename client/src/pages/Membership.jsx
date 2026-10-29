@@ -42,7 +42,7 @@ export default function Membership() {
     if (!userId) return undefined;
     let active = true;
     storeResources
-      .loadMembership()
+      .loadMembership({force:attempt>0})
       .then((result) => {
         if (active) {
           setData(result);

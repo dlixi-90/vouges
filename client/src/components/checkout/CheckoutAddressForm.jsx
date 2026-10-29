@@ -35,9 +35,10 @@ const CheckoutAddressForm = ({
     setCartItems,
     fetchProducts,
     dashboardCache,
+    storeResources,
   } = useAppContext();
-  const [addresses, setAddresses] = useState([]);
-  const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
+  const [addresses, setAddresses] = useState(() => storeResources.peekAddresses()?.addresses || []);
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(() => !storeResources.peekAddresses());
   const [addressLoadError, setAddressLoadError] = useState("");
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [isAddressBookOpen, setIsAddressBookOpen] = useState(false);
@@ -84,12 +85,9 @@ const CheckoutAddressForm = ({
       setIsLoadingAddresses(true);
       setAddressLoadError("");
       try {
-        const { data } = await axios.get("/api/addresses", {
-          headers: { Authorization: `Bearer ${await auth.getToken()}` },
-          signal: controller.signal,
-        });
-        if (!data.success)
-          throw new Error(data.message || "Không thể tải danh sách địa chỉ");
+        const data = await storeResources.loadAddresses({force:loadAttempt>0});
+        if (!data?.success)
+          throw new Error(data?.message || "Không thể tải danh sách địa chỉ");
         if (controller.signal.aborted) return;
         const saved = data.addresses || [];
         setAddresses(saved);
@@ -107,7 +105,7 @@ const CheckoutAddressForm = ({
     };
     loadAddresses();
     return () => controller.abort();
-  }, [axios, userId, setAddress, loadAttempt]);
+  }, [storeResources, userId, setAddress, loadAttempt]);
 
   const saveAddress = async (
     draft,
@@ -128,6 +126,7 @@ const CheckoutAddressForm = ({
     if (!data.success || !data.address?._id)
       throw new Error(data.message || "Không thể lưu địa chỉ");
     const saved = data.address;
+    storeResources.invalidateAddresses();
     if (!saveToAddressBook) return saved;
     setAddresses((current) => [
       saved,
@@ -151,6 +150,7 @@ const CheckoutAddressForm = ({
     );
     if (!data.success)
       throw new Error(data.message || "Không thể cập nhật địa chỉ mặc định");
+    storeResources.invalidateAddresses();
     setAddresses((current) =>
       current.map((entry) => ({
         ...entry,
@@ -177,6 +177,7 @@ const CheckoutAddressForm = ({
     if (!data.success || !data.address?._id)
       throw new Error(data.message || "Không thể cập nhật địa chỉ");
     const updated = data.address;
+    storeResources.invalidateAddresses();
     setAddresses((current) => replaceSavedAddress(current, addressId, updated));
     setAddress((current) =>
       current._id === addressId
@@ -194,6 +195,7 @@ const CheckoutAddressForm = ({
     });
     if (!data.success)
       throw new Error(data.message || "Không thể xóa địa chỉ");
+    storeResources.invalidateAddresses();
     const remaining = removeSavedAddress(addresses, addressId);
     setAddresses(remaining);
     setAddress((current) => resolveCheckoutAddress(current, remaining, user));
@@ -289,6 +291,7 @@ const CheckoutAddressForm = ({
       }
 
       if (method === "COD") {
+        storeResources.invalidateOrders();
         dashboardCache.invalidate();
         setCartItems((currentCart) => removePurchasedItems(currentCart, items));
       }

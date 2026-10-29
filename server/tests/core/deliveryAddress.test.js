@@ -11,6 +11,8 @@ import authUser from "../../middleware/authMiddleware.js";
 import { validateDeliveryPhone } from "../../utils/deliveryPhone.js";
 import { validateDeliveryPhone as validateClientPhone } from "../../../client/src/utils/deliveryPhone.js";
 import { initialCheckoutAddress, resolveCheckoutAddress, removeSavedAddress, replaceSavedAddress } from "../../../client/src/utils/checkoutAddress.js";
+import { createDeliveryLocations } from "../../../client/src/utils/deliveryLocations.js";
+import { createResourceCache } from "../../../client/src/utils/resourceCache.js";
 
 const firstId = "507f1f77bcf86cd799439011";
 const secondId = "507f1f77bcf86cd799439012";
@@ -27,6 +29,26 @@ const response = () => ({
 });
 const request = (body = {}, extra = {}) => ({ auth: () => ({ userId }), user: { defaultAddressId: null }, body, ...extra });
 const document = (values) => ({ ...values, toObject: () => ({ ...values }) });
+
+test("checkout remounts share public countries/provinces/cities and refresh expired geography", async () => {
+  let now=0;const calls=[];
+  const locations=createDeliveryLocations({cache:createResourceCache({now:()=>now,maxAge:1000}),axios:{
+    get:async(url,options)=>{calls.push(url);assert.equal(options.timeout,10000);return {data:url.includes('depth=2')?[{name:'Hà Nội',wards:[]}]:{data:[{name:'Vietnam',Iso2:'VN'}]}};},
+    post:async(url,body,options)=>{calls.push(body.country);assert.equal(options.timeout,10000);return {data:{data:['Paris']}};},
+  }});
+  await Promise.all([locations.countries(),locations.countries(),locations.provinces(),locations.provinces()]);assert.equal(calls.length,2);
+  await locations.countries();await locations.provinces();assert.equal(calls.length,2);
+  await Promise.all([locations.cities('France'),locations.cities('France')]);assert.equal(calls.length,3);
+  await locations.cities('Japan');assert.equal(calls.length,4);
+  now=1001;await locations.provinces();assert.equal(calls.length,5);
+});
+
+test("malformed geography responses are retryable instead of being cached as valid data", async () => {
+  let malformed=true,reads=0;
+  const locations=createDeliveryLocations({axios:{get:async()=>{reads++;return {data:malformed?{error:true}:{data:[{name:'Vietnam',Iso2:'VN'}]}};}}});
+  await assert.rejects(locations.countries());assert.equal(locations.peekCountries(),undefined);
+  malformed=false;await locations.countries();assert.equal(reads,2);assert.equal(locations.peekCountries().data[0].Iso2,'VN');
+});
 
 test("checkout automatically chooses default and preserves an explicit choice or unfinished address", () => {
   const saved = [{ _id: firstId, isDefault: false }, { _id: secondId, isDefault: true }];
