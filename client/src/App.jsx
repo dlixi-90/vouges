@@ -17,6 +17,7 @@ const OrderOverview = lazy(() => import("./pages/OrderOverview"));
 const Membership = lazy(() => import("./pages/Membership"));
 const Vouchers = lazy(() => import("./pages/owner/Vouchers"));
 const Messages = lazy(() => import("./pages/owner/Messages"));
+const Customers = lazy(() => import("./pages/owner/Customers"));
 const Sidebar = lazy(() => import("./components/owner/Sidebar"));
 const Dashboard = lazy(() => import("./pages/owner/Dashboard"));
 const PerfumeOverview = lazy(() => import("./pages/owner/PerfumeOverview"));
@@ -65,6 +66,7 @@ const App = () => {
             <Route path="library" element={<FragranceLibrary key="library" />} />
             <Route path="vouchers" element={<Vouchers />} />
             <Route path="messages" element={<Messages />} />
+            <Route path="customers" element={<Customers />} />
             <Route path="edit-product/:productId" element={<PerfumeEditor />} />
             <Route path="*" element={<Navigate to="/owner" replace />} />
           </Route>

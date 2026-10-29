@@ -19,6 +19,7 @@ import toast from "react-hot-toast";
 import { useAppContext } from "../context/AppContext";
 import { formatVnd } from "../utils/money";
 import { formatVoucherExpiryDate } from "../utils/voucherDates";
+import { latestAdultBirthday } from "../utils/customerProfile";
 
 const focusStyles =
   "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary";
@@ -95,10 +96,8 @@ export default function Membership() {
     (voucher) => new Date(voucher.expiresAt).getTime() > loadedAt,
   );
   const displayName =
-    user?.fullName || current?.profile.username || "Thành viên Velours";
-  const today = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Ho_Chi_Minh",
-  }).format(new Date());
+    current?.profile.username || user?.fullName || "Thành viên Velours";
+  const today = latestAdultBirthday();
 
   return (
     <main className="net-membership min-h-screen pb-16 pt-28 text-secondary sm:pb-20">

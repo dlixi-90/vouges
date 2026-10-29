@@ -85,6 +85,7 @@ const request = (overrides = {}) => ({
 });
 const response = () => ({
   statusCode: 200,
+  set() { return this; },
   status(code) { this.statusCode = code; return this; },
   json(body) { this.body = body; return this; },
 });

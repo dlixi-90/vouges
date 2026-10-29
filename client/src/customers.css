@@ -1,0 +1,5 @@
+.customer-table-heading{padding:18px 20px;border-bottom:1px solid #eee;font-size:12px;color:#888}.customer-table-heading strong{color:#222}
+.customer-table{min-width:1000px}.customer-table .customer-nowrap{white-space:nowrap}.customer-table .customer-email{overflow-wrap:anywhere;max-width:220px}.customer-table .customer-number{text-align:center}
+.customer-editor-dialog header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.customer-editor-dialog header button{padding:4px;cursor:pointer}.customer-editor-dialog h2{font-family:Inter,sans-serif;font-size:20px;font-weight:600}
+.customer-editor-email{font-size:12px;line-height:1.7;color:#888;margin:4px 0 22px;overflow-wrap:anywhere}
+.customer-editor-dialog footer{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}.customer-editor-dialog footer button{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12px;padding:12px 16px}

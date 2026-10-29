@@ -27,7 +27,9 @@ const clerkWebhooks = async (req, res)=>{
         switch (type) {
             case "user.created":
             case "user.updated":{
-                await User.findByIdAndUpdate(data.id, { $set: mapClerkProfile(data) }, {
+                await User.findByIdAndUpdate(data.id, { $set: mapClerkProfile(data),
+                    $setOnInsert: {profileOnboardingRequired:true},
+                }, {
                     upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true,
                 })
                 break;

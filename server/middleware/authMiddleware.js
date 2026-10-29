@@ -1,4 +1,7 @@
 import User from "../models/User.js";
+import { customerIdentity } from "../services/customerIdentity.js";
+import { mapClerkProfile } from "../utils/clerkProfile.js";
+import { customerProfile } from "../utils/customerProfile.js";
 
 const getAdminEmails = () => {
   const configuredEmails =
@@ -24,10 +27,17 @@ export const authUser = async (req, res, next) => {
 
     let user = await User.findById(userId);
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "Vui lòng đăng nhập để tiếp tục",
+      // A first sign-in may beat the webhook. Trust only Clerk's server response.
+      const identity = await customerIdentity.read(userId);
+      const mapped = mapClerkProfile({
+        first_name:identity.firstName, last_name:identity.lastName, username:identity.username,
+        image_url:identity.imageUrl, primary_email_address_id:identity.primaryEmailAddressId,
+        primary_phone_number_id:identity.primaryPhoneNumberId,
+        email_addresses:(identity.emailAddresses || []).map(entry=>({id:entry.id,email_address:entry.emailAddress,verification:entry.verification})),
+        phone_numbers:(identity.phoneNumbers || []).map(entry=>({id:entry.id,phone_number:entry.phoneNumber,verification:entry.verification})),
       });
+      user = await User.findOneAndUpdate({_id:userId}, {$setOnInsert:{...mapped,profileOnboardingRequired:true}},
+        {upsert:true,new:true,runValidators:true,setDefaultsOnInsert:true});
     }
 
     // Auto promote to owner if the email is in the configured admin list.
@@ -68,3 +78,10 @@ export const requireOwner = (req, res, next) => {
 };
 
 export default authUser;
+
+export const requireCustomerProfile = (req, res, next) => {
+  if (customerProfile(req.user).needsCompletion) return res.status(403).json({
+    success:false, code:"CUSTOMER_PROFILE_REQUIRED", message:"Vui lòng về trang chủ và hoàn tất thông tin khách hàng trước khi đặt hàng.",
+  });
+  return next();
+};

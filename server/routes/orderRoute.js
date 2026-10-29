@@ -11,7 +11,7 @@ import {
   sepayWebhook,
   quoteOrder,
 } from "../controllers/orderController.js";
-import authUser, { requireOwner } from "../middleware/authMiddleware.js";
+import authUser, { requireOwner, requireCustomerProfile } from "../middleware/authMiddleware.js";
 import { dashboard, customerOrdersPage } from "../controllers/dashboardController.js";
 
 const orderRouter = express.Router();
@@ -24,9 +24,9 @@ orderRouter.get("/mine", authUser, customerOrdersPage);
 orderRouter.post("/status", authUser, requireOwner, updateStatus);
 
 // For Payment
-orderRouter.post("/cod", authUser, placeOrderCOD);
+orderRouter.post("/cod", authUser, requireCustomerProfile, placeOrderCOD);
 orderRouter.post("/quote", authUser, quoteOrder);
-orderRouter.post("/qr", authUser, placeOrderQr);
+orderRouter.post("/qr", authUser, requireCustomerProfile, placeOrderQr);
 orderRouter.get("/pending-payment", authUser, getPendingQrOrder);
 orderRouter.post("/:orderId/cancel", authUser, cancelQrOrder);
 orderRouter.get("/:orderId", authUser, getOrderStatus);

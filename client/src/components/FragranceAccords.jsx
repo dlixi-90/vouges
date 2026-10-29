@@ -1,4 +1,5 @@
 import { getAccordColors, getAccordPercent } from "../utils/accordColors";
+import "../fragrance-accords.css";
 
 export default function FragranceAccords({ accords = [] }) {
   return <ul className="perfume-accord-meters" aria-label="Các sắc thái mùi hương chính">{accords.map((accord, index) => {

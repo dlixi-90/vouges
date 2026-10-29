@@ -175,7 +175,7 @@ export const AppContextProvider = ({ children }) => {
       return data;
     },
     onSuccess: (userId, data) => {
-      setProfileResult({ userId, role: data.role === "owner", error: "" });
+      setProfileResult({ userId, role: data.role === "owner", profile:data.profile || null, error: "" });
       setCartItems(data.cartData || {});
       setCartAddedAt(data.cartAddedAt || {});
     },
@@ -186,6 +186,9 @@ export const AppContextProvider = ({ children }) => {
     },
   }));
   const getUser = useCallback(() => profileLoader.load(authUserId, getToken), [profileLoader, authUserId, getToken]);
+  const applyCustomerProfile = useCallback((userId,profile) => {
+    setProfileResult(current => current.userId === userId ? {...current,profile} : current);
+  }, []);
 
   // Refresh only products present in the cart, never the full perfume catalog.
   const fetchProducts = useCallback(() => {
@@ -592,6 +595,8 @@ export const AppContextProvider = ({ children }) => {
     storeResources,
     dashboardCache,
     authenticatedUserId: authUserId,
+    customerProfile: profileResult.userId === authUserId ? profileResult.profile : null,
+    applyCustomerProfile,
     productDrafts,
     saveProductDraft,
     clearProductDraft,

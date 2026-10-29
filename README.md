@@ -4,6 +4,7 @@
 
 Hướng dẫn tính năng mới: [hồ sơ thành viên, voucher sinh nhật, giao hàng và đánh giá](MEMBERSHIP.md).
 Hỗ trợ khách hàng: [chat với nhân viên CSKH và hộp thư quản trị](SUPPORT.md).
+Quản lý khách hàng: [dashboard khách hàng, hồ sơ đăng ký và kiểm tra đủ 18 tuổi](docs/CUSTOMER_MANAGEMENT.md).
 ### Nước hoa & trải nghiệm mua sắm cùng AI
 
 Dashboard và dữ liệu vận hành: [catalog nước hoa Apaniche, quy ước VND và quản trị](docs/PERFUME_CATALOG.md).
