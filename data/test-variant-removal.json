@@ -1,0 +1,58 @@
+{
+  "database": "vouges",
+  "appliedAt": "2026-10-31T08:16:28.949Z",
+  "totals": {
+    "products": 504,
+    "removedVariants": 523,
+    "removedStoredKeys": 523,
+    "removedQuantity": 596,
+    "productsWithoutSizes": [
+      {
+        "id": "2ddcd7921593fc9e3ed3f7ee",
+        "title": "Jimmy Choo Illicit EDP"
+      },
+      {
+        "id": "4d8f85a9e4a7ed3092de7eed",
+        "title": "Jimmy Choo Illicit Flower EDT"
+      },
+      {
+        "id": "6629bf75d87831de6e7be832",
+        "title": "Amouage Opus XIV Royal Tobacco EDP"
+      },
+      {
+        "id": "9cc1115f887e9544c032995d",
+        "title": "Jimmy Choo Man Intense EDT"
+      },
+      {
+        "id": "ee0d74305c02b58449b42e85",
+        "title": "Tom Ford Santal Blush EDP"
+      },
+      {
+        "id": "f0695209e93e544e947c2b88",
+        "title": "Clive Christian V for Men"
+      }
+    ],
+    "referencedCarts": 0,
+    "pendingQrOrders": 0,
+    "labels": [
+      "100ml Test",
+      "100ml-test",
+      "120ml Test",
+      "125ml Test",
+      "150ml Test",
+      "200ml Test",
+      "30ml Test",
+      "40ml Test",
+      "50ml Test",
+      "60ml Test",
+      "65ml Test",
+      "75ml Test",
+      "80ml Test",
+      "85ml Test",
+      "90ml Test"
+    ]
+  },
+  "backupPath": "C:\\Users\\nguye\\Desktop\\vouges\\.backups\\remove-test-variants-2026-10-31T08-16-25-546Z",
+  "remainingTestVariants": 0,
+  "verified": true
+}

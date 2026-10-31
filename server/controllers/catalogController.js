@@ -144,7 +144,7 @@ export const saveCatalogProduct = catalogAction(async(req,res)=>{
     if(body[field]!==undefined){if(typeof body[field]!=="string"||body[field].length>500)fail("Hồ sơ mùi hương không hợp lệ");update.fragrance={...(update.fragrance||current.fragrance||{}),[field]:body[field].trim()};}
   }
   const brand=update.brand??current.brand, concentration=update.concentration??current.concentration;
-  const issues=(current.qualityIssues||[]).filter(issue=>!["missing_brand","missing_concentration","missing_scent_group","missing_images","missing_scent_notes","zero_source_price"].includes(issue));
+  const issues=(current.qualityIssues||[]).filter(issue=>!["missing_brand","missing_concentration","missing_scent_group","missing_images","missing_scent_notes","missing_sizes","zero_source_price"].includes(issue));
   if(!(update.fragrance?.group??current.fragrance?.group))issues.push("missing_scent_group");
   if(!brand)issues.push("missing_brand");if(!concentration)issues.push("missing_concentration");if(!(update.images||current.images)?.length)issues.push("missing_images");if(!Object.values(update.fragrance?.notes||current.fragrance?.notes||{}).some(list=>list.length))issues.push("missing_scent_notes");if(Object.values(price).some(value=>value===0))issues.push("zero_source_price");update.qualityIssues=issues;
   const persist=async(session)=>{
