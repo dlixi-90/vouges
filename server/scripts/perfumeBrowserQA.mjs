@@ -44,6 +44,7 @@ const productTabsQA=process.argv.includes("--product-tabs");
 const accordsQA=process.argv.includes("--accord-colors");
 const experienceQA=process.argv.includes("--experience-design");
 const knowledgeQA=process.argv.includes("--knowledge");
+const descriptionsQA=process.argv.includes("--product-descriptions");
 let operationsActive=false,operationsFixtures;
 let editorProduct=null,editorUploadImages=[];
 const editorPatches=[];
@@ -152,7 +153,7 @@ const selectPage=async(nav,target,page,scrollContainer)=>{
 };
 
 try{
-  await mongoose.connect(process.env.MONGO_URI,{serverSelectionTimeoutMS:10000});
+  await mongoose.connect(process.env.MONGO_URI,{serverSelectionTimeoutMS:10000,autoIndex:false,autoCreate:false});
   const sample=await Product.findOne({isPublished:true,inStock:true,"sizes.1":{$exists:true},"fragrance.notes.top.0":{$exists:true},...(editorQA?{"images.2":{$exists:true}}:{})}).lean();
   assert.ok(sample);
   if(operationsQA)operationsFixtures=createOperationsFixtures(sample);
@@ -189,7 +190,27 @@ try{
   if(typographyQA)await send('CSS.enable');
   await send("Emulation.setDeviceMetricsOverride",{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   await send("Fetch.enable",{patterns:[{urlPattern:"*localhost:3000/*"},{urlPattern:"*@clerk_react*"}]});
-  if(knowledgeQA){
+  if(descriptionsQA){
+    const records=await Product.find({isDeleted:{$ne:true},'source.id':{$in:[42518,64535,64512,46900]}}).select('title description descriptionContent').lean();
+    assert.equal(records.length,4);
+    for(const record of records){
+      await goto(`/collection/${record._id}`,"document.querySelector('.product-description-copy .product-article h2')");
+      await noOverflow();
+      assert.equal(await evaluate("document.querySelectorAll('.product-description-copy .product-article h2').length"),record.descriptionContent.content.filter(n=>n.type==='heading').length);
+      assert.equal(await evaluate("/apa[\\W_]*niche/i.test(document.querySelector('.product-description-copy .product-article').textContent)"),false);
+      await evaluate("document.querySelector('.product-detail-tabs').scrollIntoView({block:'start',behavior:'instant'})");
+      await screenshot(`product-description-${record._id}-desktop`);
+    }
+    const record=records[0];
+    await goto(`/owner/edit-product/${record._id}`,"document.querySelector('.perfume-article-panel .tiptap')");
+    assert.equal(await evaluate("document.querySelectorAll('.perfume-article-panel .tiptap h2').length"),record.descriptionContent.content.filter(n=>n.type==='heading').length);
+    for(const width of [390,320]){
+      await send('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:true});
+      await goto(`/collection/${record._id}`,"document.querySelector('.product-description-copy .product-article h2')");await noOverflow();
+      await evaluate("document.querySelector('.product-detail-tabs').scrollIntoView({block:'start',behavior:'instant'})");await screenshot(`product-description-mobile-${width}`);
+    }
+    checks.push('Four real imported product articles including supplementary manufacturer descriptions and an accessory; rich text round trip into owner editor; 390px/320px article layouts; zero database writes');
+  }else if(knowledgeQA){
     await goto('/knowledge/group',"document.querySelectorAll('.knowledge-card').length===24");
     await noOverflow();await screenshot('knowledge-groups-desktop');
     await evaluate("document.querySelectorAll('#store-info-navigation .store-brand-trigger')[0].click()");

@@ -76,6 +76,8 @@ Bộ ảnh hỗ trợ thêm tối đa 4 ảnh/lượt, thay từng ảnh, sắp 
 
 ## Mô tả dạng bài viết
 
+Ngày 01/11/2026 đã thay toàn bộ mô tả cho **2.324 sản phẩm chưa bị xóa**, gồm cả nội dung từng được chủ cửa hàng chỉnh sửa. 2.294 sản phẩm có bài tại nguồn gốc; 30 trang chỉ có ảnh được bổ sung từ nguồn khác, ưu tiên hãng. Bài mới biên soạn từ dữ kiện, loại quảng bá và tên cửa hàng nguồn; không sao chép nguyên bài. Cả 2.324 tài liệu đã lưu dạng rich text, các trường giá/kho/ảnh/hồ sơ mùi và bản ghi nguồn được đối chiếu giữ nguyên. [Báo cáo, nguồn bổ sung và sao lưu](../data/product-descriptions-2026-11-01-report.md).
+
 Dashboard có trình soạn thảo trong phần **Thông tin chung → Mô tả sản phẩm**, áp dụng cả tạo mới và chỉnh sửa. Có tiêu đề lớn/nhỏ, cỡ và màu chữ, đậm/nghiêng/gạch chân/gạch ngang, căn lề, danh sách, trích dẫn, liên kết, đường phân cách, hoàn tác và xem trước. Có thể chèn tối đa 4 ảnh/lượt, thay hoặc xóa ảnh đang chọn, sửa mô tả/chú thích ảnh và chọn chiều rộng 50%, 75% hoặc 100%. Ảnh bài viết độc lập với ảnh đại diện, gallery và ảnh từng dung tích.
 
 Bài viết tối đa 30.000 ký tự và 30 ảnh; mỗi tệp PNG/JPEG/WebP không quá 5 MB. Lưu bằng nút **Lưu thay đổi** của sản phẩm. Nội dung đang soạn được giữ khi chuyển tab; nút lưu và chuyển tab tạm khóa trong lúc tải ảnh. Trang chi tiết trình bày bài viết trong tab **Mô tả**, với ba tầng hương vẫn nằm phía dưới.
