@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
 import { validateDeliveryPhone } from "../../utils/deliveryPhone";
 import { getDeliveryLocations } from "../../utils/deliveryLocations";
@@ -6,7 +7,7 @@ import { getDeliveryLocations } from "../../utils/deliveryLocations";
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const countryDisplayNames = new Intl.DisplayNames(["vi"], { type: "region" });
 const getEmailError = (value) => {
-  if (!value.trim()) return "Vui lòng nhập địa chỉ thư điện tử.";
+  if (!value.trim()) return "Vui lòng nhập địa chỉ email.";
   if (!value.includes("@"))
     return "Địa chỉ email phải có dấu @, ví dụ: ten@gmail.com.";
   return emailPattern.test(value.trim())
@@ -25,7 +26,7 @@ const contactFields = [
   },
   {
     name: "email",
-    label: "Thư điện tử",
+    label: "Email",
     type: "email",
   },
   {
@@ -70,7 +71,7 @@ const getUniqueLocationNames = (values, locale) => {
 
 const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
   const { axios } = useAppContext();
-  const locations = useMemo(()=>getDeliveryLocations(axios),[axios]);
+  const locations = useMemo(() => getDeliveryLocations(axios), [axios]);
   const [phoneError, setPhoneError] = useState("");
   const phoneHelpId = useId();
   const [emailError, setEmailError] = useState("");
@@ -92,7 +93,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
         setIsLoadingCountries(true);
 
         const data = await locations.countries();
-        if(controller.signal.aborted)return;
+        if (controller.signal.aborted) return;
         const countryNames = Array.isArray(data?.data)
           ? getUniqueLocationNames(
               data.data.map((country) => country.name),
@@ -138,7 +139,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
 
         if (address.country === "Vietnam") {
           const data = await locations.provinces();
-          if(controller.signal.aborted)return;
+          if (controller.signal.aborted) return;
           const provinces = Array.isArray(data) ? data : [];
 
           setVietnamProvinces(provinces);
@@ -148,7 +149,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
           );
         } else {
           const data = await locations.cities(address.country);
-          if(controller.signal.aborted)return;
+          if (controller.signal.aborted) return;
 
           cityNames = Array.isArray(data?.data)
             ? getUniqueLocationNames(data.data, "en")
@@ -204,6 +205,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
       const message = emailError ? getEmailError(value) : "";
       setEmailError(message);
       event.target.setCustomValidity(message);
+      if (!message) toast.dismiss(emailHelpId);
     }
 
     setAddress((current) => ({
@@ -226,6 +228,8 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
       setEmailError(message);
       event.target.setCustomValidity(message);
       setAddress((current) => ({ ...current, email: value }));
+      if (message) toast.error(message, { id: emailHelpId });
+      else toast.dismiss(emailHelpId);
     }
   };
 
@@ -288,9 +292,12 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
               onInvalid={
                 field.name === "email"
                   ? (event) => {
+                      event.preventDefault();
                       const message = getEmailError(event.target.value);
                       setEmailError(message);
                       event.target.setCustomValidity(message);
+                      event.target.focus();
+                      toast.error(message, { id: emailHelpId });
                     }
                   : undefined
               }
@@ -304,22 +311,15 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
               aria-describedby={
                 field.name === "phone"
                   ? phoneHelpId
-                  : field.name === "email"
+                  : field.name === "email" && emailError
                     ? emailHelpId
                     : undefined
               }
               autoComplete={field.name}
               className={`${inputClass} ${field.name === "email" && emailError ? "border-red-500" : ""}`}
             />
-            {field.name === "email" && (
-              <span
-                id={emailHelpId}
-                className={`mt-2 block text-xs ${emailError ? "text-red-600" : "text-gray-500"}`}
-                aria-live="polite"
-              >
-                {emailError ||
-                  "Địa chỉ email phải có dấu @, ví dụ: ten@gmail.com."}
-              </span>
+            {field.name === "email" && emailError && (
+              <span id={emailHelpId} className="sr-only">{emailError}</span>
             )}
             {field.name === "phone" && (
               <span
@@ -475,9 +475,7 @@ const DeliveryAddressFields = ({ address, setAddress, disabled = false }) => {
         </label>
 
         <label>
-          <span className="mb-2 block text-sm font-medium">
-            Mã bưu chính (không bắt buộc)
-          </span>
+          <span className="mb-2 block text-sm font-medium">Mã bưu chính</span>
           <input
             type="text"
             name="zipcode"

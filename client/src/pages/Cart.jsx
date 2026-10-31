@@ -332,7 +332,7 @@ const Cart = () => {
   }, []);
 
   return products && cartItems ? (
-    <div className={`net-cart py-16 pt-28 ${currentStep === 1 ? "inessa-cart-page" : currentStep === 2 ? "inessa-checkout-page" : ""}`}>
+    <div className={`net-cart py-16 pt-28 ${currentStep === 1 ? "inessa-cart-page" : currentStep === 2 ? "inessa-checkout-page" : "inessa-qr-page"}`}>
       <div className="max-padd-container">
       {/* STEP 1 */}
       {currentStep === 1 && (

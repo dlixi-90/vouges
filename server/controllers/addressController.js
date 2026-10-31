@@ -29,11 +29,11 @@ const addressFieldLimits = {
 const addressFieldLabels = {
   firstName: "Tên",
   lastName: "Họ",
-  email: "Địa chỉ thư điện tử",
+  email: "Địa chỉ email",
   phone: "Số điện thoại",
-  street: "Địa chỉ đường phố",
+  street: "Địa chỉ đường/phố",
   city: "Tỉnh/Thành phố",
-  state: "Phường/Xã hoặc bang/tỉnh",
+  state: "Phường/Xã hoặc Tỉnh",
   zipcode: "Mã bưu chính",
   country: "Quốc gia",
 };

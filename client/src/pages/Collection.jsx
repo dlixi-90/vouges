@@ -10,6 +10,7 @@ import Pagination from "../components/Pagination";
 import usePaginationScroll from "../hooks/usePaginationScroll";
 import useCollectionPage from "../hooks/useCollectionPage";
 import { emptyPerfumeFilters } from "../data/perfumeFilters";
+import "./collection.css";
 
 const Collection = () => {
   useLayoutEffect(() => {
@@ -86,7 +87,17 @@ const Collection = () => {
     + Number(isPriceFiltered) + Number(Boolean(searchQuery));
 
   return (
-    <div className="net-collection max-padd-container">
+    <div className="net-collection collection-catalog max-padd-container">
+      <section className="collection-banner" aria-labelledby="collection-banner-title">
+        <div className="collection-banner-visual">
+          <img src="/images/inessa/bg-03.jpg" alt="Nước hoa Chanel bên những cánh hoa trắng" width="534" height="650" fetchPriority="high" />
+        </div>
+        <div className="collection-banner-copy">
+          <p className="collection-banner-eyebrow"><span aria-hidden="true" /> Bộ sưu tập Velours</p>
+          <h2 id="collection-banner-title">Khám phá thế giới<br />hương thơm của bạn.</h2>
+          <p>Những mùi hương được tuyển chọn, dành cho từng phong cách và mọi khoảnh khắc.</p>
+        </div>
+      </section>
       <header className="inessa-collection-heading">
         <nav aria-label="Đường dẫn" className="inessa-collection-breadcrumb">
           <Link to="/">Trang chủ</Link><span aria-hidden="true">/</span><span>Bộ sưu tập</span>
@@ -95,57 +106,61 @@ const Collection = () => {
         {selectedBrand && <p className="store-collection-brand">Thương hiệu: <strong>{selectedBrand}</strong><Link to="/collection" onClick={() => setSearchQuery("")}>Xem tất cả</Link></p>}
       </header>
 
-      <div className="inessa-collection-toolbar">
-        <div className="inessa-collection-filter-tools">
-          <button type="button" onClick={() => setIsFilterOpen(true)} className="inessa-collection-filter-trigger"
-            onPointerEnter={() => { void publicCatalog.filters().catch(() => {}); }} onFocus={() => { void publicCatalog.filters().catch(() => {}); }}
-            aria-haspopup="dialog" aria-expanded={isFilterOpen} aria-controls="collection-filter-drawer">
-            <SlidersHorizontal size={20} strokeWidth={1.5} aria-hidden="true" />
-            Lọc sản phẩm
-            {filterCount > 0 && <span className="inessa-collection-filter-count">{filterCount}</span>}
-          </button>
-          {filterCount > 0 && <button type="button" onClick={resetFilters} className="inessa-collection-reset">Xóa bộ lọc</button>}
-        </div>
-        <div className="inessa-collection-sort-tools">
-          <div className="inessa-collection-results-tools">
-            <CollectionSearch value={searchQuery} onChange={value => { setSearchQuery(value); setCurrentPage(1); }} />
-            <p className="inessa-collection-results" role="status" aria-live="polite">
-              {productsLoading ? "Đang tải sản phẩm…" : total
-                ? `${startIndex + 1}–${Math.min(startIndex + itemsPerPage, total)} / ${total} sản phẩm`
-                : "0 sản phẩm"}
-            </p>
+      <div className="collection-catalog-layout">
+        <Suspense fallback={<div className="collection-filter-placeholder" aria-hidden="true" />}><CollectionFilterDrawer
+          open={isFilterOpen} onClose={() => setIsFilterOpen(false)}
+          selectedFilters={filters} onFilterChange={toggleFilter} filtering={productsLoading}
+          minPrice={priceFloor} maxPrice={priceLimit} priceCeiling={priceCeiling}
+          priceDisabled={maxProductPrice <= 0}
+          onMinPriceChange={changeMinPrice} onMaxPriceChange={changeMaxPrice}
+          formatPrice={formatPrice} resultCount={total} onReset={resetFilters}
+        /></Suspense>
+
+        <div className="collection-catalog-main">
+          <div className="inessa-collection-toolbar">
+            <div className="inessa-collection-filter-tools">
+              <button type="button" onClick={() => setIsFilterOpen(true)} className="inessa-collection-filter-trigger"
+                onPointerEnter={() => { void publicCatalog.filters().catch(() => {}); }} onFocus={() => { void publicCatalog.filters().catch(() => {}); }}
+                aria-haspopup="dialog" aria-expanded={isFilterOpen} aria-controls="collection-filter-drawer">
+                <SlidersHorizontal size={20} strokeWidth={1.5} aria-hidden="true" />
+                Lọc sản phẩm
+                {filterCount > 0 && <span className="inessa-collection-filter-count">{filterCount}</span>}
+              </button>
+              {filterCount > 0 && <button type="button" onClick={resetFilters} className="inessa-collection-reset">Xóa bộ lọc</button>}
+            </div>
+            <div className="inessa-collection-sort-tools">
+              <div className="inessa-collection-results-tools">
+                <CollectionSearch value={searchQuery} onChange={value => { setSearchQuery(value); setCurrentPage(1); }} />
+                <p className="inessa-collection-results" role="status" aria-live="polite">
+                  {productsLoading ? "Đang tải sản phẩm…" : total
+                    ? `${startIndex + 1}–${Math.min(startIndex + itemsPerPage, total)} / ${total} sản phẩm`
+                    : "0 sản phẩm"}
+                </p>
+              </div>
+              <select aria-label="Sắp xếp sản phẩm" value={selectedSort}
+                onChange={(event) => { setSelectedSort(event.target.value); setCurrentPage(1); }}>
+                <option value="relevant">Sắp xếp mặc định</option>
+                <option value="low">Giá: thấp đến cao</option>
+                <option value="high">Giá: cao đến thấp</option>
+              </select>
+              <Pagination arrowsOnly className="inessa-collection-page-arrows" label="Chuyển trang sản phẩm" page={activePage} totalPages={totalPages} onPageChange={changePage} disabled={productsLoading} />
+            </div>
           </div>
-          <select aria-label="Sắp xếp sản phẩm" value={selectedSort}
-            onChange={(event) => { setSelectedSort(event.target.value); setCurrentPage(1); }}>
-            <option value="relevant">Sắp xếp mặc định</option>
-            <option value="low">Giá: thấp đến cao</option>
-            <option value="high">Giá: cao đến thấp</option>
-          </select>
-          <Pagination arrowsOnly className="inessa-collection-page-arrows" label="Chuyển trang sản phẩm" page={activePage} totalPages={totalPages} onPageChange={changePage} disabled={productsLoading} />
+
+          <div ref={listRef} tabIndex={-1} className="inessa-collection-grid pagination-list-start" aria-busy={productsLoading}>
+            {pageError && <div role="alert" className="inessa-collection-empty"><p>{pageError}</p><button type="button" onClick={reload} className="inessa-button">Thử lại</button></div>}
+            {paginatedProducts.map((product, index) => <Item product={product} key={product._id} priority={index < 4} />)}
+            {!productsLoading && !pageError && paginatedProducts.length === 0 && <div className="inessa-collection-empty">
+              <SearchX size={32} strokeWidth={1.2} aria-hidden="true" />
+              <h2>Không tìm thấy sản phẩm</h2>
+              <p>Thử thay đổi từ khóa hoặc bộ lọc để tìm sản phẩm phù hợp.</p>
+              {filterCount > 0 && <button type="button" onClick={resetFilters} className="inessa-button">Xóa bộ lọc</button>}
+            </div>}
+          </div>
+
+          <Pagination className="inessa-collection-pagination" label="Phân trang sản phẩm" page={activePage} totalPages={totalPages} onPageChange={changePage} disabled={productsLoading} />
         </div>
       </div>
-
-      {isFilterOpen && <Suspense fallback={null}><CollectionFilterDrawer
-        onClose={() => setIsFilterOpen(false)}
-        selectedFilters={filters} onFilterChange={toggleFilter} filtering={productsLoading}
-        minPrice={priceFloor} maxPrice={priceLimit} priceCeiling={priceCeiling}
-        priceDisabled={maxProductPrice <= 0}
-        onMinPriceChange={changeMinPrice} onMaxPriceChange={changeMaxPrice}
-        formatPrice={formatPrice} resultCount={total} onReset={resetFilters}
-      /></Suspense>}
-
-      <div ref={listRef} tabIndex={-1} className="inessa-collection-grid pagination-list-start" aria-busy={productsLoading}>
-        {pageError && <div role="alert" className="inessa-collection-empty"><p>{pageError}</p><button type="button" onClick={reload} className="inessa-button">Thử lại</button></div>}
-        {paginatedProducts.map((product, index) => <Item product={product} key={product._id} priority={index < 4} />)}
-        {!productsLoading && !pageError && paginatedProducts.length === 0 && <div className="inessa-collection-empty">
-          <SearchX size={32} strokeWidth={1.2} aria-hidden="true" />
-          <h2>Không tìm thấy sản phẩm</h2>
-          <p>Thử thay đổi từ khóa hoặc bộ lọc để tìm sản phẩm phù hợp.</p>
-          {filterCount > 0 && <button type="button" onClick={resetFilters} className="inessa-button">Xóa bộ lọc</button>}
-        </div>}
-      </div>
-
-      <Pagination className="inessa-collection-pagination" label="Phân trang sản phẩm" page={activePage} totalPages={totalPages} onPageChange={changePage} disabled={productsLoading} />
     </div>
   );
 };

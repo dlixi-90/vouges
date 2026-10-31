@@ -224,7 +224,7 @@ export default function Membership() {
                       aria-hidden="true"
                     />
                     <div className="min-w-0">
-                      <dt className="text-xs text-gray-500">Thư điện tử</dt>
+                      <dt className="text-xs text-gray-500">Email</dt>
                       <dd className="mt-1 break-all text-sm">
                         {current.profile.email || "Chưa cập nhật"}
                       </dd>

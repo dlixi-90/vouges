@@ -32,7 +32,7 @@ export default function Contact() {
           </div>
 
           <label htmlFor="email-address" className="font-medium mt-4">
-            Địa chỉ thư điện tử
+            Địa chỉ email
           </label>
           <div className="net-field-shell flex items-center mt-2 mb-4 h-10 pl-3 border border-slate-300 bg-secondary/10 rounded-full focus-within:ring-2 focus-within:ring-black/80 transition-all overflow-hidden">
             <img src={assets.mail} alt="" width={18} className="invert-50" />

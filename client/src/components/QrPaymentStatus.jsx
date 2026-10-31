@@ -6,6 +6,8 @@ import { Navigate, useBlocker } from "react-router-dom";
 import { createQrCancellation, shouldCancelQrNavigation } from "../utils/qrNavigation";
 import { URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
 import { pollWhileVisible } from "../utils/visiblePolling";
+import { ArrowLeft, Clock3, Copy, ScanLine } from "lucide-react";
+import "./qr-payment.css";
 
 const getRemainingSeconds = (expiresAt) =>
   Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 1000));
@@ -313,80 +315,73 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
   }
 
   return (
-    <div className="mx-auto max-w-3xl rounded-2xl bg-white p-6 shadow-sm md:p-10">
-      <div className="grid gap-8 md:grid-cols-2 md:items-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold">Quét mã QR để thanh toán</h2>
+    <section className="qr-payment" aria-labelledby="qr-payment-title">
+      <header className="qr-payment-heading">
+        <span className="qr-payment-icon"><ScanLine size={22} strokeWidth={1.5} aria-hidden="true" /></span>
+        <div>
+          <h1 id="qr-payment-title">Thanh toán bằng mã QR</h1>
+          <p>Mở ứng dụng ngân hàng và quét mã để thanh toán.</p>
+        </div>
+      </header>
 
-          <p className="mt-2 text-sm text-gray-500">
-            Mở ứng dụng ngân hàng và quét mã QR này để thanh toán.
-          </p>
-
-          <div className="mx-auto mt-6 max-w-72 rounded-xl border border-gray-200 p-3">
-            <img src={order.qrUrl} alt="Mã thanh toán VietQR" className="w-full" />
+      <div className="qr-payment-layout">
+        <div className="qr-payment-visual">
+          <div className="qr-payment-image">
+            <img src={order.qrUrl} alt="Mã thanh toán VietQR" />
           </div>
         </div>
 
-        <div>
-          <div className="rounded-xl  p-5">
-            <p className="text-sm text-gray-500">Số tiền</p>
-
-            <p className="mt-1 text-2xl font-bold text-secondary">
+        <div className="qr-payment-details">
+          <div className="qr-payment-amount">
+            <p>Số tiền thanh toán</p>
+            <p className="qr-payment-amount-value">
               {Number(order.qrAmount).toLocaleString("vi-VN")} VND
             </p>
-            {order.shippingMethod === "urgent" && <p className="mt-3 text-sm text-gray-500">{URGENT_SHIPPING_NOTE}</p>}
-
-            <hr className="my-5 border-gray-200" />
-
-            <p className="text-sm text-gray-500">Nội dung chuyển khoản</p>
-
-            <div className="mt-2 flex items-center justify-between gap-3">
-              <p className="text-lg font-bold tracking-wider">
-                {order.paymentCode}
-              </p>
-
-              <button
-                type="button"
-                onClick={copyPaymentCode}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm hover:bg-white"
-              >
-                Sao chép
-              </button>
-            </div>
+            {order.shippingMethod === "urgent" && <p className="qr-payment-shipping-note">{URGENT_SHIPPING_NOTE}</p>}
           </div>
 
-          <div className="mt-5 flex items-center gap-3 rounded-xl bg-yellow-50 p-4">
-            <span className="h-3 w-3 animate-pulse rounded-full bg-yellow-500" />
-
+          <div className="qr-payment-reference">
             <div>
-              <p className="font-medium">Đang chờ thanh toán</p>
-
-              <p className="text-sm text-gray-500">
-                Mã QR hết hạn sau {formatRemainingTime(remainingSeconds)}. Trạng thái được kiểm tra tự động.
-              </p>
+              <p>Nội dung chuyển khoản</p>
+              <p className="qr-payment-code">{order.paymentCode}</p>
             </div>
+            <button type="button" onClick={copyPaymentCode} className="qr-payment-copy">
+              <Copy size={14} aria-hidden="true" /> Sao chép
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={() => checkPayment(true)}
-            disabled={isChecking || isCancelling}
-            className="btn-dark mt-5 w-full !rounded-full disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isChecking ? "Đang kiểm tra…" : "Tôi đã thanh toán"}
-          </button>
+          <div className="qr-payment-status">
+            <div className="qr-payment-status-heading">
+              <p role="status"><span className="qr-payment-status-dot" aria-hidden="true" />Đang chờ thanh toán</p>
+              <span className="qr-payment-timer" aria-label={`Mã QR hết hạn sau ${formatRemainingTime(remainingSeconds)}`}>
+                <Clock3 size={13} aria-hidden="true" />{formatRemainingTime(remainingSeconds)}
+              </span>
+            </div>
+            <p>Trạng thái thanh toán được kiểm tra tự động.</p>
+          </div>
 
-          <button
-            type="button"
-            onClick={backToPaymentMethod}
-            disabled={isCancelling}
-            className="btn-outline mt-3 w-full !rounded-full disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isCancelling ? "Đang hủy…" : "Quay lại chọn phương thức thanh toán"}
-          </button>
+          <div className="qr-payment-actions">
+            <button
+              type="button"
+              onClick={() => checkPayment(true)}
+              disabled={isChecking || isCancelling}
+              className="btn-dark qr-payment-confirm"
+            >
+              {isChecking ? "Đang kiểm tra…" : "Tôi đã thanh toán"}
+            </button>
+            <button
+              type="button"
+              onClick={backToPaymentMethod}
+              disabled={isCancelling}
+              className="qr-payment-back"
+            >
+              <ArrowLeft size={14} aria-hidden="true" />
+              {isCancelling ? "Đang hủy…" : "Đổi phương thức thanh toán"}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

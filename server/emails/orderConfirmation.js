@@ -79,7 +79,7 @@ export const buildOrderConfirmationEmail = (
   const shipping = Number(order.shipping ?? Math.max(0, total - subtotal + discount));
   const isUrgentShipping = order.shippingMethod === "urgent";
   const shippingLabel = isUrgentShipping
-    ? "Theo giá đơn vị giao hàng bên thứ ba, thanh toán sau"
+    ? "Theo giá đơn vị vận chuyển bên thứ ba, thanh toán sau"
     : shipping === 0 ? "Miễn phí" : money(shipping);
   const urgentShippingNote = "Tổng thanh toán chưa gồm phí giao Hỏa tốc. Phí này theo giá của đơn vị giao hàng bên thứ ba và thanh toán sau.";
   const quantity = items.reduce((sum, item) => sum + item.quantity, 0);

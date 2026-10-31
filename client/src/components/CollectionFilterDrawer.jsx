@@ -1,20 +1,29 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { ChevronDown, Search, X } from "lucide-react";
 import { PERFUME_FILTERS } from "../data/perfumeFilters";
 import { useAppContext } from "../context/AppContext";
 
-function FilterGroup({ field, options = [], selected = [], onChange }) {
+const compactQuery = "(max-width: 1023px)";
+const subscribeToLayout = callback => {
+  const media = window.matchMedia(compactQuery);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+};
+const getCompactLayout = () => window.matchMedia(compactQuery).matches;
+
+function FilterGroup({ field, options = [], selected = [], onChange, sidebar }) {
   const id = useId();
   const [query, setQuery] = useState("");
-  const [limit, setLimit] = useState(40);
+  const initialLimit = sidebar ? 6 : 40;
+  const [limit, setLimit] = useState(initialLimit);
   const all = [...new Set([...selected, ...options])];
   const normalized = value => value.normalize("NFC").toLocaleLowerCase("vi-VN");
   const matching = all.filter(value => normalized(value).includes(normalized(query)));
-  return <details className="inessa-filter-facet" open={field.id === "gender" || undefined}>
+  return <details className="inessa-filter-facet" open={field.id === "gender" || (sidebar && ["brands", "sizes"].includes(field.id)) || selected.length > 0 || undefined}>
     <summary><span>{field.label}{selected.length > 0 && <small>{selected.length}</small>}</span><ChevronDown size={16} aria-hidden="true" /></summary>
     <div className="inessa-filter-facet-body">
       {field.hint && <p className="inessa-filter-help">{field.hint}</p>}
-      {field.searchable && <label className="inessa-filter-facet-search"><Search size={15} aria-hidden="true" /><input type="search" aria-label={`Tìm ${field.label.toLocaleLowerCase("vi-VN")}`} placeholder={`Tìm ${field.label.toLocaleLowerCase("vi-VN")}…`} value={query} onChange={event => { setQuery(event.target.value); setLimit(40); }} /></label>}
+      {field.searchable && <label className="inessa-filter-facet-search"><Search size={15} aria-hidden="true" /><input type="search" aria-label={`Tìm ${field.label.toLocaleLowerCase("vi-VN")}`} placeholder={`Tìm ${field.label.toLocaleLowerCase("vi-VN")}…`} value={query} onChange={event => { setQuery(event.target.value); setLimit(initialLimit); }} /></label>}
       <div className="inessa-filter-options" aria-labelledby={id}>
         <span id={id} className="sr-only">{field.label}</span>
         {matching.slice(0, limit).map(value => <label key={value}><input type="checkbox" checked={selected.includes(value)} onChange={() => onChange(field.id, value)} /><span>{value}</span></label>)}
@@ -26,10 +35,12 @@ function FilterGroup({ field, options = [], selected = [], onChange }) {
 }
 
 export default function CollectionFilterDrawer({
+  open = false,
   onClose, selectedFilters, onFilterChange, minPrice, maxPrice, priceCeiling, priceDisabled,
   onMinPriceChange, onMaxPriceChange, formatPrice, resultCount, onReset, filtering,
 }) {
   const dialogRef = useRef(null);
+  const isSidebar = !useSyncExternalStore(subscribeToLayout, getCompactLayout, () => true);
   const { publicCatalog } = useAppContext();
   const [options, setOptions] = useState(() => publicCatalog.peekFilters()?.options || null);
   const [error, setError] = useState("");
@@ -40,9 +51,10 @@ export default function CollectionFilterDrawer({
       .catch(error => { if (active) setError(error.message); });
     return () => { active = false; };
   }, [publicCatalog, attempt]);
-  const renderGroup = field => <FilterGroup key={field.id} field={field} options={options?.[field.id]} selected={selectedFilters[field.id]} onChange={onFilterChange} />;
+  const renderGroup = field => <FilterGroup key={field.id} field={field} options={options?.[field.id]} selected={selectedFilters[field.id]} onChange={onFilterChange} sidebar={isSidebar} />;
 
   useEffect(() => {
+    if (isSidebar || !open) return;
     const dialog = dialogRef.current;
     const previousFocus = document.activeElement;
     const previousOverflow = document.body.style.overflow;
@@ -55,13 +67,17 @@ export default function CollectionFilterDrawer({
         previousFocus.focus({ preventScroll: true });
       }
     };
-  }, []);
+  }, [isSidebar, open]);
+
+  if (!isSidebar && !open) return null;
+  const Container = isSidebar ? "aside" : "dialog";
 
   return (
-    <dialog ref={dialogRef} id="collection-filter-drawer" className="inessa-filter-drawer"
+    <Container ref={dialogRef} id={isSidebar ? "collection-filter-sidebar" : "collection-filter-drawer"}
+      className={isSidebar ? "collection-filter-sidebar" : "inessa-filter-drawer"}
       aria-labelledby="collection-filter-title"
-      onCancel={(event) => { event.preventDefault(); onClose(); }}
-      onClick={(event) => {
+      onCancel={isSidebar ? undefined : (event) => { event.preventDefault(); onClose(); }}
+      onClick={isSidebar ? undefined : (event) => {
         if (event.target !== event.currentTarget) return;
         const bounds = event.currentTarget.getBoundingClientRect();
         if (event.clientX < bounds.left || event.clientX > bounds.right
@@ -69,9 +85,9 @@ export default function CollectionFilterDrawer({
       }}>
       <header className="inessa-filter-drawer-header">
         <h2 id="collection-filter-title">Bộ lọc sản phẩm</h2>
-        <button type="button" onClick={onClose} aria-label="Đóng bộ lọc" className="inessa-filter-close">
+        {!isSidebar && <button type="button" onClick={onClose} aria-label="Đóng bộ lọc" className="inessa-filter-close">
           <X size={24} strokeWidth={1.5} aria-hidden="true" />
-        </button>
+        </button>}
       </header>
 
       <div className="inessa-filter-content">
@@ -114,9 +130,9 @@ export default function CollectionFilterDrawer({
       </div>
 
       <footer className="inessa-filter-footer">
-        <button type="button" onClick={onClose} disabled={filtering} className="inessa-filter-view-results">{filtering ? "Đang lọc…" : `Xem ${resultCount} sản phẩm`}</button>
+        {!isSidebar && <button type="button" onClick={onClose} disabled={filtering} className="inessa-filter-view-results">{filtering ? "Đang lọc…" : `Xem ${resultCount} sản phẩm`}</button>}
         <button type="button" onClick={onReset} className="inessa-filter-reset">Xóa bộ lọc</button>
       </footer>
-    </dialog>
+    </Container>
   );
 }

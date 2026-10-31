@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Plus, X } from "lucide-react";
+import { Pencil, Plus, Trash2, X } from "lucide-react";
 import toast from "react-hot-toast";
 import DeliveryAddressFields from "./DeliveryAddressFields";
 import { initialCheckoutAddress } from "../../utils/checkoutAddress";
@@ -135,22 +135,26 @@ const AddressBookDialog = ({ addresses, selectedId, user, onSelect, onSave, onUp
               {addresses.length === 0 && <p className="py-8 text-center">Bạn chưa lưu địa chỉ nào.</p>}
               {addresses.map((entry) => (
                 <div key={entry._id} className="py-5">
-                  <label className="flex cursor-pointer items-start gap-3">
-                    <input type="radio" name="saved-delivery-address" value={entry._id} checked={pendingId === entry._id} onChange={() => setPendingId(entry._id)} disabled={isSaving} className="mt-1 h-4 w-4 shrink-0 accent-secondary" />
-                    <span className="min-w-0 flex-1">
-                      <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                        <span className="font-semibold">{entry.firstName} {entry.lastName}</span>
-                        <span className="text-sm text-gray-500">{validateDeliveryPhone(entry.phone).normalized || entry.phone}</span>
+                  <div className="flex items-start gap-2">
+                    <label className="flex min-w-0 flex-1 cursor-pointer items-start gap-3">
+                      <input type="radio" name="saved-delivery-address" value={entry._id} checked={pendingId === entry._id} onChange={() => setPendingId(entry._id)} disabled={isSaving} className="mt-1 h-4 w-4 shrink-0 accent-secondary" />
+                      <span className="min-w-0 flex-1">
+                        <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                          <span className="font-semibold">{entry.firstName} {entry.lastName}</span>
+                          <span className="text-sm text-gray-500">{validateDeliveryPhone(entry.phone).normalized || entry.phone}</span>
+                        </span>
+                        <span className="mt-2 block break-words text-sm leading-relaxed text-gray-500">{[entry.street, entry.state, entry.city, entry.country].filter(Boolean).join(", ")}</span>
+                        {entry.isDefault && <span className="mt-2 inline-block rounded border border-secondary/25 bg-secondary/5 px-2 py-0.5 text-xs text-secondary">Mặc định</span>}
                       </span>
-                      <span className="mt-2 block break-words text-sm leading-relaxed text-gray-500">{[entry.street, entry.state, entry.city, entry.country].filter(Boolean).join(", ")}</span>
-                      {entry.isDefault && <span className="mt-2 inline-block rounded border border-secondary/25 bg-secondary/5 px-2 py-0.5 text-xs text-secondary">Mặc định</span>}
-                    </span>
-                  </label>
-                  <div className="ml-7 mt-3 flex flex-wrap items-center gap-4">
-                    <button type="button" disabled={isSaving} onClick={() => editAddress(entry)} aria-label={`Chỉnh sửa địa chỉ tại ${entry.street}`} className="cursor-pointer text-xs font-medium text-secondary underline underline-offset-4 disabled:opacity-40">Chỉnh sửa</button>
-                    {!entry.isDefault && <button type="button" disabled={isSaving} onClick={() => setDefault(entry)} className="cursor-pointer text-xs font-medium text-secondary underline underline-offset-4 disabled:opacity-40">Đặt làm mặc định</button>}
-                    <button type="button" disabled={isSaving} onClick={() => setDeleteId(entry._id)} aria-label={`Xóa địa chỉ tại ${entry.street}`} className="cursor-pointer text-xs font-medium text-red-600 underline underline-offset-4 disabled:opacity-40">Xóa</button>
+                    </label>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <button type="button" disabled={isSaving} onClick={() => editAddress(entry)} aria-label={`Chỉnh sửa địa chỉ tại ${entry.street}`} title="Chỉnh sửa địa chỉ" className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-secondary transition hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-40"><Pencil size={17} strokeWidth={1.5} aria-hidden="true" /></button>
+                      <button type="button" disabled={isSaving} onClick={() => setDeleteId(entry._id)} aria-label={`Xóa địa chỉ tại ${entry.street}`} title="Xóa địa chỉ" className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-red-600 transition hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-40"><Trash2 size={17} strokeWidth={1.5} aria-hidden="true" /></button>
+                    </div>
                   </div>
+                  {!entry.isDefault && <div className="ml-7 mt-3">
+                    <button type="button" disabled={isSaving} onClick={() => setDefault(entry)} className="cursor-pointer text-xs font-medium text-secondary underline underline-offset-4 disabled:opacity-40">Đặt làm mặc định</button>
+                  </div>}
                   {deleteId === entry._id && (
                     <div className="ml-7 mt-3 rounded-md border border-gray-200 bg-primary p-3">
                       <p className="text-sm">Xóa địa chỉ đã lưu này?</p>

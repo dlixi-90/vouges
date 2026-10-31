@@ -111,7 +111,7 @@ for (const isPaid of [false, true]) test(`urgent receipt explains the separately
   const { html, text } = buildOrderConfirmationEmail(order);
   for (const receipt of [html, text]) {
     assert.match(receipt, /Hỏa tốc/);
-    assert.match(receipt, /Theo giá đơn vị giao hàng bên thứ ba, thanh toán sau/);
+    assert.match(receipt, /Theo giá đơn vị vận chuyển bên thứ ba, thanh toán sau/);
     assert.match(receipt, /Tổng thanh toán chưa gồm phí giao Hỏa tốc/);
     assert.doesNotMatch(receipt, /Miễn phí|không cần thanh toán lại khi nhận hàng/i);
   }

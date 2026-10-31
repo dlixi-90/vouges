@@ -425,8 +425,8 @@
 .inessa-cart-table-actions > div { display: flex; flex-wrap: wrap; gap: 8px 16px; }
 .inessa-cart-table-actions button { padding-block: 4px; font-size: 11px; color: #555; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .inessa-cart-voucher { padding: 20px; }
-.inessa-cart-coupon { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between; }
-.inessa-cart-coupon-input { display: flex; flex: 1; min-width: 0; max-width: 350px; align-items: stretch; gap: 8px; }
+.inessa-cart-coupon { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.inessa-cart-coupon-input { display: flex; width: 100%; min-width: 0; max-width: 350px; align-items: stretch; gap: 8px; }
 .inessa-cart-coupon-input input { min-width: 0; width: 100%; min-height: 42px; padding: 10px 12px; border: 1px solid #ddd; border-radius: var(--inessa-radius-small); font-size: 12px; }
 .inessa-cart-coupon-input .btn-dark { flex-shrink: 0; padding: 11px 18px; font-size: 10px; }
 .inessa-cart-coupon > button { padding: 9px 0; border: 0; font-size: 11px; text-decoration: underline; text-underline-offset: 4px; }
@@ -474,7 +474,7 @@
   .inessa-cart-product-name { font-size: 13px; }
   .inessa-cart-table-actions { padding: 16px; border-top: 1px solid var(--inessa-line); }
   .inessa-cart-voucher { padding: 16px; }
-  .inessa-cart-coupon-input { max-width: none; flex-basis: 100%; }
+  .inessa-cart-coupon-input { max-width: none; }
   .inessa-cart-coupon > button { padding-block: 3px; }
   .inessa-cart-summary { width: 100%; }
   .inessa-cart-totals-content { padding-inline: 20px; }
@@ -547,7 +547,7 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
 .inessa-checkout-product > strong { color: #555; font-size: 12px; font-weight: 400; white-space: nowrap; }
 .inessa-checkout-voucher { padding-block: 20px; border-block: 1px solid var(--inessa-line); }
 .inessa-checkout-voucher .inessa-cart-coupon { gap: 14px; }
-.inessa-checkout-voucher .inessa-cart-coupon-input { max-width: none; flex-basis: 100%; }
+.inessa-checkout-voucher .inessa-cart-coupon-input { max-width: none; }
 .inessa-checkout-voucher .inessa-cart-coupon > button { padding-block: 0; }
 .inessa-checkout-totals { padding-top: 18px; }
 .inessa-checkout-totals > div { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; padding-block: 10px; color: #666; font-size: 13px; }
