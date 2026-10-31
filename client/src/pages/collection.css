@@ -38,8 +38,11 @@
 .collection-catalog .inessa-collection-results-tools { flex: 1; flex-wrap: wrap; gap: 6px 14px; }
 .collection-catalog .inessa-collection-sort-tools select { min-height: 36px; padding: 7px 12px; border: 1px solid #ededed; border-radius: 24px; font-size: 11px; }
 .collection-catalog .inessa-collection-page-arrows button { width: 32px; min-width: 32px; height: 32px; border-radius: 50%; }
+.collection-catalog .inessa-collection-search { position: relative; flex: 0 0 30px; width: 30px; height: 36px; gap: 0; }
 .collection-catalog .inessa-collection-search-toggle { width: 30px; height: 36px; }
-.collection-catalog .inessa-collection-search-panel { width: clamp(100px, 12vw, 180px); }
+.collection-catalog .inessa-collection-search-panel { position: absolute; top: 0; right: calc(100% + 6px); z-index: 10; width: clamp(160px, 16vw, 240px); height: 36px; padding-inline: 10px; border: 1px solid #ddd; border-radius: 8px; background: #fff; box-shadow: 0 3px 12px #0000000a; }
+.collection-catalog .inessa-collection-search-panel input { height: 34px; font-size: 12px; }
+.collection-catalog .inessa-collection-search-panel:focus-within { border-color: #777; }
 .collection-catalog .inessa-collection-reset { min-height: 36px; }
 .net-theme .collection-catalog .inessa-collection-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; gap: 20px 18px; }
 
@@ -92,6 +95,7 @@ html:has(.collection-catalog), body:has(.collection-catalog) { overflow-x: clip;
   .collection-catalog .inessa-collection-filter-tools:has(> :only-child) { display: flex; }
   .collection-catalog .inessa-collection-sort-tools { flex: 1; width: auto; }
   .collection-catalog .inessa-collection-results-tools { justify-content: flex-end; }
+  .collection-catalog .inessa-collection-search-panel { top: calc(100% + 8px); right: 0; width: min(280px, calc(100vw - 40px)); }
   .collection-banner { min-height: 220px; grid-template-columns: 50% 50%; }
   .collection-banner-copy { padding: 28px 24px 28px 12px; }
 }
@@ -109,7 +113,6 @@ html:has(.collection-catalog), body:has(.collection-catalog) { overflow-x: clip;
   .net-theme .collection-catalog .inessa-collection-toolbar { gap: 6px 12px; padding-bottom: 16px; }
   .collection-catalog .inessa-collection-sort-tools { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; flex-basis: 100%; }
   .collection-catalog .inessa-collection-results-tools { justify-content: flex-start; }
-  .collection-catalog .inessa-collection-search-panel { width: clamp(100px, 25vw, 180px); }
   .net-theme .collection-catalog .inessa-collection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; }
   .net-theme .collection-catalog .net-product-card { padding: 5px; border-radius: 12px; }
   .net-theme .collection-catalog .net-product-card > .net-product-info { padding: 10px 6px 8px; }
@@ -121,8 +124,7 @@ html:has(.collection-catalog), body:has(.collection-catalog) { overflow-x: clip;
 @media (max-width: 480px) {
   .collection-catalog .inessa-collection-results-tools { flex-basis: 100%; }
   .collection-catalog .inessa-collection-sort-tools select { flex: 1; }
-  .collection-catalog .inessa-collection-search.is-open { flex: 1 0 100%; }
-  .collection-catalog .inessa-collection-search-panel { width: 100%; }
+  .collection-catalog .inessa-collection-search-panel { top: calc(100% + 8px); right: auto; left: 0; width: min(280px, calc(100vw - 40px)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
