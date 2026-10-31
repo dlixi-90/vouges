@@ -75,13 +75,14 @@ const list = value => {
   } catch { fail(); }
 };
 const key = value => value.normalize("NFC").trim().toLocaleLowerCase("vi-VN");
+const productNameCollator = new Intl.Collator("vi-VN", { sensitivity: "base", numeric: true });
 export const parseBrowseQuery = query => {
-  const page = Number(query.page ?? 1), limit = Number(query.limit ?? 16);
-  if (!Number.isSafeInteger(page) || page < 1 || page > 100000 || ![6, 10, 12, 16].includes(limit)) fail();
+  const page = Number(query.page ?? 1), limit = Number(query.limit ?? 15);
+  if (!Number.isSafeInteger(page) || page < 1 || page > 100000 || ![6, 10, 12, 15, 16].includes(limit)) fail();
   const minPrice = Number(query.minPrice ?? 0), maxPrice = query.maxPrice === undefined ? Infinity : Number(query.maxPrice);
   if (!Number.isSafeInteger(minPrice) || minPrice < 0 || (query.maxPrice !== undefined && (!Number.isSafeInteger(maxPrice) || maxPrice < minPrice))) fail();
   const sort = query.sort ?? "relevant", availability = query.availability ?? "available";
-  if (!["relevant", "low", "high"].includes(sort) || !["available", "all"].includes(availability)) fail();
+  if (!["relevant", "low", "high", "name-asc", "name-desc"].includes(sort) || !["available", "all"].includes(availability)) fail();
   return { page, limit, minPrice, maxPrice, sort, availability, q: text(query.q).toLowerCase(),
     brand: key(text(query.brand)), categories: list(query.categories), types: list(query.types), facets: parsePerfumeFilters(query.facets) };
 };
@@ -103,7 +104,15 @@ export const browseCatalog = (catalog, options) => {
     && (!categories.length || categories.includes(product.category)) && (!activeTypes.length || activeTypes.includes(product.type))
     && matchesPerfumeFilters(product._filters || productFilterValues(product), facets)
     && (minPrice === 0 && maxPrice === Infinity || priceFor(product) >= minPrice && priceFor(product) <= maxPrice));
-  if (sort !== "relevant") products = products.toSorted((a, b) => (priceFor(a) - priceFor(b)) * (sort === "low" ? 1 : -1));
+  if (sort === "name-asc" || sort === "name-desc") {
+    const direction = sort === "name-asc" ? 1 : -1;
+    products = products.toSorted((a, b) => direction * (
+      productNameCollator.compare(String(a.title || "").trim(), String(b.title || "").trim())
+      || String(a._id).localeCompare(String(b._id))
+    ));
+  } else if (sort === "low" || sort === "high") {
+    products = products.toSorted((a, b) => (priceFor(a) - priceFor(b)) * (sort === "low" ? 1 : -1));
+  }
   const total = products.length, totalPages = Math.max(1, Math.ceil(total / limit)), activePage = Math.min(page, totalPages);
   return { success: true, products: products.slice((activePage - 1) * limit, activePage * limit).map(product => ({ ...toProductCard(product),
     ...(facets.sizes?.length || minPrice > 0 || maxPrice !== Infinity ? { displaySize: displaySize(product) } : {}) })), total,

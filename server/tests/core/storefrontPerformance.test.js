@@ -51,12 +51,13 @@ test("missing/zero assessment values do not invent recommendations; tied positiv
   assert.deepEqual(values.suitability, []);
 });
 
-test("a single paged response contains sixteen cards and global totals, without article/gallery/source/profile payloads", () => {
+test("a single paged response contains fifteen cards and global totals, without article/gallery/source/profile payloads", () => {
   const catalog = Array.from({ length: 37 }, (_, index) => fixture(index + 1));
   catalog[0].descriptionContent = { type: "doc" };
   const result = browseCatalog(catalog, options({ page: "2" }));
   assert.equal(result.total, 37); assert.equal(result.totalPages, 3);
-  assert.equal(result.products.length, 16); assert.equal(result.products[0]._id, catalog[16]._id);
+  assert.equal(result.products.length, 15); assert.equal(result.products[0]._id, catalog[15]._id);
+  assert.equal(result.pageSize, 15);
   for (const product of result.products) {
     assert.equal(product.fragrance, undefined); assert.equal(product.descriptionContent, undefined); assert.equal(product._filters, undefined);
   }
@@ -73,6 +74,32 @@ test("size/price filters and sorting refer to the available size actually displa
   assert.equal(result.filters.maxPrice, 2000000);
   const range = browseCatalog(catalog, options({ minPrice: "900000", maxPrice: "1100000" }));
   assert.equal(range.total, 1); assert.equal(range.products[0].displaySize, "100ml");
+});
+
+test("name sorting supports Vietnamese names, letter case, numbers and deterministic ties", () => {
+  const catalog = ["Zara", "Chanel", "Ánh", "ánh", "Đào", "Dior", "Bông", "Perfume 10", "Perfume 2"]
+    .map((title, index) => fixture(index + 1, { title }));
+  const expected = [3, 4, 7, 2, 6, 5, 9, 8, 1].map(index => fixture(index)._id);
+  const ascending = browseCatalog(catalog, options({ sort: "name-asc" }));
+  const descending = browseCatalog(catalog, options({ sort: "name-desc" }));
+  assert.deepEqual(ascending.products.map(product => product._id), expected);
+  assert.deepEqual(descending.products.map(product => product._id), expected.toReversed());
+  assert.equal(catalog[0].title, "Zara", "Sorting must not mutate the cached catalog");
+});
+
+test("name sorting applies to all filtered products before slicing fifteen-card pages", () => {
+  const catalog = Array.from({ length: 37 }, (_, index) => fixture(index + 1)).toReversed();
+  catalog.push(fixture(98, { title: "A different brand", brand: "Other" }),
+    fixture(99, { title: "A sold-out product", inStock: false }));
+  for (const sort of ["name-asc", "name-desc"]) {
+    const expected = Array.from({ length: 37 }, (_, index) => fixture(index + 1)._id);
+    if (sort === "name-desc") expected.reverse();
+    const pages = [1, 2, 3].map(page => browseCatalog(catalog, options({ page, limit: "15", sort,
+      facets: JSON.stringify({ brands: ["Brand A"] }) })));
+    assert.deepEqual(pages.map(result => result.products.length), [15, 15, 7]);
+    assert.ok(pages.every(result => result.total === 37 && result.totalPages === 3 && result.pageSize === 15));
+    assert.deepEqual(pages.flatMap(result => result.products.map(product => product._id)), expected);
+  }
 });
 
 test("matching remains case-insensitive and query/price/filter input cannot inject expressions", () => {
@@ -178,7 +205,7 @@ test("ordinary browsing returns only one bounded database page and shares metada
     pipelines.push(pipeline);
     const facets = pipeline.at(-1).$facet;
     if (facets.types) return [{ types: [{ _id: { brand: "Brand A", category: "Nước hoa nam", type: "EDP" } }], categories: [{ _id: "Nước hoa nam" }], price: [{ maximum: 5000000 }] }];
-    assert.deepEqual(facets.products[1], { $limit: 16 });
+    assert.deepEqual(facets.products[1], { $limit: 15 });
     assert.deepEqual(facets.products[2].$project.images, { $slice: [{ $ifNull: ["$images", []] }, 1] });
     assert.equal(facets.products[2].$project.fragrance, undefined);
     return [{ total: [{ count: 35 }], products: [fixture()] }];
@@ -187,7 +214,7 @@ test("ordinary browsing returns only one bounded database page and shares metada
   assert.equal(first, same); assert.equal(pipelines.length, 2);
   assert.equal(first.total, 35); assert.equal(first.totalPages, 3); assert.equal(first.filters.maxPrice, 5000000);
   await readStorefrontBrowse(options({ page: 2 })); assert.equal(pipelines.length, 3);
-  assert.deepEqual(pipelines.at(-1).at(-1).$facet.products[0], { $skip: 16 });
+  assert.deepEqual(pipelines.at(-1).at(-1).$facet.products[0], { $skip: 15 });
   invalidateStorefrontCatalog();
   await readStorefrontBrowse(options({})); assert.equal(pipelines.length, 5);
   invalidateStorefrontCatalog();
@@ -196,22 +223,27 @@ test("ordinary browsing returns only one bounded database page and shares metada
 test("advanced size/price/profile filters retain the existing matching and sorting path", () => {
   assert.equal(canPageBrowseDirectly(options({})), true);
   assert.equal(canPageBrowseDirectly(options({ facets: JSON.stringify({ gender: ["Nam"], brands: ["Brand A"] }) })), true);
-  for (const query of [{ minPrice: 1 }, { sort: "high" }, { facets: JSON.stringify({ sizes: ["100ml"] }) }, { facets: JSON.stringify({ notes: ["Rose"] }) }, { facets: JSON.stringify({ longevity: ["Khá 6-8H"] }) }]) {
+  for (const query of [{ minPrice: 1 }, { sort: "high" }, { sort: "name-asc" }, { sort: "name-desc" }, { facets: JSON.stringify({ sizes: ["100ml"] }) }, { facets: JSON.stringify({ notes: ["Rose"] }) }, { facets: JSON.stringify({ longevity: ["Khá 6-8H"] }) }]) {
     assert.equal(canPageBrowseDirectly(options(query)), false);
   }
 });
 
-test("navigation prefetch and collection mount share the same default and gender-filtered requests", async () => {
+test("navigation prefetch and collection mount share 15-product default, gender and brand requests", async () => {
   const calls = [];
   const client = createPublicCatalog({ axios: { get: async (url, config) => { calls.push({ url, params: config.params }); return { data: { success: true, products: [] } }; } } });
   prefetchCollection(client);
-  await client.browse({ page: 1, limit: 16, availability: "available", q: "", sort: "relevant", minPrice: 0, facets: JSON.stringify({ gender: [], brands: [], notes: [] }) });
+  await client.browse({ page: 1, limit: 15, availability: "available", q: "", sort: "relevant", minPrice: 0, facets: JSON.stringify({ gender: [], brands: [], notes: [] }) });
   assert.equal(calls.length, 1);
+  assert.equal(calls[0].params.limit, 15);
   prefetchCollection(client, `/collection?category=${encodeURIComponent("Nước hoa nam")}`);
   await client.browse({ facets: JSON.stringify({ gender: ["Nam"], brands: [], notes: [] }) });
   assert.equal(calls.length, 2);
-  prefetchCollection(client, "/about"); assert.equal(calls.length, 2);
-  await client.browse({}, { force: true }); assert.equal(calls.length, 3);
+  prefetchCollection(client, `/collection?brand=${encodeURIComponent("Abercrombie & Fitch")}`);
+  await client.browse({ page: 1, limit: 15, facets: JSON.stringify({ brands: ["Abercrombie & Fitch"] }) });
+  assert.equal(calls.length, 3);
+  assert.equal(calls[2].params.limit, 15);
+  prefetchCollection(client, "/about"); assert.equal(calls.length, 3);
+  await client.browse({}, { force: true }); assert.equal(calls.length, 4);
 });
 
 test("related products read at most six category cards instead of the complete catalog", async t => {

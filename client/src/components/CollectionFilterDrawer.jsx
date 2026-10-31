@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ChevronDown, Search, X } from "lucide-react";
 import { PERFUME_FILTERS } from "../data/perfumeFilters";
 import { useAppContext } from "../context/AppContext";
@@ -53,6 +53,28 @@ export default function CollectionFilterDrawer({
   }, [publicCatalog, attempt]);
   const renderGroup = field => <FilterGroup key={field.id} field={field} options={options?.[field.id]} selected={selectedFilters[field.id]} onChange={onFilterChange} sidebar={isSidebar} />;
 
+  useLayoutEffect(() => {
+    if (!isSidebar) return;
+    const sidebar = dialogRef.current;
+    let frame = null;
+    const updateHeight = () => {
+      frame = null;
+      const top = Math.max(16, sidebar.getBoundingClientRect().top);
+      sidebar.style.setProperty("--filter-available-height", `${Math.max(120, window.innerHeight - top - 16)}px`);
+    };
+    const scheduleUpdate = () => {
+      if (frame === null) frame = window.requestAnimationFrame(updateHeight);
+    };
+    updateHeight();
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+    };
+  }, [isSidebar]);
+
   useEffect(() => {
     if (isSidebar || !open) return;
     const dialog = dialogRef.current;
@@ -90,7 +112,8 @@ export default function CollectionFilterDrawer({
         </button>}
       </header>
 
-      <div className="inessa-filter-content">
+      <div className="inessa-filter-content" tabIndex={isSidebar ? 0 : undefined}
+        role={isSidebar ? "region" : undefined} aria-label={isSidebar ? "Tiêu chí lọc sản phẩm" : undefined}>
         {!options && !error && <p role="status" className="inessa-filter-help">Đang tải các tiêu chí…</p>}
         {error && <p role="alert" className="inessa-filter-help">{error} <button type="button" onClick={() => setAttempt(value => value + 1)} className="underline">Thử lại</button></p>}
         {PERFUME_FILTERS.slice(0, 2).map(renderGroup)}

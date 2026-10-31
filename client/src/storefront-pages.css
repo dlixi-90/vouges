@@ -1,0 +1,99 @@
+/* Shared with the collection page: compact headings, white cards and grey borders. */
+.net-theme .store-page-heading { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; padding-block: 28px 24px; }
+.store-page-heading-copy { min-width: 0; }
+.store-page-breadcrumb { display: flex; flex-wrap: wrap; gap: 9px; color: #8a8a8a; font-size: 11px; line-height: 1.6; }
+.store-page-breadcrumb a:hover { color: #171717; }
+.net-theme .store-page-heading .store-page-heading-copy h1 { margin: 10px 0 0; font-family: Inter, sans-serif; font-size: 23px; font-weight: 600; line-height: 1.4; letter-spacing: -.04em; text-transform: none; }
+.store-page-heading-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+
+.net-theme.net-storefront .store-account-page { --inessa-line: #ededed; min-height: 65vh; padding-block: 0 48px; background: #fff; color: #292929; }
+.net-theme .store-page-container.max-padd-container { width: 100%; max-width: 1500px; margin-inline: auto; padding-inline: clamp(20px, 4vw, 56px); }
+.net-theme .store-account-page :is(h2, h3, h4) { font-family: Inter, sans-serif; font-weight: 500; line-height: 1.4; letter-spacing: -.025em; text-transform: none; }
+.net-theme .store-account-page :is(.btn-dark, .btn-outline, .btn-white) { min-height: 40px; padding: 10px 16px; border-radius: 8px !important; font-size: 11px; font-weight: 500; letter-spacing: normal; text-transform: none; }
+.store-account-page .store-page-heading-actions .btn-outline { min-height: 36px; padding: 8px 14px; border-color: #ededed; border-radius: 24px !important; color: #555; }
+.store-account-page .store-page-heading-actions .btn-outline svg { width: 15px; height: 15px; }
+.store-page-empty { display: flex; min-height: 260px; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 36px 20px; border: 1px solid #efefef; border-radius: 16px; color: #777; text-align: center; }
+.net-theme .store-page-empty h2 { color: #333; font-size: 18px; }
+
+/* Cart keeps its table, selection and checkout controls. */
+.store-account-page .inessa-cart-layout { gap: 28px; }
+.store-account-page :is(.inessa-cart-table-wrap, .inessa-cart-totals) { border-color: #efefef; border-radius: 16px; }
+.store-account-page .inessa-cart-table { font-size: 12px; }
+.store-account-page .inessa-cart-table :is(th, td),
+.store-account-page .inessa-cart-table-actions { border-color: #efefef; }
+.net-theme .store-account-page .inessa-cart-totals h2 { padding: 18px 20px; border-color: #efefef; font-size: 16px; font-weight: 600; }
+.store-account-page .inessa-cart-totals-content { padding: 6px 20px 20px; }
+.store-account-page .inessa-cart-totals dl > div { gap: 12px; padding-block: 15px; font-size: 12px; }
+.store-account-page .inessa-cart-grand-total dd { font-size: 20px; }
+.net-theme .store-account-page .inessa-cart-checkout { min-height: 44px; }
+.store-account-page .inessa-cart-continue { font-size: 11px; }
+.store-account-page .inessa-cart-empty { display: flex; min-height: 260px; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 36px 20px; border: 1px solid #efefef; border-radius: 16px; text-align: center; }
+.store-account-page .inessa-cart-empty-message { gap: 10px; padding: 0; border: 0; color: #333; }
+.net-theme .store-account-page .inessa-cart-empty h2 { font-size: 18px; }
+.net-theme .store-account-page .inessa-cart-empty > p { margin: 0; font-size: 12px; }
+.store-account-page .inessa-cart-empty > .btn-dark { margin: 0; }
+
+/* Order cards follow the collection card's quiet frame and readable labels. */
+.net-theme .store-account-page .store-order-card { overflow: hidden; border-color: #efefef; border-radius: 16px; box-shadow: none; color: #333; }
+.store-order-card :is(.store-order-card-heading, .store-order-customer, .store-order-card-footer) { background: #fff; }
+.store-order-card :is(header, section, aside, footer, dl, div, span) { border-color: #efefef; }
+.store-order-card [class*="text-[#263b4a]"] { color: #292929; }
+.store-order-card :is([class*="text-[#8b949c]"], [class*="text-[#9aa3aa]"]) { color: #888; }
+.store-order-card :is([class*="text-[#69747e]"], [class*="text-[#52616b]"]) { color: #666; }
+.net-theme .store-order-card .store-order-id { font-family: ui-monospace, monospace; font-size: 14px; font-weight: 600; letter-spacing: .02em; }
+.net-theme .store-order-card h4 { font-size: 13px; font-weight: 600; }
+.store-order-card .store-order-payment-status { border: 1px solid #ededed; font-size: 10px; font-weight: 500; }
+.store-order-card-footer .inessa-order-overview-link { margin-right: auto; font-size: 11px; }
+.store-order-card button { border-color: #e5e5e5; border-radius: 8px; font-size: 11px; font-weight: 500; }
+
+/* The profile and voucher wallet share the same monochrome card system. */
+.net-theme.net-storefront .store-account-page.net-membership { --member-ink: #292929; --member-muted: #777; --member-accent: #333; --member-line: #efefef; }
+.store-member-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); align-items: start; gap: 28px; }
+.net-theme .store-account-page :is(.net-member-panel, .net-member-gift, .net-member-voucher) { border: 1px solid #efefef; border-radius: 16px; background: #fff; box-shadow: none; }
+.store-account-page .net-member-profile-cover { padding: 20px; border-color: #efefef; }
+.store-account-page .net-member-profile-cover > div:last-child { gap: 12px; margin-top: 18px; }
+.store-account-page .net-member-details { padding: 20px; }
+.net-theme .store-account-page #member-profile-title { font-size: 16px; font-weight: 600; }
+.store-account-page .net-member-avatar { width: 44px; height: 44px; border-color: #e5e5e5; }
+.store-account-page .net-member-brand { color: #777; }
+.store-account-page .net-member-settings:hover { background: #f7f7f7; }
+.store-account-page .net-member-date { border-color: #e5e5e5; font-size: 12px; }
+.store-account-page :is(.store-member-save, .store-member-cart) { min-height: 36px; border-radius: 8px; font-size: 11px; }
+.store-account-page .net-member-gift { padding: 24px; }
+.net-theme .store-account-page #birthday-gift-title { font-size: 20px; }
+.store-account-page .net-member-gift-label { margin-bottom: 12px; padding: 5px 10px; border: 1px solid #ededed; color: #666; }
+.store-account-page .net-member-gift-value { min-width: 110px; padding: 12px 16px; border-color: #ededed; border-radius: 12px; }
+.net-theme .store-account-page .net-member-discount { font-size: 48px; line-height: 1.2; font-weight: 500; }
+.store-account-page .net-member-discount > span { font-size: 23px; }
+.store-account-page .net-member-gift-note { margin-top: 20px; border-color: #efefef; }
+.store-account-page .net-member-wallet-header { padding: 18px 20px; border-color: #efefef; }
+.net-theme .store-account-page #member-wallet-title { gap: 8px; font-size: 16px; font-weight: 600; }
+.store-account-page #member-wallet-title svg { width: 18px; height: 18px; }
+.store-account-page .net-member-wallet-count { padding: 4px 9px; border: 1px solid #ededed; font-size: 10px; }
+.store-account-page .net-member-voucher-value { border-color: #efefef; }
+.store-account-page .net-member-voucher h3 { color: #333; font-size: 13px; }
+.store-account-page .net-member-voucher-code { padding: 6px 9px; border: 1px solid #efefef; font-size: 11px; }
+.store-account-page .net-member-copy { min-height: 32px; border-color: #e5e5e5; border-radius: 8px; font-size: 11px; }
+.store-account-page .net-member-wallet-footer { padding: 16px 20px; border-color: #efefef; }
+
+@media (max-width: 1023px) {
+  .store-member-layout { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+}
+
+@media (max-width: 767px) {
+  .net-theme .store-page-heading { gap: 14px; padding-block: 22px 18px; }
+  .net-theme .store-page-heading .store-page-heading-copy h1 { margin-top: 8px; font-size: 21px; }
+  .net-theme.net-storefront .store-account-page { padding-bottom: 32px; }
+  .store-account-page .store-page-heading-actions .btn-outline { min-height: 34px; font-size: 10px; }
+  .store-account-page :is(.inessa-cart-table-wrap, .inessa-cart-totals) { border-radius: 12px; }
+  .store-account-page .inessa-cart-totals-content { padding-inline: 16px; }
+  .net-theme .store-account-page .inessa-cart-totals h2 { padding: 16px; }
+  .net-theme .store-account-page .store-order-card { border-radius: 12px; }
+  .store-order-card-footer { justify-content: flex-start; gap: 10px; }
+  .store-order-card-footer .inessa-order-overview-link { flex-basis: 100%; }
+  .net-theme .store-account-page :is(.net-member-panel, .net-member-gift, .net-member-voucher) { border-radius: 12px; }
+  .store-account-page .net-member-gift { padding: 20px; }
+  .net-theme .store-account-page #birthday-gift-title { font-size: 18px; }
+  .net-theme .store-account-page .net-member-discount { font-size: 40px; }
+  .store-account-page .net-member-gift-value { padding: 10px 16px; }
+}

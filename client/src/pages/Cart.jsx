@@ -20,6 +20,7 @@ import { getPurchaseLimit } from "../utils/productStock";
 import { initialCheckoutAddress } from "../utils/checkoutAddress";
 import { getCartRowKey, getOrderedCartItems } from "../utils/cartOrder";
 import useCheckoutQuote from "../hooks/useCheckoutQuote";
+import StorePageHeading from "../components/StorePageHeading";
 
 const CartTotal = lazy(() => import("../components/CartTotal"));
 const QrPaymentStatus = lazy(() => import("../components/QrPaymentStatus"));
@@ -332,14 +333,12 @@ const Cart = () => {
   }, []);
 
   return products && cartItems ? (
-    <div className={`net-cart py-16 pt-28 ${currentStep === 1 ? "inessa-cart-page" : currentStep === 2 ? "inessa-checkout-page" : "inessa-qr-page"}`}>
-      <div className="max-padd-container">
+    <div className={`net-cart py-16 pt-28 ${currentStep === 1 ? "inessa-cart-page store-account-page" : currentStep === 2 ? "inessa-checkout-page" : "inessa-qr-page"}`}>
+      <div className={`max-padd-container${currentStep === 1 ? " store-page-container" : ""}`}>
       {/* STEP 1 */}
       {currentStep === 1 && (
         <section className="inessa-cart-section" aria-labelledby="cart-page-title">
-          <header className="net-cart-heading inessa-cart-heading">
-            <h1 id="cart-page-title">Giỏ hàng</h1>
-          </header>
+          <StorePageHeading title="Giỏ hàng" titleId="cart-page-title" />
           {productsError ? <p role="alert">{productsError} <button type="button" onClick={fetchProducts} className="underline">Thử lại</button></p> : productsLoading && !cartData.length ? <p role="status">Đang tải giỏ hàng…</p> : cartData.length > 0 ? (
             <div className="inessa-cart-layout">
               <div className="inessa-cart-products">

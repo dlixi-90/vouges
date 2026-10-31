@@ -20,6 +20,7 @@ import { useAppContext } from "../context/AppContext";
 import { formatVnd } from "../utils/money";
 import { formatVoucherExpiryDate } from "../utils/voucherDates";
 import { latestAdultBirthday } from "../utils/customerProfile";
+import StorePageHeading from "../components/StorePageHeading";
 
 const focusStyles =
   "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary";
@@ -100,14 +101,9 @@ export default function Membership() {
   const today = latestAdultBirthday();
 
   return (
-    <main className="net-membership min-h-screen pb-16 pt-28 text-secondary sm:pb-20">
-      <div className="max-padd-container">
-        <header className="net-member-header mb-8 flex flex-col gap-5 border-b pb-7 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-              Thành viên & mã giảm giá
-            </h1>
-          </div>
+    <main className="net-membership store-account-page text-secondary">
+      <div className="max-padd-container store-page-container">
+        <StorePageHeading title="Thành viên & mã giảm giá" className="net-member-header">
           <Link
             to="/collection"
             className={`btn-outline inline-flex w-fit shrink-0 items-center gap-2 px-5 py-3 text-sm font-medium transition ${focusStyles}`}
@@ -115,7 +111,7 @@ export default function Membership() {
             Khám phá sản phẩm
             <ArrowUpRight size={17} aria-hidden="true" />
           </Link>
-        </header>
+        </StorePageHeading>
 
         {!user ? (
           <section className="net-member-panel flex flex-col items-center px-6 py-16 text-center">
@@ -164,7 +160,7 @@ export default function Membership() {
             Đang tải ưu đãi của bạn…
           </div>
         ) : (
-          <div className="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)] xl:gap-8">
+          <div className="store-member-layout">
             <div className="min-w-0">
               <section
                 aria-labelledby="member-profile-title"
@@ -285,7 +281,7 @@ export default function Membership() {
                             <button
                               type="submit"
                               disabled={saving}
-                              className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-secondary px-4 py-2 text-xs font-medium text-white transition hover:bg-secondary/90 disabled:cursor-wait disabled:opacity-60 ${focusStyles}`}
+                              className={`store-member-save inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-secondary px-4 py-2 text-xs font-medium text-white transition hover:bg-secondary/90 disabled:cursor-wait disabled:opacity-60 ${focusStyles}`}
                             >
                               {saving && (
                                 <LoaderCircle
@@ -434,7 +430,7 @@ export default function Membership() {
                 <div className="net-member-wallet-footer flex flex-col gap-4 border-t px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
                   <Link
                     to="/cart"
-                    className={`inline-flex w-fit items-center justify-center gap-2 rounded-full bg-secondary px-5 py-3 text-xs font-medium text-white transition hover:bg-secondary/90 ${focusStyles}`}
+                    className={`store-member-cart inline-flex w-fit items-center justify-center gap-2 rounded-full bg-secondary px-5 py-3 text-xs font-medium text-white transition hover:bg-secondary/90 ${focusStyles}`}
                   >
                     <ShoppingBag size={15} aria-hidden="true" />
                     Đến giỏ hàng

@@ -39,9 +39,6 @@
 .net-header nav .is-compact a.store-brand-card { padding: 8px 5px; }
 .is-compact .store-brand-card strong { font-size: 11px; }
 .is-compact .store-brand-image { height: 44px; }
-.net-theme .store-collection-brand { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; color: #777; }
-.store-collection-brand strong { color: #171717; font-weight: 500; }
-.store-collection-brand a { margin-left: 8px; color: #171717; font-size: 11px; text-decoration: underline; text-underline-offset: 4px; }
 @media (max-width: 767px) {
   .inessa-brand .inessa-logo-mark { height: 28px; }
   .inessa-brand > a > span { margin-left: -5px; font-size: 23px; }

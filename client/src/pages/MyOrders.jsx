@@ -3,7 +3,7 @@ import { getOrderStatusLabel, getPaymentMethodLabel } from "../utils/localizatio
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Package, Star } from "lucide-react";
 import { Link } from "react-router-dom";
-import Title from "../components/Title";
+import StorePageHeading from "../components/StorePageHeading";
 import { useAppContext } from "../context/AppContext";
 import { formatVnd } from "../utils/money";
 import { SHIPPING_METHODS, URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
@@ -50,8 +50,8 @@ const MyOrders = () => {
   }, [storeResources, userId, page, key, attempt]);
 
   return (
-    <main className="net-orders max-padd-container min-h-screen bg-primary py-16 pt-28">
-      <Title title1="Đơn hàng" title2="của tôi" titleStyles="pb-10" />
+    <main className="net-orders store-account-page store-page-container max-padd-container">
+      <StorePageHeading title="Đơn hàng của tôi" />
 
       <div ref={listRef} tabIndex={-1} className="pagination-list-start space-y-4" aria-busy={loading}>
         {loading && <p role="status">Đang tải đơn hàng…</p>}
@@ -66,8 +66,10 @@ const MyOrders = () => {
         ))}
 
         {!loading && !current?.error && !orders.length && (
-          <div className="rounded-xl border border-[#e2e7eb] bg-white py-16 text-center text-sm text-[#8b949c] shadow-sm">
-            Chưa có đơn hàng nào
+          <div className="store-page-empty">
+            <Package size={32} strokeWidth={1.3} aria-hidden="true" />
+            <h2>Chưa có đơn hàng nào</h2>
+            <Link to="/collection" className="btn-outline">Khám phá bộ sưu tập</Link>
           </div>
         )}
       </div>
@@ -104,14 +106,14 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
       });
 
   return (
-    <article className="overflow-hidden rounded-xl border border-[#e2e7eb] bg-white shadow-sm">
-      <header className="flex flex-col gap-3 border-b border-[#edf0f2] bg-[#fafbfb] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <article className="store-order-card overflow-hidden rounded-xl border border-[#e2e7eb] bg-white shadow-sm">
+      <header className="store-order-card-heading flex flex-col gap-3 border-b border-[#edf0f2] bg-[#fafbfb] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8b949c]">
             Đơn hàng
           </p>
           <h3
-            className="mt-1 truncate font-mono text-sm font-semibold text-[#263b4a]"
+            className="store-order-id mt-1 truncate font-mono text-sm font-semibold text-[#263b4a]"
             title={order._id}
           >
             #{String(order._id).slice(-8).toUpperCase()}
@@ -123,7 +125,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
 
         <div className="flex items-center justify-between gap-4 sm:justify-end">
           <span
-            className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+            className={`store-order-payment-status rounded-full px-2.5 py-1 text-xs font-semibold ${
               order.isPaid
                 ? "bg-[#edf6ee] text-[#4f7f5a]"
                 : "bg-[#fff5e5] text-[#a26f2c]"
@@ -220,7 +222,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
           </div>
         </section>
 
-        <aside className="border-t border-[#edf0f2] bg-[#fcfdfc] p-4 sm:p-5 lg:border-t-0">
+        <aside className="store-order-customer border-t border-[#edf0f2] bg-[#fcfdfc] p-4 sm:p-5 lg:border-t-0">
           <h4 className="text-sm font-semibold text-[#263b4a]">
             Thông tin khách hàng
           </h4>
@@ -283,7 +285,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
         </aside>
       </div>
 
-      <footer className="flex flex-wrap items-center justify-end gap-3 border-t border-[#edf0f2] bg-[#fafbfb] px-4 py-3 sm:px-5">
+      <footer className="store-order-card-footer flex flex-wrap items-center justify-end gap-3 border-t border-[#edf0f2] bg-[#fafbfb] px-4 py-3 sm:px-5">
         <Link to={`/order-overview/${order._id}`} className="inessa-order-overview-link" aria-label={`Xem tổng quan đơn hàng ${String(order._id).slice(-8).toUpperCase()}`}>Xem tổng quan đơn hàng →</Link>
         <span className="text-xs font-medium text-[#69747e]">Trạng thái đơn hàng</span>
         <span className="inline-flex items-center gap-2 rounded-md border border-[#dfe5e8] bg-white px-3 py-2 text-xs font-semibold text-[#263b4a]">

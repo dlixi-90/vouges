@@ -32,7 +32,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <p className="h4 text-black/80">CÔNG TY</p>
+            <p className="h4 text-black/80">CỬA HÀNG</p>
             <ul className="mt-3 flex flex-col gap-2 text-sm">
               <li>
                 <Link to="/about">Về chúng tôi</Link>

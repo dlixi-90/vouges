@@ -425,11 +425,16 @@
 .inessa-cart-table-actions > div { display: flex; flex-wrap: wrap; gap: 8px 16px; }
 .inessa-cart-table-actions button { padding-block: 4px; font-size: 11px; color: #555; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .inessa-cart-voucher { padding: 20px; }
-.inessa-cart-coupon { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.inessa-cart-coupon { width: 100%; }
 .inessa-cart-coupon-input { display: flex; width: 100%; min-width: 0; max-width: 350px; align-items: stretch; gap: 8px; }
-.inessa-cart-coupon-input input { min-width: 0; width: 100%; min-height: 42px; padding: 10px 12px; border: 1px solid #ddd; border-radius: var(--inessa-radius-small); font-size: 12px; }
+.inessa-cart-coupon-field { display: flex; flex: 1; min-width: 0; align-items: center; border: 1px solid #ddd; border-radius: var(--inessa-radius-small); }
+.inessa-cart-coupon-field:focus-within { border-color: #777; box-shadow: 0 0 0 1px #777; }
+.inessa-cart-coupon-field input { flex: 1; min-width: 0; width: 100%; min-height: 42px; padding: 10px 12px; border: 0; border-radius: var(--inessa-radius-small); background: transparent; font-size: 12px; }
+.net-theme .inessa-cart-coupon-field input:focus { outline: none; box-shadow: none; }
+.inessa-cart-coupon-picker { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; gap: 5px; min-height: 30px; margin-right: 10px; padding: 4px 0 4px 10px; border: 0; border-left: 1px solid #e5e5e5; border-radius: 0; background: transparent; color: #555; font-size: 11px; font-weight: 500; white-space: nowrap; cursor: pointer; }
+.inessa-cart-coupon-picker:hover:not(:disabled) { color: #171717; }
+.inessa-cart-coupon-picker:disabled { opacity: .5; cursor: not-allowed; }
 .inessa-cart-coupon-input .btn-dark { flex-shrink: 0; padding: 11px 18px; font-size: 10px; }
-.inessa-cart-coupon > button { padding: 9px 0; border: 0; font-size: 11px; text-decoration: underline; text-underline-offset: 4px; }
 .inessa-cart-summary { min-width: 0; }
 .inessa-cart-totals { border: 1px solid var(--inessa-line); border-radius: var(--inessa-radius-card); overflow: hidden; }
 .net-cart .inessa-cart-totals h2 { padding: 20px 24px; border-bottom: 1px solid var(--inessa-line); background: #fff; color: #171717; font-size: 29px; }
@@ -475,7 +480,6 @@
   .inessa-cart-table-actions { padding: 16px; border-top: 1px solid var(--inessa-line); }
   .inessa-cart-voucher { padding: 16px; }
   .inessa-cart-coupon-input { max-width: none; }
-  .inessa-cart-coupon > button { padding-block: 3px; }
   .inessa-cart-summary { width: 100%; }
   .inessa-cart-totals-content { padding-inline: 20px; }
   .net-cart .inessa-cart-totals h2 { padding-inline: 20px; }
@@ -546,9 +550,7 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
 .inessa-checkout-product-info > span { display: block; margin-top: 5px; color: #888; font-size: 10px; }
 .inessa-checkout-product > strong { color: #555; font-size: 12px; font-weight: 400; white-space: nowrap; }
 .inessa-checkout-voucher { padding-block: 20px; border-block: 1px solid var(--inessa-line); }
-.inessa-checkout-voucher .inessa-cart-coupon { gap: 14px; }
 .inessa-checkout-voucher .inessa-cart-coupon-input { max-width: none; }
-.inessa-checkout-voucher .inessa-cart-coupon > button { padding-block: 0; }
 .inessa-checkout-totals { padding-top: 18px; }
 .inessa-checkout-totals > div { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; padding-block: 10px; color: #666; font-size: 13px; }
 .inessa-checkout-totals dd { white-space: nowrap; }

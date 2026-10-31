@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useLayoutEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
 const CollectionFilterDrawer = lazy(() => import("../components/CollectionFilterDrawer"));
@@ -10,6 +10,8 @@ import Pagination from "../components/Pagination";
 import usePaginationScroll from "../hooks/usePaginationScroll";
 import useCollectionPage from "../hooks/useCollectionPage";
 import { emptyPerfumeFilters } from "../data/perfumeFilters";
+import { COLLECTION_PAGE_SIZE } from "../utils/publicCatalog";
+import StorePageHeading from "../components/StorePageHeading";
 import "./collection.css";
 
 const Collection = () => {
@@ -31,13 +33,12 @@ const Collection = () => {
     const gender = ({ "Nước hoa nam": "Nam", "Nước hoa nữ": "Nữ", "Nước hoa unisex": "Unisex" })[category];
     return { ...emptyPerfumeFilters(), ...(gender ? { gender: [gender] } : {}), ...(routeBrand ? { brands: [routeBrand] } : {}) };
   });
-  const selectedBrand = filters.brands.length === 1 ? filters.brands[0] : "";
   const [selectedSort, setSelectedSort] = useState("relevant");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 16;
+  const itemsPerPage = COLLECTION_PAGE_SIZE;
   const { data: collection, loading: pageLoading, error: pageError, reload } = useCollectionPage({
     page: currentPage, limit: itemsPerPage, q: settledSearch,
     facets: JSON.stringify(filters), sort: selectedSort,
@@ -98,13 +99,7 @@ const Collection = () => {
           <p>Những mùi hương được tuyển chọn, dành cho từng phong cách và mọi khoảnh khắc.</p>
         </div>
       </section>
-      <header className="inessa-collection-heading">
-        <nav aria-label="Đường dẫn" className="inessa-collection-breadcrumb">
-          <Link to="/">Trang chủ</Link><span aria-hidden="true">/</span><span>Bộ sưu tập</span>
-        </nav>
-        <h1>Bộ sưu tập</h1>
-        {selectedBrand && <p className="store-collection-brand">Thương hiệu: <strong>{selectedBrand}</strong><Link to="/collection" onClick={() => setSearchQuery("")}>Xem tất cả</Link></p>}
-      </header>
+      <StorePageHeading title="Bộ sưu tập" className="inessa-collection-heading" />
 
       <div className="collection-catalog-layout">
         <Suspense fallback={<div className="collection-filter-placeholder" aria-hidden="true" />}><CollectionFilterDrawer
@@ -126,22 +121,24 @@ const Collection = () => {
                 Lọc sản phẩm
                 {filterCount > 0 && <span className="inessa-collection-filter-count">{filterCount}</span>}
               </button>
-              {filterCount > 0 && <button type="button" onClick={resetFilters} className="inessa-collection-reset">Xóa bộ lọc</button>}
             </div>
             <div className="inessa-collection-sort-tools">
               <div className="inessa-collection-results-tools">
-                <CollectionSearch value={searchQuery} onChange={value => { setSearchQuery(value); setCurrentPage(1); }} />
                 <p className="inessa-collection-results" role="status" aria-live="polite">
                   {productsLoading ? "Đang tải sản phẩm…" : total
                     ? `${startIndex + 1}–${Math.min(startIndex + itemsPerPage, total)} / ${total} sản phẩm`
                     : "0 sản phẩm"}
                 </p>
+                {filterCount > 0 && <button type="button" onClick={resetFilters} className="inessa-collection-reset">Xóa bộ lọc</button>}
               </div>
+              <CollectionSearch value={searchQuery} onChange={value => { setSearchQuery(value); setCurrentPage(1); }} />
               <select aria-label="Sắp xếp sản phẩm" value={selectedSort}
                 onChange={(event) => { setSelectedSort(event.target.value); setCurrentPage(1); }}>
                 <option value="relevant">Sắp xếp mặc định</option>
                 <option value="low">Giá: thấp đến cao</option>
                 <option value="high">Giá: cao đến thấp</option>
+                <option value="name-asc">Tên: A–Z</option>
+                <option value="name-desc">Tên: Z–A</option>
               </select>
               <Pagination arrowsOnly className="inessa-collection-page-arrows" label="Chuyển trang sản phẩm" page={activePage} totalPages={totalPages} onPageChange={changePage} disabled={productsLoading} />
             </div>

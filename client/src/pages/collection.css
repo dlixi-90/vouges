@@ -28,9 +28,6 @@
 .net-theme .collection-banner h2 { margin: 12px 0 16px; font-family: Inter, sans-serif; font-size: clamp(24px, 2.5vw, 34px); font-weight: 500; line-height: 1.25; letter-spacing: -.055em; }
 .net-theme .collection-banner-copy > p:last-child { max-width: 320px; color: #6c6e67; font-size: 12px; line-height: 1.8; }
 
-.collection-catalog .inessa-collection-heading { padding-block: 28px 24px; }
-.collection-catalog .inessa-collection-breadcrumb { gap: 9px; font-size: 11px; color: #8a8a8a; }
-.net-theme .collection-catalog .inessa-collection-heading h1 { margin-top: 10px; font-family: Inter, sans-serif; font-size: 23px; font-weight: 600; line-height: 1.4; letter-spacing: -.04em; text-transform: none; }
 .net-theme .collection-catalog > .collection-catalog-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); align-items: start; gap: 32px; }
 .collection-catalog-main { min-width: 0; }
 
@@ -38,7 +35,7 @@
 .collection-catalog .inessa-collection-filter-trigger { display: none; }
 .collection-catalog .inessa-collection-filter-tools:has(> :only-child) { display: none; }
 .collection-catalog .inessa-collection-sort-tools { flex: 1; gap: 12px; }
-.collection-catalog .inessa-collection-results-tools { flex: 1; }
+.collection-catalog .inessa-collection-results-tools { flex: 1; flex-wrap: wrap; gap: 6px 14px; }
 .collection-catalog .inessa-collection-sort-tools select { min-height: 36px; padding: 7px 12px; border: 1px solid #ededed; border-radius: 24px; font-size: 11px; }
 .collection-catalog .inessa-collection-page-arrows button { width: 32px; min-width: 32px; height: 32px; border-radius: 50%; }
 .collection-catalog .inessa-collection-search-toggle { width: 30px; height: 36px; }
@@ -54,16 +51,20 @@
 .collection-catalog .net-product-card .net-product-category { color: #8a8a8a; font-size: 11px; }
 .collection-catalog .net-product-card .net-product-price { display: inline-block; margin-top: 0; padding: 6px 9px; border: 1px solid #efefef; border-radius: 6px; color: #292929; font-size: 12px; font-weight: 500; }
 
-.collection-catalog .collection-filter-sidebar { min-width: 0; border-radius: 0; background: #fff; }
+/* Keep the sidebar in view; only its criteria scroll, with the title/reset fixed. */
+html:has(.collection-catalog), body:has(.collection-catalog) { overflow-x: clip; }
+.net-theme.net-storefront:has(.collection-catalog) { overflow: clip; }
+.collection-catalog .collection-filter-sidebar { position: sticky; top: 16px; display: flex; min-width: 0; max-height: var(--filter-available-height, calc(100dvh - 32px)); flex-direction: column; overflow: hidden; border-radius: 0; background: #fff; }
 .collection-filter-sidebar .inessa-filter-drawer-header { min-height: 44px; padding: 0 0 16px; }
 .net-theme .collection-filter-sidebar .inessa-filter-drawer-header h2 { font-size: 13px; font-weight: 600; }
-.collection-filter-sidebar .inessa-filter-content { padding: 0; overflow: visible; }
+.collection-filter-sidebar .inessa-filter-content { min-height: 0; padding: 0 10px 0 0; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-gutter: stable; }
+.collection-filter-sidebar .inessa-filter-content:focus-visible { outline: 1px solid #888; outline-offset: -1px; }
 .collection-filter-sidebar .inessa-filter-facet summary { min-height: 48px; padding-block: 14px; font-size: 12px; }
 .collection-filter-sidebar .inessa-filter-facet summary > svg { width: 13px; height: 13px; color: #888; }
 .collection-filter-sidebar .inessa-filter-facet-body { padding-bottom: 16px; }
 .collection-filter-sidebar .inessa-filter-facet-search { gap: 6px; padding: 2px 8px; border-color: #eee; border-radius: 7px; }
 .collection-filter-sidebar .inessa-filter-facet-search input { height: 30px; font-size: 11px; }
-.collection-filter-sidebar .inessa-filter-options { gap: 2px; max-height: 250px; }
+.collection-filter-sidebar .inessa-filter-facet .inessa-filter-options { gap: 2px; max-height: none; overflow: visible; }
 .collection-filter-sidebar .inessa-filter-options label { gap: 10px; min-height: 31px; font-size: 12px; }
 .collection-filter-sidebar .inessa-filter-options input { width: 14px; height: 14px; }
 .collection-filter-sidebar .inessa-filter-more { width: 100%; margin-top: 8px; min-height: 32px; border: 1px solid #ededed; border-radius: 20px; color: #555; font-size: 10px; text-decoration: none; }
@@ -105,8 +106,6 @@
   .collection-banner-eyebrow > span { width: 10px; }
   .net-theme .collection-banner h2 { margin-block: 10px; font-size: clamp(19px, 4vw, 26px); letter-spacing: -.045em; }
   .net-theme .collection-banner-copy > p:last-child { font-size: 10px; line-height: 1.7; }
-  .collection-catalog .inessa-collection-heading { padding-block: 22px 18px; }
-  .net-theme .collection-catalog .inessa-collection-heading h1 { margin-top: 8px; font-size: 21px; }
   .net-theme .collection-catalog .inessa-collection-toolbar { gap: 6px 12px; padding-bottom: 16px; }
   .collection-catalog .inessa-collection-sort-tools { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; flex-basis: 100%; }
   .collection-catalog .inessa-collection-results-tools { justify-content: flex-start; }
@@ -122,7 +121,7 @@
 @media (max-width: 480px) {
   .collection-catalog .inessa-collection-results-tools { flex-basis: 100%; }
   .collection-catalog .inessa-collection-sort-tools select { flex: 1; }
-  .collection-catalog .inessa-collection-search.is-open { flex: 1; }
+  .collection-catalog .inessa-collection-search.is-open { flex: 1 0 100%; }
   .collection-catalog .inessa-collection-search-panel { width: 100%; }
 }
 
