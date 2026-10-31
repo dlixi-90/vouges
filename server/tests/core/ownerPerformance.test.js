@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import Product from "../../models/Product.js";
 import Order from "../../models/Order.js";
 import FragranceTerm from "../../models/FragranceTerm.js";
-import { catalogOverview, catalogProducts } from "../../controllers/catalogController.js";
+import CatalogSource from "../../models/CatalogSource.js";
+import { catalogOverview, catalogProducts, catalogProduct } from "../../controllers/catalogController.js";
 import { invalidateStorefrontCatalog } from "../../services/storefrontCatalog.js";
 import catalogRouter from "../../routes/catalogRoute.js";
 import authUser, { requireOwner } from "../../middleware/authMiddleware.js";
@@ -73,6 +74,35 @@ test("owner product pages share filter option reads and return just one card ima
   invalidateStorefrontCatalog();
   await catalogProducts({ query: {} }, response()); assert.equal(optionReads, 6);
   invalidateStorefrontCatalog();
+});
+
+test("owner product search uses names and brands without source IDs or source fields in list payloads", async t => {
+  invalidateStorefrontCatalog();
+  t.mock.method(Product, "find", filter => {
+    assert.deepEqual(Object.keys(filter.$or[0]), ["title"]);
+    assert.deepEqual(Object.keys(filter.$or[1]), ["brand"]);
+    assert.equal(filter.$or.length, 2);
+    assert.ok(filter.$or[0].title.test("Perfume 42959"));
+    return { select(projection) { assert.equal(projection.source, undefined); return this; }, sort() { return this; }, skip() { return this; }, limit() { return this; }, lean: async () => [] };
+  });
+  t.mock.method(Product, "countDocuments", async () => 0);
+  t.mock.method(Product, "distinct", async () => []);
+  const res=response(); await catalogProducts({query:{q:"42959"}},res);
+  assert.equal(res.body.success,true);
+  invalidateStorefrontCatalog();
+});
+
+test("product editing loads the product without fetching the removed source record panel", async t => {
+  const product=card(1);
+  t.mock.method(Product,"findOne",filter=>{
+    assert.equal(filter._id,product._id);
+    assert.deepEqual(filter.isDeleted,{$ne:true});
+    return {lean:async()=>product};
+  });
+  t.mock.method(CatalogSource,"findOne",()=>assert.fail("Removed source panel must not load an archived record"));
+  const res=response();await catalogProduct({params:{id:product._id}},res);
+  assert.equal(res.body.success,true);assert.deepEqual(res.body.product,product);
+  assert.equal(res.body.source,undefined);assert.equal(res.headers["Cache-Control"],"private, no-store");
 });
 
 test("summary-only order analytics preserves totals and twelve months without populating an order page", async t => {

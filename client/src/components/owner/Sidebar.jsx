@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { Link, Outlet, Navigate, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { UserButton, useClerk } from "@clerk/react";
-import { ArrowUpRight, Bell, ChevronRight, FlaskConical, Grid2X2, Layers3, Library, LogOut, Menu, MessagesSquare, Package, ShieldCheck, ShoppingBag, Ticket, Users, X } from "lucide-react";
+import { ArrowUpRight, Bell, ChevronRight, FlaskConical, Grid2X2, Layers3, Library, LogOut, Menu, MessagesSquare, Package, ShoppingBag, Ticket, Users, X } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import { assets } from "../../assets/data";
 import { prefetchOwnerRoute } from "../../utils/ownerPrefetch";
@@ -22,7 +22,6 @@ const navigation = [
     { path: "/owner/brands", label: "Thương hiệu", icon: FlaskConical },
     { path: "/owner/add-category", label: "Danh mục", icon: Layers3 },
     { path: "/owner/library", label: "Thư viện hương", icon: Library },
-    { path: "/owner/quality", label: "Chất lượng dữ liệu", icon: ShieldCheck },
   ] },
   { label: "Vận hành", items: [
     { path: "/owner/customers", label: "Khách hàng", icon: Users },

@@ -1,7 +1,6 @@
 import mongoose, { isValidObjectId } from "mongoose";
 import Product from "../models/Product.js";
 import FragranceTerm from "../models/FragranceTerm.js";
-import CatalogSource from "../models/CatalogSource.js";
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import { getSizeRenames, buildCartSizeRename } from "../utils/productVariants.js";
@@ -70,13 +69,13 @@ export const catalogOverview = catalogAction(async (req,res) => {
 
 export const catalogProducts = catalogAction(async (req,res) => {
   const {page,pageSize}=pagination(req.query); const filter={isDeleted:{$ne:true}};
-  if(req.query.q){const q=pattern(req.query.q);filter.$or=[{title:q},{brand:q},{"source.id":Number(req.query.q)||-1}];}
+  if(req.query.q){const q=pattern(req.query.q);filter.$or=[{title:q},{brand:q}];}
   for(const field of ["brand","concentration","category","catalogScope"])if(req.query[field]){if(typeof req.query[field]!=="string"||req.query[field].length>160)fail("Bộ lọc không hợp lệ");filter[field]=req.query[field];}
   if(req.query.published!==undefined&&req.query.published!=="")filter.isPublished=req.query.published==="true";
   if(req.query.stock!==undefined&&req.query.stock!=="")filter.inStock=req.query.stock==="true";
   if(req.query.quality==="issues")filter["qualityIssues.0"]={$exists:true};
   const sort={ [({price:"title",brand:"brand",newest:"createdAt"})[req.query.sort]||"title"]:req.query.sort==="newest"?-1:1,_id:1};
-  const projection={...Object.fromEntries("title brand category concentration gender origin price sizes inStockBySize stockBySize inventoryMode isPublished inStock catalogScope qualityIssues source updatedAt".split(" ").map(field=>[field,1])),images:{$slice:1}};
+  const projection={...Object.fromEntries("title brand category concentration gender origin price sizes inStockBySize stockBySize inventoryMode isPublished inStock catalogScope qualityIssues updatedAt".split(" ").map(field=>[field,1])),images:{$slice:1}};
   const [products,total,[brands,concentrations,categories]]=await Promise.all([
     Product.find(filter).select(projection).sort(sort).skip((page-1)*pageSize).limit(pageSize).lean(),
     Product.countDocuments(filter), catalogSnapshot("owner-filter-options",300000,()=>Promise.all([Product.distinct("brand",{isDeleted:{$ne:true}}),Product.distinct("concentration",{isDeleted:{$ne:true}}),Product.distinct("category",{isDeleted:{$ne:true}})])),
@@ -86,8 +85,8 @@ export const catalogProducts = catalogAction(async (req,res) => {
 
 export const catalogProduct = catalogAction(async(req,res)=>{
   if(!isValidObjectId(req.params.id))fail("Mã sản phẩm không hợp lệ");
-  const [product,source]=await Promise.all([Product.findOne({_id:req.params.id,isDeleted:{$ne:true}}).lean(),CatalogSource.findOne({productId:req.params.id}).lean()]);if(!product)fail("Không tìm thấy sản phẩm",404);
-  res.set("Cache-Control","private, no-store");res.json({success:true,product,source});
+  const product=await Product.findOne({_id:req.params.id,isDeleted:{$ne:true}}).lean();if(!product)fail("Không tìm thấy sản phẩm",404);
+  res.set("Cache-Control","private, no-store");res.json({success:true,product});
 });
 
 export const saveCatalogProduct = catalogAction(async(req,res)=>{

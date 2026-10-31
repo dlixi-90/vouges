@@ -60,7 +60,7 @@ const App = () => {
             <Route path="add-category" element={<AddCategory />} />
             <Route path="list-product" element={<PerfumeProducts key={location.search} />} />
             <Route path="inventory" element={<Navigate to={{ pathname: "/owner/list-product", search: location.search }} replace />} />
-            <Route path="quality" element={<PerfumeProducts key="quality" mode="quality" />} />
+            <Route path="quality" element={<Navigate to="/owner/list-product?quality=issues" replace />} />
             <Route path="brands" element={<FragranceLibrary key="brands" brands />} />
             <Route path="library" element={<FragranceLibrary key="library" />} />
             <Route path="vouchers" element={<Vouchers />} />

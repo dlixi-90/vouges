@@ -1,6 +1,6 @@
 import { useId, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ExternalLink, Save } from "lucide-react";
+import { ArrowLeft, Save } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
 import { CatalogPage, CatalogState, Badge, issueLabels, useCatalog } from "../../components/owner/CatalogUI";
@@ -14,20 +14,20 @@ import { editableFragrance } from "../../utils/fragrance";
 import { renameCatalogSize, catalogSizeRenames } from "../../utils/catalogVariantEdit";
 import ScentNotes from "../../components/ScentNotes";
 
-const tabs = [{ key: "general", label: "Thông tin chung" }, { key: "variants", label: "Dung tích & giá" }, { key: "fragrance", label: "Hồ sơ mùi" }, { key: "assessments", label: "Đánh giá trải nghiệm" }, { key: "images", label: "Hình ảnh" }, { key: "source", label: "Nguồn dữ liệu" }];
+const tabs = [{ key: "general", label: "Thông tin chung" }, { key: "variants", label: "Dung tích & giá" }, { key: "fragrance", label: "Hồ sơ mùi" }, { key: "assessments", label: "Đánh giá trải nghiệm" }, { key: "images", label: "Hình ảnh" }];
 
 export default function PerfumeEditor() {
   const { productId } = useParams();
   const query = useCatalog(`/products/${productId}`);
-  return query.data?.product ? <PerfumeForm key={`${query.data.product._id}:${query.data.product.updatedAt}`} product={query.data.product} source={query.data.source} reload={query.reload} /> : <CatalogPage title="Chi tiết sản phẩm"><CatalogState {...query} /></CatalogPage>;
+  return query.data?.product ? <PerfumeForm key={`${query.data.product._id}:${query.data.product.updatedAt}`} product={query.data.product} reload={query.reload} /> : <CatalogPage title="Chi tiết sản phẩm"><CatalogState {...query} /></CatalogPage>;
 }
 
-function PerfumeForm({ product, source, reload }) {
+function PerfumeForm({ product, reload }) {
   const { axios, getToken, fetchProducts } = useAppContext();
   const [params] = useSearchParams();
   const formId = useId();
   const [draft, setDraft] = useState(() => ({ ...structuredClone(product), fragrance: editableFragrance(structuredClone(product.fragrance || {})) }));
-  const [tab, setTab] = useState(params.get("tab") || "general");
+  const [tab, setTab] = useState(() => tabs.some(item => item.key === params.get("tab")) ? params.get("tab") : "general");
   const [busy, setBusy] = useState(false), [uploading, setUploading] = useState(false), [error, setError] = useState("");
   const [newSize, setNewSize] = useState("");
   const unresolvedReview = (product.source?.profileCompletion?.unresolved || []).filter(item => product.qualityIssues?.includes(item.code));
@@ -95,7 +95,7 @@ function PerfumeForm({ product, source, reload }) {
     <nav className="perfume-tabs" aria-label="Các phần sản phẩm">{tabs.map(item => <button type="button" key={item.key} disabled={busy || uploading || editingVariant} aria-current={tab === item.key ? "page" : undefined} className={tab === item.key ? "active" : ""} onClick={() => setTab(item.key)}>{item.label}</button>)}</nav>
     <form id={formId} onSubmit={save} className="perfume-editor-body">
       {tab === "general" && <>
-        <div className="perfume-editor-columns"><section className="perfume-panel"><h2>Thông tin nước hoa</h2><div className="perfume-form-grid">{field("title", "Tên sản phẩm", { required: true })}{field("brand", "Thương hiệu")}{field("origin", "Xuất xứ")}{field("concentration", "Nồng độ")}{field("gender", "Đối tượng sử dụng")}<label className="perfume-field"><span>Danh mục</span><input value={product.category} readOnly /></label></div></section><aside className="perfume-panel"><h2>Hồ sơ cần chú ý</h2>{product.qualityIssues?.length ? <ul className="perfume-issue-list">{product.qualityIssues.map(issue => <li key={issue}>{issueLabels[issue] || issue}</li>)}</ul> : <p>Các trường cơ bản đã được điền.</p>}<p className="perfume-muted">Các thông tin gốc vẫn được giữ trong tab Nguồn dữ liệu để đối chiếu.</p></aside></div>
+        <div className="perfume-editor-columns"><section className="perfume-panel"><h2>Thông tin nước hoa</h2><div className="perfume-form-grid">{field("title", "Tên sản phẩm", { required: true })}{field("brand", "Thương hiệu")}{field("origin", "Xuất xứ")}{field("concentration", "Nồng độ")}{field("gender", "Đối tượng sử dụng")}<label className="perfume-field"><span>Danh mục</span><input value={product.category} readOnly /></label></div></section><aside className="perfume-panel"><h2>Hồ sơ cần chú ý</h2>{product.qualityIssues?.length ? <ul className="perfume-issue-list">{product.qualityIssues.map(issue => <li key={issue}>{issueLabels[issue] || issue}</li>)}</ul> : <p>Các trường cơ bản đã được điền.</p>}</aside></div>
         <section className="perfume-panel perfume-article-panel"><h2>Mô tả sản phẩm</h2>
           <ProductArticleEditor value={draft.descriptionContent} text={draft.description} disabled={busy} onUploadingChange={setUploading}
             onChange={(descriptionContent, description) => setDraft(current => ({ ...current, descriptionContent, description }))} />
@@ -111,7 +111,6 @@ function PerfumeForm({ product, source, reload }) {
       </section>}
       {tab === "general" && unresolvedReview.length > 0 && <section className="perfume-panel"><h2>Các mục còn cần đối chiếu</h2><ul className="perfume-issue-list">{unresolvedReview.map(item => <li key={item.code}>{item.reason}</li>)}</ul></section>}
       {tab === "images" && <ProductGalleryEditor images={draft.images} uploading={uploading} onChange={images => update("images", images)} onUpload={upload} />}
-      {tab === "source" && <section className="perfume-panel"><div className="perfume-section-heading"><div><h2>Bản ghi nguồn</h2><p className="perfume-muted">Được giữ nguyên khi bạn chỉnh sửa catalog Velours.</p></div>{product.source?.url && <a href={product.source.url} target="_blank" rel="noreferrer" className="perfume-button">Xem trang nguồn <ExternalLink size={14} /></a>}</div><dl className="perfume-source-details"><div><dt>Nguồn</dt><dd>{product.source?.provider || "Velours"}</dd></div><div><dt>ID nguồn</dt><dd>{product.source?.id || "—"}</dd></div><div><dt>Thời điểm lấy</dt><dd>{product.source?.fetchedAt ? new Date(product.source.fetchedAt).toLocaleString("vi-VN") : "—"}</dd></div><div><dt>Đơn vị giá</dt><dd>VND nguyên đồng</dd></div></dl><details><summary>Xem bản ghi đầy đủ</summary><pre className="perfume-source-json">{JSON.stringify(source?.data || product.source, null, 2)}</pre></details></section>}
     </form>
   </CatalogPage>;
 }

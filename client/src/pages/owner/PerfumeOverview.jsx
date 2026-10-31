@@ -80,10 +80,10 @@ export default function PerfumeOverview() {
         {!query.loading && !query.error && !products.length && <p className="perfume-empty">Chưa có sản phẩm trong catalog.</p>}
       </section>
       <section className="admin-dashboard-panel admin-attention-panel">
-        <header className="admin-panel-heading"><div><h2>Hồ sơ cần hoàn thiện</h2><p>{count(metrics.issues)} sản phẩm cần kiểm tra</p></div><Link to="/owner/quality" className="admin-view-all">Xem tất cả</Link></header>
+        <header className="admin-panel-heading"><div><h2>Hồ sơ cần hoàn thiện</h2><p>{count(metrics.issues)} sản phẩm cần kiểm tra</p></div><Link to="/owner/list-product?quality=issues" className="admin-view-all">Xem tất cả</Link></header>
         <div className="admin-attention-list">{(data?.attentionProducts || []).map(product => <Link key={product._id} to={`/owner/edit-product/${product._id}`}><span className="admin-product-image">{product.images?.[0] ? <ProductImage src={product.images[0]} alt="" imageWidth={100} /> : <Package size={20} />}</span><span><strong>{product.title}</strong><small>{issueLabels[product.qualityIssues?.[0]] || "Cần kiểm tra thông tin"}</small></span><Badge>{product.qualityIssues?.length || 0} mục</Badge></Link>)}</div>
         {!query.loading && !query.error && !data?.attentionProducts?.length && <p className="perfume-empty">Các hồ sơ đã có đủ trường thông tin cơ bản.</p>}
-        <Link to="/owner/quality" className="admin-attention-footer"><Sparkles size={15} />Hoàn thiện trải nghiệm sản phẩm<ArrowUpRight size={14} /></Link>
+        <Link to="/owner/list-product?quality=issues" className="admin-attention-footer"><Sparkles size={15} />Hoàn thiện trải nghiệm sản phẩm<ArrowUpRight size={14} /></Link>
       </section>
     </div>
 
