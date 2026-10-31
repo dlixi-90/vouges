@@ -2,10 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import mongoose from "mongoose";
 import { ARTICLE_LIMITS, sanitizeArticle, articleToPlainText, articleFromText, getArticleDocument, isArticleUrl } from "../../../client/src/utils/productArticle.js";
-import { saveCatalogProduct } from "../../controllers/catalogController.js";
+import { saveCatalogProduct, saveLibraryTerm } from "../../controllers/catalogController.js";
 import Product from "../../models/Product.js";
 import CatalogSource from "../../models/CatalogSource.js";
 import Category from "../../models/Category.js";
+import FragranceTerm from "../../models/FragranceTerm.js";
 import { v2 as cloudinary } from "cloudinary";
 import { createProduct } from "../../controllers/productController.js";
 
@@ -109,4 +110,51 @@ test("new products save article formatting separately from their gallery and ign
   assert.equal(saved.description, articleToPlainText(sanitizeArticle(sample())));
   assert.deepEqual(saved.images, ["https://example.com/product.jpg"]);
   await new Product(saved).validate();
+});
+
+for(const kind of ['brand','group','accord','note'])test(`${kind} introductions save the complete article with formatting/images and preserve the existing illustration`, async t=>{
+  const original=new FragranceTerm({kind,key:`example-${kind}`,name:'Tên mục',description:'Giới thiệu cũ',image:'/images/existing-logo.webp',sourceUrl:'https://example.com/original'}).toObject();
+  t.mock.method(FragranceTerm,'findByIdAndUpdate',async(id,{$set:update},options)=>{
+    assert.equal(id,String(original._id));assert.equal(options.runValidators,true);
+    assert.deepEqual(update.descriptionContent,sanitizeArticle(sample()));
+    assert.equal(update.description,articleToPlainText(sanitizeArticle(sample())));
+    assert.equal(update.image,undefined);assert.equal(update.kind,undefined);assert.equal(update.sourceUrl,undefined);
+    const saved=new FragranceTerm({...original,...update});await saved.validate();return saved.toObject();
+  });
+  const res=response();
+  await saveLibraryTerm({params:{id:String(original._id)},body:{name:original.name,description:'Forged plain-text summary',descriptionContent:sample(),contentStatus:'complete'}},res);
+  assert.equal(res.body.success,true);assert.deepEqual(res.body.term.descriptionContent,sanitizeArticle(sample()));
+  assert.equal(res.body.term.image,original.image);assert.equal(res.body.term.kind,kind);
+});
+
+test('library introduction rejects unsafe or oversized article content before writing',async t=>{
+  const write=t.mock.method(FragranceTerm,'findByIdAndUpdate',()=>assert.fail('Invalid article cannot be written'));
+  const id=String(new mongoose.Types.ObjectId());
+  for(const article of [doc([{type:'script'}]),doc([{type:'image',attrs:{src:'javascript:alert(1)'}}]),doc([paragraph('x'.repeat(ARTICLE_LIMITS.text+1))])]){
+    const res=response();await saveLibraryTerm({params:{id},body:{name:'Giới thiệu',description:'',descriptionContent:article,contentStatus:'complete'}},res);
+    assert.equal(res.statusCode,400);
+  }
+  assert.equal(write.mock.callCount(),0);
+});
+
+test('long library introductions keep their full document and only bound the legacy text summary',async t=>{
+  const article=doc([paragraph('Hương thơm '.repeat(1000))]);
+  t.mock.method(FragranceTerm,'findByIdAndUpdate',async(id,{$set:update})=>{
+    assert.equal(update.description.length,5000);
+    assert.equal(update.descriptionContent.content[0].content[0].text.length,11000);
+    const saved=new FragranceTerm({_id:id,kind:'brand',key:'example',...update});await saved.validate();return saved.toObject();
+  });
+  const res=response();await saveLibraryTerm({params:{id:String(new mongoose.Types.ObjectId())},body:{name:'Brand',description:'',descriptionContent:article,contentStatus:'complete'}},res);
+  assert.equal(res.body.success,true);
+});
+
+test('legacy library descriptions remain editable and replacing rich text with plain text clears stale formatting',async t=>{
+  const text='Giới thiệu cũ\nNội dung tiếng Việt <strong>nguyên văn</strong>';
+  assert.equal(articleToPlainText(getArticleDocument(undefined,text)),text);
+  t.mock.method(FragranceTerm,'findByIdAndUpdate',async(id,{$set:update})=>{
+    assert.equal(update.description,text);assert.equal(update.descriptionContent,null);assert.equal(update.image,undefined);
+    return {_id:id,...update};
+  });
+  const res=response();await saveLibraryTerm({params:{id:String(new mongoose.Types.ObjectId())},body:{name:'Brand',description:text,contentStatus:'linked'}},res);
+  assert.equal(res.body.success,true);
 });

@@ -11,7 +11,7 @@ import ProductArticleEditor from "../../components/owner/ProductArticleEditor";
 import { sanitizeArticle } from "../../utils/productArticle";
 import { AccordEditor, AssessmentEditor } from "../../components/owner/FragranceEditorFields";
 import { editableFragrance } from "../../utils/fragrance";
-import { renameCatalogSize, catalogSizeRenames } from "../../utils/catalogVariantEdit";
+import { resolveCatalogSizeNames, catalogSizeRenames } from "../../utils/catalogVariantEdit";
 import ScentNotes from "../../components/ScentNotes";
 
 const tabs = [{ key: "general", label: "Thông tin chung" }, { key: "variants", label: "Dung tích & giá" }, { key: "fragrance", label: "Hồ sơ mùi" }, { key: "assessments", label: "Đánh giá trải nghiệm" }, { key: "images", label: "Hình ảnh" }];
@@ -31,24 +31,24 @@ function PerfumeForm({ product, reload }) {
   const [busy, setBusy] = useState(false), [uploading, setUploading] = useState(false), [error, setError] = useState("");
   const [newSize, setNewSize] = useState("");
   const unresolvedReview = (product.source?.profileCompletion?.unresolved || []).filter(item => product.qualityIssues?.includes(item.code));
-  const [editingVariant, setEditingVariant] = useState(false);
   const [notesText, setNotesText] = useState(() => Object.fromEntries(["top", "middle", "base", "general"].map(phase => [phase, (product.fragrance?.notes?.[phase] || []).map(note => note.name).join("\n")])));
   const accordLibrary = useCatalog(tab === "fragrance" ? "/terms?kind=accord&pageSize=100" : null);
   const update = (field, value) => setDraft(current => ({ ...current, [field]: value }));
   const fragranceField = (field, value) => setDraft(current => ({ ...current, fragrance: { ...current.fragrance, [field]: value } }));
   const variantField = (field, size, value) => setDraft(current => ({ ...current, [field]: { ...current[field], [size]: value } }));
-  const renameSize = (from, value) => setDraft(renameCatalogSize(draft, from, value));
+  const renameSize = (from, value) => setDraft(current => ({ ...current, sizeNames: { ...current.sizeNames, [from]: value } }));
 
   const save = async event => {
     event.preventDefault();
-    if (busy || uploading || editingVariant) return;
+    if (busy || uploading) return;
     setBusy(true); setError("");
     const fragrance = draft.fragrance;
     try {
+      const variants = resolveCatalogSizeNames(draft);
       const descriptionContent = sanitizeArticle(draft.descriptionContent ?? null);
       const { data } = await axios.patch(`/api/catalog/products/${product._id}`, {
-        title: draft.title, sizes: draft.sizes, sizeRenames: catalogSizeRenames(draft), group: fragrance.group || "", style: fragrance.style || "", brand: draft.brand, origin: draft.origin, gender: draft.gender, concentration: draft.concentration, description: draft.description,
-        descriptionContent, inventoryMode: draft.inventoryMode, price: draft.price, stockBySize: draft.stockBySize, inStockBySize: draft.inStockBySize, sizeImages: draft.sizeImages, images: draft.images,
+        title: draft.title, sizes: variants.sizes, sizeRenames: catalogSizeRenames(variants), group: fragrance.group || "", style: fragrance.style || "", brand: draft.brand, origin: draft.origin, gender: draft.gender, concentration: draft.concentration, description: draft.description,
+        descriptionContent, inventoryMode: draft.inventoryMode, price: variants.price, stockBySize: variants.stockBySize, inStockBySize: variants.inStockBySize, sizeImages: variants.sizeImages, images: draft.images,
         notes: fragrance.notes || {}, accords: fragrance.accords, longevity: fragrance.longevity, sillage: fragrance.sillage, suitability: fragrance.suitability, expectedUpdatedAt: product.updatedAt,
       }, { headers: { Authorization: `Bearer ${await getToken()}` } });
       if (!data.success) throw new Error(data.message);
@@ -77,9 +77,10 @@ function PerfumeForm({ product, reload }) {
 
   const addSize = () => {
     const size = newSize.trim();
-    if (!size || size.length > 50 || size.includes(".") || size.startsWith("$") || ["__proto__", "constructor", "prototype"].includes(size) || draft.sizes.some(item => item.toLowerCase() === size.toLowerCase())) { toast.error("Tên dung tích không hợp lệ hoặc bị trùng. Dùng dấu phẩy thay cho dấu chấm."); return; }
+    if (!size || size.length > 50 || size.includes(".") || size.startsWith("$") || ["__proto__", "constructor", "prototype"].includes(size) || draft.sizes.some(item => (draft.sizeNames?.[item] ?? item).normalize("NFC").trim().toLocaleLowerCase("vi-VN") === size.normalize("NFC").toLocaleLowerCase("vi-VN"))) { toast.error("Tên dung tích không hợp lệ hoặc bị trùng. Dùng dấu phẩy thay cho dấu chấm."); return; }
+    if (draft.sizes.some(item => item.toLocaleLowerCase("vi-VN") === size.toLocaleLowerCase("vi-VN"))) { toast.error("Lưu thay đổi dung tích trước khi thêm lại tên cũ."); return; }
     if (draft.sizes.length >= 50) { toast.error("Tối đa 50 dung tích cho mỗi sản phẩm."); return; }
-    setDraft(current => ({ ...current, sizeOrigins: { ...(current.sizeOrigins ?? Object.fromEntries(product.sizes.map(item => [item, item]))), [size]: null }, sizes: [...current.sizes, size], price: { ...current.price, [size]: 0 }, stockBySize: { ...current.stockBySize, [size]: 0 }, inStockBySize: { ...current.inStockBySize, [size]: false } })); setNewSize("");
+    setDraft(current => ({ ...current, sizeNames: { ...current.sizeNames, [size]: size }, sizeOrigins: { ...(current.sizeOrigins ?? Object.fromEntries(product.sizes.map(item => [item, item]))), [size]: null }, sizes: [...current.sizes, size], price: { ...current.price, [size]: 0 }, stockBySize: { ...current.stockBySize, [size]: 0 }, inStockBySize: { ...current.inStockBySize, [size]: false } })); setNewSize("");
   };
   const field = (name, label, options = {}) => <label className="perfume-field"><span>{label}</span><input value={draft[name] || ""} onChange={event => update(name, event.target.value)} maxLength={200} {...options} /></label>;
   const notes = (phase, text) => {
@@ -89,10 +90,10 @@ function PerfumeForm({ product, reload }) {
     setDraft(current => ({ ...current, fragrance: { ...current.fragrance, notes: { ...current.fragrance.notes, [phase]: list } } }));
   };
 
-  return <CatalogPage title={draft.title} actions={<><Link to="/owner/list-product" className="perfume-button"><ArrowLeft size={15} />Danh sách</Link><button form={formId} type="submit" disabled={busy || uploading || editingVariant} className="perfume-button primary"><Save size={15} />{busy ? "Đang lưu…" : uploading ? "Đang tải ảnh…" : editingVariant ? "Xác nhận dung tích trước" : "Lưu thay đổi"}</button></>}>
+  return <CatalogPage title={draft.title} actions={<><Link to="/owner/list-product" className="perfume-button"><ArrowLeft size={15} />Danh sách</Link><button form={formId} type="submit" disabled={busy || uploading} className="perfume-button primary"><Save size={15} />{busy ? "Đang lưu…" : uploading ? "Đang tải ảnh…" : "Lưu thay đổi"}</button></>}>
     {error && <div role="alert" className="perfume-alert">{error}</div>}
     <div className="perfume-editor-summary"><span className="perfume-editor-thumb">{draft.images?.[0] && <ProductImage src={draft.images[0]} alt="" imageWidth={200} />}</span><div><div className="perfume-inline-badges"><Badge>{draft.sizes.length} dung tích / phân loại</Badge></div></div></div>
-    <nav className="perfume-tabs" aria-label="Các phần sản phẩm">{tabs.map(item => <button type="button" key={item.key} disabled={busy || uploading || editingVariant} aria-current={tab === item.key ? "page" : undefined} className={tab === item.key ? "active" : ""} onClick={() => setTab(item.key)}>{item.label}</button>)}</nav>
+    <nav className="perfume-tabs" aria-label="Các phần sản phẩm">{tabs.map(item => <button type="button" key={item.key} disabled={busy || uploading} aria-current={tab === item.key ? "page" : undefined} className={tab === item.key ? "active" : ""} onClick={() => setTab(item.key)}>{item.label}</button>)}</nav>
     <form id={formId} onSubmit={save} className="perfume-editor-body">
       {tab === "general" && <>
         <div className="perfume-editor-columns"><section className="perfume-panel"><h2>Thông tin nước hoa</h2><div className="perfume-form-grid">{field("title", "Tên sản phẩm", { required: true })}{field("brand", "Thương hiệu")}{field("origin", "Xuất xứ")}{field("concentration", "Nồng độ")}{field("gender", "Đối tượng sử dụng")}<label className="perfume-field"><span>Danh mục</span><input value={product.category} readOnly /></label></div></section><aside className="perfume-panel"><h2>Hồ sơ cần chú ý</h2>{product.qualityIssues?.length ? <ul className="perfume-issue-list">{product.qualityIssues.map(issue => <li key={issue}>{issueLabels[issue] || issue}</li>)}</ul> : <p>Các trường cơ bản đã được điền.</p>}</aside></div>
@@ -101,7 +102,7 @@ function PerfumeForm({ product, reload }) {
             onChange={(descriptionContent, description) => setDraft(current => ({ ...current, descriptionContent, description }))} />
         </section>
       </>}
-      {tab === "variants" && <VariantEditor draft={draft} uploading={uploading || busy} onChange={update} onVariantField={variantField} onUpload={upload} newSize={newSize} setNewSize={setNewSize} addSize={addSize} onRename={renameSize} onEditingChange={setEditingVariant} />}
+      {tab === "variants" && <VariantEditor draft={draft} uploading={uploading || busy} onChange={update} onVariantField={variantField} onUpload={upload} newSize={newSize} setNewSize={setNewSize} addSize={addSize} onRename={renameSize} />}
       {tab === "fragrance" && <section className="perfume-panel"><div className="perfume-section-heading"><h2>Hồ sơ mùi hương</h2><Link to="/owner/library?kind=accord" className="perfume-button">Mở thư viện kiểu mùi</Link></div><div className="perfume-form-grid mb-5">{["group", "style"].map(key => <label className="perfume-field" key={key}><span>{key === "group" ? "Nhóm hương" : "Phong cách"}</span><input maxLength={500} value={draft.fragrance[key] || ""} onChange={event => fragranceField(key, event.target.value)} /></label>)}</div><div className="perfume-notes-grid">{[{ phase: "top", label: "Hương đầu" }, { phase: "middle", label: "Hương giữa" }, { phase: "base", label: "Hương cuối" }].map(({ phase, label }) => <label className="perfume-field" key={phase}><span>{label}</span><textarea rows={8} value={notesText[phase]} onChange={event => notes(phase, event.target.value)} placeholder="Mỗi note một dòng" /></label>)}</div>{accordLibrary.error && <p role="alert" className="perfume-muted">Không tải được gợi ý thư viện. Bạn vẫn có thể nhập tên kiểu mùi.</p>}<AccordEditor accords={draft.fragrance.accords} terms={accordLibrary.data?.terms || []} onChange={rows => fragranceField("accords", rows)} listId={`${formId}-accords`} /></section>}
       {tab === "assessments" && <section className="perfume-panel"><div className="perfume-section-heading"><h2>Đánh giá trải nghiệm</h2></div><AssessmentEditor fragrance={draft.fragrance} onChange={fragranceField} /></section>}
       {tab === "fragrance" && <section className="perfume-panel">

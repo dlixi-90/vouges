@@ -165,9 +165,16 @@ export const libraryTerms = catalogAction(async(req,res)=>{
 
 export const saveLibraryTerm = catalogAction(async(req,res)=>{
   if(!isValidObjectId(req.params.id))fail("Mã thư viện không hợp lệ");
-  const {name,description,image,contentStatus}=req.body;
+  const {name,description,descriptionContent,image,contentStatus}=req.body;
   if(typeof name!=="string"||!name.trim()||name.length>200||typeof description!=="string"||description.length>5000||image&&!address(image)||!["linked","complete"].includes(contentStatus))fail("Nội dung thư viện không hợp lệ");
-  const term=await FragranceTerm.findByIdAndUpdate(req.params.id,{$set:{name:name.trim(),description:description.trim(),image:image||"",contentStatus}},{new:true,runValidators:true});if(!term)fail("Không tìm thấy mục thư viện",404);
+  const update={name:name.trim(),description:description.trim(),contentStatus};
+  if(descriptionContent!==undefined){
+    update.descriptionContent=sanitizeArticle(descriptionContent);
+    if(update.descriptionContent)update.description=articleToPlainText(update.descriptionContent).trim().slice(0,5000);
+  }else update.descriptionContent=null;
+  // Removing the image URL field from the editor must not erase existing brand logos.
+  if(image!==undefined)update.image=image||"";
+  const term=await FragranceTerm.findByIdAndUpdate(req.params.id,{$set:update},{new:true,runValidators:true});if(!term)fail("Không tìm thấy mục thư viện",404);
   res.json({success:true,term});
 });
 

@@ -9,7 +9,7 @@ import { updateProduct } from "../../controllers/productController.js";
 import { getSizeRenames, buildCartSizeRename } from "../../utils/productVariants.js";
 import { saveCatalogProduct } from "../../controllers/catalogController.js";
 import CatalogSource from "../../models/CatalogSource.js";
-import { renameCatalogSize, catalogSizeRenames } from "../../../client/src/utils/catalogVariantEdit.js";
+import { renameCatalogSize, catalogSizeRenames, catalogSizeNameErrors, resolveCatalogSizeNames } from "../../../client/src/utils/catalogVariantEdit.js";
 
 const id = "507f1f77bcf86cd799439011";
 const updatedAt = new Date("2026-09-01T00:00:00Z");
@@ -171,6 +171,45 @@ test("catalog rename rejects blank, duplicate and unsafe names; new rows do not 
   const draft = { ...original, sizes: [...original.sizes, "30"], sizeOrigins: { "100ml": "100ml", "50ml": "50ml", "30": null }, price: { ...original.price, "30": 300000 } };
   const renamed = renameCatalogSize(draft, "30", "30ml");
   assert.deepEqual(catalogSizeRenames(renamed), []); assert.equal(renamed.price["30ml"], 300000);
+});
+
+test("direct capacity typing leaves row data stable until save, which moves the latest prices, stock and image together", () => {
+  const original=perfume(), before=structuredClone(original);
+  const draft={...original,sizeNames:{"100ml":" 75ml "},price:{...original.price,"100ml":1700000},stockBySize:{...original.stockBySize,"100ml":8}};
+  assert.deepEqual(draft.sizes,["100ml","50ml"]);
+  const saved=resolveCatalogSizeNames(draft);
+  assert.deepEqual(saved.sizes,["75ml","50ml"]);
+  assert.equal(saved.price['75ml'],1700000);assert.equal(saved.stockBySize['75ml'],8);
+  assert.equal(saved.inStockBySize['75ml'],false);
+  assert.equal(saved.sizeImages['75ml'],original.sizeImages['100ml']);
+  assert.deepEqual(saved.variantMetadata['75ml'],original.variantMetadata['100ml']);
+  assert.deepEqual(catalogSizeRenames(saved),[{from:'100ml',to:'75ml'}]);
+  assert.equal(saved.sizeNames,undefined);assert.deepEqual(original,before);
+});
+
+test("direct edits can be temporarily empty or duplicate, but cannot be saved invalid even after changing tabs", () => {
+  for(const name of ['', ' ', '50ML', 'bad.name', '$bad', '__proto__', 'constructor', 'prototype', 'x'.repeat(51)]){
+    const draft={...perfume(),sizeNames:{'100ml':name}};
+    assert.ok(catalogSizeNameErrors(draft)['100ml']);
+    assert.throws(()=>resolveCatalogSizeNames(draft));
+  }
+  const duplicate={...perfume(),sizeNames:{'100ml':'50ML'}};
+  assert.ok(catalogSizeNameErrors(duplicate)['50ml']);
+  duplicate.sizeNames['100ml']='60ml';
+  assert.deepEqual(catalogSizeNameErrors(duplicate),{});
+});
+
+test("batch capacity renames preserve distinct rows when names are swapped or a newly added row is edited", () => {
+  const original=perfume();
+  const swapped=resolveCatalogSizeNames({...original,sizeNames:{'100ml':'50ml','50ml':'100ml'}});
+  assert.equal(swapped.price['50ml'],1600000);assert.equal(swapped.price['100ml'],900000);
+  assert.deepEqual(catalogSizeRenames(swapped),[{from:'100ml',to:'50ml'},{from:'50ml',to:'100ml'}]);
+  assert.deepEqual(getSizeRenames({sizeRenames:catalogSizeRenames(swapped)},original,swapped.sizes),catalogSizeRenames(swapped));
+  const added={...original,sizes:[...original.sizes,'30ml'],sizeNames:{'100ml':'75ml','30ml':'20ml'},sizeOrigins:{'100ml':'100ml','50ml':'50ml','30ml':null},price:{...original.price,'30ml':2200000}};
+  const saved=resolveCatalogSizeNames(added);
+  assert.deepEqual(saved.sizes,['75ml','50ml','20ml']);assert.equal(saved.price['20ml'],2200000);
+  assert.equal(saved.sizeOrigins['20ml'],null);assert.deepEqual(catalogSizeRenames(saved),[{from:'100ml',to:'75ml'}]);
+  assert.deepEqual(getSizeRenames({sizeRenames:catalogSizeRenames(saved)},original,saved.sizes),catalogSizeRenames(saved));
 });
 
 const catalogSetup = (t, { pendingQr = false, stale = false } = {}) => {

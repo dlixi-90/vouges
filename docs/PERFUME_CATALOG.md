@@ -66,6 +66,8 @@ Thanh phân trang dùng chung hiển thị tối đa bảy vị trí số/dấu 
 
 950 note bao gồm 609 note có tên/liên kết trong hồ sơ sản phẩm và phần URL bổ sung từ sitemap. Nội dung giới thiệu, nguồn gốc và ảnh minh họa chưa được nguồn nghiên cứu thu thập đầy đủ; các mục mang trạng thái `Cần biên soạn`, không tự sinh mô tả để lấp dữ liệu thiếu.
 
+Biên tập thương hiệu, nhóm hương, kiểu mùi và note hương dùng trường **Giới thiệu** với cùng trình soạn thảo như mô tả sản phẩm: định dạng chữ, liên kết, ảnh và xem trước. Tài liệu đầy đủ được lưu tại `FragranceTerm.descriptionContent`, dùng chung quy tắc kiểm tra và giới hạn bài viết; `description` là bản văn bản thuần tối đa 5.000 ký tự. Nội dung cũ được mở từ văn bản thuần để tiếp tục biên tập. Ô liên kết ảnh minh họa đã bỏ; lưu giới thiệu không thay đổi ảnh/logo hiện có. Trình soạn thảo chỉ tải khi mở biên tập, và không cho lưu/đóng hộp thoại trong lúc đang tải ảnh.
+
 Biểu đồ lưu/tỏa hương, mùa và ngày/đêm luôn hiển thị trên trang chi tiết, kể cả sản phẩm cũ còn cờ `assessmentsVisible: false`; dashboard không còn nút bật/tắt. Có thể sửa số lượt và tỷ lệ, thêm/xóa/sắp xếp các kiểu mùi chính. Bản ghi nguồn và dấu hiệu bất thường vẫn được giữ để đối chiếu; giá trị được biên tập không ghi đè `CatalogSource`. Số lượt nhập phải là số nguyên không âm, tỷ lệ từ 0–100% hoặc để trống khi chưa biết. Không tự chuẩn hóa tỷ lệ hay tính từ số lượt vì phương pháp tổng hợp nguồn chưa được xác minh; các kiểu mùi và mùa/thời điểm độc lập, không cần cộng thành 100%.
 
 Bộ ảnh hỗ trợ thêm tối đa 4 ảnh/lượt, thay từng ảnh, sắp xếp, xóa và chọn đại diện. Ảnh đầu là đại diện, được loại khỏi gallery chi tiết; ảnh riêng từng dung tích vẫn độc lập. Ảnh mới tối đa 5 MB/tệp, bộ ảnh tối đa 30 tệp.

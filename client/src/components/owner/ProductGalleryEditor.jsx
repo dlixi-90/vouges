@@ -8,7 +8,7 @@ export default function ProductGalleryEditor({ images, uploading, onChange, onUp
     onChange(ordered);
   };
   return <section className="perfume-panel">
-    <div className="perfume-section-heading"><div><h2>Bộ ảnh sản phẩm</h2><p className="perfume-muted">Ảnh đầu tiên là ảnh đại diện và không nằm trong gallery ở trang chi tiết. Ảnh dung tích quản lý riêng trong tab Dung tích & giá.</p><p className="perfume-muted">{images.length}/30 ảnh · Tải tối đa 4 ảnh/lượt, 5 MB/ảnh.</p></div><label className="perfume-button"><Upload size={15} />Thêm ảnh<input className="sr-only" aria-label="Thêm ảnh sản phẩm" type="file" accept="image/png,image/jpeg,image/webp" multiple disabled={uploading || images.length >= 30} onChange={event => { void onUpload([...event.target.files]); event.target.value = ""; }} /></label></div>
+    <div className="perfume-section-heading"><h2>Bộ ảnh sản phẩm</h2><label className="perfume-button"><Upload size={15} />Thêm ảnh<input className="sr-only" aria-label="Thêm ảnh sản phẩm" type="file" accept="image/png,image/jpeg,image/webp" multiple disabled={uploading || images.length >= 30} onChange={event => { void onUpload([...event.target.files]); event.target.value = ""; }} /></label></div>
     {!images.length && <div className="perfume-gallery-empty"><Image size={34} strokeWidth={1.2} /><p>Chưa có ảnh sản phẩm. Thêm ảnh để đặt ảnh đại diện và xây dựng gallery.</p></div>}
     <div className="perfume-gallery">{images.map((image, index) => <div key={`${image}-${index}`}>
       <ProductImage src={image} alt={`Ảnh ${index + 1}`} imageWidth={500} />

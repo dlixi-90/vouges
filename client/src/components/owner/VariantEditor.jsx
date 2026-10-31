@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { Check, Image, Pencil, Plus, Upload, X } from "lucide-react";
+import { useId } from "react";
+import { Image, Plus, Trash2, Upload, X } from "lucide-react";
 import ProductImage from "../ProductImage";
 import VndAmountInput from "./VndAmountInput";
+import { catalogSizeNameErrors } from "../../utils/catalogVariantEdit";
 
 export default function VariantEditor({
   draft,
@@ -13,22 +14,10 @@ export default function VariantEditor({
   setNewSize,
   addSize,
   onRename,
-  onEditingChange,
 }) {
-  const [editing, setEditing] = useState(null);
-  const locked = uploading || Boolean(editing);
-  const cancel = () => {
-    setEditing(null);
-    onEditingChange(false);
-  };
-  const confirm = () => {
-    try {
-      onRename(editing.size, editing.value);
-      cancel();
-    } catch (error) {
-      setEditing((current) => ({ ...current, error: error.message }));
-    }
-  };
+  const fieldId = useId();
+  const locked = uploading;
+  const sizeErrors = catalogSizeNameErrors(draft);
   const total = draft.sizes.reduce(
     (sum, size) => sum + (Number(draft.stockBySize?.[size]) || 0),
     0,
@@ -68,113 +57,67 @@ export default function VariantEditor({
             </tr>
           </thead>
           <tbody>
-            {draft.sizes.map((size) => (
+            {draft.sizes.map((size, index) => (
               <tr key={size}>
                 <td>
-                  <div className="perfume-variant-image">
-                    {draft.sizeImages?.[size] ? (
-                      <ProductImage
-                        src={draft.sizeImages[size]}
-                        alt={`Ảnh dung tích ${size}`}
-                        imageWidth={160}
-                      />
-                    ) : (
-                      <span className="perfume-variant-placeholder">
-                        <Image size={22} strokeWidth={1.4} />
-                      </span>
-                    )}
-                    <label className="perfume-upload-button">
-                      <Upload size={13} />
-                      <input
-                        type="file"
-                        className="sr-only"
-                        accept="image/png,image/jpeg,image/webp"
-                        aria-label={`Tải ảnh dung tích ${size}`}
-                        disabled={locked}
-                        onChange={(event) => {
-                          void onUpload([...event.target.files], { size });
-                          event.target.value = "";
-                        }}
-                      />
-                    </label>
-                  </div>
-                  {draft.sizeImages?.[size] && (
-                    <button
-                      type="button"
-                      className="perfume-inline-link"
-                      disabled={locked}
-                      aria-label={`Bỏ ảnh dung tích ${size}`}
-                      onClick={() => onVariantField("sizeImages", size, null)}
-                    >
-                      Bỏ ảnh
-                    </button>
-                  )}
-                </td>
-                <td>
-                  {editing?.size === size ? (
-                    <div className="perfume-size-edit">
-                      <div>
-                        <input
-                          autoFocus
-                          aria-label={`Tên dung tích ${size}`}
-                          value={editing.value}
-                          maxLength={50}
-                          aria-invalid={Boolean(editing.error)}
-                          onChange={(event) =>
-                            setEditing((current) => ({
-                              ...current,
-                              value: event.target.value,
-                              error: "",
-                            }))
-                          }
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter") {
-                              event.preventDefault();
-                              confirm();
-                            } else if (event.key === "Escape") {
-                              event.preventDefault();
-                              cancel();
-                            }
-                          }}
+                  <div className="perfume-variant-media">
+                    <div className="perfume-variant-image">
+                      {draft.sizeImages?.[size] ? (
+                        <ProductImage
+                          src={draft.sizeImages[size]}
+                          alt={`Ảnh dung tích ${size}`}
+                          imageWidth={160}
                         />
-                        <button
-                          type="button"
-                          className="perfume-icon-button"
-                          aria-label={`Xác nhận dung tích ${size}`}
-                          onClick={confirm}
-                        >
-                          <Check size={15} />
-                        </button>
-                        <button
-                          type="button"
-                          className="perfume-icon-button"
-                          aria-label="Hủy sửa dung tích"
-                          onClick={cancel}
-                        >
-                          <X size={15} />
-                        </button>
-                      </div>
-                      {editing.error && (
-                        <small role="alert">{editing.error}</small>
+                      ) : (
+                        <span className="perfume-variant-placeholder">
+                          <Image size={22} strokeWidth={1.4} aria-hidden="true" />
+                        </span>
                       )}
                     </div>
-                  ) : (
-                    <div className="perfume-size-name">
-                      <strong>{size}</strong>
+                    <div className="perfume-variant-image-actions">
+                      <label className="perfume-variant-image-action" title={draft.sizeImages?.[size] ? "Thay ảnh" : "Tải ảnh"} aria-disabled={locked}>
+                        <Upload size={15} strokeWidth={1.7} aria-hidden="true" />
+                        <input
+                          type="file"
+                          className="sr-only"
+                          accept="image/png,image/jpeg,image/webp"
+                          aria-label={`Tải ảnh dung tích ${size}`}
+                          disabled={locked}
+                          onChange={(event) => {
+                            void onUpload([...event.target.files], { size });
+                            event.target.value = "";
+                          }}
+                        />
+                      </label>
                       <button
                         type="button"
-                        className="perfume-icon-button"
-                        aria-label={`Sửa dung tích ${size}`}
-                        disabled={locked}
-                        onClick={() => {
-                          setEditing({ size, value: size, error: "" });
-                          onEditingChange(true);
-                        }}
+                        className="perfume-variant-image-action is-remove"
+                        title="Bỏ ảnh"
+                        disabled={locked || !draft.sizeImages?.[size]}
+                        aria-label={`Bỏ ảnh dung tích ${size}`}
+                        onClick={() => onVariantField("sizeImages", size, null)}
                       >
-                        <Pencil size={14} />
+                        <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" />
                       </button>
                     </div>
-                  )}
+                  </div>
+                </td>
+                <td>
+                  <div className="perfume-size-field">
+                    <input
+                      className="perfume-size-input"
+                      type="text"
+                      aria-label={`Tên dung tích ${size}`}
+                      value={draft.sizeNames?.[size] ?? size}
+                      required
+                      maxLength={50}
+                      disabled={locked}
+                      aria-invalid={Boolean(sizeErrors[size])}
+                      aria-describedby={sizeErrors[size] ? `${fieldId}-${index}` : undefined}
+                      onChange={(event) => onRename(size, event.target.value)}
+                    />
+                    {sizeErrors[size] && <small id={`${fieldId}-${index}`} role="alert">{sizeErrors[size]}</small>}
+                  </div>
                 </td>
                 <td>
                   <VndAmountInput

@@ -22,3 +22,32 @@ export const renameCatalogSize = (draft, from, value) => {
 export const catalogSizeRenames = draft => draft.sizes
   .filter(size => draft.sizeOrigins?.[size] && draft.sizeOrigins[size] !== size)
   .map(size => ({ from: draft.sizeOrigins[size], to: size }));
+
+const sizeName = (draft, key) => String(draft.sizeNames?.[key] ?? key).normalize("NFC").trim();
+
+export const catalogSizeNameErrors = draft => {
+  const errors = {}, names = new Map();
+  for (const key of draft.sizes) {
+    const name = sizeName(draft, key), normalized = name.toLocaleLowerCase("vi-VN");
+    if (!name || name.length > 50 || name.includes(".") || name.startsWith("$") || ["__proto__", "constructor", "prototype"].includes(name)) {
+      errors[key] = "Tên dung tích tối đa 50 ký tự, không để trống, chứa dấu chấm hoặc bắt đầu bằng $.";
+    } else if (names.has(normalized)) {
+      errors[key] = errors[names.get(normalized)] = "Dung tích này đã tồn tại.";
+    } else names.set(normalized, key);
+  }
+  return errors;
+};
+
+// Keep row keys stable while typing, then move every variant field together on save.
+// Build maps from the original rows so simultaneous renames/swaps cannot overwrite data.
+export const resolveCatalogSizeNames = draft => {
+  const errors = catalogSizeNameErrors(draft);
+  if (Object.keys(errors).length) throw new Error(Object.values(errors)[0]);
+  const next = { ...draft, sizes: draft.sizes.map(key => sizeName(draft, key)) };
+  for (const field of ["price", "stockBySize", "inStockBySize", "sizeImages", "variantMetadata", "sizeOrigins"]) {
+    const original = field === "sizeOrigins" ? draft.sizeOrigins ?? Object.fromEntries(draft.sizes.map(key => [key, key])) : draft[field] ?? {};
+    next[field] = Object.fromEntries(draft.sizes.filter(key => Object.hasOwn(original, key)).map(key => [sizeName(draft, key), original[key]]));
+  }
+  delete next.sizeNames;
+  return next;
+};

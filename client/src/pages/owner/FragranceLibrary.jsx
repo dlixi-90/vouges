@@ -1,10 +1,12 @@
-import {useEffect,useRef,useState} from "react";
+import {lazy,Suspense,useEffect,useRef,useState} from "react";
 import {useSearchParams} from "react-router-dom";
 import {ExternalLink,Search,X,Save} from "lucide-react";
 import toast from "react-hot-toast";
 import {useAppContext} from "../../context/AppContext";
 import {CatalogPage,CatalogState,Pager,Badge,RefreshButton,useCatalog} from "../../components/owner/CatalogUI";
 import usePaginationScroll from "../../hooks/usePaginationScroll";
+import {sanitizeArticle} from "../../utils/productArticle";
+const ProductArticleEditor=lazy(()=>import("../../components/owner/ProductArticleEditor"));
 const kinds=[{key:"group",label:"Nhóm hương"},{key:"accord",label:"Kiểu mùi"},{key:"note",label:"Note hương"}];
 export default function FragranceLibrary({brands=false}){
   const [params,setParams]=useSearchParams();const kind=brands?"brand":kinds.some(item=>item.key===params.get("kind"))?params.get("kind"):"group";
@@ -19,8 +21,36 @@ export default function FragranceLibrary({brands=false}){
   </CatalogPage>;
 }
 function LibraryEditor({term,onClose,onSaved}){
-  const {axios,getToken}=useAppContext();const ref=useRef(null);const [draft,setDraft]=useState({name:term.name,description:term.description||"",image:term.image||"",contentStatus:term.contentStatus});const [busy,setBusy]=useState(false),[error,setError]=useState("");
+  const {axios,getToken}=useAppContext();
+  const ref=useRef(null);
+  const [draft,setDraft]=useState({name:term.name,description:term.description||"",descriptionContent:term.descriptionContent??null,contentStatus:term.contentStatus});
+  const [busy,setBusy]=useState(false),[uploading,setUploading]=useState(false),[error,setError]=useState("");
+  const locked=busy||uploading;
   useEffect(()=>{const dialog=ref.current;dialog.showModal();return()=>dialog.close();},[]);
-  const save=async event=>{event.preventDefault();setBusy(true);setError("");try{await axios.patch(`/api/catalog/terms/${term._id}`,draft,{headers:{Authorization:`Bearer ${await getToken()}`}});toast.success("Đã lưu nội dung thư viện");onSaved();}catch(err){setError(err.response?.data?.message||err.message);}finally{setBusy(false);}};
-  return <dialog ref={ref} className="perfume-library-dialog" aria-labelledby="library-editor-title" onCancel={event=>{event.preventDefault();if(!busy)onClose();}}><form onSubmit={save}><header><div><p className="perfume-eyebrow">THƯ VIỆN VELOURS</p><h2 id="library-editor-title">Biên tập nội dung</h2></div><button type="button" className="perfume-icon-button" disabled={busy} onClick={onClose} aria-label="Đóng biên tập"><X size={20}/></button></header>{error&&<p role="alert" className="perfume-alert">{error}</p>}<label className="perfume-field"><span>Tên hiển thị</span><input required maxLength={200} value={draft.name} onChange={event=>setDraft(current=>({...current,name:event.target.value}))}/></label><label className="perfume-field"><span>Giới thiệu / nguồn gốc</span><textarea rows={10} maxLength={5000} value={draft.description} onChange={event=>setDraft(current=>({...current,description:event.target.value}))}/></label><label className="perfume-field"><span>Liên kết ảnh minh họa</span><input type="url" value={draft.image} onChange={event=>setDraft(current=>({...current,image:event.target.value}))}/></label><label className="perfume-field"><span>Tình trạng biên soạn</span><select value={draft.contentStatus} onChange={event=>setDraft(current=>({...current,contentStatus:event.target.value}))}><option value="linked">Cần biên soạn</option><option value="complete">Đã hoàn thiện</option></select></label>{term.sourceUrl&&<a href={term.sourceUrl} target="_blank" rel="noreferrer" className="perfume-inline-link">Đối chiếu nguồn <ExternalLink size={13}/></a>}<footer><button type="button" className="perfume-button" disabled={busy} onClick={onClose}>Hủy</button><button type="submit" className="perfume-button primary" disabled={busy}><Save size={15}/>{busy?"Đang lưu…":"Lưu nội dung"}</button></footer></form></dialog>;
+  const save=async event=>{
+    event.preventDefault();if(locked)return;
+    setBusy(true);setError("");
+    try{
+      const {data}=await axios.patch(`/api/catalog/terms/${term._id}`,{...draft,descriptionContent:sanitizeArticle(draft.descriptionContent)},{headers:{Authorization:`Bearer ${await getToken()}`}});
+      if(!data.success)throw new Error(data.message||"Không thể lưu nội dung thư viện.");
+      toast.success("Đã lưu nội dung thư viện");onSaved();
+    }catch(err){setError(err.response?.data?.message||err.message);}finally{setBusy(false);}
+  };
+  return <dialog ref={ref} className="perfume-library-dialog" aria-labelledby="library-editor-title" onCancel={event=>{event.preventDefault();if(!locked)onClose();}}>
+    <form onSubmit={save}>
+      <header><div><p className="perfume-eyebrow">THƯ VIỆN VELOURS</p><h2 id="library-editor-title">Biên tập nội dung</h2></div><button type="button" className="perfume-icon-button" disabled={locked} onClick={onClose} aria-label="Đóng biên tập"><X size={20}/></button></header>
+      {error&&<p role="alert" className="perfume-alert">{error}</p>}
+      <label className="perfume-field"><span>Tên hiển thị</span><input required maxLength={200} disabled={busy} value={draft.name} onChange={event=>setDraft(current=>({...current,name:event.target.value}))}/></label>
+      <section className="perfume-library-introduction" aria-labelledby="library-introduction-title">
+        <h3 id="library-introduction-title">Giới thiệu</h3>
+        <Suspense fallback={<p role="status" className="perfume-muted">Đang tải trình soạn thảo…</p>}>
+          <ProductArticleEditor value={draft.descriptionContent} text={draft.description} disabled={busy} ariaLabel="Trình soạn thảo giới thiệu" onUploadingChange={setUploading}
+            onChange={(descriptionContent,description)=>setDraft(current=>({...current,descriptionContent,description}))}/>
+        </Suspense>
+      </section>
+      <label className="perfume-field"><span>Tình trạng biên soạn</span><select disabled={busy} value={draft.contentStatus} onChange={event=>setDraft(current=>({...current,contentStatus:event.target.value}))}><option value="linked">Cần biên soạn</option><option value="complete">Đã hoàn thiện</option></select></label>
+      {term.sourceUrl&&<a href={term.sourceUrl} target="_blank" rel="noreferrer" className="perfume-inline-link">Đối chiếu nguồn <ExternalLink size={13}/></a>}
+      <footer><button type="button" className="perfume-button" disabled={locked} onClick={onClose}>Hủy</button><button type="submit" className="perfume-button primary" disabled={locked}><Save size={15}/>{busy?"Đang lưu…":uploading?"Đang tải ảnh…":"Lưu nội dung"}</button></footer>
+    </form>
+  </dialog>;
 }

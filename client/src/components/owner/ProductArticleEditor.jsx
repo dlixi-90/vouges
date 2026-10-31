@@ -19,7 +19,7 @@ const ArticleImage = Image.extend({
   },
 });
 
-export default function ProductArticleEditor({ value, text, onChange, onUploadingChange, disabled = false }) {
+export default function ProductArticleEditor({ value, text, onChange, onUploadingChange, disabled = false, ariaLabel = "Trình soạn thảo mô tả sản phẩm" }) {
   const { axios, getToken } = useAppContext();
   const [preview, setPreview] = useState(false), [uploading, setUploading] = useState(false), [error, setError] = useState("");
   const [linkOpen, setLinkOpen] = useState(false), [linkUrl, setLinkUrl] = useState("");
@@ -33,7 +33,7 @@ export default function ProductArticleEditor({ value, text, onChange, onUploadin
     ],
     content: getArticleDocument(value, text),
     shouldRerenderOnTransaction: true,
-    editorProps: { attributes: { class: "product-article product-article-editable", role: "textbox", "aria-label": "Trình soạn thảo mô tả sản phẩm", "aria-multiline": "true" } },
+    editorProps: { attributes: { class: "product-article product-article-editable", role: "textbox", "aria-label": ariaLabel, "aria-multiline": "true" } },
     onUpdate: ({ editor: current }) => {
       const content = current.getJSON();
       onChange(content, articleToPlainText(content).trim().slice(0, 5000));
