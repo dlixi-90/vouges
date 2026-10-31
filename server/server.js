@@ -15,6 +15,7 @@ import aiRouter from "./routes/aiRoute.js";
 import voucherRouter from "./routes/voucherRoute.js";
 import supportRouter from "./routes/supportRoute.js";
 import catalogRouter from "./routes/catalogRoute.js";
+import libraryRouter from "./routes/libraryRoute.js";
 import { awardBirthdays } from "./controllers/voucherController.js";
 import multer from "multer";
 
@@ -43,6 +44,7 @@ app.use(clerkMiddleware());
 app.use("/api/users", userRouter); // Routes for User functionality
 app.use("/api/products", productRouter); // Routes for handling products
 app.use("/api/catalog", catalogRouter);
+app.use("/api/library", libraryRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/addresses", addressRouter); // Routes for handling addresses
 app.use("/api/cart", cartRouter); // Routes for handling cart

@@ -175,6 +175,7 @@ export const saveLibraryTerm = catalogAction(async(req,res)=>{
   // Removing the image URL field from the editor must not erase existing brand logos.
   if(image!==undefined)update.image=image||"";
   const term=await FragranceTerm.findByIdAndUpdate(req.params.id,{$set:update},{new:true,runValidators:true});if(!term)fail("Không tìm thấy mục thư viện",404);
+  invalidateStorefrontCatalog();
   res.json({success:true,term});
 });
 

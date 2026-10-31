@@ -3,7 +3,7 @@
 .perfume-accord-meter { position:relative; min-width:0; height:38px; color:#171717; font-size:14px; line-height:38px; }
 .perfume-accord-label { display:block; position:relative; padding-inline:12px; white-space:nowrap; }
 .perfume-accord-meter > .perfume-accord-label { overflow:hidden; text-overflow:ellipsis; }
-.perfume-accord-fill { display:block; position:absolute; inset:0 auto 0 0; overflow:hidden; border-radius:0 8px 8px 0; }
+.perfume-accord-fill { display:block; position:absolute; inset:0 auto 0 0; overflow:hidden; border-radius:0 8px 8px 0; pointer-events:none; }
 .perfume-accord-fill > .perfume-accord-label { width:max-content; }
 /* Keep small percentages exact: the label outside a short fill remains dark. */
 @media(max-width:600px) { .perfume-accord-meter { height:36px; font-size:12px; line-height:36px; }.perfume-accord-label { padding-inline:9px; } }

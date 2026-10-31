@@ -45,7 +45,7 @@ export default function BrandMenu({ directory, compact = false, onNavigate }) {
       {directory?.loading && !brands.length && <p role="status" className="store-brand-state">Đang tải thương hiệu…</p>}
       {directory?.error && <p role="alert" className="store-brand-state">{brands.length ? "Chưa thể cập nhật danh sách." : directory.error}<button type="button" onClick={directory.reload}>Thử lại</button></p>}
       {(brands.length > 0 || (!directory?.loading && !directory?.error)) && <div className="store-brand-grid">{visible.map((brand, index) => <Link key={brand.name} to={`/collection?brand=${encodeURIComponent(brand.name)}`} onClick={choose} onPointerEnter={event => prefetchCollection(publicCatalog, event.currentTarget.getAttribute("href"))} onFocus={event => prefetchCollection(publicCatalog, event.currentTarget.getAttribute("href"))} aria-current={active && normalized(selectedBrand) === normalized(brand.name) ? "page" : undefined} className="store-brand-card"><BrandImage brand={brand} eager={index < 10} /><strong>{brand.name}</strong></Link>)}{!visible.length && <p className="store-brand-state">{query ? "Không tìm thấy thương hiệu phù hợp." : "Chưa có thương hiệu trong bộ sưu tập."}</p>}</div>}
-      <footer><Link to="/collection" onClick={choose}>Khám phá toàn bộ bộ sưu tập</Link></footer>
+      <footer className="flex flex-wrap justify-between gap-4"><Link to="/collection" onClick={choose}>Khám phá toàn bộ bộ sưu tập</Link><Link to="/knowledge/brand" onClick={choose}>Giới thiệu các thương hiệu</Link></footer>
     </div>}
   </div>;
 }

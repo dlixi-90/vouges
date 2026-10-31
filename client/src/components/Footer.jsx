@@ -62,10 +62,10 @@ const Footer = () => {
                 <a href="#">Thông tin an toàn</a>
               </li>
               <li>
-                <a href="#">Chính sách hủy đơn</a>
+                <Link to="/policies#ho-tro">Chính sách hỗ trợ đơn hàng</Link>
               </li>
               <li>
-                <a href="#">Liên hệ với chúng tôi</a>
+                <Link to="/contact">Liên hệ với chúng tôi</Link>
               </li>
               <li>
                 <a href="#">Hỗ trợ tiếp cận</a>
@@ -102,10 +102,10 @@ const Footer = () => {
           </p>
           <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
             <li>
-              <a href="#">Chính sách bảo mật</a>
+              <Link to="/policies#thong-tin">Thông tin cá nhân</Link>
             </li>
             <li>
-              <a href="#">Điều khoản sử dụng</a>
+              <Link to="/policies">Chính sách</Link>
             </li>
           </ul>
         </div>

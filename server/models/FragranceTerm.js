@@ -6,6 +6,7 @@ const schema = new mongoose.Schema({
   sourceUrl: { type: String, default: "" },
   description: { type: String, default: "", maxlength: 5000 },
   descriptionContent: { type: Object, default: null },
+  contentImport: { type: Object, default: null },
   image: { type: String, default: "" },
   contentStatus: { type: String, enum: ["linked", "complete"], default: "linked" },
   productCount: { type: Number, default: 0 },

@@ -37,7 +37,7 @@ export function summarizeNote(content,name){
  const paragraphs=[];
  const english=content.englishName&&normalize(content.englishName)!==normalize(name)?` (${content.englishName})`:'';
  paragraphs.push(`${name}${english}${content.group?` được xếp trong nhóm ${content.group}`:' là một note hương được ghi nhận trong thư viện nguyên liệu'}.`);
- if(neutral)paragraphs.push(`Điểm nổi bật là hiệu ứng mát hoặc cảm giác trung tính, gần như không có mùi riêng rõ rệt.`);
+ if(neutral)paragraphs.push('Đặc trưng được ghi nhận là mùi riêng rất nhẹ hoặc gần như trung tính.');
  else if(descriptors.length)paragraphs.push(`Các sắc thái mùi được ghi nhận: ${descriptors.join(', ')}.`);
  const full=content.blocks.map(b=>b.text).join(' ');
  const botanical=full.match(/\(([A-Z][a-z]{2,}\s[a-z]{3,}(?:\s[a-z]{3,})?)\)/)?.[1];

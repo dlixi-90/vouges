@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useLayoutEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { libraryNamePath } from "../utils/fragranceLibrary";
 import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
 const CollectionFilterDrawer = lazy(() => import("../components/CollectionFilterDrawer"));
@@ -109,7 +110,7 @@ const Collection = () => {
           <p>Những mùi hương được tuyển chọn, dành cho từng phong cách và mọi khoảnh khắc.</p>
         </div>
       </section>
-      <StorePageHeading title="Bộ sưu tập" className="inessa-collection-heading" />
+      <StorePageHeading title="Bộ sưu tập" className="inessa-collection-heading">{routeBrand && <Link to={libraryNamePath("brand", routeBrand)} className="knowledge-back">Giới thiệu thương hiệu {routeBrand}</Link>}</StorePageHeading>
 
       <div className="collection-catalog-layout">
         <Suspense fallback={<div className="collection-filter-placeholder" aria-hidden="true" />}><CollectionFilterDrawer

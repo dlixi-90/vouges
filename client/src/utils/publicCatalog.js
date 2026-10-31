@@ -16,6 +16,7 @@ export const normalizeBrowseParams = (params = {}) => {
 export const createPublicCatalog = ({ axios, cache = createResourceCache({ maxAge: 15000, maxEntries: 60 }) }) => {
   const metadata = createResourceCache({ maxAge: 300000, maxEntries: 4 });
   const filterMetadata = createResourceCache({ maxAge: 15000, maxEntries: 1 });
+  const library = createResourceCache({ maxAge: 30000, maxEntries: 24 });
   const read = async (url, params, signal) => {
     const { data } = await axios.get(url, { params, signal, timeout: 15000 });
     if (!data.success) throw new Error(data.message || "Không thể tải sản phẩm.");
@@ -23,7 +24,12 @@ export const createPublicCatalog = ({ axios, cache = createResourceCache({ maxAg
   };
   const key = params => JSON.stringify(Object.entries(params).filter(([, value]) => value !== undefined).sort(([a], [b]) => a.localeCompare(b)));
   return {
-    clear: () => { cache.clear(); metadata.clear(); filterMetadata.clear(); },
+    clear: () => { cache.clear(); metadata.clear(); filterMetadata.clear(); library.clear(); },
+    peekLibrary: (kind, params) => library.peek(`${kind}:${key(params)}`),
+    library: (kind, params, options) => library.load(`${kind}:${key(params)}`, signal => {
+      const { slug, name, ...query } = params;
+      return read(`/api/library/${encodeURIComponent(kind)}${slug ? `/${encodeURIComponent(slug)}` : name ? "/entry" : ""}`, { ...query, ...(name ? { name } : {}) }, signal);
+    }, options),
     browseKey: params => `browse:${key(normalizeBrowseParams(params))}`,
     peekBrowse: params => cache.peek(`browse:${key(normalizeBrowseParams(params))}`),
     browse: (params = {}, options) => cache.load(`browse:${key(normalizeBrowseParams(params))}`, signal => read("/api/products/browse", normalizeBrowseParams(params), signal), options),

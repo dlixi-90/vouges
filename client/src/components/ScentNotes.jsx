@@ -1,4 +1,6 @@
 import { scentPhases } from '../utils/scentNotes';
+import { Link } from 'react-router-dom';
+import { libraryNamePath } from '../utils/fragranceLibrary';
 
 function Notes({ notes = {} }) {
   const phases = scentPhases.filter(([phase]) => notes[phase]?.length > 0);
@@ -6,7 +8,7 @@ function Notes({ notes = {} }) {
   return <div className="product-description-notes my-6 grid gap-5 sm:grid-cols-3">
     {phases.map(([phase, label]) => <div className={`rounded-lg border border-gray-200 p-5 ${phase === 'general' ? 'sm:col-span-3' : ''}`} key={phase}>
       <h3 className="mb-3 text-xl">{label}</h3>
-      <p className="text-sm leading-7 text-gray-600">{notes[phase].map(note => note.name).join(', ')}</p>
+      <p className="text-sm leading-7 text-gray-600">{notes[phase].map((note,index) => <span key={`${note.name}-${index}`}>{index > 0 && ', '}<Link className="hover:underline underline-offset-4" to={libraryNamePath('note', note.name)}>{note.name}</Link></span>)}</p>
     </div>)}
   </div>;
 }

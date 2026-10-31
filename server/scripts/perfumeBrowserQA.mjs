@@ -15,6 +15,7 @@ import mongoose from "mongoose";
 import {catalogSummary,catalogOverview,catalogProducts,catalogProduct,libraryTerms} from "../controllers/catalogController.js";
 import {listProduct,singleProduct,listPopularProducts} from "../controllers/productController.js";
 import {listBrands} from "../controllers/brandController.js";
+import {publicLibraryTerms,publicLibraryTerm} from "../controllers/libraryController.js";
 import {browseProducts,batchProducts,relatedProducts,productFilters} from "../controllers/storefrontController.js";
 import {listCategories} from "../controllers/categoryController.js";
 import {dashboard} from "../controllers/dashboardController.js";
@@ -42,6 +43,7 @@ const brandsQA=process.argv.includes("--brand-menu");
 const productTabsQA=process.argv.includes("--product-tabs");
 const accordsQA=process.argv.includes("--accord-colors");
 const experienceQA=process.argv.includes("--experience-design");
+const knowledgeQA=process.argv.includes("--knowledge");
 let operationsActive=false,operationsFixtures;
 let editorProduct=null,editorUploadImages=[];
 const editorPatches=[];
@@ -88,6 +90,7 @@ const api=async request=>{
   if(pathname==="/api/catalog/products")return call(catalogProducts,req);
   if(pathname.startsWith("/api/catalog/products/")){req.params.id=pathname.split("/").pop();const result=await call(catalogProduct,req);if(editorQA&&req.params.id===editorProduct?._id)result.body.product=editorProduct;return result;}
   if(pathname==="/api/catalog/terms")return call(libraryTerms,req);
+  if(pathname.startsWith('/api/library/')){const parts=pathname.split('/').filter(Boolean);req.params.kind=parts[2];if(parts[3]&&parts[3]!=='entry')req.params.slug=decodeURIComponent(parts[3]);return call(parts[3]?publicLibraryTerm:publicLibraryTerms,req);}
   if(pathname==="/api/products")return call(listProduct,req);
   if(pathname==="/api/products/browse")return call(browseProducts,req);
   if(pathname==="/api/products/filters")return call(productFilters,req);
@@ -186,6 +189,49 @@ try{
   if(typographyQA)await send('CSS.enable');
   await send("Emulation.setDeviceMetricsOverride",{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   await send("Fetch.enable",{patterns:[{urlPattern:"*localhost:3000/*"},{urlPattern:"*@clerk_react*"}]});
+  if(knowledgeQA){
+    await goto('/knowledge/group',"document.querySelectorAll('.knowledge-card').length===24");
+    await noOverflow();await screenshot('knowledge-groups-desktop');
+    await evaluate("document.querySelectorAll('#store-info-navigation .store-brand-trigger')[0].click()");
+    await wait("document.querySelectorAll('#store-info-navigation .store-info-dropdown a').length===3");
+    assert.equal(await evaluate("[...document.querySelectorAll('#store-info-navigation .store-info-dropdown a')].map(a=>a.textContent).join('|')"),'Về chúng tôi|Liên hệ|Chính sách');
+    await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape'});
+    await wait("!document.querySelector('.store-info-dropdown')");
+    await evaluate("document.querySelectorAll('#store-info-navigation .store-brand-trigger')[1].click()");
+    await wait("document.querySelectorAll('.store-info-dropdown a').length===3");
+    await evaluate("document.querySelector('.store-info-dropdown a[href=\"/knowledge/note\"]').click()");
+    await wait("location.pathname==='/knowledge/note'&&document.querySelectorAll('.knowledge-card').length===24");
+    await input('.knowledge-search input','Bergamot');
+    await wait("document.querySelectorAll('.knowledge-card').length===2");
+    await evaluate("document.querySelector('.knowledge-card[href=\"/knowledge/note/cam-bergamot\"]').click()");
+    await wait("document.querySelector('.knowledge-article .product-article')&&document.querySelectorAll('.knowledge-product-grid .net-product-card').length===15");
+    assert.equal(await evaluate("/Apa\\s*Niche/i.test(document.querySelector('.knowledge-article').textContent)"),false);
+    await noOverflow();await screenshot('knowledge-note-desktop');
+    const first=await evaluate("document.querySelector('.knowledge-product-grid a').getAttribute('href')");
+    await evaluate("document.querySelector('[aria-label=\"Phân trang sản phẩm liên quan\"] button[aria-label=\"Trang sau\"]').click()");
+    await wait(`document.querySelector('.knowledge-product-grid a')?.getAttribute('href')!==${JSON.stringify(first)}&&document.querySelector('.knowledge-page>.velours-pagination [aria-current=\"page\"]')?.textContent==='2'`);
+    await goto('/knowledge/brand?name=Dior',"location.pathname==='/knowledge/brand/dior'&&document.querySelector('.knowledge-article .product-article')");
+    await evaluate("document.querySelector('.knowledge-reading-aside .inessa-button').click()");
+    await wait("location.pathname==='/collection'&&location.search==='?brand=Dior'&&document.querySelector('.inessa-collection-heading a.knowledge-back')");
+    await evaluate("document.querySelector('.inessa-collection-heading a.knowledge-back').click()");
+    await wait("location.pathname==='/knowledge/brand/dior'&&document.querySelector('.knowledge-article .product-article')");
+    await goto('/knowledge/accord/go',"document.querySelector('.knowledge-article .product-article')");await noOverflow();
+    await goto('/knowledge/group/cam-chanh',"document.querySelector('.knowledge-article .product-article')");await noOverflow();
+    await goto('/knowledge/brand/4711',"document.querySelector('.knowledge-article .knowledge-empty')");
+    await goto('/policies',"document.querySelectorAll('.knowledge-policy-list section').length===3");
+    for(const width of [390,320]){
+      await send('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:true});
+      await goto('/knowledge/note',"document.querySelectorAll('.knowledge-card').length===24");await noOverflow();
+      await evaluate("document.querySelector('.inessa-menu-toggle').click()");
+      await wait("document.querySelectorAll('#store-navigation .store-info-menu').length===2");
+      await evaluate("document.querySelectorAll('#store-navigation .store-info-menu button')[1].click()");
+      await wait("document.querySelector('#store-navigation .store-info-dropdown')");await noOverflow();await screenshot(`knowledge-mobile-menu-${width}`);
+      await evaluate("document.querySelector('#store-navigation .store-info-dropdown a').click()");
+      await wait("location.pathname==='/knowledge/group'&&!document.querySelector('#store-navigation')");
+      await goto('/knowledge/brand/dior',"document.querySelector('.knowledge-article .product-article')");await noOverflow();await screenshot(`knowledge-brand-mobile-${width}`);
+    }
+    checks.push('Public library directories and search; canonical brand/group/accord/note pages; original introductions; missing-content state; 15 related products and pagination; brand introduction/collection links; both header dropdowns; Escape; 390px/320px layouts');
+  }else{
   if(brandsQA){
     const directory=await call(listBrands,{}),brands=directory.body.brands;
     assert.ok(brands.length>100&&brands.every(brand=>brand.image));
@@ -625,6 +671,7 @@ try{
     await selectPage('[aria-label="Phân trang hội thoại"]','.net-admin-messages .pagination-list-start',2,'.net-admin-messages .overflow-y-auto');
     await wait("document.querySelector('.net-admin-messages .overflow-y-auto').scrollTop<5");
     checks.push('compact 320px pagination and conversation list scroll');
+  }
   }
   assert.deepEqual(writes,[]);assert.deepEqual(errors,[]);
   fs.writeFileSync(path.join(artifacts,"result.json"),JSON.stringify({passed:true,checks,errors,actualDatabaseReads:true,mockedAuthentication:true,paginationFixtures:paginationQA,popularFixtures:popularQA,editorFixtures:editorQA,editorFixtureSaves:editorPatches.length,operationsFixtures:operationsQA,operationsFixtureActions:operationsFixtures?.requests.length||0,typography:typographyQA,dashboardDesign:dashboardQA,databaseWrites:0},null,2));

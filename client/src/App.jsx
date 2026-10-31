@@ -11,6 +11,8 @@ const Collection = lazy(() => import("./pages/Collection"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
+const Knowledge = lazy(() => import("./pages/Knowledge"));
+const Policies = lazy(() => import("./pages/Policies"));
 const Cart = lazy(() => import("./pages/Cart"));
 const CartDrawer = lazy(() => import("./components/CartDrawer"));
 const MyOrders = lazy(() => import("./pages/MyOrders"));
@@ -49,6 +51,10 @@ const App = () => {
           <Route path="/about" element={<About />} />
           <Route path="/blog" element={<Navigate to="/about" replace />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/policies" element={<Policies />} />
+          <Route path="/knowledge" element={<Navigate to="/knowledge/group" replace />} />
+          <Route path="/knowledge/:kind" element={<Knowledge />} />
+          <Route path="/knowledge/:kind/:slug" element={<Knowledge />} />
           <Route path="/cart" element={<Cart key={location.state?.checkoutRequest || "cart"} />} />
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/order-overview/:orderId" element={<OrderOverview />} />
