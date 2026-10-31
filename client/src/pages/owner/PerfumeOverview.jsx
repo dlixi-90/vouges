@@ -23,22 +23,20 @@ function MetricCard({ label, value, detail, to, icon: Icon, primary }) {
 function CatalogDistribution({ metrics }) {
   const published = Number(metrics.published || 0);
   const available = Math.min(published, Number(metrics.available || 0));
-  const hidden = Number(metrics.hidden || 0);
-  const total = Number(metrics.total || 0);
+  const total = published;
   const parts = [
     { label: "Đang mở bán", value: available, color: "#181818" },
     { label: "Hiển thị · hết hàng", value: published - available, color: "#999999" },
-    { label: "Đang ẩn", value: hidden, color: "#dedede" },
   ];
   let offset = 0;
   return <div className="admin-distribution">
-    <div className="admin-donut" role="img" aria-label={`Tổng ${count(metrics.total)} sản phẩm: ${parts.map(part => `${part.label} ${count(part.value)}`).join(", ")}`}>
+    <div className="admin-donut" role="img" aria-label={`Tổng ${count(total)} sản phẩm đang hiển thị: ${parts.map(part => `${part.label} ${count(part.value)}`).join(", ")}`}>
       <svg viewBox="0 0 160 160" aria-hidden="true"><circle cx="80" cy="80" r="61" fill="none" stroke="#f0f0f0" strokeWidth="17" />{parts.map(part => {
         const length = total ? part.value / total * 100 : 0;
         const start = offset; offset += length;
         return <circle key={part.label} cx="80" cy="80" r="61" fill="none" stroke={part.color} strokeWidth="17" pathLength="100" strokeDasharray={`${length} ${100 - length}`} strokeDashoffset={-start} transform="rotate(-90 80 80)" />;
       })}</svg>
-      <div><strong>{count(metrics.total)}</strong><span>Sản phẩm</span></div>
+      <div><strong>{count(total)}</strong><span>Sản phẩm</span></div>
     </div>
     <ul>{parts.map(part => <li key={part.label}><span><i style={{ background: part.color }} />{part.label}</span><strong>{count(part.value)}</strong></li>)}</ul>
   </div>;
@@ -68,7 +66,7 @@ export default function PerfumeOverview() {
 
     <div className="admin-overview-grid">
       <section className="admin-dashboard-panel admin-revenue-panel">
-        <header className="admin-panel-heading"><div><h2>Doanh thu & giá trị đơn hàng</h2><p>Đơn vị: VND · Theo thời điểm tạo đơn</p></div><label className="admin-period-control"><CalendarDays size={15} /><select aria-label="Khoảng thời gian biểu đồ" value={months} onChange={event => setMonths(Number(event.target.value))}><option value={12}>1 năm</option><option value={6}>6 tháng</option><option value={3}>3 tháng</option></select></label></header>
+        <header className="admin-panel-heading"><div><h2>Doanh thu & giá trị đơn hàng</h2><p>Đơn vị: VND · Theo thời điểm tạo đơn</p></div><label className="admin-period-control"><CalendarDays size={15} /><select aria-label="Khoảng thời gian biểu đồ" value={months} onChange={event => setMonths(Number(event.target.value))}><option value={3}>3 tháng</option><option value={6}>6 tháng</option><option value={12}>1 năm</option></select></label></header>
         {!query.loading && !query.error && <div className="admin-revenue-chart"><Suspense fallback={<p className="perfume-loading">Đang tải biểu đồ…</p>}><RevenueChart data={monthlyData} currency="₫" /></Suspense>{!hasSales && <div className="admin-chart-empty"><Banknote size={23} strokeWidth={1.4} /><strong>Chưa có giao dịch trong kỳ</strong><span>Biểu đồ sẽ cập nhật khi phát sinh đơn hàng.</span></div>}</div>}
       </section>
       <section className="admin-dashboard-panel">

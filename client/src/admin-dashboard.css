@@ -105,6 +105,9 @@ html:has(.velours-admin-shell),body:has(.velours-admin-shell) { overflow-x:clip;
 .admin-period-control { display:flex; align-items:center; gap:6px; padding:7px 8px; border:1px solid #e5e5e5; border-radius:6px; color:#777; }
 .net-admin .admin-period-control select { width:auto; padding:0; border:0; border-radius:0; background:transparent; font-size:10px; outline:none; cursor:pointer; }
 .admin-revenue-chart { position:relative; height:280px; min-width:0; }
+.revenue-chart-scroll { width:100%; height:100%; overflow-x:auto; overflow-y:hidden; overscroll-behavior-x:contain; }
+.revenue-chart-scroll:focus-visible { outline:1px solid #777; outline-offset:-1px; }
+.revenue-chart-canvas { width:100%; min-width:0; height:272px; }
 .admin-chart-empty { position:absolute; inset:20% 12% 26%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px; padding:12px; border-radius:10px; background:#fffffff2; color:#999; text-align:center; }
 .admin-chart-empty strong { font-size:12px; font-weight:500; color:#757575; }
 .admin-chart-empty span { font-size:10px; line-height:1.6; }

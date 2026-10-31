@@ -6,7 +6,9 @@ export const normalizeBrowseParams = (params = {}) => {
   const values = { page: 1, limit: COLLECTION_PAGE_SIZE, availability: "available", sort: "relevant", minPrice: 0, ...params };
   try {
     const facets = values.facets === undefined ? {} : JSON.parse(values.facets);
-    values.facets = JSON.stringify(Object.fromEntries(Object.entries(facets).filter(([, selected]) => selected.length).sort(([a], [b]) => a.localeCompare(b))));
+    if (Object.values(facets).some(selected => !Array.isArray(selected))) throw new Error("Invalid facets");
+    values.facets = JSON.stringify(Object.fromEntries(Object.entries(facets).filter(([, selected]) => selected.length)
+      .map(([field, selected]) => [field, [...new Set(selected)].sort()]).sort(([a], [b]) => a.localeCompare(b))));
   } catch { /* Leave malformed filters for the API to reject. */ }
   return Object.fromEntries(Object.entries(values).filter(([field, value]) => value !== undefined && !(value === "" && ["q", "brand"].includes(field))));
 };

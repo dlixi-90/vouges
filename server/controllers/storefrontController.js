@@ -1,6 +1,6 @@
 import { isObjectIdOrHexString } from "mongoose";
 import Product from "../models/Product.js";
-import { getStorefrontCatalog, parseBrowseQuery } from "../services/storefrontCatalog.js";
+import { catalogSnapshot, getStorefrontCatalog, parseBrowseQuery } from "../services/storefrontCatalog.js";
 import { collectPerfumeFilters } from "../services/perfumeFilters.js";
 import { readStorefrontBrowse, readStorefrontRelated } from "../services/storefrontBrowse.js";
 
@@ -18,7 +18,7 @@ export const browseProducts = action(async (req, res) => {
   res.json(await readStorefrontBrowse(options));
 });
 export const productFilters = action(async (_req, res) => {
-  res.json({ success: true, options: collectPerfumeFilters(await getStorefrontCatalog(true)) });
+  res.json(await catalogSnapshot("filter-options", 10000, async () => ({ success: true, options: collectPerfumeFilters(await getStorefrontCatalog(true)) })));
 });
 export const relatedProducts = action(async (req, res) => {
   if (!isObjectIdOrHexString(req.query.productId)) throw Object.assign(new Error("Mã sản phẩm không hợp lệ"), { statusCode: 400 });

@@ -8,11 +8,12 @@ import { getPurchaseLimit } from "../utils/productStock";
 import { formatVnd } from "../utils/money";
 import ProductImage from "./ProductImage";
 import { getSizeImage } from "../utils/productImage";
+import { LoadingStatus, PageSkeleton } from "./LoadingState";
 
 export default function CartDrawer() {
   const {
     products, productsLoading, productsError, fetchProducts, cartItems, cartAddedAt, currency, closeCart, navigate,
-    updateQuantity, pendingCartKeys, hasPendingCartUpdates,
+    updateQuantity, pendingCartKeys, hasPendingCartUpdates, accountLoading,
   } = useAppContext();
   const dialogRef = useRef(null);
   const [updateError, setUpdateError] = useState("");
@@ -26,7 +27,7 @@ export default function CartDrawer() {
     + Number(productsById.get(item._id)?.price?.[item.size] || 0)
       * Number(cartItems[item._id]?.[item.size] || 0), 0);
   const updating = hasPendingCartUpdates();
-  const loading = productsLoading && items.length > 0;
+  const loading = accountLoading || (productsLoading && items.some(item => !productsById.has(item._id)));
   const formatPrice = (value) => formatVnd(value, currency);
 
   useEffect(() => {
@@ -84,7 +85,8 @@ export default function CartDrawer() {
       {productsError && <p role="alert" className="inessa-cart-drawer-error">{productsError} <button type="button" onClick={fetchProducts} className="underline">Thử lại</button></p>}
 
       <div className="inessa-cart-drawer-items" aria-label="Sản phẩm trong giỏ hàng">
-        {loading ? <p role="status" className="inessa-cart-drawer-loading">Đang tải giỏ hàng…</p> : items.length ? items.map((item) => {
+        <div className="resource-loading-state"><LoadingStatus active={productsLoading && !loading} label="Đang cập nhật giỏ hàng…" /></div>
+        {loading ? <PageSkeleton compact label="Đang tải giỏ hàng…" /> : items.length ? items.map((item) => {
           const product = productsById.get(item._id);
           const quantity = Number(cartItems[item._id]?.[item.size] || 0);
           const key = getCartItemKey(item._id, item.size);

@@ -50,15 +50,9 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
     triggerRef.current?.focus();
   };
 
-  const togglePopup = () => {
-    if (popupRef.current.matches(":popover-open")) {
-      closePopup();
-      return;
-    }
+  const preparePopup = () => {
+    if (popupRef.current.matches(":popover-open")) return;
     setDraftSize(size);
-    popupRef.current.showPopover();
-    positionPopup();
-    popupRef.current.querySelector(`button[aria-pressed="true"]:not(:disabled), button:not(:disabled)`)?.focus();
   };
 
   const confirmSize = async () => {
@@ -73,12 +67,14 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
       <button
         ref={triggerRef}
         type="button"
+        popoverTarget={popupId}
+        popoverTargetAction="toggle"
         disabled={disabled}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
         aria-controls={popupId}
         aria-label={`Thay đổi dung tích của ${product.title}, hiện tại là ${size}`}
-        onClick={togglePopup}
+        onClick={preparePopup}
         className="flex max-w-full cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-left text-sm text-gray-500 transition hover:bg-primary focus-visible:outline-2 focus-visible:outline-secondary disabled:opacity-50"
       >
         <span className="min-w-0">
@@ -95,7 +91,14 @@ const CartSizePicker = ({ product, size, quantity, quantities, disabled, onConfi
         role="dialog"
         aria-labelledby={titleId}
         aria-busy={disabled}
-        onToggle={(event) => setIsOpen(event.newState === "open")}
+        onToggle={(event) => {
+          const open = event.newState === "open";
+          setIsOpen(open);
+          if (open) {
+            positionPopup();
+            popupRef.current.querySelector(`button[aria-pressed="true"]:not(:disabled), button:not(:disabled)`)?.focus();
+          }
+        }}
         className="fixed inset-auto m-0 max-h-[calc(100dvh-32px)] w-[420px] max-w-[calc(100vw-32px)] overflow-y-auto rounded-xl border border-gray-200 bg-white p-0 text-sm text-tertiary shadow-xl"
       >
         <div className="p-5 sm:p-6">

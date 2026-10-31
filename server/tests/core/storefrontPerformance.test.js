@@ -156,6 +156,37 @@ test("public client reads reuse pages/details, keep separate filters, retry erro
   assert.ok(requested.every(item => item.url !== "/api/products"));
 });
 
+test("equivalent facet selections share one cache entry regardless of checkbox selection order", async () => {
+  let calls = 0;
+  const client = createPublicCatalog({ axios: { get: async () => { calls++; return { data: { success: true, products: [] } }; } } });
+  await client.browse({ facets: JSON.stringify({ brands: ["Dior", "Chanel", "Dior"], gender: ["Nam"] }) });
+  await client.browse({ facets: JSON.stringify({ gender: ["Nam"], brands: ["Chanel", "Dior"] }) });
+  assert.equal(calls, 1);
+});
+
+test("client cache normalization does not turn malformed facet values into valid filter arrays", async () => {
+  const invalid = JSON.stringify({ brands: "Chanel" });
+  const client = createPublicCatalog({ axios: { get: async (_url, config) => {
+    assert.equal(config.params.facets, invalid);
+    return { data: { success: false, message: "Invalid filters" } };
+  } } });
+  await assert.rejects(client.browse({ facets: invalid }), /Invalid filters/);
+});
+
+test("cached advanced filters stop returning an orderable card after stock invalidation", async t => {
+  invalidateStorefrontCatalog();
+  let inStock = true;
+  t.mock.method(Product, "find", () => ({ select: () => ({ sort: () => ({ lean: async () => [fixture(1, { inStock })] }) }) }));
+  const query = options({ sort: "low", minPrice: "1" });
+  const first = await readStorefrontBrowse(query);
+  assert.equal(first.total, 1);
+  assert.equal(await readStorefrontBrowse(query), first);
+  inStock = false;
+  invalidateStorefrontCatalog();
+  assert.equal((await readStorefrontBrowse(query)).total, 0);
+  invalidateStorefrontCatalog();
+});
+
 test("the final header categories exist before any category API response", () => {
   assert.deepEqual(STORE_SHOP_LINKS.map(item => item.title), ["Bộ sưu tập", "Nước hoa nam", "Nước hoa nữ", "Nước hoa unisex"]);
 });

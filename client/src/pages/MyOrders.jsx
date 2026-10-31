@@ -1,6 +1,6 @@
 import { getSizeImage } from "../utils/productImage";
 import { getOrderStatusLabel, getPaymentMethodLabel } from "../utils/localization.js";
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { Package, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import StorePageHeading from "../components/StorePageHeading";
@@ -10,52 +10,33 @@ import { SHIPPING_METHODS, URGENT_SHIPPING_NOTE } from "../utils/orderPricing";
 import Pagination from "../components/Pagination";
 import usePaginationScroll from "../hooks/usePaginationScroll";
 import ProductImage from "../components/ProductImage";
+import useCachedResource from "../hooks/useCachedResource";
+import { LoadingStatus, PageSkeleton } from "../components/LoadingState";
 
 const ProductReviewDialog = lazy(() => import("../components/ProductReviewDialog"));
 
 const MyOrders = () => {
-  const { currency, user, storeResources } = useAppContext();
-  const [page,setPage] = useState(1), [attempt,setAttempt] = useState(0);
-  const key = `${user?.id}:${page}`;
+  const { currency, user, storeResources, accountLoading } = useAppContext();
+  const [page,setPage] = useState(1);
   const userId = user?.id;
-  const [result,setResult] = useState(null);
-  const force = useRef(false);
-  const cached = user ? storeResources.peekOrders(page) : null;
-  const current = result?.key === key ? result : null;
-  const data = cached || current?.data;
-  const orders = data?.orders || [];
-  const loading = Boolean(user && !data && !current?.error);
+  const resource = useMemo(() => userId ? {
+    peek: () => storeResources.peekOrders(page),
+    load: options => storeResources.loadOrders(page, options),
+  } : null, [storeResources, userId, page]);
+  const { data, loading: requestLoading, initialLoading, updating, error, reload } = useCachedResource(resource, { scope: `orders:${userId}`, keepPrevious: true });
+  const loading = requestLoading || accountLoading;
+  const orders = accountLoading ? [] : data?.orders || [];
   const {listRef,changePage} = usePaginationScroll({page,onPageChange:setPage,ready:!loading && data?.page===page});
   const [reviewProduct, setReviewProduct] = useState(null);
-
-  useEffect(() => {
-    if (!userId) return undefined;
-
-    let isActive = true;
-
-    const refresh = force.current; force.current = false;
-    storeResources.loadOrders(page, {force:refresh})
-      .then((data) => {
-        if (isActive && data?.success) {
-          setResult({key,data});
-        }
-      })
-      .catch((error) => {
-        if(isActive && error.name!=="AbortError")setResult({key,error:error.response?.data?.message || error.message});
-      });
-
-    return () => {
-      isActive = false;
-    };
-  }, [storeResources, userId, page, key, attempt]);
 
   return (
     <main className="net-orders store-account-page store-page-container max-padd-container">
       <StorePageHeading title="Đơn hàng của tôi" />
 
       <div ref={listRef} tabIndex={-1} className="pagination-list-start space-y-4" aria-busy={loading}>
-        {loading && <p role="status">Đang tải đơn hàng…</p>}
-        {current?.error && <p role="alert">{current.error} <button type="button" className="underline" onClick={()=>{force.current=true;setAttempt(value=>value+1);}}>Thử lại</button></p>}
+        {(initialLoading || accountLoading) && <PageSkeleton compact label="Đang tải đơn hàng…" />}
+        <div className="resource-loading-state"><LoadingStatus active={updating} label="Đang cập nhật đơn hàng…" /></div>
+        {error && <p role="alert">{error} <button type="button" className="underline" onClick={reload}>Thử lại</button></p>}
         {orders.map((order) => (
           <CustomerOrderCard
             key={order._id}
@@ -65,7 +46,7 @@ const MyOrders = () => {
           />
         ))}
 
-        {!loading && !current?.error && !orders.length && (
+        {!loading && !error && !orders.length && (
           <div className="store-page-empty">
             <Package size={32} strokeWidth={1.3} aria-hidden="true" />
             <h2>Chưa có đơn hàng nào</h2>

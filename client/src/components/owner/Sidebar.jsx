@@ -6,6 +6,7 @@ import { useAppContext } from "../../context/AppContext";
 import { assets } from "../../assets/data";
 import { prefetchOwnerRoute } from "../../utils/ownerPrefetch";
 import QuickProductSearch from "../QuickProductSearch";
+import { PageSkeleton } from "../LoadingState";
 import "../../perfume-dashboard.css";
 import "../../admin-dashboard.css";
 import "../../perfume-editor.css";
@@ -118,7 +119,7 @@ export default function Sidebar() {
             <div className="admin-account"><UserButton appearance={{ elements: { userButtonAvatarBox: { width: "36px", height: "36px" } } }} /><div><strong>{user?.fullName || user?.firstName || "Quản trị viên"}</strong><span>{user?.primaryEmailAddress?.emailAddress || "Quản trị viên Velours"}</span></div></div>
           </div>
         </header>
-        <div className="velours-admin-route"><Suspense fallback={<p className="perfume-loading" role="status">Đang tải nội dung…</p>}><Outlet /></Suspense></div>
+        <div className="velours-admin-route"><Suspense fallback={<PageSkeleton compact />}><Outlet /></Suspense></div>
       </div>
     </div>
   </div>;

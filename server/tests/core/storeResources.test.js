@@ -74,6 +74,47 @@ test("failed reads can retry; failed refreshes retain the last successful snapsh
   assert.deepEqual(cache.peek("one"), { count: 2 });
 });
 
+test("changing a filter cancels an unshared request and a late response cannot refill its cache", async () => {
+  const cache = createResourceCache(), pending = deferred(), consumer = new AbortController();
+  let networkSignal;
+  const read = cache.load("browse:old", signal => { networkSignal = signal; return pending.promise; }, { signal: consumer.signal });
+  await Promise.resolve();
+  consumer.abort();
+  await assert.rejects(read, { name: "AbortError" });
+  assert.equal(networkSignal.aborted, true);
+  const replacement = cache.load("browse:old", async () => ({ fresh: true }));
+  pending.resolve({ stale: true });
+  assert.deepEqual(await replacement, { fresh: true });
+  assert.deepEqual(cache.peek("browse:old"), { fresh: true });
+});
+
+test("one component unmounting never cancels a request still needed by another consumer", async () => {
+  const cache = createResourceCache(), pending = deferred(), first = new AbortController(), second = new AbortController();
+  let networkSignal, calls = 0;
+  const request = signal => { networkSignal = signal; calls++; return pending.promise; };
+  const a = cache.load("shared", request, { signal: first.signal });
+  const b = cache.load("shared", request, { signal: second.signal });
+  await Promise.resolve();
+  first.abort();
+  await assert.rejects(a, { name: "AbortError" });
+  assert.equal(networkSignal.aborted, false);
+  pending.resolve(12);
+  assert.equal(await b, 12);
+  assert.equal(calls, 1);
+});
+
+test("intent prefetch remains shared when a mounted consumer leaves; an already aborted read never starts", async () => {
+  const cache = createResourceCache(), pending = deferred(), consumer = new AbortController();
+  let networkSignal;
+  const prefetch = cache.load("intent", signal => { networkSignal = signal; return pending.promise; });
+  const mounted = cache.load("intent", assert.fail, { signal: consumer.signal });
+  await Promise.resolve(); consumer.abort();
+  await assert.rejects(mounted, { name: "AbortError" });
+  assert.equal(networkSignal.aborted, false);
+  pending.resolve(4); assert.equal(await prefetch, 4);
+  await assert.rejects(cache.load("aborted", assert.fail, { signal: consumer.signal }), { name: "AbortError" });
+});
+
 test("the cache is bounded and keeps pending requests shared during eviction", async () => {
   const cache = createResourceCache({ maxEntries: 2 });
   const pending = deferred();

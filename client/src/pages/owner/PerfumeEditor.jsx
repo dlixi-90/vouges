@@ -46,7 +46,7 @@ function PerfumeForm({ product, source, reload }) {
       const descriptionContent = sanitizeArticle(draft.descriptionContent ?? null);
       const { data } = await axios.patch(`/api/catalog/products/${product._id}`, {
         title: draft.title, sizes: draft.sizes, sizeRenames: catalogSizeRenames(draft), group: fragrance.group || "", style: fragrance.style || "", brand: draft.brand, origin: draft.origin, gender: draft.gender, concentration: draft.concentration, description: draft.description,
-        descriptionContent, inventoryMode: draft.inventoryMode, price: draft.price, stockBySize: draft.stockBySize, inStockBySize: draft.inStockBySize, sizeImages: draft.sizeImages, images: draft.images, isPublished: draft.isPublished,
+        descriptionContent, inventoryMode: draft.inventoryMode, price: draft.price, stockBySize: draft.stockBySize, inStockBySize: draft.inStockBySize, sizeImages: draft.sizeImages, images: draft.images,
         notes: fragrance.notes || {}, accords: fragrance.accords, longevity: fragrance.longevity, sillage: fragrance.sillage, suitability: fragrance.suitability, expectedUpdatedAt: product.updatedAt,
       }, { headers: { Authorization: `Bearer ${await getToken()}` } });
       if (!data.success) throw new Error(data.message);
@@ -89,7 +89,7 @@ function PerfumeForm({ product, source, reload }) {
 
   return <CatalogPage title={draft.title} actions={<><Link to="/owner/list-product" className="perfume-button"><ArrowLeft size={15} />Danh sách</Link><button form={formId} type="submit" disabled={busy || uploading || editingVariant} className="perfume-button primary"><Save size={15} />{busy ? "Đang lưu…" : uploading ? "Đang tải ảnh…" : editingVariant ? "Xác nhận dung tích trước" : "Lưu thay đổi"}</button></>}>
     {error && <div role="alert" className="perfume-alert">{error}</div>}
-    <div className="perfume-editor-summary"><span className="perfume-editor-thumb">{draft.images?.[0] && <ProductImage src={draft.images[0]} alt="" imageWidth={200} />}</span><div><div className="perfume-inline-badges"><Badge tone={draft.isPublished ? "green" : "amber"}>{draft.isPublished ? "Đang hiển thị" : "Đang ẩn"}</Badge><Badge>{draft.sizes.length} dung tích / phân loại</Badge></div></div><label className="perfume-switch"><input type="checkbox" checked={draft.isPublished} onChange={event => update("isPublished", event.target.checked)} />Hiển thị sản phẩm trên cửa hàng</label></div>
+    <div className="perfume-editor-summary"><span className="perfume-editor-thumb">{draft.images?.[0] && <ProductImage src={draft.images[0]} alt="" imageWidth={200} />}</span><div><div className="perfume-inline-badges"><Badge>{draft.sizes.length} dung tích / phân loại</Badge></div></div></div>
     <nav className="perfume-tabs" aria-label="Các phần sản phẩm">{tabs.map(item => <button type="button" key={item.key} disabled={busy || uploading || editingVariant} aria-current={tab === item.key ? "page" : undefined} className={tab === item.key ? "active" : ""} onClick={() => setTab(item.key)}>{item.label}</button>)}</nav>
     <form id={formId} onSubmit={save} className="perfume-editor-body">
       {tab === "general" && <>

@@ -21,13 +21,14 @@ import { formatVnd } from "../utils/money";
 import { formatVoucherExpiryDate } from "../utils/voucherDates";
 import { latestAdultBirthday } from "../utils/customerProfile";
 import StorePageHeading from "../components/StorePageHeading";
+import { PageSkeleton } from "../components/LoadingState";
 
 const focusStyles =
   "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary";
 
 export default function Membership() {
   const { openUserProfile } = useClerk();
-  const { user, axios, getToken, requireCartLogin, storeResources } =
+  const { user, axios, getToken, requireCartLogin, storeResources, accountLoading } =
     useAppContext();
   const userId = user?.id;
   const [data, setData] = useState(
@@ -113,7 +114,7 @@ export default function Membership() {
           </Link>
         </StorePageHeading>
 
-        {!user ? (
+        {accountLoading ? <PageSkeleton compact label="Đang tải tài khoản…" /> : !user ? (
           <section className="net-member-panel flex flex-col items-center px-6 py-16 text-center">
             <span className="net-member-empty-icon mb-5 flex h-16 w-16 items-center justify-center rounded-2xl">
               <Ticket size={30} strokeWidth={1.5} aria-hidden="true" />
@@ -148,17 +149,7 @@ export default function Membership() {
             </button>
           </div>
         ) : !current ? (
-          <div
-            role="status"
-            className="net-member-panel net-member-muted flex items-center justify-center gap-3 py-24 text-sm"
-          >
-            <LoaderCircle
-              size={20}
-              className="animate-spin"
-              aria-hidden="true"
-            />
-            Đang tải ưu đãi của bạn…
-          </div>
+          <PageSkeleton compact label="Đang tải ưu đãi của bạn…" />
         ) : (
           <div className="store-member-layout">
             <div className="min-w-0">

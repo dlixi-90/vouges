@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Minus, Plus, ShieldCheck, Star, Truck } from "lucide-react";
 import { useLocation, useParams } from "react-router-dom";
 import ProductDetailTabs from "../components/ProductDetailTabs";
@@ -19,6 +19,8 @@ import ProductFacts from "../components/ProductFacts";
 import FragranceCharts from "../components/FragranceCharts";
 import { getDetailGallery } from "../utils/productImage";
 import { getRemainingPurchaseQuantity } from "../utils/purchaseQuantity";
+import useCachedResource from "../hooks/useCachedResource";
+import { LoadingStatus, ProductDetailSkeleton } from "../components/LoadingState";
 
 const RatingStars = ({ average }) => (
   <span
@@ -52,8 +54,6 @@ const ProductDetail = () => {
     publicCatalog,
     registerProducts,
   } = useAppContext();
-  const [detail, setDetail] = useState(null);
-  const [detailError, setDetailError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -64,6 +64,11 @@ const ProductDetail = () => {
   const addedResetTimerRef = useRef(null);
 
   const { productId } = useParams();
+  const detailResource = useMemo(() => ({
+    peek: () => publicCatalog.peekDetail(productId),
+    load: options => publicCatalog.detail(productId, options),
+  }), [publicCatalog, productId]);
+  const { data: detailResponse, error: loadError, loading: detailLoading, reload: reloadDetail } = useCachedResource(detailResource);
   const { hash } = useLocation();
   const activeTab =
     tabSelection?.productId === productId
@@ -96,27 +101,8 @@ const ProductDetail = () => {
     );
   };
   useEffect(() => {
-    let active = true;
-    publicCatalog
-      .detail(productId)
-      .then((data) => {
-        if (!active) return;
-        setDetail(data.product);
-        registerProducts([data.product]);
-      })
-      .catch((error) => {
-        if (active)
-          setDetailError({
-            productId,
-            message:
-              error.response?.data?.message ||
-              "Không thể tải chi tiết sản phẩm.",
-          });
-      });
-    return () => {
-      active = false;
-    };
-  }, [publicCatalog, registerProducts, productId]);
+    if (detailResponse?.product) registerProducts([detailResponse.product]);
+  }, [registerProducts, detailResponse]);
   const reviewStats =
     reviewSummary?.productId === productId
       ? reviewSummary
@@ -127,10 +113,7 @@ const ProductDetail = () => {
     void storeResources.loadOwnReview(productId).catch(() => {});
   }, [storeResources, productId]);
   const product =
-    detail?._id === productId
-      ? detail
-      : publicCatalog.peekDetail(productId)?.product ||
-        products.find((item) => item._id === productId);
+    detailResponse?.product || products.find((item) => item._id === productId);
   const productAvailable = product ? hasAnyAvailableSize(product) : false;
   const availableSizes = product ? getAvailableSizes(product) : [];
   const size = product?.sizes?.includes(selectedSize)
@@ -200,20 +183,13 @@ const ProductDetail = () => {
     return () => window.cancelAnimationFrame(frame);
   }, [hash, product]);
 
-  const loadError =
-    detailError?.productId === productId ? detailError.message : "";
   if (!product)
-    return (
-      <div
-        className="max-padd-container py-32"
-        role={loadError ? "alert" : "status"}
-      >
-        {loadError || "Đang tải sản phẩm…"}
-      </div>
-    );
+    return loadError ? <div className="max-padd-container py-32" role="alert">{loadError} <button type="button" onClick={reloadDetail} className="underline">Thử lại</button></div> : <ProductDetailSkeleton />;
 
   return (
     <div className="net-product-detail max-padd-container pb-14 pt-24 sm:pt-28">
+      {loadError && <p role="alert">{loadError} <button type="button" onClick={reloadDetail} className="underline">Thử lại</button></p>}
+      <LoadingStatus active={detailLoading} label="Đang cập nhật sản phẩm…" />
       <div className="product-detail-overview">
         <div className="product-detail-visual-column">
           <section

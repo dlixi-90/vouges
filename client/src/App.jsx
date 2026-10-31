@@ -6,6 +6,7 @@ import { Toaster } from "react-hot-toast";
 import { useAppContext } from "./context/AppContext";
 
 import Home from "./pages/Home";
+import { PageSkeleton, ProductDetailSkeleton } from "./components/LoadingState";
 const Collection = lazy(() => import("./pages/Collection"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const About = lazy(() => import("./pages/About"));
@@ -38,9 +39,7 @@ const App = () => {
       <Toaster position="bottom-right" />
       <Suspense
         fallback={
-          <div className="flex min-h-screen items-center justify-center bg-primary">
-            Đang tải…
-          </div>
+          location.pathname.startsWith("/collection/") ? <ProductDetailSkeleton /> : <PageSkeleton />
         }
       >
         <Routes>

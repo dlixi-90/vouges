@@ -1,4 +1,12 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import toast from "react-hot-toast";
 import { Check, Minus, Plus, ShoppingBag, X } from "lucide-react";
 import { Link, useBlocker, useLocation } from "react-router-dom";
@@ -21,10 +29,13 @@ import { initialCheckoutAddress } from "../utils/checkoutAddress";
 import { getCartRowKey, getOrderedCartItems } from "../utils/cartOrder";
 import useCheckoutQuote from "../hooks/useCheckoutQuote";
 import StorePageHeading from "../components/StorePageHeading";
+import { PageSkeleton } from "../components/LoadingState";
 
 const CartTotal = lazy(() => import("../components/CartTotal"));
 const QrPaymentStatus = lazy(() => import("../components/QrPaymentStatus"));
-const CheckoutAddressForm = lazy(() => import("../components/checkout/CheckoutAddressForm"));
+const CheckoutAddressForm = lazy(
+  () => import("../components/checkout/CheckoutAddressForm"),
+);
 
 // Mount only during checkout so the QR screen keeps its own cancellation guard.
 const CheckoutBackGuard = ({ onBack, isSubmitting }) => {
@@ -82,6 +93,7 @@ const Cart = () => {
   const {
     navigate,
     user,
+    accountLoading,
     products,
     productsLoading,
     productsError,
@@ -99,7 +111,9 @@ const Cart = () => {
   } = useAppContext();
   const userId = user?.id;
 
-  const [currentStep, setCurrentStep] = useState(() => navigationState?.checkoutRequest ? 2 : 1);
+  const [currentStep, setCurrentStep] = useState(() =>
+    navigationState?.checkoutRequest ? 2 : 1,
+  );
   const [createdOrder, setCreatedOrder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isChangingSize, setIsChangingSize] = useState(false);
@@ -133,7 +147,10 @@ const Cart = () => {
     [availableCartData],
   );
   const unavailableCartData = useMemo(
-    () => cartData.filter((item) => !availableItemKeys.has(getCartItemKey(item._id, item.size))),
+    () =>
+      cartData.filter(
+        (item) => !availableItemKeys.has(getCartItemKey(item._id, item.size)),
+      ),
     [cartData, availableItemKeys],
   );
 
@@ -169,7 +186,8 @@ const Cart = () => {
     selectedItemKeys.size < availableCartData.length;
 
   useEffect(() => {
-    if (selectAllRef.current) selectAllRef.current.indeterminate = someItemsSelected;
+    if (selectAllRef.current)
+      selectAllRef.current.indeterminate = someItemsSelected;
   }, [someItemsSelected, currentStep]);
 
   const toggleItemSelection = (itemKey) => {
@@ -227,7 +245,8 @@ const Cart = () => {
   }, [axios, getToken, userId]);
 
   const runCartUpdate = async (update) => {
-    if (cartUpdateRef.current || hasPendingCartUpdates()) return { success: false };
+    if (cartUpdateRef.current || hasPendingCartUpdates())
+      return { success: false };
     cartUpdateRef.current = true;
     setIsChangingSize(true);
     try {
@@ -281,11 +300,15 @@ const Cart = () => {
   }, 0);
   const removeSelectedItems = () => {
     if (cartUpdateRef.current) return;
-    return Promise.all(selectedItems.map((item) => updateQuantity(item._id, item.size, 0)));
+    return Promise.all(
+      selectedItems.map((item) => updateQuantity(item._id, item.size, 0)),
+    );
   };
   const removeUnavailableItems = () => {
     if (cartUpdateRef.current || hasPendingCartUpdates()) return;
-    return Promise.all(unavailableCartData.map((item) => updateQuantity(item._id, item.size, 0)));
+    return Promise.all(
+      unavailableCartData.map((item) => updateQuantity(item._id, item.size, 0)),
+    );
   };
 
   const handleCheckout = () => {
@@ -333,185 +356,383 @@ const Cart = () => {
   }, []);
 
   return products && cartItems ? (
-    <div className={`net-cart py-16 pt-28 ${currentStep === 1 ? "inessa-cart-page store-account-page" : currentStep === 2 ? "inessa-checkout-page" : "inessa-qr-page"}`}>
-      <div className={`max-padd-container${currentStep === 1 ? " store-page-container" : ""}`}>
-      {/* STEP 1 */}
-      {currentStep === 1 && (
-        <section className="inessa-cart-section" aria-labelledby="cart-page-title">
-          <StorePageHeading title="Giỏ hàng" titleId="cart-page-title" />
-          {productsError ? <p role="alert">{productsError} <button type="button" onClick={fetchProducts} className="underline">Thử lại</button></p> : productsLoading && !cartData.length ? <p role="status">Đang tải giỏ hàng…</p> : cartData.length > 0 ? (
-            <div className="inessa-cart-layout">
-              <div className="inessa-cart-products">
-                <div className="inessa-cart-table-wrap">
-                  <table className="inessa-cart-table">
-                    <caption className="sr-only">Sản phẩm trong giỏ hàng</caption>
-                    <thead>
-                      <tr>
-                        <th scope="col" className="inessa-cart-select-cell">
-                          <CartCheckbox inputRef={selectAllRef} disabled={isChangingSize || availableCartData.length === 0}
-                            checked={allItemsSelected} onChange={toggleAllItems} indeterminate={someItemsSelected} label="Chọn tất cả sản phẩm" />
-                        </th>
-                        <th scope="col" className="inessa-cart-remove-cell"><span className="sr-only">Xóa</span></th>
-                        <th scope="col" className="inessa-cart-product-cell">Sản phẩm</th>
-                        <th scope="col" className="inessa-cart-price-cell">Đơn giá</th>
-                        <th scope="col" className="inessa-cart-quantity-cell">Số lượng</th>
-                        <th scope="col" className="inessa-cart-subtotal-cell">Thành tiền</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {cartData.map((item) => {
-                        const product = products.find((entry) => entry._id === item._id);
-                        if (!product) return null;
-                        const quantity = Number(cartItems[item._id]?.[item.size] ?? 0);
-                        const itemKey = getCartItemKey(item._id, item.size);
-                        const isSelected = selectedItemKeys.has(itemKey);
-                        const isUnavailable = !availableItemKeys.has(itemKey);
-                        if (quantity <= 0) return null;
+    <div
+      className={`net-cart py-16 pt-28 ${currentStep === 1 ? "inessa-cart-page store-account-page" : currentStep === 2 ? "inessa-checkout-page" : "inessa-qr-page"}`}
+    >
+      <div
+        className={`max-padd-container${currentStep === 1 ? " store-page-container" : ""}`}
+      >
+        {/* STEP 1 */}
+        {currentStep === 1 && (
+          <section
+            className="inessa-cart-section"
+            aria-labelledby="cart-page-title"
+          >
+            <StorePageHeading title="Giỏ hàng" titleId="cart-page-title" />
+            {productsError ? (
+              <p role="alert">
+                {productsError}{" "}
+                <button
+                  type="button"
+                  onClick={fetchProducts}
+                  className="underline"
+                >
+                  Thử lại
+                </button>
+              </p>
+            ) : accountLoading || (productsLoading && (!cartData.length || cartData.some(item => !products.some(product => product._id === item._id)))) ? (
+              <PageSkeleton compact label="Đang tải giỏ hàng…" />
+            ) : cartData.length > 0 ? (
+              <div className="inessa-cart-layout">
+                <div className="inessa-cart-products">
+                  <div className="inessa-cart-table-wrap">
+                    <table className="inessa-cart-table">
+                      <caption className="sr-only">
+                        Sản phẩm trong giỏ hàng
+                      </caption>
+                      <thead>
+                        <tr>
+                          <th scope="col" className="inessa-cart-select-cell">
+                            <CartCheckbox
+                              inputRef={selectAllRef}
+                              disabled={
+                                isChangingSize || availableCartData.length === 0
+                              }
+                              checked={allItemsSelected}
+                              onChange={toggleAllItems}
+                              indeterminate={someItemsSelected}
+                              label="Chọn tất cả sản phẩm"
+                            />
+                          </th>
+                          <th scope="col" className="inessa-cart-remove-cell">
+                            <span className="sr-only">Xóa</span>
+                          </th>
+                          <th scope="col" className="inessa-cart-product-cell">
+                            Sản phẩm
+                          </th>
+                          <th scope="col" className="inessa-cart-price-cell">
+                            Đơn giá
+                          </th>
+                          <th scope="col" className="inessa-cart-quantity-cell">
+                            Số lượng
+                          </th>
+                          <th scope="col" className="inessa-cart-subtotal-cell">
+                            Thành tiền
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {cartData.map((item) => {
+                          const product = products.find(
+                            (entry) => entry._id === item._id,
+                          );
+                          if (!product) return null;
+                          const quantity = Number(
+                            cartItems[item._id]?.[item.size] ?? 0,
+                          );
+                          const itemKey = getCartItemKey(item._id, item.size);
+                          const isSelected = selectedItemKeys.has(itemKey);
+                          const isUnavailable = !availableItemKeys.has(itemKey);
+                          if (quantity <= 0) return null;
 
-                        return (
-                          <tr key={getCartRowKey(item)} className={`inessa-cart-row ${isUnavailable ? "is-unavailable" : ""}`}>
-                            <td className="inessa-cart-select-cell">
-                              <CartCheckbox disabled={isChangingSize || isUnavailable} checked={isSelected}
-                                onChange={() => toggleItemSelection(itemKey)} label={`Chọn ${product.title}, dung tích ${item.size}`} />
-                            </td>
-                            <td className="inessa-cart-remove-cell">
-                              <button type="button" className="inessa-cart-remove" aria-label={`Xóa ${product.title}, dung tích ${item.size}`}
-                                onClick={() => updateQuantity(item._id, item.size, 0)} disabled={isChangingSize}>
-                                <X size={14} aria-hidden="true" />
-                              </button>
-                            </td>
-                            <td className="inessa-cart-product-cell">
-                              <div className="inessa-cart-product">
-                                <Link to={`/collection/${product._id}`} className="inessa-cart-product-image" aria-label={`Xem chi tiết ${product.title}`}>
-                                  <ProductImage src={getSizeImage(product, item.size)} imageWidth={160} alt="" />
-                                </Link>
-                                <div className="inessa-cart-product-info">
-                                  <Link to={`/collection/${product._id}`} className="inessa-cart-product-name">{product.title}</Link>
-                                  <CartSizePicker product={product} size={item.size} quantity={quantity} quantities={cartItems[item._id]}
-                                    disabled={isUpdatingCart || isUnavailable} onConfirm={(size) => handleSizeChange(item._id, item.size, size)} />
-                                  {isUnavailable && <p className="inessa-cart-unavailable" role="status">Đã hết hàng — vui lòng xóa khỏi giỏ hàng</p>}
+                          return (
+                            <tr
+                              key={getCartRowKey(item)}
+                              className={`inessa-cart-row ${isUnavailable ? "is-unavailable" : ""}`}
+                            >
+                              <td className="inessa-cart-select-cell">
+                                <CartCheckbox
+                                  disabled={isChangingSize || isUnavailable}
+                                  checked={isSelected}
+                                  onChange={() => toggleItemSelection(itemKey)}
+                                  label={`Chọn ${product.title}, dung tích ${item.size}`}
+                                />
+                              </td>
+                              <td className="inessa-cart-remove-cell">
+                                <button
+                                  type="button"
+                                  className="inessa-cart-remove"
+                                  aria-label={`Xóa ${product.title}, dung tích ${item.size}`}
+                                  onClick={() =>
+                                    updateQuantity(item._id, item.size, 0)
+                                  }
+                                  disabled={isChangingSize}
+                                >
+                                  <X size={14} aria-hidden="true" />
+                                </button>
+                              </td>
+                              <td className="inessa-cart-product-cell">
+                                <div className="inessa-cart-product">
+                                  <Link
+                                    to={`/collection/${product._id}`}
+                                    className="inessa-cart-product-image"
+                                    aria-label={`Xem chi tiết ${product.title}`}
+                                  >
+                                    <ProductImage
+                                      src={getSizeImage(product, item.size)}
+                                      imageWidth={160}
+                                      alt=""
+                                    />
+                                  </Link>
+                                  <div className="inessa-cart-product-info">
+                                    <Link
+                                      to={`/collection/${product._id}`}
+                                      className="inessa-cart-product-name"
+                                    >
+                                      {product.title}
+                                    </Link>
+                                    <CartSizePicker
+                                      product={product}
+                                      size={item.size}
+                                      quantity={quantity}
+                                      quantities={cartItems[item._id]}
+                                      disabled={isUpdatingCart || isUnavailable}
+                                      onConfirm={(size) =>
+                                        handleSizeChange(
+                                          item._id,
+                                          item.size,
+                                          size,
+                                        )
+                                      }
+                                    />
+                                    {isUnavailable && (
+                                      <p
+                                        className="inessa-cart-unavailable"
+                                        role="status"
+                                      >
+                                        Đã hết hàng — vui lòng xóa khỏi giỏ hàng
+                                      </p>
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
-                            </td>
-                            <td className="inessa-cart-price-cell">
-                              <span className="inessa-cart-mobile-label" aria-hidden="true">Đơn giá</span>
-                              <span>{formatVnd(product.price[item.size], currency)}</span>
-                            </td>
-                            <td className="inessa-cart-quantity-cell">
-                              <span className="inessa-cart-mobile-label" aria-hidden="true">Số lượng</span>
-                              <div className="inessa-cart-quantity">
-                                <button type="button" aria-label={`Giảm số lượng ${product.title}, dung tích ${item.size}`}
-                                  onClick={() => decrement(item._id, item.size)} disabled={isChangingSize || isUnavailable || quantity <= 1}>
-                                  <Minus size={13} aria-hidden="true" />
-                                </button>
-                                <span aria-label={`Số lượng ${product.title}, dung tích ${item.size}`}>{quantity}</span>
-                                <button type="button" aria-label={`Tăng số lượng ${product.title}, dung tích ${item.size}`}
-                                  onClick={() => increment(item._id, item.size)} disabled={isChangingSize || isUnavailable || quantity >= getPurchaseLimit(product, item.size)}>
-                                  <Plus size={13} aria-hidden="true" />
-                                </button>
-                              </div>
-                            </td>
-                            <td className="inessa-cart-subtotal-cell">
-                              <span className="inessa-cart-mobile-label" aria-hidden="true">Thành tiền</span>
-                              <span>{formatVnd(product.price[item.size] * quantity, currency)}</span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                  <div className="inessa-cart-table-actions">
-                    <p role="status">{isUpdatingCart ? "Đang lưu thay đổi…" : `Đã chọn ${selectedItemKeys.size}/${availableCartData.length} phân loại sản phẩm`}</p>
-                    <div>
-                      <button type="button" onClick={toggleAllItems} disabled={isChangingSize || availableCartData.length === 0}>
-                        {allItemsSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
-                      </button>
-                      <button type="button" onClick={removeSelectedItems} disabled={isUpdatingCart || selectedItemKeys.size === 0}>Xóa đã chọn</button>
-                      {unavailableCartData.length > 0 && <button type="button" onClick={removeUnavailableItems} disabled={isUpdatingCart}>Xóa sản phẩm hết hàng</button>}
+                              </td>
+                              <td className="inessa-cart-price-cell">
+                                <span
+                                  className="inessa-cart-mobile-label"
+                                  aria-hidden="true"
+                                >
+                                  Đơn giá
+                                </span>
+                                <span>
+                                  {formatVnd(
+                                    product.price[item.size],
+                                    currency,
+                                  )}
+                                </span>
+                              </td>
+                              <td className="inessa-cart-quantity-cell">
+                                <span
+                                  className="inessa-cart-mobile-label"
+                                  aria-hidden="true"
+                                >
+                                  Số lượng
+                                </span>
+                                <div className="inessa-cart-quantity">
+                                  <button
+                                    type="button"
+                                    aria-label={`Giảm số lượng ${product.title}, dung tích ${item.size}`}
+                                    onClick={() =>
+                                      decrement(item._id, item.size)
+                                    }
+                                    disabled={
+                                      isChangingSize ||
+                                      isUnavailable ||
+                                      quantity <= 1
+                                    }
+                                  >
+                                    <Minus size={13} aria-hidden="true" />
+                                  </button>
+                                  <span
+                                    aria-label={`Số lượng ${product.title}, dung tích ${item.size}`}
+                                  >
+                                    {quantity}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    aria-label={`Tăng số lượng ${product.title}, dung tích ${item.size}`}
+                                    onClick={() =>
+                                      increment(item._id, item.size)
+                                    }
+                                    disabled={
+                                      isChangingSize ||
+                                      isUnavailable ||
+                                      quantity >=
+                                        getPurchaseLimit(product, item.size)
+                                    }
+                                  >
+                                    <Plus size={13} aria-hidden="true" />
+                                  </button>
+                                </div>
+                              </td>
+                              <td className="inessa-cart-subtotal-cell">
+                                <span
+                                  className="inessa-cart-mobile-label"
+                                  aria-hidden="true"
+                                >
+                                  Thành tiền
+                                </span>
+                                <span>
+                                  {formatVnd(
+                                    product.price[item.size] * quantity,
+                                    currency,
+                                  )}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                    <div className="inessa-cart-table-actions">
+                      <p role="status">
+                        {isUpdatingCart
+                          ? "Đang lưu thay đổi…"
+                          : `Đã chọn ${selectedItemKeys.size}/${availableCartData.length} sản phẩm`}
+                      </p>
+                      <div>
+                        <button
+                          type="button"
+                          onClick={toggleAllItems}
+                          disabled={
+                            isChangingSize || availableCartData.length === 0
+                          }
+                        >
+                          {allItemsSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={removeSelectedItems}
+                          disabled={
+                            isUpdatingCart || selectedItemKeys.size === 0
+                          }
+                        >
+                          Xóa sản phẩm đã chọn
+                        </button>
+                        {unavailableCartData.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={removeUnavailableItems}
+                            disabled={isUpdatingCart}
+                          >
+                            Xóa sản phẩm hết hàng
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="inessa-cart-voucher">
+                      <CheckoutVoucherPicker
+                        checkout={checkout}
+                        subtotal={subtotal}
+                        disabled={isUpdatingCart || selectedItemKeys.size === 0}
+                        compact
+                      />
                     </div>
                   </div>
-                  <div className="inessa-cart-voucher">
-                    <CheckoutVoucherPicker checkout={checkout} subtotal={subtotal} disabled={isUpdatingCart || selectedItemKeys.size === 0} compact />
-                  </div>
                 </div>
+                <CartSummary
+                  checkout={checkout}
+                  subtotal={subtotal}
+                  selectedCount={selectedCount}
+                  isUpdatingCart={isUpdatingCart}
+                  onCheckout={handleCheckout}
+                />
               </div>
-              <CartSummary checkout={checkout} subtotal={subtotal} selectedCount={selectedCount} isUpdatingCart={isUpdatingCart} onCheckout={handleCheckout} />
-            </div>
-          ) : (
-            <div className="inessa-cart-empty">
-              <div className="inessa-cart-empty-message">
-                <ShoppingBag size={20} strokeWidth={1.5} aria-hidden="true" />
-                <h2>Giỏ hàng của bạn đang trống</h2>
+            ) : (
+              <div className="inessa-cart-empty">
+                <div className="inessa-cart-empty-message">
+                  <ShoppingBag size={20} strokeWidth={1.5} aria-hidden="true" />
+                  <h2>Giỏ hàng của bạn đang trống</h2>
+                </div>
+                <p>Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán.</p>
+                <Link to="/collection" className="btn-dark">
+                  Tiếp tục mua sắm
+                </Link>
               </div>
-              <p>Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán.</p>
-              <Link to="/collection" className="btn-dark">Tiếp tục mua sắm</Link>
-            </div>
-          )}
-        </section>
-      )}
+            )}
+          </section>
+        )}
 
-      {/* STEP 2 */}
-      {currentStep === 2 && <CheckoutBackGuard onBack={handleBackToCart} isSubmitting={isSubmitting} />}
-      {currentStep === 2 && (
-        <Suspense fallback={<p role="status" className="py-12 text-center">Đang tải thông tin thanh toán…</p>}>
-          <CartTotal
-            checkout={checkout}
-            isSubmitting={isSubmitting || isUpdatingCart}
-            selectedItemKeys={selectedItemKeys}
-            orderNote={orderNote}
-            setOrderNote={setOrderNote}
+        {/* STEP 2 */}
+        {currentStep === 2 && (
+          <CheckoutBackGuard
             onBack={handleBackToCart}
+            isSubmitting={isSubmitting}
+          />
+        )}
+        {currentStep === 2 && (
+          <Suspense
+            fallback={
+              <p role="status" className="py-12 text-center">
+                Đang tải thông tin thanh toán…
+              </p>
+            }
           >
-            <CheckoutAddressForm
+            <CartTotal
               checkout={checkout}
-              onOrderCreated={handleOrderCreated}
-              isSubmitting={isSubmitting}
-              setIsSubmitting={setIsSubmitting}
+              isSubmitting={isSubmitting || isUpdatingCart}
               selectedItemKeys={selectedItemKeys}
-              address={checkoutAddress}
-              setAddress={setCheckoutAddress}
               orderNote={orderNote}
-            />
-          </CartTotal>
-        </Suspense>
-      )}
+              setOrderNote={setOrderNote}
+              onBack={handleBackToCart}
+            >
+              <CheckoutAddressForm
+                checkout={checkout}
+                onOrderCreated={handleOrderCreated}
+                isSubmitting={isSubmitting}
+                setIsSubmitting={setIsSubmitting}
+                selectedItemKeys={selectedItemKeys}
+                address={checkoutAddress}
+                setAddress={setCheckoutAddress}
+                orderNote={orderNote}
+              />
+            </CartTotal>
+          </Suspense>
+        )}
 
-      {/* STEP 3 QR */}
-      {currentStep === 3 && createdOrder?.paymentMethod === "QR" && (
-        <Suspense fallback={<p role="status" className="py-12 text-center">Đang tải thông tin thanh toán…</p>}>
-        <QrPaymentStatus
-          initialOrder={createdOrder}
-          onExpired={handleQrExpired}
-          onCancelled={handleQrCancelled}
-        />
-        </Suspense>
-      )}
-
-      {/* STEP 3 COD */}
-      {currentStep === 3 && createdOrder?.paymentMethod === "COD" && (
-        <div className="mx-auto max-w-xl rounded-2xl bg-white px-6 py-16 text-center shadow-sm">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl text-green-600">
-            {"\u2713"}
-          </div>
-
-          <h2 className="mt-5 text-2xl font-semibold">
-            Đặt hàng thành công
-          </h2>
-
-          <p className="mt-3 text-gray-500">
-            Đơn hàng của bạn đã được tạo. Bạn sẽ thanh toán khi nhận hàng.
-          </p>
-          {createdOrder.shippingMethod === "urgent" && <p className="mt-3 text-sm text-gray-500">{URGENT_SHIPPING_NOTE}</p>}
-
-          <button
-            type="button"
-            onClick={() => navigate("/my-orders")}
-            className="btn-dark mt-8 !rounded-full"
+        {/* STEP 3 QR */}
+        {currentStep === 3 && createdOrder?.paymentMethod === "QR" && (
+          <Suspense
+            fallback={
+              <p role="status" className="py-12 text-center">
+                Đang tải thông tin thanh toán…
+              </p>
+            }
           >
-            Xem đơn hàng của tôi
-          </button>
-        </div>
-      )}
+            <QrPaymentStatus
+              initialOrder={createdOrder}
+              onExpired={handleQrExpired}
+              onCancelled={handleQrCancelled}
+            />
+          </Suspense>
+        )}
+
+        {/* STEP 3 COD */}
+        {currentStep === 3 && createdOrder?.paymentMethod === "COD" && (
+          <div className="mx-auto max-w-xl rounded-2xl bg-white px-6 py-16 text-center shadow-sm">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl text-green-600">
+              {"\u2713"}
+            </div>
+
+            <h2 className="mt-5 text-2xl font-semibold">Đặt hàng thành công</h2>
+
+            <p className="mt-3 text-gray-500">
+              Đơn hàng của bạn đã được tạo. Bạn sẽ thanh toán khi nhận hàng.
+            </p>
+            {createdOrder.shippingMethod === "urgent" && (
+              <p className="mt-3 text-sm text-gray-500">
+                {URGENT_SHIPPING_NOTE}
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={() => navigate("/my-orders")}
+              className="btn-dark mt-8 !rounded-full"
+            >
+              Xem đơn hàng của tôi
+            </button>
+          </div>
+        )}
       </div>
     </div>
   ) : null;

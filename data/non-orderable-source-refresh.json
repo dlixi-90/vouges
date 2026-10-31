@@ -1,0 +1,28 @@
+{
+  "database": "vouges",
+  "appliedAt": "2026-10-31T07:32:29.657Z",
+  "source": "https://apaniche.vn",
+  "totals": {
+    "products": 73,
+    "recoveredProducts": 36,
+    "remainingUnavailable": 37,
+    "generatedQuantity": 979,
+    "generatedStockRange": [
+      1,
+      30
+    ],
+    "pricesBeforeMissing": 38,
+    "pricesAfterMissing": 3,
+    "removedSizes": 29,
+    "referencedCarts": 0,
+    "pendingQrOrders": 0
+  },
+  "generatedStock": {
+    "minimum": 1,
+    "maximum": 30,
+    "provenance": "User-authorized random initialization; not supplier warehouse inventory"
+  },
+  "remainingNonOrderableProducts": 37,
+  "backupPath": "C:\\Users\\nguye\\Desktop\\vouges\\.backups\\non-orderable-refresh-2026-10-31T07-32-28-916Z",
+  "verified": true
+}

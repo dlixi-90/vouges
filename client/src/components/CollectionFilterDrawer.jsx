@@ -11,7 +11,7 @@ const subscribeToLayout = callback => {
 };
 const getCompactLayout = () => window.matchMedia(compactQuery).matches;
 
-function FilterGroup({ field, options = [], selected = [], onChange, sidebar }) {
+function FilterGroup({ field, options = [], selected = [], onChange, sidebar, loading }) {
   const id = useId();
   const [query, setQuery] = useState("");
   const initialLimit = sidebar ? 6 : 40;
@@ -27,7 +27,8 @@ function FilterGroup({ field, options = [], selected = [], onChange, sidebar }) 
       <div className="inessa-filter-options" aria-labelledby={id}>
         <span id={id} className="sr-only">{field.label}</span>
         {matching.slice(0, limit).map(value => <label key={value}><input type="checkbox" checked={selected.includes(value)} onChange={() => onChange(field.id, value)} /><span>{value}</span></label>)}
-        {!matching.length && <p className="inessa-filter-help">Không có lựa chọn phù hợp.</p>}
+        {loading && !matching.length && <div aria-hidden="true"><span className="skeleton-line" /><span className="skeleton-line" /><span className="skeleton-line short" /></div>}
+        {!loading && !matching.length && <p className="inessa-filter-help">Không có lựa chọn phù hợp.</p>}
         {matching.length > limit && <button type="button" onClick={() => setLimit(value => value + 40)} className="inessa-filter-more">Hiện thêm {Math.min(40, matching.length - limit)} lựa chọn</button>}
       </div>
     </div>
@@ -51,7 +52,7 @@ export default function CollectionFilterDrawer({
       .catch(error => { if (active) setError(error.message); });
     return () => { active = false; };
   }, [publicCatalog, attempt]);
-  const renderGroup = field => <FilterGroup key={field.id} field={field} options={options?.[field.id]} selected={selectedFilters[field.id]} onChange={onFilterChange} sidebar={isSidebar} />;
+  const renderGroup = field => <FilterGroup key={field.id} field={field} options={options?.[field.id]} selected={selectedFilters[field.id]} onChange={onFilterChange} sidebar={isSidebar} loading={!options && !error} />;
 
   useLayoutEffect(() => {
     if (!isSidebar) return;

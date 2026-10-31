@@ -54,6 +54,9 @@
 .collection-catalog .net-product-card .net-product-category { color: #8a8a8a; font-size: 11px; }
 .collection-catalog .net-product-card .net-product-price { display: inline-block; margin-top: 0; padding: 6px 9px; border: 1px solid #efefef; border-radius: 6px; color: #292929; font-size: 12px; font-weight: 500; }
 
+.collection-loading-area { position:relative; }
+.collection-update-status { position:absolute; top:-28px; right:0; z-index:2; padding-inline:8px; border-radius:4px; background:#fff; pointer-events:none; }
+.collection-catalog .inessa-collection-grid.is-updating { opacity:.62; transition:opacity 150ms; }
 /* Keep the sidebar in view; only its criteria scroll, with the title/reset fixed. */
 html:has(.collection-catalog), body:has(.collection-catalog) { overflow-x: clip; }
 .net-theme.net-storefront:has(.collection-catalog) { overflow: clip; }

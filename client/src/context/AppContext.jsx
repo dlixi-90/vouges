@@ -131,6 +131,7 @@ export const AppContextProvider = ({ children }) => {
   const isOwner = !isLoaded ? null : !authUserId ? false
     : profileResult.userId === authUserId ? profileResult.role : null;
   const profileError = profileResult.userId === authUserId ? profileResult.error : "";
+  const accountLoading = !isLoaded || Boolean(authUserId && profileResult.userId !== authUserId);
   const { openSignIn } = useClerk();
 
   useEffect(() => () => dashboardCache.clear(), [dashboardCache, authUserId, isOwner]);
@@ -223,7 +224,7 @@ export const AppContextProvider = ({ children }) => {
     if (Date.now() - popularSavedAt.current < 30000) return Promise.resolve();
     popularRequestRef.current = (async () => {
       try {
-        const { data } = await axios.get("/api/products/popular");
+        const { data } = await axios.get("/api/products/popular", { timeout: 15000 });
         if (!data.success) {
           throw new Error(data.message || "Không thể tải sản phẩm bán chạy");
         }
@@ -246,7 +247,7 @@ export const AppContextProvider = ({ children }) => {
     setCategoriesLoading(true);
     setCategoriesError("");
     try {
-      const { data } = await axios.get("/api/categories");
+      const { data } = await axios.get("/api/categories", { timeout: 15000 });
       if (!data.success) throw new Error(data.message || "Không thể tải danh mục");
       setCategories(data.categories);
     } catch (error) {
@@ -595,6 +596,7 @@ export const AppContextProvider = ({ children }) => {
     storeResources,
     dashboardCache,
     authenticatedUserId: authUserId,
+    accountLoading,
     customerProfile: profileResult.userId === authUserId ? profileResult.profile : null,
     applyCustomerProfile,
     productDrafts,

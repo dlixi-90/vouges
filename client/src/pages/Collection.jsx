@@ -12,6 +12,7 @@ import useCollectionPage from "../hooks/useCollectionPage";
 import { emptyPerfumeFilters } from "../data/perfumeFilters";
 import { COLLECTION_PAGE_SIZE } from "../utils/publicCatalog";
 import StorePageHeading from "../components/StorePageHeading";
+import { LoadingStatus, ProductGridSkeleton } from "../components/LoadingState";
 import "./collection.css";
 
 const Collection = () => {
@@ -23,11 +24,6 @@ const Collection = () => {
   const { searchQuery, setSearchQuery, currency, navigate, publicCatalog } = useAppContext();
   const [searchParams] = useSearchParams();
   const routeBrand = searchParams.get("brand") || "";
-  const [settledSearch, setSettledSearch] = useState(searchQuery);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setSettledSearch(searchQuery), 180);
-    return () => window.clearTimeout(timer);
-  }, [searchQuery]);
   const [filters, setFilters] = useState(() => {
     const category = searchParams.get("category");
     const gender = ({ "Nước hoa nam": "Nam", "Nước hoa nữ": "Nữ", "Nước hoa unisex": "Unisex" })[category];
@@ -39,12 +35,26 @@ const Collection = () => {
   const [maxPrice, setMaxPrice] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = COLLECTION_PAGE_SIZE;
+  const criteriaKey = JSON.stringify({ q: searchQuery, facets: JSON.stringify(filters), minPrice, ...(maxPrice !== null ? { maxPrice } : {}) });
+  const [settledCriteria, setSettledCriteria] = useState(criteriaKey);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSettledCriteria(criteriaKey), 180);
+    return () => window.clearTimeout(timer);
+  }, [criteriaKey]);
+  const criteria = JSON.parse(settledCriteria);
+  const criteriaPending = settledCriteria !== criteriaKey;
   const { data: collection, loading: pageLoading, error: pageError, reload } = useCollectionPage({
-    page: currentPage, limit: itemsPerPage, q: settledSearch,
-    facets: JSON.stringify(filters), sort: selectedSort,
-    minPrice, ...(maxPrice !== null ? { maxPrice } : {}),
-  });
-  const productsLoading = pageLoading || settledSearch !== searchQuery;
+    page: currentPage, limit: itemsPerPage, ...criteria, sort: selectedSort,
+  }, { enabled: !criteriaPending });
+  const productsLoading = pageLoading || criteriaPending;
+  const prefetchKey = JSON.stringify({ ...criteria, limit: itemsPerPage, sort: selectedSort, page: (collection?.page || 1) + 1 });
+  useEffect(() => {
+    if (productsLoading || !collection || collection.page >= collection.totalPages) return;
+    const connection = navigator.connection;
+    if (connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || "")) return;
+    const timer = window.setTimeout(() => { void publicCatalog.browse(JSON.parse(prefetchKey)).catch(() => {}); }, 400);
+    return () => window.clearTimeout(timer);
+  }, [publicCatalog, productsLoading, collection, prefetchKey]);
   const maxProductPrice = collection?.filters.maxPrice || 0;
   // Every price and filter value is integer VND.
   const priceCeiling = Math.max(1, Math.ceil(maxProductPrice));
@@ -82,7 +92,7 @@ const Collection = () => {
   const totalPages = collection?.totalPages || 1;
   const activePage = !productsLoading && collection ? collection.page : currentPage;
   const { listRef, changePage } = usePaginationScroll({ page: activePage, onPageChange: setCurrentPage, ready: !productsLoading });
-  const startIndex = (activePage - 1) * itemsPerPage;
+  const startIndex = ((collection?.page || activePage) - 1) * itemsPerPage;
   const paginatedProducts = collection?.products || [];
   const filterCount = Object.values(filters).reduce((count, values) => count + values.length, 0)
     + Number(isPriceFiltered) + Number(Boolean(searchQuery));
@@ -125,7 +135,7 @@ const Collection = () => {
             <div className="inessa-collection-sort-tools">
               <div className="inessa-collection-results-tools">
                 <p className="inessa-collection-results" role="status" aria-live="polite">
-                  {productsLoading ? "Đang tải sản phẩm…" : total
+                  {!collection ? productsLoading ? "Đang tải sản phẩm…" : "0 sản phẩm" : total
                     ? `${startIndex + 1}–${Math.min(startIndex + itemsPerPage, total)} / ${total} sản phẩm`
                     : "0 sản phẩm"}
                 </p>
@@ -144,8 +154,11 @@ const Collection = () => {
             </div>
           </div>
 
-          <div ref={listRef} tabIndex={-1} className="inessa-collection-grid pagination-list-start" aria-busy={productsLoading}>
+          <div className="collection-loading-area">
+          <LoadingStatus active={productsLoading && Boolean(collection)} label="Đang cập nhật sản phẩm…" className="collection-update-status" />
+          <div ref={listRef} tabIndex={-1} className={`inessa-collection-grid pagination-list-start ${productsLoading && collection ? "is-updating" : ""}`} aria-busy={productsLoading}>
             {pageError && <div role="alert" className="inessa-collection-empty"><p>{pageError}</p><button type="button" onClick={reload} className="inessa-button">Thử lại</button></div>}
+            {!collection && productsLoading && <ProductGridSkeleton count={itemsPerPage} />}
             {paginatedProducts.map((product, index) => <Item product={product} key={product._id} priority={index < 4} />)}
             {!productsLoading && !pageError && paginatedProducts.length === 0 && <div className="inessa-collection-empty">
               <SearchX size={32} strokeWidth={1.2} aria-hidden="true" />
@@ -153,6 +166,7 @@ const Collection = () => {
               <p>Thử thay đổi từ khóa hoặc bộ lọc để tìm sản phẩm phù hợp.</p>
               {filterCount > 0 && <button type="button" onClick={resetFilters} className="inessa-button">Xóa bộ lọc</button>}
             </div>}
+          </div>
           </div>
 
           <Pagination className="inessa-collection-pagination" label="Phân trang sản phẩm" page={activePage} totalPages={totalPages} onPageChange={changePage} disabled={productsLoading} />

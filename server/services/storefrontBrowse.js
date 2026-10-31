@@ -50,12 +50,15 @@ const basicFacetFilters = facets => {
 };
 
 export const readStorefrontBrowse = async options => {
-  if (!canPageBrowseDirectly(options)) return browseCatalog(await getStorefrontCatalog(needsFragranceProfiles(options.facets)), options);
   return catalogSnapshot(`browse-page:${JSON.stringify(options)}`, 10000, async () => {
-    const meta = await metadata();
-    const availableTypes = [...new Set(meta.types.filter(row => (!options.brand || filterKey(row.brand) === options.brand)
+    if (!canPageBrowseDirectly(options)) return browseCatalog(await getStorefrontCatalog(needsFragranceProfiles(options.facets)), options);
+    const metaRequest = metadata();
+    const availableTypesFor = meta => [...new Set(meta.types.filter(row => (!options.brand || filterKey(row.brand) === options.brand)
       && (!options.categories.length || options.categories.includes(row.category))).map(row => row.type).filter(Boolean))].sort();
-    const activeTypes = options.types.filter(type => availableTypes.includes(type));
+    // Only the legacy type filter depends on metadata. Read the first page and
+    // global metadata concurrently for the normal search/facet/navigation path.
+    const typeOptions = options.types.length ? availableTypesFor(await metaRequest) : [];
+    const activeTypes = options.types.filter(type => typeOptions.includes(type));
     const clauses = basicFacetFilters(options.facets || {});
     if (options.brand) clauses.push({ brand: exact(options.brand) });
     if (options.categories.length) clauses.push({ category: { $in: options.categories } });
@@ -71,7 +74,8 @@ export const readStorefrontBrowse = async options => {
       } }]);
       return { total: result.total?.[0]?.count || 0, products: result.products || [] };
     };
-    let result = await readPage(options.page);
+    let [result, meta] = await Promise.all([readPage(options.page), metaRequest]);
+    const availableTypes = availableTypesFor(meta);
     const totalPages = Math.max(1, Math.ceil(result.total / options.limit)), page = Math.min(options.page, totalPages);
     if (page !== options.page && result.total > 0) result = await readPage(page);
     return { success: true, products: result.products.map(product => toProductCard({ ...product, _id: String(product._id) })),

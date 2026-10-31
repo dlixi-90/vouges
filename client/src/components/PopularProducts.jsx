@@ -2,6 +2,7 @@ import Title from "./Title";
 import { usePopularProducts } from "../hooks/usePopularProducts";
 import ProductCarousel from "./ProductCarousel";
 import useProductFeed from "../hooks/useProductFeed";
+import { LoadingStatus, ProductGridSkeleton } from "./LoadingState";
 
 const PopularProducts = () => {
   const {
@@ -32,7 +33,8 @@ const PopularProducts = () => {
           </button>
         </p>
       )}
-      {isLoading && <p role="status">{showSuggestions ? "Đang tải sản phẩm…" : "Đang tải sản phẩm bán chạy…"}</p>}
+      {isLoading && !displayedProducts.length && <ProductGridSkeleton count={5} carousel />}
+      <LoadingStatus active={isLoading && displayedProducts.length > 0} label="Đang cập nhật sản phẩm…" />
       {!isLoading && !popularProductsError && !displayedProducts.length && (
         <p className="text-sm text-gray-500">Chưa có sản phẩm để hiển thị.</p>
       )}
