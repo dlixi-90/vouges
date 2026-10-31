@@ -228,6 +228,24 @@ test("fragrance metadata is lazy and cached separately from the live card/stock 
   invalidateStorefrontCatalog();
 });
 
+test("projected fragrance metadata keeps ordinary concentrations and exposes each concentration in a mixed set", async t => {
+  invalidateStorefrontCatalog();
+  const plain=fixture(1), mixed=fixture(2,{concentration:'EDT / EDP'});
+  t.mock.method(Product,'find',()=>({select(){return this;},sort(){return this;},lean:async()=>[plain,mixed]}));
+  // Match the real profile projection: top-level concentration is absent.
+  t.mock.method(Product,'aggregate',async()=>[
+    {_id:plain._id,fragrance:{notes:plain.fragrance.notes}},
+    {_id:mixed._id,fragrance:{components:[{concentration:'EDT',notes:{general:[{name:'Wood'}]}},{concentration:'EDP',notes:{general:[{name:'Rose'}]}}]}},
+  ]);
+  const catalog=await getStorefrontCatalog(true);
+  assert.deepEqual(catalog[0]._filters.concentrations,['EDP']);
+  assert.deepEqual(catalog[1]._filters.concentrations,['EDT','EDP']);
+  assert.equal(browseCatalog(catalog,options({facets:JSON.stringify({concentrations:['EDP']})})).total,2);
+  assert.equal(browseCatalog(catalog,options({facets:JSON.stringify({concentrations:['EDT']})})).total,1);
+  assert.equal(canPageBrowseDirectly(options({facets:JSON.stringify({concentrations:['EDT']})})),false);
+  invalidateStorefrontCatalog();
+});
+
 test("ordinary browsing returns only one bounded database page and shares metadata across pages", async t => {
   invalidateStorefrontCatalog();
   t.mock.method(Product, "find", () => assert.fail("A normal page must not fetch all products"));

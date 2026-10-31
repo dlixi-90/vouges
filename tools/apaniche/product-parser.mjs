@@ -48,8 +48,8 @@ export const parseTree = (source) => {
   return root;
 };
 
-export const parseJsonResponse = (source) => {
-  try { return JSON.parse(source); } catch { /* A public shortcode can echo HTML ahead of the JSON. */ }
+export const parseJsonResponse = (source, accept = () => true) => {
+  try { const value = JSON.parse(source); if (accept(value)) return value; } catch { /* A public shortcode can echo HTML ahead of the JSON. */ }
   for (const match of source.matchAll(/\[\s*\{\s*"id"\s*:/g)) {
     let quoted = false, escaped = false, depth = 0;
     for (let i = match.index; i < source.length; i++) {
@@ -59,10 +59,11 @@ export const parseJsonResponse = (source) => {
       else if (char === '[' || char === '{') depth++;
       else if (char === ']' || char === '}') {
         depth--;
-        if (depth === 0) { try { return JSON.parse(source.slice(match.index, i + 1)); } catch { break; } }
+      if (depth === 0) { try { const value = JSON.parse(source.slice(match.index, i + 1)); if (accept(value)) return value; } catch { /* Try the next candidate. */ } break; }
       }
     }
   }
+  if (/\[\]\s*$/.test(source) && accept([])) return [];
   throw new Error('Public API response did not contain a valid product array');
 };
 

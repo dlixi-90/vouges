@@ -36,7 +36,9 @@ test("perfume search combines escaped brand, concentration, accord and note filt
   assert.equal(filter.brand.test("Hãng kiểm thử"), true);assert.equal(filter.brand.test("Hãng kiểm thử khác"), false);
   assert.equal(filter.concentration.test("Eau De Parfum (EDP)"), true);
   assert.ok(filter.$or.some(row => row["fragrance.notes.top.name"]?.test("Cam Bergamot")));
-  assert.equal(filter.$and[0].$or[2]["fragrance.notes.base.name"].test("Vani"), true);
+  assert.ok(filter.$and[0].$or.some(row => row["fragrance.notes.base.name"]?.test("Vani")));
+  assert.ok(filter.$and[0].$or.some(row => row["fragrance.notes.general.name"]?.test("Vani")));
+  assert.ok(filter.$and[0].$or.some(row => row["fragrance.components.notes.general.name"]?.test("Vani")));
   assert.equal(found.products[0].availableOptions[0].stockQuantity, 12);
   assert.equal(found.products[0].brand, "Hãng kiểm thử");
   assert.equal(found.products[0].fragrance.suitability[0].displayedPercent, 88);

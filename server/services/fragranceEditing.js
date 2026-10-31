@@ -12,7 +12,7 @@ export const sanitizeNewProductFragrance = (raw = {}) => {
   }
   const notes = raw.notes ?? {};
   if (!notes || typeof notes !== "object" || Array.isArray(notes)) reject("Tầng hương không hợp lệ.");
-  result.notes = Object.fromEntries(["top", "middle", "base"].map(phase => {
+  result.notes = Object.fromEntries(["top", "middle", "base", ...(notes.general !== undefined ? ["general"] : [])].map(phase => {
     const rows = notes[phase] ?? [];
     if (!Array.isArray(rows) || rows.length > 60) reject("Note hương không hợp lệ (tối đa 60 note mỗi tầng).");
     return [phase, rows.map(row => {

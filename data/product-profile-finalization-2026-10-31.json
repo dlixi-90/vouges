@@ -1,0 +1,2442 @@
+{
+  "runId": "product-profile-finalization-2026-10-31-v1",
+  "preparedAt": "2026-10-31T15:35:46.100Z",
+  "scope": "14 remaining active profiles; preserve valid prices and existing inventory; random stock only for the two products authorized by the user",
+  "foreignExchange": {
+    "sourceUrl": "https://portal.vietcombank.com.vn/Usercontrols/TVPortal.TyGia/pXML.aspx",
+    "snapshot": ".qa-perfume/profile-finalization-2026-10-31/fx.html",
+    "publishedAt": "10/31/2026 10:20:54 PM",
+    "USD": 25990,
+    "EUR": 29625.48,
+    "side": "Sell"
+  },
+  "products": [
+    {
+      "id": "6629bf75d87831de6e7be832",
+      "sourceId": 38166,
+      "title": "Amouage Opus XIV Royal Tobacco EDP",
+      "expectedUpdatedAt": "2026-10-31T15:10:18.841Z",
+      "changes": {},
+      "evidence": {},
+      "afterIssues": [],
+      "variants": [
+        {
+          "kind": "add",
+          "size": "100ml",
+          "price": 4290000,
+          "evidence": {
+            "url": "https://kinperfume.com/san-pham/amouage-royal-tobacco/",
+            "fact": "Retail listing: 100ml, 4,290,000 VND",
+            "reviewedAt": "2026-10-31T15:35:46.100Z",
+            "condition": "retail",
+            "basis": "retailer-vnd-reference",
+            "crossCheckUrl": "https://vmiaperfume.vn/products/amouage-opus-xiv-royal-tobacco"
+          }
+        }
+      ]
+    },
+    {
+      "id": "2ddcd7921593fc9e3ed3f7ee",
+      "sourceId": 33606,
+      "title": "Jimmy Choo Illicit EDP",
+      "expectedUpdatedAt": "2026-10-31T15:10:18.841Z",
+      "changes": {},
+      "evidence": {},
+      "afterIssues": [],
+      "variants": [
+        {
+          "kind": "add",
+          "size": "100ml",
+          "price": 2850000,
+          "evidence": {
+            "url": "https://theperfume.vn/nuoc-hoa/nuoc-hoa-jimmy-choo-illicit-eau-de-parfum-100ml/",
+            "fact": "Retail listing: 100ml, 2,850,000 VND",
+            "reviewedAt": "2026-10-31T15:35:46.100Z",
+            "condition": "retail",
+            "basis": "retailer-vnd-reference",
+            "crossCheckUrl": "https://theperfumestore.vn/san-pham/jimmy-choo-illicit-100ml"
+          }
+        }
+      ]
+    },
+    {
+      "id": "4d8f85a9e4a7ed3092de7eed",
+      "sourceId": 33753,
+      "title": "Jimmy Choo Illicit Flower EDT",
+      "expectedUpdatedAt": "2026-10-31T15:10:18.841Z",
+      "changes": {},
+      "evidence": {},
+      "afterIssues": [],
+      "variants": [
+        {
+          "kind": "add",
+          "size": "100ml",
+          "price": 2550000,
+          "evidence": {
+            "url": "https://theperfume.vn/nuoc-hoa/nuoc-hoa-jimmy-choo-illicit-flower-eau-de-toilette-100ml/",
+            "fact": "Retail listing: 100ml, 2,550,000 VND",
+            "reviewedAt": "2026-10-31T15:35:46.100Z",
+            "condition": "retail",
+            "basis": "retailer-vnd-reference",
+            "crossCheckUrl": "https://vuahanghieu.com/nuoc-hoa-nu-jimmy-choo-illicit-flower-edt-100ml-ph057954"
+          }
+        }
+      ]
+    },
+    {
+      "id": "9cc1115f887e9544c032995d",
+      "sourceId": 33613,
+      "title": "Jimmy Choo Man Intense EDT",
+      "expectedUpdatedAt": "2026-10-31T15:10:18.841Z",
+      "changes": {},
+      "evidence": {},
+      "afterIssues": [],
+      "variants": [
+        {
+          "kind": "add",
+          "size": "100ml",
+          "price": 1620000,
+          "evidence": {
+            "url": "https://vuahanghieu.com/nuoc-hoa-nam-jimmy-choo-man-intense-edt-100ml-ph117055",
+            "fact": "Retail listing: 100ml, 1,620,000 VND",
+            "reviewedAt": "2026-10-31T15:35:46.100Z",
+            "condition": "retail",
+            "basis": "retailer-vnd-reference",
+            "crossCheckUrl": "https://us.jimmychoo.com/en/men/fragrance/"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ee0d74305c02b58449b42e85",
+      "sourceId": 34840,
+      "title": "Tom Ford Santal Blush EDP",
+      "expectedUpdatedAt": "2026-10-31T15:10:18.841Z",
+      "changes": {},
+      "evidence": {},
+      "afterIssues": [],
+      "variants": [
+        {
+          "kind": "add",
+          "size": "50ml",
+          "price": 7500000,
+          "evidence": {
+            "url": "https://tienperfume.vn/san-pham/tom-ford-santal-blush-edp-50ml/",
+            "fact": "Retail listing: 50ml, 7,500,000 VND",
+            "reviewedAt": "2026-10-31T15:35:46.100Z",
+            "condition": "retail",
+            "basis": "retailer-vnd-reference",
+            "crossCheckUrl": "https://vuahanghieu.com/nuoc-hoa-nu-tom-ford-santal-blush-edp-50ml-ph028370"
+          }
+        }
+      ]
+    },
+    {
+      "id": "f0695209e93e544e947c2b88",
+      "sourceId": 32950,
+      "title": "Clive Christian V for Men",
+      "expectedUpdatedAt": "2026-10-31T15:10:18.841Z",
+      "changes": {},
+      "evidence": {},
+      "afterIssues": [],
+      "stockAuthorization": "user-reference-price-and-random-stock-2026-10-31",
+      "variants": [
+        {
+          "kind": "add",
+          "size": "50ml",
+          "price": 7200000,
+          "evidence": {
+            "url": "https://www.perfumetrader.de/en/clive-christian-v-for-men-eau-de-parfum-50-ml",
+            "fact": "Original V for Men (2012), EDP 50 ml, EAN 652638004631; historical listing EUR 243.90, no longer available. Distinct from V Amber Fougere (2017).",
+            "reviewedAt": "2026-10-31T15:35:46.100Z",
+            "condition": "retail",
+            "basis": "converted-foreign-reference",
+            "conversion": {
+              "currency": "EUR",
+              "amount": 243.9,
+              "rate": 29625.48,
+              "rateUrl": "https://portal.vietcombank.com.vn/Usercontrols/TVPortal.TyGia/pXML.aspx",
+              "ratePublishedAt": "10/31/2026 10:20:54 PM",
+              "roundTo": 100000,
+              "unroundedVnd": 7225654.572
+            },
+            "excludes": "Shipping, import taxes and service charges"
+          },
+          "generatedQuantity": 25
+        }
+      ]
+    },
+    {
+      "id": "d1a922b638316d430eb3dbdf",
+      "sourceId": 47416,
+      "title": "Zara 03 Caipirissima EDT",
+      "expectedUpdatedAt": "2026-10-31T15:10:18.841Z",
+      "changes": {},
+      "evidence": {},
+      "afterIssues": [],
+      "stockAuthorization": "user-reference-price-and-random-stock-2026-10-31",
+      "variants": [
+        {
+          "kind": "rename",
+          "size": "100ml không hộp",
+          "price": 1300000,
+          "evidence": {
+            "url": "https://www.ebay.com/itm/156508293181",
+            "fact": "Zara 03 Caipirissima EDT 100 ml; condition New, NO BOX; USD 49.95. Keep no-box packaging visible in the option name.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z",
+            "condition": "new_without_box",
+            "basis": "converted-foreign-reference",
+            "conversion": {
+              "currency": "USD",
+              "amount": 49.95,
+              "rate": 25990,
+              "rateUrl": "https://portal.vietcombank.com.vn/Usercontrols/TVPortal.TyGia/pXML.aspx",
+              "ratePublishedAt": "10/31/2026 10:20:54 PM",
+              "roundTo": 100000,
+              "unroundedVnd": 1298200.5
+            },
+            "excludes": "Shipping, import taxes and service charges"
+          },
+          "oldSize": "100ml",
+          "generatedQuantity": 13
+        }
+      ]
+    },
+    {
+      "id": "75f3425d85961ed83a373a06",
+      "sourceId": 25232,
+      "title": "Le Labo Ylang 49 EDP",
+      "expectedUpdatedAt": "2026-10-31T15:10:18.841Z",
+      "changes": {},
+      "evidence": {},
+      "afterIssues": [],
+      "variants": [
+        {
+          "kind": "fill",
+          "size": "10ml Dùng Thử",
+          "price": 790000,
+          "evidence": {
+            "url": "https://vitaperfume.com/%5Bchiet-10ml%5D-le-labo-ylang-49-eau-de-parfum.html",
+            "fact": "[Chiết 10ml] Le Labo Ylang 49 Eau de Parfum: 790,000 VND",
+            "reviewedAt": "2026-10-31T15:35:46.100Z",
+            "condition": "decant",
+            "basis": "retailer-vnd-reference",
+            "crossCheckUrl": "https://kaiperfume.net/le-labo-ylang-49"
+          }
+        }
+      ]
+    },
+    {
+      "id": "46b7d483c7af6ec783bae571",
+      "sourceId": 47423,
+      "title": "Zara Man Silver EDT",
+      "expectedUpdatedAt": "2026-10-31T15:10:18.841Z",
+      "changes": {},
+      "evidence": {},
+      "afterIssues": [],
+      "variants": [
+        {
+          "kind": "fill",
+          "size": "100ml",
+          "price": 550000,
+          "evidence": {
+            "url": "https://shopee.vn/N%C6%B0%E1%BB%9Bc-hoa-zara-Man-silver-100ml-i.16854851.725490394",
+            "fact": "Retail listing: 100ml, 550,000 VND",
+            "reviewedAt": "2026-10-31T15:35:46.100Z",
+            "condition": "retail",
+            "basis": "retailer-vnd-reference",
+            "availability": "sold-out",
+            "crossCheckUrl": "https://yody.vn/post/nuoc-hoa-zara-nam"
+          }
+        }
+      ]
+    },
+    {
+      "id": "0d330e7a7cc4fa4e8771eb83",
+      "sourceId": 48376,
+      "title": "Zara Vibrant Leather EDP",
+      "expectedUpdatedAt": "2026-10-31T15:10:18.841Z",
+      "changes": {},
+      "evidence": {},
+      "afterIssues": [],
+      "variants": [
+        {
+          "kind": "fill",
+          "size": "100ml",
+          "price": 899000,
+          "evidence": {
+            "url": "https://www.zara.com/vn/vi/nuoc-hoa-vibrant-leather-edp-100-ml--3-38-fl-oz--p20210721.html",
+            "fact": "Zara Vietnam official product 0210/721/999, Vibrant Leather EDP 100 ml: 899,000 VND",
+            "reviewedAt": "2026-10-31T15:35:46.100Z",
+            "condition": "retail",
+            "basis": "manufacturer-vnd-reference"
+          }
+        },
+        {
+          "kind": "fill",
+          "size": "10ml-dung-thu",
+          "price": 470000,
+          "evidence": {
+            "url": "https://www.coolpriser.nl/shop/zara-vibrant-leather-2851920p.html",
+            "fact": "Zara Vibrant Leather Eau de Parfum travel sample 10 ml; SKU TPS-6987-10ML-Case; EUR 15.95. Public indexed listing. Excludes the ambiguous Shopee 199,000–699,000 range.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z",
+            "condition": "decant",
+            "basis": "converted-foreign-reference",
+            "conversion": {
+              "currency": "EUR",
+              "amount": 15.95,
+              "rate": 29625.48,
+              "rateUrl": "https://portal.vietcombank.com.vn/Usercontrols/TVPortal.TyGia/pXML.aspx",
+              "ratePublishedAt": "10/31/2026 10:20:54 PM",
+              "roundTo": 10000,
+              "unroundedVnd": 472526.40599999996
+            },
+            "excludes": "Shipping, import taxes and service charges"
+          }
+        }
+      ]
+    },
+    {
+      "id": "983b7be5fa265c2abceb9a11",
+      "sourceId": 32107,
+      "title": "House of Sillage The Batman Vengeance",
+      "expectedUpdatedAt": "2026-10-31T15:10:18.841Z",
+      "changes": {
+        "concentration": "Parfum",
+        "type": "Parfum"
+      },
+      "evidence": {
+        "concentration": [
+          {
+            "url": "https://sillage-perfume.ru/the-batman-vengeance",
+            "fact": "The Batman Vengeance, 2022, men: Духи 75 мл (Parfum 75 ml). Exact notes and red/black flask match the source product.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://hoolly.ru/brands/house-of-sillage",
+            "fact": "Exact product The Batman Vengeance: Духи, 75 мл.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://parfumerie.com/library/brands/house-of-sillage?page=3",
+            "fact": "Warner Bros Collection: The Batman Vengeance, parfum; not the 85th Anniversary edition.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "type": [
+          {
+            "url": "https://sillage-perfume.ru/the-batman-vengeance",
+            "fact": "The Batman Vengeance, 2022, men: Духи 75 мл (Parfum 75 ml). Exact notes and red/black flask match the source product.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://hoolly.ru/brands/house-of-sillage",
+            "fact": "Exact product The Batman Vengeance: Духи, 75 мл.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://parfumerie.com/library/brands/house-of-sillage?page=3",
+            "fact": "Warner Bros Collection: The Batman Vengeance, parfum; not the 85th Anniversary edition.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ]
+      },
+      "afterIssues": []
+    },
+    {
+      "id": "a141c39a42886e5140fe2040",
+      "sourceId": 38744,
+      "title": "Set Nước Hoa Nữ Doanh Nhân",
+      "expectedUpdatedAt": "2026-10-31T15:10:18.841Z",
+      "changes": {
+        "concentration": "Eau De Parfum (EDP) / Extrait",
+        "type": "Eau De Parfum (EDP) / Extrait",
+        "fragrance.profileKind": "bundle",
+        "fragrance.group": "Gỗ Phương Đông (Oriental Woody); Hoa Cỏ Phương Đông (Oriental Floral); Hoa Cỏ Trái Cây (Floral Fruity)",
+        "fragrance.components": [
+          {
+            "name": "Le Labo Another 13 EDP",
+            "concentration": "Eau De Parfum (EDP)",
+            "group": "Gỗ Phương Đông (Oriental Woody)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Quả Lê",
+                  "url": "https://apaniche.vn/note-huong-qua-le"
+                },
+                {
+                  "name": "Quả Táo",
+                  "url": "https://apaniche.vn/note-huong-qua-tao"
+                },
+                {
+                  "name": "Cam Chanh",
+                  "url": "https://apaniche.vn/note-huong-cam-chanh"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Hạt Xạ Đen",
+                  "url": "https://apaniche.vn/note-huong-hat-xa-den"
+                },
+                {
+                  "name": "Amyl Salicylat",
+                  "url": "https://apaniche.vn/note-huong-amyl-salicylat"
+                },
+                {
+                  "name": "Rêu Sồi",
+                  "url": "https://apaniche.vn/note-huong-reu-soi"
+                },
+                {
+                  "name": "Hoa Nhài",
+                  "url": "https://apaniche.vn/note-huong-hoa-nhai"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Iso E Super",
+                  "url": "https://apaniche.vn/note-huong-iso-e-super"
+                },
+                {
+                  "name": "Cetalox",
+                  "url": "https://apaniche.vn/note-huong-cetalox"
+                },
+                {
+                  "name": "Xạ Hương Tổng Hợp Helvetolide",
+                  "url": "https://apaniche.vn/note-huong-xa-huong-tong-hop-helvetolide"
+                },
+                {
+                  "name": "Ambrettolide",
+                  "url": "https://apaniche.vn/note-huong-ambrettolide"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/le-labo-another-13-edp",
+            "sourceProductId": "67546fa3ec412577b66c4c3a",
+            "contents": "Chiết 10ml"
+          },
+          {
+            "name": "Maison Francis Kurkdjian Baccarat Rouge 540 Extrait de Parfum",
+            "concentration": "Extrait",
+            "group": "Hoa Cỏ Phương Đông (Oriental Floral)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Hạnh Nhân",
+                  "url": "https://apaniche.vn/note-huong-hanh-nhan"
+                },
+                {
+                  "name": "Nhụy hoa nghệ tây",
+                  "url": "https://apaniche.vn/note-huong-nhuy-hoa-nghe-tay"
+                },
+                {
+                  "name": "Gỗ Tuyết Tùng",
+                  "url": "https://apaniche.vn/note-huong-go-tuyet-tung"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Hoa Nhài",
+                  "url": "https://apaniche.vn/note-huong-hoa-nhai"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Nốt Hương Gỗ",
+                  "url": "https://apaniche.vn/note-huong-go"
+                },
+                {
+                  "name": "Long Diên Hương",
+                  "url": "https://apaniche.vn/note-huong-long-dien-huong"
+                },
+                {
+                  "name": "Xạ Hương",
+                  "url": "https://apaniche.vn/note-huong-xa-huong"
+                },
+                {
+                  "name": "Ambroxan",
+                  "url": "https://apaniche.vn/note-huong-ambroxan"
+                },
+                {
+                  "name": "Xạ Hương Tổng Hợp Cashmeran",
+                  "url": "https://apaniche.vn/note-huong-xa-huong-tong-hop-cashmeran"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/maison-francis-kurkdjian-baccarat-rouge-540-extrait",
+            "sourceProductId": "7c69176536e2ca0cfd64e591",
+            "contents": "Chiết 10ml"
+          },
+          {
+            "name": "Kilian Good Girl Gone Bad EDP",
+            "concentration": "Eau De Parfum (EDP)",
+            "group": "Hoa Cỏ Trái Cây (Floral Fruity)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Hoa Mộc Tê",
+                  "url": "https://apaniche.vn/note-huong-hoa-moc-te"
+                },
+                {
+                  "name": "Quả Đào",
+                  "url": "https://apaniche.vn/note-huong-qua-dao"
+                },
+                {
+                  "name": "Tinh Dầu Hoa Cam Đắng",
+                  "url": "https://apaniche.vn/note-huong-tinh-dau-hoa-cam-dang"
+                },
+                {
+                  "name": "Cam Bergamot",
+                  "url": "https://apaniche.vn/note-huong-cam-bergamot"
+                },
+                {
+                  "name": "Quýt",
+                  "url": "https://apaniche.vn/note-huong-quyt"
+                },
+                {
+                  "name": "Quế",
+                  "url": "https://apaniche.vn/note-huong-que"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Hoa Huệ",
+                  "url": "https://apaniche.vn/note-huong-hoa-hue"
+                },
+                {
+                  "name": "Hoa Nhài",
+                  "url": "https://apaniche.vn/note-huong-hoa-nhai"
+                },
+                {
+                  "name": "Hoa Thủy Tiên",
+                  "url": "https://apaniche.vn/note-huong-hoa-thuy-tien"
+                },
+                {
+                  "name": "Hoa Hồng",
+                  "url": "https://apaniche.vn/note-huong-hoa-hong"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Hổ Phách",
+                  "url": "https://apaniche.vn/note-huong-ho-phach"
+                },
+                {
+                  "name": "Gỗ Tuyết Tùng",
+                  "url": "https://apaniche.vn/note-huong-go-tuyet-tung"
+                },
+                {
+                  "name": "Gỗ Đàn Hương",
+                  "url": "https://apaniche.vn/note-huong-go-dan-huong"
+                },
+                {
+                  "name": "Hoắc Hương",
+                  "url": "https://apaniche.vn/note-huong-hoac-huong"
+                },
+                {
+                  "name": "Cỏ Hương Bài",
+                  "url": "https://apaniche.vn/note-huong-co-huong-bai"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/kilian-good-girl-gone-bad-edp",
+            "sourceProductId": "7cbcad9fd4db2063636eac9a",
+            "contents": "Chiết 10ml"
+          }
+        ],
+        "fragrance.compositionNote": "Bộ gồm Another 13 EDP, Baccarat Rouge 540 Extrait de Parfum và Good Girl Gone Bad EDP, mỗi chai chiết 10ml. Thành phần được đối chiếu theo nhãn chai trong ảnh set; đoạn giới thiệu nhắc Santal 33 là thông tin không khớp."
+      },
+      "evidence": {
+        "concentration": [
+          {
+            "url": "https://apaniche.vn/set-nuoc-hoa-nu-doanh-nhan-le-labo-13-mfk-540-extrait-ran-trang",
+            "fact": "Bộ gồm Another 13 EDP, Baccarat Rouge 540 Extrait de Parfum và Good Girl Gone Bad EDP, mỗi chai chiết 10ml. Thành phần được đối chiếu theo nhãn chai trong ảnh set; đoạn giới thiệu nhắc Santal 33 là thông tin không khớp.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2024/09/Set-Nu-Doanh-Nhan-Le-Labo-13-MFK-540-Ex-Ran-trang-W-can-min.png",
+            "fact": "Photo labels read Another 13 EDP, Baccarat Rouge 540 Extrait (Đỏ), Good Girl Gone Bad Women (Rắn Trắng).",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2024/09/Chiet-Le-Labo-Another-13-EDP-A13-U-10ml-min.png",
+            "fact": "Individual Another 13 EDP 10 ml photo attached to the same source product.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/le-labo-another-13-edp",
+            "fact": "Le Labo Another 13 EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/maison-francis-kurkdjian-baccarat-rouge-540-extrait",
+            "fact": "Maison Francis Kurkdjian Baccarat Rouge 540 Extrait de Parfum: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/kilian-good-girl-gone-bad-edp",
+            "fact": "Kilian Good Girl Gone Bad EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "type": [
+          {
+            "url": "https://apaniche.vn/set-nuoc-hoa-nu-doanh-nhan-le-labo-13-mfk-540-extrait-ran-trang",
+            "fact": "Bộ gồm Another 13 EDP, Baccarat Rouge 540 Extrait de Parfum và Good Girl Gone Bad EDP, mỗi chai chiết 10ml. Thành phần được đối chiếu theo nhãn chai trong ảnh set; đoạn giới thiệu nhắc Santal 33 là thông tin không khớp.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2024/09/Set-Nu-Doanh-Nhan-Le-Labo-13-MFK-540-Ex-Ran-trang-W-can-min.png",
+            "fact": "Photo labels read Another 13 EDP, Baccarat Rouge 540 Extrait (Đỏ), Good Girl Gone Bad Women (Rắn Trắng).",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2024/09/Chiet-Le-Labo-Another-13-EDP-A13-U-10ml-min.png",
+            "fact": "Individual Another 13 EDP 10 ml photo attached to the same source product.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/le-labo-another-13-edp",
+            "fact": "Le Labo Another 13 EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/maison-francis-kurkdjian-baccarat-rouge-540-extrait",
+            "fact": "Maison Francis Kurkdjian Baccarat Rouge 540 Extrait de Parfum: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/kilian-good-girl-gone-bad-edp",
+            "fact": "Kilian Good Girl Gone Bad EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "fragrance.profileKind": [
+          {
+            "url": "https://apaniche.vn/set-nuoc-hoa-nu-doanh-nhan-le-labo-13-mfk-540-extrait-ran-trang",
+            "fact": "Bộ gồm Another 13 EDP, Baccarat Rouge 540 Extrait de Parfum và Good Girl Gone Bad EDP, mỗi chai chiết 10ml. Thành phần được đối chiếu theo nhãn chai trong ảnh set; đoạn giới thiệu nhắc Santal 33 là thông tin không khớp.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2024/09/Set-Nu-Doanh-Nhan-Le-Labo-13-MFK-540-Ex-Ran-trang-W-can-min.png",
+            "fact": "Photo labels read Another 13 EDP, Baccarat Rouge 540 Extrait (Đỏ), Good Girl Gone Bad Women (Rắn Trắng).",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2024/09/Chiet-Le-Labo-Another-13-EDP-A13-U-10ml-min.png",
+            "fact": "Individual Another 13 EDP 10 ml photo attached to the same source product.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/le-labo-another-13-edp",
+            "fact": "Le Labo Another 13 EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/maison-francis-kurkdjian-baccarat-rouge-540-extrait",
+            "fact": "Maison Francis Kurkdjian Baccarat Rouge 540 Extrait de Parfum: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/kilian-good-girl-gone-bad-edp",
+            "fact": "Kilian Good Girl Gone Bad EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "fragrance.group": [
+          {
+            "url": "https://apaniche.vn/set-nuoc-hoa-nu-doanh-nhan-le-labo-13-mfk-540-extrait-ran-trang",
+            "fact": "Bộ gồm Another 13 EDP, Baccarat Rouge 540 Extrait de Parfum và Good Girl Gone Bad EDP, mỗi chai chiết 10ml. Thành phần được đối chiếu theo nhãn chai trong ảnh set; đoạn giới thiệu nhắc Santal 33 là thông tin không khớp.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2024/09/Set-Nu-Doanh-Nhan-Le-Labo-13-MFK-540-Ex-Ran-trang-W-can-min.png",
+            "fact": "Photo labels read Another 13 EDP, Baccarat Rouge 540 Extrait (Đỏ), Good Girl Gone Bad Women (Rắn Trắng).",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2024/09/Chiet-Le-Labo-Another-13-EDP-A13-U-10ml-min.png",
+            "fact": "Individual Another 13 EDP 10 ml photo attached to the same source product.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/le-labo-another-13-edp",
+            "fact": "Le Labo Another 13 EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/maison-francis-kurkdjian-baccarat-rouge-540-extrait",
+            "fact": "Maison Francis Kurkdjian Baccarat Rouge 540 Extrait de Parfum: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/kilian-good-girl-gone-bad-edp",
+            "fact": "Kilian Good Girl Gone Bad EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "fragrance.components": [
+          {
+            "url": "https://apaniche.vn/set-nuoc-hoa-nu-doanh-nhan-le-labo-13-mfk-540-extrait-ran-trang",
+            "fact": "Bộ gồm Another 13 EDP, Baccarat Rouge 540 Extrait de Parfum và Good Girl Gone Bad EDP, mỗi chai chiết 10ml. Thành phần được đối chiếu theo nhãn chai trong ảnh set; đoạn giới thiệu nhắc Santal 33 là thông tin không khớp.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2024/09/Set-Nu-Doanh-Nhan-Le-Labo-13-MFK-540-Ex-Ran-trang-W-can-min.png",
+            "fact": "Photo labels read Another 13 EDP, Baccarat Rouge 540 Extrait (Đỏ), Good Girl Gone Bad Women (Rắn Trắng).",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2024/09/Chiet-Le-Labo-Another-13-EDP-A13-U-10ml-min.png",
+            "fact": "Individual Another 13 EDP 10 ml photo attached to the same source product.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/le-labo-another-13-edp",
+            "fact": "Le Labo Another 13 EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/maison-francis-kurkdjian-baccarat-rouge-540-extrait",
+            "fact": "Maison Francis Kurkdjian Baccarat Rouge 540 Extrait de Parfum: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/kilian-good-girl-gone-bad-edp",
+            "fact": "Kilian Good Girl Gone Bad EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "fragrance.compositionNote": [
+          {
+            "url": "https://apaniche.vn/set-nuoc-hoa-nu-doanh-nhan-le-labo-13-mfk-540-extrait-ran-trang",
+            "fact": "Bộ gồm Another 13 EDP, Baccarat Rouge 540 Extrait de Parfum và Good Girl Gone Bad EDP, mỗi chai chiết 10ml. Thành phần được đối chiếu theo nhãn chai trong ảnh set; đoạn giới thiệu nhắc Santal 33 là thông tin không khớp.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2024/09/Set-Nu-Doanh-Nhan-Le-Labo-13-MFK-540-Ex-Ran-trang-W-can-min.png",
+            "fact": "Photo labels read Another 13 EDP, Baccarat Rouge 540 Extrait (Đỏ), Good Girl Gone Bad Women (Rắn Trắng).",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2024/09/Chiet-Le-Labo-Another-13-EDP-A13-U-10ml-min.png",
+            "fact": "Individual Another 13 EDP 10 ml photo attached to the same source product.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/le-labo-another-13-edp",
+            "fact": "Le Labo Another 13 EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/maison-francis-kurkdjian-baccarat-rouge-540-extrait",
+            "fact": "Maison Francis Kurkdjian Baccarat Rouge 540 Extrait de Parfum: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/kilian-good-girl-gone-bad-edp",
+            "fact": "Kilian Good Girl Gone Bad EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ]
+      },
+      "afterIssues": [],
+      "resolvedConflict": {
+        "code": "source_profile_conflict",
+        "reason": "Another 13 is confirmed by the URL slug, the detailed section and the labels on the source set photo. The Santal 33 introductory mention is contradicted by this product evidence. Original source article remains archived without edits.",
+        "sources": [
+          "https://apaniche.vn/set-nuoc-hoa-nu-doanh-nhan-le-labo-13-mfk-540-extrait-ran-trang",
+          "https://apaniche.vn/wp-content/uploads/2024/09/Set-Nu-Doanh-Nhan-Le-Labo-13-MFK-540-Ex-Ran-trang-W-can-min.png"
+        ]
+      }
+    },
+    {
+      "id": "6ddd3995ea80be93357d7f4e",
+      "sourceId": 45123,
+      "title": "Set Quà Tặng Cho Nam 2025",
+      "expectedUpdatedAt": "2026-10-31T15:10:18.841Z",
+      "changes": {
+        "concentration": "Eau De Toilete (EDT) / Eau De Parfum (EDP)",
+        "type": "Eau De Toilete (EDT) / Eau De Parfum (EDP)",
+        "fragrance.profileKind": "assortment",
+        "fragrance.group": "Gỗ Thơm Và Biển Cả (Woody Aquatic); Thảo Mộc Và Biển Cả (Aromatic Aquatic); Gỗ Cay Nồng (Woody Spicy); Thảo Mộc Trái Cây (Aromatic Fruity); Gỗ Thơm Và Thảo Mộc (Woody Aromatic)",
+        "fragrance.components": [
+          {
+            "name": "Versace Man Eau Fraiche EDT",
+            "concentration": "Eau De Toilete (EDT)",
+            "group": "Gỗ Thơm Và Biển Cả (Woody Aquatic)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Chanh Vàng",
+                  "url": "https://apaniche.vn/note-huong-chanh-vang"
+                },
+                {
+                  "name": "Cam Bergamot",
+                  "url": "https://apaniche.vn/note-huong-cam-bergamot"
+                },
+                {
+                  "name": "Quả Khế",
+                  "url": "https://apaniche.vn/note-huong-qua-khe"
+                },
+                {
+                  "name": "Bạch Đậu Khấu",
+                  "url": "https://apaniche.vn/note-huong-bach-dau-khau"
+                },
+                {
+                  "name": "Gỗ Hồng Brazil",
+                  "url": "https://apaniche.vn/note-huong-go-hong-brazil"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Gỗ Tuyết Tùng",
+                  "url": "https://apaniche.vn/note-huong-go-tuyet-tung"
+                },
+                {
+                  "name": "Ngải Giấm",
+                  "url": "https://apaniche.vn/note-huong-ngai-giam"
+                },
+                {
+                  "name": "Cây Xô Thơm",
+                  "url": "https://apaniche.vn/note-huong-cay-xo-thom"
+                },
+                {
+                  "name": "Hạt Tiêu",
+                  "url": "https://apaniche.vn/note-huong-hat-tieu"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Xạ Hương",
+                  "url": "https://apaniche.vn/note-huong-xa-huong"
+                },
+                {
+                  "name": "Nốt Hương Gỗ",
+                  "url": "https://apaniche.vn/note-huong-go"
+                },
+                {
+                  "name": "Nhụy hoa nghệ tây",
+                  "url": "https://apaniche.vn/note-huong-nhuy-hoa-nghe-tay"
+                },
+                {
+                  "name": "Hổ Phách",
+                  "url": "https://apaniche.vn/note-huong-ho-phach"
+                },
+                {
+                  "name": "Cây Sung Dâu",
+                  "url": "https://apaniche.vn/note-huong-cay-sung-dau"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/versace-man-eau-fraiche-edt",
+            "sourceProductId": "4453b4607c9f4aa77f1b6a13",
+            "variantKey": "Set Versace Man Eau Fraiche 100ml + 10 · 45125",
+            "optionName": "Set Versace Man Eau Fraiche 100ml + 10ml + Túi Cầm Tay"
+          },
+          {
+            "name": "Giorgio armani Acqua Di Gio Pour Homme EDT",
+            "concentration": "Eau De Toilete (EDT)",
+            "group": "Thảo Mộc Và Biển Cả (Aromatic Aquatic)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Chanh Xanh",
+                  "url": "https://apaniche.vn/note-huong-chanh-xanh"
+                },
+                {
+                  "name": "Chanh Vàng",
+                  "url": "https://apaniche.vn/note-huong-chanh-vang"
+                },
+                {
+                  "name": "Cam Bergamot",
+                  "url": "https://apaniche.vn/note-huong-cam-bergamot"
+                },
+                {
+                  "name": "Hoa Nhài",
+                  "url": "https://apaniche.vn/note-huong-hoa-nhai"
+                },
+                {
+                  "name": "Cam",
+                  "url": "https://apaniche.vn/note-huong-cam-orange"
+                },
+                {
+                  "name": "Quýt",
+                  "url": "https://apaniche.vn/note-huong-quyt"
+                },
+                {
+                  "name": "Tinh Dầu Hoa Cam Đắng",
+                  "url": "https://apaniche.vn/note-huong-tinh-dau-hoa-cam-dang"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Nước Biển",
+                  "url": "https://apaniche.vn/note-huong-nuoc-bien"
+                },
+                {
+                  "name": "Cascalone",
+                  "url": "https://apaniche.vn/note-huong-cascalone"
+                },
+                {
+                  "name": "Hương Thảo",
+                  "url": "https://apaniche.vn/note-huong-thao"
+                },
+                {
+                  "name": "Quả Đào",
+                  "url": "https://apaniche.vn/note-huong-qua-dao"
+                },
+                {
+                  "name": "Hoa Lan Nam Phi",
+                  "url": "https://apaniche.vn/note-huong-hoa-lan-nam-phi"
+                },
+                {
+                  "name": "Dạ Lan Hương",
+                  "url": "https://apaniche.vn/note-huong-da-lan-huong"
+                },
+                {
+                  "name": "Hoa Anh Thảo Cyclamen",
+                  "url": "https://apaniche.vn/note-huong-hoa-anh-thao-cyclamen"
+                },
+                {
+                  "name": "Hoa Violet",
+                  "url": "https://apaniche.vn/note-huong-hoa-violet"
+                },
+                {
+                  "name": "Hạt Rau Mùi/Ngò",
+                  "url": "https://apaniche.vn/note-huong-hat-rau-mui-ngo"
+                },
+                {
+                  "name": "Hoa Hồng",
+                  "url": "https://apaniche.vn/note-huong-hoa-hong"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Xạ Hương",
+                  "url": "https://apaniche.vn/note-huong-xa-huong"
+                },
+                {
+                  "name": "Gỗ Tuyết Tùng",
+                  "url": "https://apaniche.vn/note-huong-go-tuyet-tung"
+                },
+                {
+                  "name": "Rêu Sồi",
+                  "url": "https://apaniche.vn/note-huong-reu-soi"
+                },
+                {
+                  "name": "Hoắc Hương",
+                  "url": "https://apaniche.vn/note-huong-hoac-huong"
+                },
+                {
+                  "name": "Hổ Phách",
+                  "url": "https://apaniche.vn/note-huong-ho-phach"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/giorgio-armani-acqua-di-gio-pour-homme-for-men-edt",
+            "sourceProductId": "31f513be8fe4f44976a55807",
+            "variantKey": "Set Giò Trắng 100ml + 15ml + Gel Tắm 75ml",
+            "optionName": "Set Giò Trắng 100ml + 15ml + Gel Tắm 75ml"
+          },
+          {
+            "name": "Paco Rabanne One Million For Men EDT",
+            "concentration": "Eau De Toilete (EDT)",
+            "group": "Gỗ Cay Nồng (Woody Spicy)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Quýt",
+                  "url": "https://apaniche.vn/note-huong-quyt"
+                },
+                {
+                  "name": "Bưởi",
+                  "url": "https://apaniche.vn/note-huong-buoi"
+                },
+                {
+                  "name": "Bạc Hà",
+                  "url": "https://apaniche.vn/note-huong-bac-ha"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Quế",
+                  "url": "https://apaniche.vn/note-huong-que"
+                },
+                {
+                  "name": "Nốt Hương Cay",
+                  "url": "https://apaniche.vn/note-huong-cay"
+                },
+                {
+                  "name": "Hoa Hồng",
+                  "url": "https://apaniche.vn/note-huong-hoa-hong"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Hổ Phách",
+                  "url": "https://apaniche.vn/note-huong-ho-phach"
+                },
+                {
+                  "name": "Da Thuộc",
+                  "url": "https://apaniche.vn/note-huong-da-thuoc"
+                },
+                {
+                  "name": "Nốt Hương Gỗ",
+                  "url": "https://apaniche.vn/note-huong-go"
+                },
+                {
+                  "name": "Hoắc Hương",
+                  "url": "https://apaniche.vn/note-huong-hoac-huong"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/paco-rabanne-one-million-for-men-edt",
+            "sourceProductId": "0c1cedd855bf651758a87e4f",
+            "variantKey": "Set Paco Rabanne One Million EDT 100ml + Xịt Body",
+            "optionName": "Set Paco Rabanne One Million EDT 100ml + Xịt Body"
+          },
+          {
+            "name": "Set Nước Hoa Carolina Herrera 212 Heroes For Men",
+            "concentration": "Eau De Toilete (EDT)",
+            "group": "Thảo Mộc Trái Cây (Aromatic Fruity)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Quả Lê",
+                  "url": "https://apaniche.vn/note-huong-qua-le"
+                },
+                {
+                  "name": "Gừng",
+                  "url": "https://apaniche.vn/note-huong-gung"
+                },
+                {
+                  "name": "Cần Sa",
+                  "url": "https://apaniche.vn/note-huong-can-sa"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Phong Lữ",
+                  "url": "https://apaniche.vn/note-huong-phong-lu"
+                },
+                {
+                  "name": "Cây Xô Thơm",
+                  "url": "https://apaniche.vn/note-huong-cay-xo-thom"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Xạ Hương",
+                  "url": "https://apaniche.vn/note-huong-xa-huong"
+                },
+                {
+                  "name": "Da Thuộc",
+                  "url": "https://apaniche.vn/note-huong-da-thuoc"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/set-nuoc-hoa-carolina-herrera-212-heroes-for-men",
+            "sourceProductId": "a0fe58642026f601f2f04262",
+            "variantKey": "Carolina Herrera 212 Men Heroes EDT 90 · 45128",
+            "optionName": "Carolina Herrera 212 Men Heroes EDT 90ml + 10ml + Shower Gel"
+          },
+          {
+            "name": "Missoni Parfum Pour Homme EDP",
+            "concentration": "Eau De Parfum (EDP)",
+            "group": "Gỗ Thơm Và Thảo Mộc (Woody Aromatic)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Bưởi",
+                  "url": "https://apaniche.vn/note-huong-buoi"
+                },
+                {
+                  "name": "Chanh Vàng",
+                  "url": "https://apaniche.vn/note-huong-chanh-vang"
+                },
+                {
+                  "name": "Hoa Oải Hương",
+                  "url": "https://apaniche.vn/note-huong-hoa-oai-huong"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Gừng",
+                  "url": "https://apaniche.vn/note-huong-gung"
+                },
+                {
+                  "name": "Quả Táo",
+                  "url": "https://apaniche.vn/note-huong-qua-tao"
+                },
+                {
+                  "name": "Hoa Nhài",
+                  "url": "https://apaniche.vn/note-huong-hoa-nhai"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Gỗ Bạch Dương",
+                  "url": "https://apaniche.vn/note-huong-go-bach-duong"
+                },
+                {
+                  "name": "Gỗ Sồi",
+                  "url": "https://apaniche.vn/note-huong-go-soi"
+                },
+                {
+                  "name": "Xạ Hương",
+                  "url": "https://apaniche.vn/note-huong-xa-huong"
+                },
+                {
+                  "name": "Gỗ Đàn Hương",
+                  "url": "https://apaniche.vn/note-huong-go-dan-huong"
+                },
+                {
+                  "name": "Hoắc Hương",
+                  "url": "https://apaniche.vn/note-huong-hoac-huong"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/missoni-parfum-pour-homme-edp",
+            "sourceProductId": "dc0866ac0485d7e3f16af2b8",
+            "variantKey": "Set Missoni Parfum Pour Homme EDP 100ml + 30ml",
+            "optionName": "Set Missoni Parfum Pour Homme EDP 100ml + 30ml"
+          }
+        ],
+        "fragrance.compositionNote": "Các lựa chọn là những set riêng, không phải một hộp chứa cả năm mùi. Hồ sơ mô tả nước hoa chính của từng lựa chọn; sữa tắm, xịt body và phụ kiện không được gán nồng độ nước hoa."
+      },
+      "evidence": {
+        "concentration": [
+          {
+            "url": "https://apaniche.vn/set-qua-tang-cho-nam",
+            "fact": "Các lựa chọn là những set riêng, không phải một hộp chứa cả năm mùi. Hồ sơ mô tả nước hoa chính của từng lựa chọn; sữa tắm, xịt body và phụ kiện không được gán nồng độ nước hoa.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/versace-man-eau-fraiche-edt",
+            "fact": "Versace Man Eau Fraiche EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/giorgio-armani-acqua-di-gio-pour-homme-for-men-edt",
+            "fact": "Giorgio armani Acqua Di Gio Pour Homme EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/paco-rabanne-one-million-for-men-edt",
+            "fact": "Paco Rabanne One Million For Men EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/set-nuoc-hoa-carolina-herrera-212-heroes-for-men",
+            "fact": "Set Nước Hoa Carolina Herrera 212 Heroes For Men: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/missoni-parfum-pour-homme-edp",
+            "fact": "Missoni Parfum Pour Homme EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "type": [
+          {
+            "url": "https://apaniche.vn/set-qua-tang-cho-nam",
+            "fact": "Các lựa chọn là những set riêng, không phải một hộp chứa cả năm mùi. Hồ sơ mô tả nước hoa chính của từng lựa chọn; sữa tắm, xịt body và phụ kiện không được gán nồng độ nước hoa.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/versace-man-eau-fraiche-edt",
+            "fact": "Versace Man Eau Fraiche EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/giorgio-armani-acqua-di-gio-pour-homme-for-men-edt",
+            "fact": "Giorgio armani Acqua Di Gio Pour Homme EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/paco-rabanne-one-million-for-men-edt",
+            "fact": "Paco Rabanne One Million For Men EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/set-nuoc-hoa-carolina-herrera-212-heroes-for-men",
+            "fact": "Set Nước Hoa Carolina Herrera 212 Heroes For Men: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/missoni-parfum-pour-homme-edp",
+            "fact": "Missoni Parfum Pour Homme EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "fragrance.profileKind": [
+          {
+            "url": "https://apaniche.vn/set-qua-tang-cho-nam",
+            "fact": "Các lựa chọn là những set riêng, không phải một hộp chứa cả năm mùi. Hồ sơ mô tả nước hoa chính của từng lựa chọn; sữa tắm, xịt body và phụ kiện không được gán nồng độ nước hoa.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/versace-man-eau-fraiche-edt",
+            "fact": "Versace Man Eau Fraiche EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/giorgio-armani-acqua-di-gio-pour-homme-for-men-edt",
+            "fact": "Giorgio armani Acqua Di Gio Pour Homme EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/paco-rabanne-one-million-for-men-edt",
+            "fact": "Paco Rabanne One Million For Men EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/set-nuoc-hoa-carolina-herrera-212-heroes-for-men",
+            "fact": "Set Nước Hoa Carolina Herrera 212 Heroes For Men: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/missoni-parfum-pour-homme-edp",
+            "fact": "Missoni Parfum Pour Homme EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "fragrance.group": [
+          {
+            "url": "https://apaniche.vn/set-qua-tang-cho-nam",
+            "fact": "Các lựa chọn là những set riêng, không phải một hộp chứa cả năm mùi. Hồ sơ mô tả nước hoa chính của từng lựa chọn; sữa tắm, xịt body và phụ kiện không được gán nồng độ nước hoa.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/versace-man-eau-fraiche-edt",
+            "fact": "Versace Man Eau Fraiche EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/giorgio-armani-acqua-di-gio-pour-homme-for-men-edt",
+            "fact": "Giorgio armani Acqua Di Gio Pour Homme EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/paco-rabanne-one-million-for-men-edt",
+            "fact": "Paco Rabanne One Million For Men EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/set-nuoc-hoa-carolina-herrera-212-heroes-for-men",
+            "fact": "Set Nước Hoa Carolina Herrera 212 Heroes For Men: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/missoni-parfum-pour-homme-edp",
+            "fact": "Missoni Parfum Pour Homme EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "fragrance.components": [
+          {
+            "url": "https://apaniche.vn/set-qua-tang-cho-nam",
+            "fact": "Các lựa chọn là những set riêng, không phải một hộp chứa cả năm mùi. Hồ sơ mô tả nước hoa chính của từng lựa chọn; sữa tắm, xịt body và phụ kiện không được gán nồng độ nước hoa.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/versace-man-eau-fraiche-edt",
+            "fact": "Versace Man Eau Fraiche EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/giorgio-armani-acqua-di-gio-pour-homme-for-men-edt",
+            "fact": "Giorgio armani Acqua Di Gio Pour Homme EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/paco-rabanne-one-million-for-men-edt",
+            "fact": "Paco Rabanne One Million For Men EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/set-nuoc-hoa-carolina-herrera-212-heroes-for-men",
+            "fact": "Set Nước Hoa Carolina Herrera 212 Heroes For Men: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/missoni-parfum-pour-homme-edp",
+            "fact": "Missoni Parfum Pour Homme EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "fragrance.compositionNote": [
+          {
+            "url": "https://apaniche.vn/set-qua-tang-cho-nam",
+            "fact": "Các lựa chọn là những set riêng, không phải một hộp chứa cả năm mùi. Hồ sơ mô tả nước hoa chính của từng lựa chọn; sữa tắm, xịt body và phụ kiện không được gán nồng độ nước hoa.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/versace-man-eau-fraiche-edt",
+            "fact": "Versace Man Eau Fraiche EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/giorgio-armani-acqua-di-gio-pour-homme-for-men-edt",
+            "fact": "Giorgio armani Acqua Di Gio Pour Homme EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/paco-rabanne-one-million-for-men-edt",
+            "fact": "Paco Rabanne One Million For Men EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/set-nuoc-hoa-carolina-herrera-212-heroes-for-men",
+            "fact": "Set Nước Hoa Carolina Herrera 212 Heroes For Men: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/missoni-parfum-pour-homme-edp",
+            "fact": "Missoni Parfum Pour Homme EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ]
+      },
+      "afterIssues": []
+    },
+    {
+      "id": "254f6c5430426e1a37f3cbef",
+      "sourceId": 45100,
+      "title": "Set Quà Tặng Cho Nữ 2025",
+      "expectedUpdatedAt": "2026-10-31T15:10:18.841Z",
+      "changes": {
+        "concentration": "Eau De Parfum (EDP) / Eau De Toilete (EDT)",
+        "type": "Eau De Parfum (EDP) / Eau De Toilete (EDT)",
+        "fragrance.profileKind": "assortment",
+        "fragrance.group": "Hoa Cỏ Chypre (Chypre Floral); Hoa (Floral); Hoa Cỏ, Gỗ, Xạ Hương (Floral Woody Musk); Hoa Cỏ Phương Đông (Oriental Floral); Hoa Cỏ Trái Cây (Floral Fruity)",
+        "fragrance.components": [
+          {
+            "name": "Jean Paul Gaultier Scandal EDP",
+            "concentration": "Eau De Parfum (EDP)",
+            "group": "Hoa Cỏ Chypre (Chypre Floral)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Mật Ong",
+                  "url": "https://apaniche.vn/note-huong-mat-ong"
+                },
+                {
+                  "name": "Cam Đỏ",
+                  "url": "https://apaniche.vn/note-huong-cam-do"
+                },
+                {
+                  "name": "Quýt",
+                  "url": "https://apaniche.vn/note-huong-quyt"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Hoa Dành Dành",
+                  "url": "https://apaniche.vn/note-huong-hoa-danh-danh"
+                },
+                {
+                  "name": "Hoa Cam",
+                  "url": "https://apaniche.vn/note-huong-hoa-cam"
+                },
+                {
+                  "name": "Hoa Nhài",
+                  "url": "https://apaniche.vn/note-huong-hoa-nhai"
+                },
+                {
+                  "name": "Quả Đào",
+                  "url": "https://apaniche.vn/note-huong-qua-dao"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Sáp Ong",
+                  "url": "https://apaniche.vn/note-huong-sap-ong-beeswax"
+                },
+                {
+                  "name": "Caramen",
+                  "url": "https://apaniche.vn/note-huong-caramen"
+                },
+                {
+                  "name": "Hoắc Hương",
+                  "url": "https://apaniche.vn/note-huong-hoac-huong"
+                },
+                {
+                  "name": "Cam Thảo",
+                  "url": "https://apaniche.vn/note-huong-cam-thao"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/jean-paul-gaultier-scandal-edp",
+            "sourceProductId": "d1a99758d9d2bd9e787fffdd",
+            "variantKey": "Set Jean Paul Gaultier Scandal EDP 80ml + 20ml",
+            "optionName": "Set Jean Paul Gaultier Scandal EDP 80ml + 20ml"
+          },
+          {
+            "name": "Gucci Flora Gorgeous Gardenia EDP",
+            "concentration": "Eau De Parfum (EDP)",
+            "group": "Hoa (Floral)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Hoa Lê",
+                  "url": "https://apaniche.vn/note-huong-hoa-le"
+                },
+                {
+                  "name": "Quả Mọng Đỏ",
+                  "url": "https://apaniche.vn/note-huong-qua-mong-do"
+                },
+                {
+                  "name": "Quýt",
+                  "url": "https://apaniche.vn/note-huong-quyt"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Hoa Dành Dành",
+                  "url": "https://apaniche.vn/note-huong-hoa-danh-danh"
+                },
+                {
+                  "name": "Hoa Nhài",
+                  "url": "https://apaniche.vn/note-huong-hoa-nhai"
+                },
+                {
+                  "name": "Hoa Sứ/Hoa Đại",
+                  "url": "https://apaniche.vn/note-huong-hoa-su-hoa-dai"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Đường Nâu",
+                  "url": "https://apaniche.vn/note-huong-duong-nau"
+                },
+                {
+                  "name": "Hoắc Hương",
+                  "url": "https://apaniche.vn/note-huong-hoac-huong"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/gucci-flora-gorgeous-gardenia-edp",
+            "sourceProductId": "969db2e4e3281d7a3d8690d8",
+            "variantKey": "Set Gucci Flora 4 Mini",
+            "optionName": "Set Gucci Flora 4 Mini",
+            "contents": "2 chai mini 5ml"
+          },
+          {
+            "name": "Gucci Flora Gorgeous Jasmine EDP",
+            "concentration": "Eau De Parfum (EDP)",
+            "group": "Hoa (Floral)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Quýt",
+                  "url": "https://apaniche.vn/note-huong-quyt"
+                },
+                {
+                  "name": "Cam Bergamot",
+                  "url": "https://apaniche.vn/note-huong-cam-bergamot"
+                },
+                {
+                  "name": "Hạt Tiêu",
+                  "url": "https://apaniche.vn/note-huong-hat-tieu"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Hoa Nhài",
+                  "url": "https://apaniche.vn/note-huong-hoa-nhai"
+                },
+                {
+                  "name": "Hoa Mộc Lan",
+                  "url": "https://apaniche.vn/note-huong-hoa-moc-lan"
+                },
+                {
+                  "name": "Hoa Hồng",
+                  "url": "https://apaniche.vn/note-huong-hoa-hong"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Gỗ Đàn Hương",
+                  "url": "https://apaniche.vn/note-huong-go-dan-huong"
+                },
+                {
+                  "name": "Nhựa Bồ Đề",
+                  "url": "https://apaniche.vn/note-huong-nhua-bo-de"
+                },
+                {
+                  "name": "Hoắc Hương",
+                  "url": "https://apaniche.vn/note-huong-hoac-huong"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/gucci-flora-gorgeous-jasmine-edp",
+            "sourceProductId": "b742baefe89759738d4cd7df",
+            "variantKey": "Set Gucci Flora 4 Mini",
+            "optionName": "Set Gucci Flora 4 Mini",
+            "contents": "1 chai mini 5ml"
+          },
+          {
+            "name": "Gucci Flora Gorgeous Magnolia EDP",
+            "concentration": "Eau De Parfum (EDP)",
+            "group": "Hoa Cỏ Chypre (Chypre Floral)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Quả Mâm Xôi Dại",
+                  "url": "https://apaniche.vn/note-huong-qua-mam-xoi-dai"
+                },
+                {
+                  "name": "Dừa",
+                  "url": "https://apaniche.vn/note-huong-dua-coconut"
+                },
+                {
+                  "name": "Cam",
+                  "url": "https://apaniche.vn/note-huong-cam-orange"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Hoa Mộc Lan",
+                  "url": "https://apaniche.vn/note-huong-hoa-moc-lan"
+                },
+                {
+                  "name": "Hoa Nhài",
+                  "url": "https://apaniche.vn/note-huong-hoa-nhai"
+                },
+                {
+                  "name": "Hoa Ngọc Lan Tây",
+                  "url": "https://apaniche.vn/note-huong-hoa-ngoc-lan-tay"
+                },
+                {
+                  "name": "Linh Lan Thung Lũng",
+                  "url": "https://apaniche.vn/note-huong-linh-lan-thung-lung"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Xạ Hương",
+                  "url": "https://apaniche.vn/note-huong-xa-huong"
+                },
+                {
+                  "name": "Hoắc Hương",
+                  "url": "https://apaniche.vn/note-huong-hoac-huong"
+                },
+                {
+                  "name": "Gỗ Sáng Màu",
+                  "url": "https://apaniche.vn/note-huong-go-sang-mau"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/gucci-flora-gorgeous-magnolia-edp",
+            "sourceProductId": "5d2cc4b6f23c7a6349eb968c",
+            "variantKey": "Set Gucci Flora 4 Mini",
+            "optionName": "Set Gucci Flora 4 Mini",
+            "contents": "1 chai mini 5ml"
+          },
+          {
+            "name": "Elizabeth Arden White Tea EDP",
+            "concentration": "Eau De Parfum (EDP)",
+            "group": "Hoa Cỏ, Gỗ, Xạ Hương (Floral Woody Musk)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Xô Thơm Clary",
+                  "url": "https://apaniche.vn/note-huong-xo-thom-clary"
+                },
+                {
+                  "name": "Nước Biển",
+                  "url": "https://apaniche.vn/note-huong-nuoc-bien"
+                },
+                {
+                  "name": "Quýt",
+                  "url": "https://apaniche.vn/note-huong-quyt"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Trà",
+                  "url": "https://apaniche.vn/note-huong-tra"
+                },
+                {
+                  "name": "Trà Mate Nam Mỹ",
+                  "url": "https://apaniche.vn/note-huong-tra-mate-nam-my"
+                },
+                {
+                  "name": "Hoa Hồng",
+                  "url": "https://apaniche.vn/note-huong-hoa-hong"
+                },
+                {
+                  "name": "Hoa Nhài",
+                  "url": "https://apaniche.vn/note-huong-hoa-nhai"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Xạ Hương",
+                  "url": "https://apaniche.vn/note-huong-xa-huong"
+                },
+                {
+                  "name": "Đậu Tonka",
+                  "url": "https://apaniche.vn/note-huong-dau-tonka"
+                },
+                {
+                  "name": "Gỗ Hổ Phách",
+                  "url": "https://apaniche.vn/note-huong-go-ho-phach"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/elizabeth-arden-white-tea-edp",
+            "sourceProductId": "fb2ce23a5cffc83f110987f1",
+            "variantKey": "Set Elizabeth Arden White Tea EDP",
+            "optionName": "Set Elizabeth Arden White Tea EDP"
+          },
+          {
+            "name": "Mode Creation Munich (MCM) EDP",
+            "concentration": "Eau De Parfum (EDP)",
+            "group": "Hoa Cỏ Phương Đông (Oriental Floral)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Mâm Xôi Đỏ",
+                  "url": "https://apaniche.vn/note-huong-mam-xoi-do"
+                },
+                {
+                  "name": "Quả Mơ",
+                  "url": "https://apaniche.vn/note-huong-qua-mo"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Hoa Mẫu Đơn",
+                  "url": "https://apaniche.vn/note-huong-hoa-mau-don"
+                },
+                {
+                  "name": "Lá Violet",
+                  "url": "https://apaniche.vn/note-huong-la-violet"
+                },
+                {
+                  "name": "Hoa Nhài",
+                  "url": "https://apaniche.vn/note-huong-hoa-nhai"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Ambroxan",
+                  "url": "https://apaniche.vn/note-huong-ambroxan"
+                },
+                {
+                  "name": "Gỗ Đàn Hương",
+                  "url": "https://apaniche.vn/note-huong-go-dan-huong"
+                },
+                {
+                  "name": "Rêu Sồi",
+                  "url": "https://apaniche.vn/note-huong-reu-soi"
+                },
+                {
+                  "name": "Vani",
+                  "url": "https://apaniche.vn/note-huong-vani"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/mode-creation-munich-mcm-edp",
+            "sourceProductId": "b8faaa656300b7cb27991e1e",
+            "variantKey": "Set MCM EDP 4 Mini",
+            "optionName": "Set MCM EDP 4 Mini",
+            "contents": "4 chai mini EDP 7ml cùng mùi MCM"
+          },
+          {
+            "name": "Hermes Un Jardin Sur Le Nil EDT",
+            "concentration": "Eau De Toilete (EDT)",
+            "group": "Hoa Cỏ Trái Cây (Floral Fruity)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Bưởi",
+                  "url": "https://apaniche.vn/note-huong-buoi"
+                },
+                {
+                  "name": "Quả Xoài",
+                  "url": "https://apaniche.vn/note-huong-qua-xoai"
+                },
+                {
+                  "name": "Cà Chua",
+                  "url": "https://apaniche.vn/note-huong-ca-chua"
+                },
+                {
+                  "name": "Cà Rốt",
+                  "url": "https://apaniche.vn/note-huong-ca-rot"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Hoa Sen",
+                  "url": "https://apaniche.vn/note-huong-hoa-sen"
+                },
+                {
+                  "name": "Cỏ Bấc/Lau Sậy Nước",
+                  "url": "https://apaniche.vn/note-huong-co-bac-lau-say-nuoc"
+                },
+                {
+                  "name": "Cam",
+                  "url": "https://apaniche.vn/note-huong-cam-orange"
+                },
+                {
+                  "name": "Dạ Lan Hương",
+                  "url": "https://apaniche.vn/note-huong-da-lan-huong"
+                },
+                {
+                  "name": "Hoa Mẫu Đơn",
+                  "url": "https://apaniche.vn/note-huong-hoa-mau-don"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Xạ Hương",
+                  "url": "https://apaniche.vn/note-huong-xa-huong"
+                },
+                {
+                  "name": "Diên Vĩ",
+                  "url": "https://apaniche.vn/note-huong-dien-vi"
+                },
+                {
+                  "name": "Nhang",
+                  "url": "https://apaniche.vn/note-huong-nhang"
+                },
+                {
+                  "name": "Nhựa Labdanum",
+                  "url": "https://apaniche.vn/note-huong-nhua-labdanum"
+                },
+                {
+                  "name": "Quế",
+                  "url": "https://apaniche.vn/note-huong-que"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/hermes-un-jardin-sur-le-nil-edt",
+            "sourceProductId": "0636d96f78f35c269b0ceac3",
+            "variantKey": "Set Hermes Sur Le Nil 100ml + 15ml + Body Cream",
+            "optionName": "Set Hermes Sur Le Nil 100ml + 15ml + Body Cream"
+          },
+          {
+            "name": "Narciso Rodriguez Pure Musc For Her EDP",
+            "concentration": "Eau De Parfum (EDP)",
+            "group": "Hoa Cỏ, Gỗ, Xạ Hương (Floral Woody Musk)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Xạ Hương",
+                  "url": "https://apaniche.vn/note-huong-xa-huong"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Hoa Nhài",
+                  "url": "https://apaniche.vn/note-huong-hoa-nhai"
+                },
+                {
+                  "name": "Hoa Ngọc Lan Tây",
+                  "url": "https://apaniche.vn/note-huong-hoa-ngoc-lan-tay"
+                },
+                {
+                  "name": "Hoa Cam",
+                  "url": "https://apaniche.vn/note-huong-hoa-cam"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Xạ Hương Tổng Hợp Cashmeran",
+                  "url": "https://apaniche.vn/note-huong-xa-huong-tong-hop-cashmeran"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/narciso-rodriguez-pure-musc-for-her-edp",
+            "sourceProductId": "8e25351d8c88bff13dd8a3da",
+            "variantKey": "Set Narciso Rodriguez 4 Mini",
+            "optionName": "Set Narciso Rodriguez 4 Mini",
+            "contents": "Mini 7,5ml"
+          },
+          {
+            "name": "Narciso Rodriguez Fleur Musc For Her EDP",
+            "concentration": "Eau De Parfum (EDP)",
+            "group": "Hoa Cỏ, Gỗ, Xạ Hương (Floral Woody Musk)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Tiêu Hồng",
+                  "url": "https://apaniche.vn/note-huong-tieu-hong"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Hoa Hồng",
+                  "url": "https://apaniche.vn/note-huong-hoa-hong"
+                },
+                {
+                  "name": "Xạ Hương",
+                  "url": "https://apaniche.vn/note-huong-xa-huong"
+                },
+                {
+                  "name": "Hoa Mẫu Đơn",
+                  "url": "https://apaniche.vn/note-huong-hoa-mau-don"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Hoắc Hương",
+                  "url": "https://apaniche.vn/note-huong-hoac-huong"
+                },
+                {
+                  "name": "Hoa Violet",
+                  "url": "https://apaniche.vn/note-huong-hoa-violet"
+                },
+                {
+                  "name": "Hổ Phách",
+                  "url": "https://apaniche.vn/note-huong-ho-phach"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/narciso-rodriguez-fleur-musc-for-her-edp",
+            "sourceProductId": "3237ef073bb7ee9199a7c3d9",
+            "variantKey": "Set Narciso Rodriguez 4 Mini",
+            "optionName": "Set Narciso Rodriguez 4 Mini",
+            "contents": "Mini 7,5ml"
+          },
+          {
+            "name": "Narciso Rodriguez Narciso for her EDP",
+            "concentration": "Eau De Parfum (EDP)",
+            "group": "Hoa Cỏ, Gỗ, Xạ Hương (Floral Woody Musk)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Hoa Hồng",
+                  "url": "https://apaniche.vn/note-huong-hoa-hong"
+                },
+                {
+                  "name": "Quả Đào",
+                  "url": "https://apaniche.vn/note-huong-qua-dao"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Xạ Hương",
+                  "url": "https://apaniche.vn/note-huong-xa-huong"
+                },
+                {
+                  "name": "Hổ Phách",
+                  "url": "https://apaniche.vn/note-huong-ho-phach"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Hoắc Hương",
+                  "url": "https://apaniche.vn/note-huong-hoac-huong"
+                },
+                {
+                  "name": "Gỗ Đàn Hương",
+                  "url": "https://apaniche.vn/note-huong-go-dan-huong"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/narciso-rodriguez-narciso-for-her-edp",
+            "sourceProductId": "70eb25d68f127c53a418a2bc",
+            "variantKey": "Set Narciso Rodriguez 4 Mini",
+            "optionName": "Set Narciso Rodriguez 4 Mini",
+            "contents": "Mini 7,5ml"
+          },
+          {
+            "name": "Narciso Rodriguez Narciso for her EDT",
+            "concentration": "Eau De Toilete (EDT)",
+            "group": "Hoa Cỏ, Gỗ, Xạ Hương (Floral Woody Musk)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Hoa Cam",
+                  "url": "https://apaniche.vn/note-huong-hoa-cam"
+                },
+                {
+                  "name": "Hoa Mộc Tê",
+                  "url": "https://apaniche.vn/note-huong-hoa-moc-te"
+                },
+                {
+                  "name": "Cam Bergamot",
+                  "url": "https://apaniche.vn/note-huong-cam-bergamot"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Xạ Hương",
+                  "url": "https://apaniche.vn/note-huong-xa-huong"
+                },
+                {
+                  "name": "Hổ Phách",
+                  "url": "https://apaniche.vn/note-huong-ho-phach"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Cỏ Hương Bài",
+                  "url": "https://apaniche.vn/note-huong-co-huong-bai"
+                },
+                {
+                  "name": "Hoắc Hương",
+                  "url": "https://apaniche.vn/note-huong-hoac-huong"
+                },
+                {
+                  "name": "Vani",
+                  "url": "https://apaniche.vn/note-huong-vani"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/narciso-rodriguez-narciso-for-her-edt",
+            "sourceProductId": "2d6cda8f3eae93f334aee813",
+            "variantKey": "Set Narciso Rodriguez 4 Mini",
+            "optionName": "Set Narciso Rodriguez 4 Mini",
+            "contents": "Mini 7,5ml"
+          },
+          {
+            "name": "Armaf Le Parfait Panache Pour Femme EDP",
+            "concentration": "Eau De Parfum (EDP)",
+            "group": "Hoa Cỏ Chypre (Chypre Floral)",
+            "notes": {
+              "top": [
+                {
+                  "name": "Tiêu Hồng",
+                  "url": "https://apaniche.vn/note-huong-tieu-hong"
+                },
+                {
+                  "name": "Nốt Hương Hoa",
+                  "url": "https://apaniche.vn/note-huong-hoa"
+                }
+              ],
+              "middle": [
+                {
+                  "name": "Hoa Diên Vĩ Divine",
+                  "url": "https://apaniche.vn/note-huong-hoa-dien-vi-divine"
+                },
+                {
+                  "name": "Hoa Nhài",
+                  "url": "https://apaniche.vn/note-huong-hoa-nhai"
+                }
+              ],
+              "base": [
+                {
+                  "name": "Hoắc Hương",
+                  "url": "https://apaniche.vn/note-huong-hoac-huong"
+                },
+                {
+                  "name": "Vani",
+                  "url": "https://apaniche.vn/note-huong-vani"
+                },
+                {
+                  "name": "Xạ Hương",
+                  "url": "https://apaniche.vn/note-huong-xa-huong"
+                }
+              ]
+            },
+            "sourceUrl": "https://apaniche.vn/armaf-le-parfait-panache-pour-femme-edp",
+            "sourceProductId": "b21a8dbf9f4851ecff62ad2f",
+            "variantKey": "Set Armaf Le Parfait Panache 100ml + Khăn",
+            "optionName": "Set Armaf Le Parfait Panache 100ml + Khăn"
+          }
+        ],
+        "fragrance.compositionNote": "Mỗi lựa chọn là một set riêng. Gucci gồm 2 Gardenia, 1 Jasmine và 1 Magnolia; Narciso gồm Pure Musc EDP, Fleur Musc EDP, For Her EDP và For Her EDT. Set MCM gồm bốn chai cùng mùi EDP."
+      },
+      "evidence": {
+        "concentration": [
+          {
+            "url": "https://apaniche.vn/set-qua-tang-cho-nu",
+            "fact": "Mỗi lựa chọn là một set riêng. Gucci gồm 2 Gardenia, 1 Jasmine và 1 Magnolia; Narciso gồm Pure Musc EDP, Fleur Musc EDP, For Her EDP và For Her EDT. Set MCM gồm bốn chai cùng mùi EDP.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-nuoc-hoa-Narciso-Rodriguez-4-Mini.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-tang-cho-nu-Mini-MCM-EDP.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-tang-nu-Gucci-Flora-4-Mini.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/jean-paul-gaultier-scandal-edp",
+            "fact": "Jean Paul Gaultier Scandal EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-gardenia-edp",
+            "fact": "Gucci Flora Gorgeous Gardenia EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-jasmine-edp",
+            "fact": "Gucci Flora Gorgeous Jasmine EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-magnolia-edp",
+            "fact": "Gucci Flora Gorgeous Magnolia EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/elizabeth-arden-white-tea-edp",
+            "fact": "Elizabeth Arden White Tea EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/mode-creation-munich-mcm-edp",
+            "fact": "Mode Creation Munich (MCM) EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/hermes-un-jardin-sur-le-nil-edt",
+            "fact": "Hermes Un Jardin Sur Le Nil EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-pure-musc-for-her-edp",
+            "fact": "Narciso Rodriguez Pure Musc For Her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-fleur-musc-for-her-edp",
+            "fact": "Narciso Rodriguez Fleur Musc For Her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-narciso-for-her-edp",
+            "fact": "Narciso Rodriguez Narciso for her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-narciso-for-her-edt",
+            "fact": "Narciso Rodriguez Narciso for her EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/armaf-le-parfait-panache-pour-femme-edp",
+            "fact": "Armaf Le Parfait Panache Pour Femme EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "type": [
+          {
+            "url": "https://apaniche.vn/set-qua-tang-cho-nu",
+            "fact": "Mỗi lựa chọn là một set riêng. Gucci gồm 2 Gardenia, 1 Jasmine và 1 Magnolia; Narciso gồm Pure Musc EDP, Fleur Musc EDP, For Her EDP và For Her EDT. Set MCM gồm bốn chai cùng mùi EDP.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-nuoc-hoa-Narciso-Rodriguez-4-Mini.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-tang-cho-nu-Mini-MCM-EDP.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-tang-nu-Gucci-Flora-4-Mini.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/jean-paul-gaultier-scandal-edp",
+            "fact": "Jean Paul Gaultier Scandal EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-gardenia-edp",
+            "fact": "Gucci Flora Gorgeous Gardenia EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-jasmine-edp",
+            "fact": "Gucci Flora Gorgeous Jasmine EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-magnolia-edp",
+            "fact": "Gucci Flora Gorgeous Magnolia EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/elizabeth-arden-white-tea-edp",
+            "fact": "Elizabeth Arden White Tea EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/mode-creation-munich-mcm-edp",
+            "fact": "Mode Creation Munich (MCM) EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/hermes-un-jardin-sur-le-nil-edt",
+            "fact": "Hermes Un Jardin Sur Le Nil EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-pure-musc-for-her-edp",
+            "fact": "Narciso Rodriguez Pure Musc For Her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-fleur-musc-for-her-edp",
+            "fact": "Narciso Rodriguez Fleur Musc For Her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-narciso-for-her-edp",
+            "fact": "Narciso Rodriguez Narciso for her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-narciso-for-her-edt",
+            "fact": "Narciso Rodriguez Narciso for her EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/armaf-le-parfait-panache-pour-femme-edp",
+            "fact": "Armaf Le Parfait Panache Pour Femme EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "fragrance.profileKind": [
+          {
+            "url": "https://apaniche.vn/set-qua-tang-cho-nu",
+            "fact": "Mỗi lựa chọn là một set riêng. Gucci gồm 2 Gardenia, 1 Jasmine và 1 Magnolia; Narciso gồm Pure Musc EDP, Fleur Musc EDP, For Her EDP và For Her EDT. Set MCM gồm bốn chai cùng mùi EDP.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-nuoc-hoa-Narciso-Rodriguez-4-Mini.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-tang-cho-nu-Mini-MCM-EDP.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-tang-nu-Gucci-Flora-4-Mini.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/jean-paul-gaultier-scandal-edp",
+            "fact": "Jean Paul Gaultier Scandal EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-gardenia-edp",
+            "fact": "Gucci Flora Gorgeous Gardenia EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-jasmine-edp",
+            "fact": "Gucci Flora Gorgeous Jasmine EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-magnolia-edp",
+            "fact": "Gucci Flora Gorgeous Magnolia EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/elizabeth-arden-white-tea-edp",
+            "fact": "Elizabeth Arden White Tea EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/mode-creation-munich-mcm-edp",
+            "fact": "Mode Creation Munich (MCM) EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/hermes-un-jardin-sur-le-nil-edt",
+            "fact": "Hermes Un Jardin Sur Le Nil EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-pure-musc-for-her-edp",
+            "fact": "Narciso Rodriguez Pure Musc For Her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-fleur-musc-for-her-edp",
+            "fact": "Narciso Rodriguez Fleur Musc For Her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-narciso-for-her-edp",
+            "fact": "Narciso Rodriguez Narciso for her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-narciso-for-her-edt",
+            "fact": "Narciso Rodriguez Narciso for her EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/armaf-le-parfait-panache-pour-femme-edp",
+            "fact": "Armaf Le Parfait Panache Pour Femme EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "fragrance.group": [
+          {
+            "url": "https://apaniche.vn/set-qua-tang-cho-nu",
+            "fact": "Mỗi lựa chọn là một set riêng. Gucci gồm 2 Gardenia, 1 Jasmine và 1 Magnolia; Narciso gồm Pure Musc EDP, Fleur Musc EDP, For Her EDP và For Her EDT. Set MCM gồm bốn chai cùng mùi EDP.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-nuoc-hoa-Narciso-Rodriguez-4-Mini.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-tang-cho-nu-Mini-MCM-EDP.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-tang-nu-Gucci-Flora-4-Mini.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/jean-paul-gaultier-scandal-edp",
+            "fact": "Jean Paul Gaultier Scandal EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-gardenia-edp",
+            "fact": "Gucci Flora Gorgeous Gardenia EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-jasmine-edp",
+            "fact": "Gucci Flora Gorgeous Jasmine EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-magnolia-edp",
+            "fact": "Gucci Flora Gorgeous Magnolia EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/elizabeth-arden-white-tea-edp",
+            "fact": "Elizabeth Arden White Tea EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/mode-creation-munich-mcm-edp",
+            "fact": "Mode Creation Munich (MCM) EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/hermes-un-jardin-sur-le-nil-edt",
+            "fact": "Hermes Un Jardin Sur Le Nil EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-pure-musc-for-her-edp",
+            "fact": "Narciso Rodriguez Pure Musc For Her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-fleur-musc-for-her-edp",
+            "fact": "Narciso Rodriguez Fleur Musc For Her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-narciso-for-her-edp",
+            "fact": "Narciso Rodriguez Narciso for her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-narciso-for-her-edt",
+            "fact": "Narciso Rodriguez Narciso for her EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/armaf-le-parfait-panache-pour-femme-edp",
+            "fact": "Armaf Le Parfait Panache Pour Femme EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "fragrance.components": [
+          {
+            "url": "https://apaniche.vn/set-qua-tang-cho-nu",
+            "fact": "Mỗi lựa chọn là một set riêng. Gucci gồm 2 Gardenia, 1 Jasmine và 1 Magnolia; Narciso gồm Pure Musc EDP, Fleur Musc EDP, For Her EDP và For Her EDT. Set MCM gồm bốn chai cùng mùi EDP.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-nuoc-hoa-Narciso-Rodriguez-4-Mini.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-tang-cho-nu-Mini-MCM-EDP.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-tang-nu-Gucci-Flora-4-Mini.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/jean-paul-gaultier-scandal-edp",
+            "fact": "Jean Paul Gaultier Scandal EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-gardenia-edp",
+            "fact": "Gucci Flora Gorgeous Gardenia EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-jasmine-edp",
+            "fact": "Gucci Flora Gorgeous Jasmine EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-magnolia-edp",
+            "fact": "Gucci Flora Gorgeous Magnolia EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/elizabeth-arden-white-tea-edp",
+            "fact": "Elizabeth Arden White Tea EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/mode-creation-munich-mcm-edp",
+            "fact": "Mode Creation Munich (MCM) EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/hermes-un-jardin-sur-le-nil-edt",
+            "fact": "Hermes Un Jardin Sur Le Nil EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-pure-musc-for-her-edp",
+            "fact": "Narciso Rodriguez Pure Musc For Her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-fleur-musc-for-her-edp",
+            "fact": "Narciso Rodriguez Fleur Musc For Her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-narciso-for-her-edp",
+            "fact": "Narciso Rodriguez Narciso for her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-narciso-for-her-edt",
+            "fact": "Narciso Rodriguez Narciso for her EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/armaf-le-parfait-panache-pour-femme-edp",
+            "fact": "Armaf Le Parfait Panache Pour Femme EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ],
+        "fragrance.compositionNote": [
+          {
+            "url": "https://apaniche.vn/set-qua-tang-cho-nu",
+            "fact": "Mỗi lựa chọn là một set riêng. Gucci gồm 2 Gardenia, 1 Jasmine và 1 Magnolia; Narciso gồm Pure Musc EDP, Fleur Musc EDP, For Her EDP và For Her EDT. Set MCM gồm bốn chai cùng mùi EDP.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-nuoc-hoa-Narciso-Rodriguez-4-Mini.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-tang-cho-nu-Mini-MCM-EDP.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/wp-content/uploads/2025/04/Set-qua-tang-nu-Gucci-Flora-4-Mini.png",
+            "fact": "Source set photograph inspected: bottle labels and concentration identify the miniatures.",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/jean-paul-gaultier-scandal-edp",
+            "fact": "Jean Paul Gaultier Scandal EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-gardenia-edp",
+            "fact": "Gucci Flora Gorgeous Gardenia EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-jasmine-edp",
+            "fact": "Gucci Flora Gorgeous Jasmine EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/gucci-flora-gorgeous-magnolia-edp",
+            "fact": "Gucci Flora Gorgeous Magnolia EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/elizabeth-arden-white-tea-edp",
+            "fact": "Elizabeth Arden White Tea EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/mode-creation-munich-mcm-edp",
+            "fact": "Mode Creation Munich (MCM) EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/hermes-un-jardin-sur-le-nil-edt",
+            "fact": "Hermes Un Jardin Sur Le Nil EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-pure-musc-for-her-edp",
+            "fact": "Narciso Rodriguez Pure Musc For Her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-fleur-musc-for-her-edp",
+            "fact": "Narciso Rodriguez Fleur Musc For Her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-narciso-for-her-edp",
+            "fact": "Narciso Rodriguez Narciso for her EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/narciso-rodriguez-narciso-for-her-edt",
+            "fact": "Narciso Rodriguez Narciso for her EDT: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          },
+          {
+            "url": "https://apaniche.vn/armaf-le-parfait-panache-pour-femme-edp",
+            "fact": "Armaf Le Parfait Panache Pour Femme EDP: existing verified concentration, family and notes",
+            "reviewedAt": "2026-10-31T15:35:46.100Z"
+          }
+        ]
+      },
+      "afterIssues": []
+    }
+  ]
+}

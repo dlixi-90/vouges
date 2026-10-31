@@ -4,25 +4,27 @@ import FragranceAccords from "./FragranceAccords";
 
 export default function ProductFacts({ product }) {
   const { setSearchQuery } = useAppContext();
+  const fragrance = product.fragrance || {};
+  const accessory = fragrance.profileKind === 'accessory';
   const rows = [
     ["Thương hiệu", product.brand],
     ["Xuất xứ", product.origin],
     ["Giới tính", product.gender],
-    ["Nhóm hương", product.fragrance?.group],
+    ["Nhóm hương", fragrance.group || (accessory && fragrance.notApplicable?.group ? 'Không áp dụng — tùy lõi hương hoặc nước hoa đi kèm' : '')],
     ["Phong cách", product.fragrance?.style],
-    ["Nồng độ", product.concentration],
+    [fragrance.profileKind === 'diffuser' ? 'Dạng sản phẩm' : 'Nồng độ', product.concentration || (accessory && fragrance.notApplicable?.concentration ? 'Không áp dụng cho phụ kiện' : '')],
   ];
   return <dl className="product-detail-facts" aria-label="Thông tin nước hoa">
     {rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>
       {value ? label === "Thương hiệu" ? <Link to={`/collection?brand=${encodeURIComponent(value)}`} onClick={() => setSearchQuery("")}>{value}</Link> : value : <span className="product-fact-missing">Đang cập nhật</span>}
     </dd></div>)}
-    <div className="product-detail-accords">
+    {!accessory && <div className="product-detail-accords">
       <dt>Mùi hương chính</dt>
       <dd>
         {product.fragrance?.accords?.length > 0
           ? <FragranceAccords accords={product.fragrance.accords} />
           : <span className="product-fact-missing">Đang cập nhật</span>}
       </dd>
-    </div>
+    </div>}
   </dl>;
 }

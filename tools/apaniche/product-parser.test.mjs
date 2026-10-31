@@ -44,6 +44,15 @@ test('keeps missing prices distinct from zero and respects currency precision', 
   assert.equal(Object.hasOwn(result, 'short_description'), false);
 });
 
+test('source-specific validation skips image arrays echoed before the actual public product payload', () => {
+  const images = [{ id: 8, name: 'Product image', src: '/image.png' }];
+  const products = [{ id: 1, name: 'Product', permalink: 'https://apaniche.vn/item', prices: { price: '1000' } }];
+  const accept = value => Array.isArray(value) && value.every(row => row.id === 1 && row.permalink && row.prices);
+  assert.deepEqual(parseJsonResponse(`<script>const images=${JSON.stringify(images)}</script>${JSON.stringify(products)}`, accept), products);
+  assert.deepEqual(parseJsonResponse('<div>prefix</div>[]', accept), []);
+  assert.throws(() => parseJsonResponse(JSON.stringify(images), accept));
+});
+
 test('missing charts remain empty and absent AJAX variations are flagged', () => {
   const result = parseProductPage('<h1>Simple product</h1><form class="variations_form" data-product_variations="false"></form>', 'https://apaniche.vn/item');
   assert.deepEqual(result.suitability, []);

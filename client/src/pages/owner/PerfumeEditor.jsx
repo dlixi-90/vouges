@@ -12,6 +12,7 @@ import { sanitizeArticle } from "../../utils/productArticle";
 import { AccordEditor, AssessmentEditor } from "../../components/owner/FragranceEditorFields";
 import { editableFragrance } from "../../utils/fragrance";
 import { renameCatalogSize, catalogSizeRenames } from "../../utils/catalogVariantEdit";
+import ScentNotes from "../../components/ScentNotes";
 
 const tabs = [{ key: "general", label: "Thông tin chung" }, { key: "variants", label: "Dung tích & giá" }, { key: "fragrance", label: "Hồ sơ mùi" }, { key: "assessments", label: "Đánh giá trải nghiệm" }, { key: "images", label: "Hình ảnh" }, { key: "source", label: "Nguồn dữ liệu" }];
 
@@ -29,8 +30,9 @@ function PerfumeForm({ product, source, reload }) {
   const [tab, setTab] = useState(params.get("tab") || "general");
   const [busy, setBusy] = useState(false), [uploading, setUploading] = useState(false), [error, setError] = useState("");
   const [newSize, setNewSize] = useState("");
+  const unresolvedReview = (product.source?.profileCompletion?.unresolved || []).filter(item => product.qualityIssues?.includes(item.code));
   const [editingVariant, setEditingVariant] = useState(false);
-  const [notesText, setNotesText] = useState(() => Object.fromEntries(["top", "middle", "base"].map(phase => [phase, (product.fragrance?.notes?.[phase] || []).map(note => note.name).join("\n")])));
+  const [notesText, setNotesText] = useState(() => Object.fromEntries(["top", "middle", "base", "general"].map(phase => [phase, (product.fragrance?.notes?.[phase] || []).map(note => note.name).join("\n")])));
   const accordLibrary = useCatalog(tab === "fragrance" ? "/terms?kind=accord&pageSize=100" : null);
   const update = (field, value) => setDraft(current => ({ ...current, [field]: value }));
   const fragranceField = (field, value) => setDraft(current => ({ ...current, fragrance: { ...current.fragrance, [field]: value } }));
@@ -102,6 +104,12 @@ function PerfumeForm({ product, source, reload }) {
       {tab === "variants" && <VariantEditor draft={draft} uploading={uploading || busy} onChange={update} onVariantField={variantField} onUpload={upload} newSize={newSize} setNewSize={setNewSize} addSize={addSize} onRename={renameSize} onEditingChange={setEditingVariant} />}
       {tab === "fragrance" && <section className="perfume-panel"><div className="perfume-section-heading"><h2>Hồ sơ mùi hương</h2><Link to="/owner/library?kind=accord" className="perfume-button">Mở thư viện kiểu mùi</Link></div><div className="perfume-form-grid mb-5">{["group", "style"].map(key => <label className="perfume-field" key={key}><span>{key === "group" ? "Nhóm hương" : "Phong cách"}</span><input maxLength={500} value={draft.fragrance[key] || ""} onChange={event => fragranceField(key, event.target.value)} /></label>)}</div><div className="perfume-notes-grid">{[{ phase: "top", label: "Hương đầu" }, { phase: "middle", label: "Hương giữa" }, { phase: "base", label: "Hương cuối" }].map(({ phase, label }) => <label className="perfume-field" key={phase}><span>{label}</span><textarea rows={8} value={notesText[phase]} onChange={event => notes(phase, event.target.value)} placeholder="Mỗi note một dòng" /></label>)}</div>{accordLibrary.error && <p role="alert" className="perfume-muted">Không tải được gợi ý thư viện. Bạn vẫn có thể nhập tên kiểu mùi.</p>}<AccordEditor accords={draft.fragrance.accords} terms={accordLibrary.data?.terms || []} onChange={rows => fragranceField("accords", rows)} listId={`${formId}-accords`} /></section>}
       {tab === "assessments" && <section className="perfume-panel"><div className="perfume-section-heading"><h2>Đánh giá trải nghiệm</h2></div><AssessmentEditor fragrance={draft.fragrance} onChange={fragranceField} /></section>}
+      {tab === "fragrance" && <section className="perfume-panel">
+        <label className="perfume-field"><span>Các nốt hương chưa được nguồn phân tầng</span><textarea rows={4} value={notesText.general} onChange={event => notes('general', event.target.value)} placeholder="Mỗi note một dòng. Không cần tự gán vào hương đầu, giữa hoặc cuối." /></label>
+        {draft.fragrance.components?.length > 0 && <ScentNotes fragrance={{components:draft.fragrance.components}} />}
+        {draft.fragrance.profileKind === 'accessory' && <p className="perfume-muted">Phụ kiện không có mùi hương cố định. Mùi và nồng độ phụ thuộc nước hoa hoặc lõi hương đi kèm.</p>}
+      </section>}
+      {tab === "general" && unresolvedReview.length > 0 && <section className="perfume-panel"><h2>Các mục còn cần đối chiếu</h2><ul className="perfume-issue-list">{unresolvedReview.map(item => <li key={item.code}>{item.reason}</li>)}</ul></section>}
       {tab === "images" && <ProductGalleryEditor images={draft.images} uploading={uploading} onChange={images => update("images", images)} onUpload={upload} />}
       {tab === "source" && <section className="perfume-panel"><div className="perfume-section-heading"><div><h2>Bản ghi nguồn</h2><p className="perfume-muted">Được giữ nguyên khi bạn chỉnh sửa catalog Velours.</p></div>{product.source?.url && <a href={product.source.url} target="_blank" rel="noreferrer" className="perfume-button">Xem trang nguồn <ExternalLink size={14} /></a>}</div><dl className="perfume-source-details"><div><dt>Nguồn</dt><dd>{product.source?.provider || "Velours"}</dd></div><div><dt>ID nguồn</dt><dd>{product.source?.id || "—"}</dd></div><div><dt>Thời điểm lấy</dt><dd>{product.source?.fetchedAt ? new Date(product.source.fetchedAt).toLocaleString("vi-VN") : "—"}</dd></div><div><dt>Đơn vị giá</dt><dd>VND nguyên đồng</dd></div></dl><details><summary>Xem bản ghi đầy đủ</summary><pre className="perfume-source-json">{JSON.stringify(source?.data || product.source, null, 2)}</pre></details></section>}
     </form>

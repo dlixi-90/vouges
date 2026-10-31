@@ -1,4 +1,5 @@
 import Product from "../../../models/Product.js";
+import { scentNoteNames, scentPhases } from "../../../../client/src/utils/scentNotes.js";
 import {
   getAvailableProductOptions,
   getProductOptions,
@@ -11,7 +12,7 @@ const MAX_RESULT_LIMIT = 8;
 const ALLOWED_SORTS = ["relevant", "price_asc", "price_desc", "newest"];
 const ALLOWED_AVAILABILITY = ["all", "available", "out_of_stock"];
 const PERFUME_FILTERS = { brand: "brand", gender: "gender", concentration: "concentration", fragranceGroup: "fragrance.group", accord: "fragrance.accords.label", note: null };
-const NOTE_FIELDS = ["fragrance.notes.top.name", "fragrance.notes.middle.name", "fragrance.notes.base.name"];
+const NOTE_FIELDS = scentPhases.flatMap(([phase]) => [`fragrance.notes.${phase}.name`, `fragrance.components.notes.${phase}.name`]);
 const SEARCH_FIELDS = ["title", "description", "category", "type", "brand", "gender", "concentration", "fragrance.group", "fragrance.style", "fragrance.accords.label", ...NOTE_FIELDS];
 const ALLOWED_ARGUMENTS = new Set(["query", "category", "type", "minPrice", "maxPrice", "sort", "availability", "limit", ...Object.keys(PERFUME_FILTERS)]);
 
@@ -51,7 +52,7 @@ const getRelevanceScore = (product, normalizedQuery) => {
   const type = (product.type || "").toLowerCase();
   const description = (product.description || "").toLowerCase();
   const perfumeText = [product.brand, product.gender, product.concentration, product.fragrance?.group, product.fragrance?.style,
-    ...(product.fragrance?.accords || []).map(row => row.label), ...Object.values(product.fragrance?.notes || {}).flat().map(row => row.name)].filter(Boolean).join(" ").toLowerCase();
+    ...(product.fragrance?.accords || []).map(row => row.label), ...scentNoteNames(product.fragrance)].filter(Boolean).join(" ").toLowerCase();
 
   return (
     (title === normalizedQuery ? 10 : 0) +

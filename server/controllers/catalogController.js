@@ -13,6 +13,8 @@ import { catalogSnapshot, invalidateStorefrontCatalog } from "../services/storef
 import { getDashboardData } from "../services/dashboardService.js";
 import { getPopularProducts } from "../services/popularProducts.js";
 import { placedOrderFilter } from "../utils/orderReporting.js";
+import { productQualityIssues } from "../services/productQuality.js";
+import { scentPhases } from "../../client/src/utils/scentNotes.js";
 
 const fail = (message, statusCode = 400) => { throw Object.assign(new Error(message), { statusCode }); };
 const pagination = (query) => {
@@ -137,16 +139,13 @@ export const saveCatalogProduct = catalogAction(async(req,res)=>{
   }
   if(body.notes!==undefined){
     if(!body.notes||typeof body.notes!=="object"||Array.isArray(body.notes))fail("Tầng hương không hợp lệ");
-    const notes={};for(const phase of ["top","middle","base"]){const list=body.notes[phase]||[];if(!Array.isArray(list)||list.length>60||list.some(item=>!item||typeof item.name!=="string"||item.name.length>160||item.url&& !address(item.url)))fail("Note hương không hợp lệ");notes[phase]=list.map(item=>({name:item.name.trim(),url:item.url||null}));}
+    const notes={};for(const [phase] of scentPhases){const list=body.notes[phase]||[];if(!Array.isArray(list)||list.length>60||list.some(item=>!item||typeof item.name!=="string"||!item.name.trim()||item.name.length>160||item.url&& !address(item.url)))fail("Note hương không hợp lệ");notes[phase]=list.map(item=>({name:item.name.trim(),url:item.url||null}));}
     update.fragrance={...(update.fragrance||current.fragrance||{}),notes};
   }
   for(const field of ["group","style"]){
     if(body[field]!==undefined){if(typeof body[field]!=="string"||body[field].length>500)fail("Hồ sơ mùi hương không hợp lệ");update.fragrance={...(update.fragrance||current.fragrance||{}),[field]:body[field].trim()};}
   }
-  const brand=update.brand??current.brand, concentration=update.concentration??current.concentration;
-  const issues=(current.qualityIssues||[]).filter(issue=>!["missing_brand","missing_concentration","missing_scent_group","missing_images","missing_scent_notes","missing_sizes","zero_source_price"].includes(issue));
-  if(!(update.fragrance?.group??current.fragrance?.group))issues.push("missing_scent_group");
-  if(!brand)issues.push("missing_brand");if(!concentration)issues.push("missing_concentration");if(!(update.images||current.images)?.length)issues.push("missing_images");if(!Object.values(update.fragrance?.notes||current.fragrance?.notes||{}).some(list=>list.length))issues.push("missing_scent_notes");if(Object.values(price).some(value=>value===0))issues.push("zero_source_price");update.qualityIssues=issues;
+  update.qualityIssues=productQualityIssues({...((current.toObject?.())||current),...update});
   const persist=async(session)=>{
     if(renames.length&&await Order.exists(reservationFilter).session(session))fail("Dung tích đang được giữ cho đơn QR. Hoàn tất hoặc hủy giao dịch trước khi đổi tên.",409);
     const saved=await Product.findOneAndUpdate({_id:current._id,updatedAt:current.updatedAt},{$set:update},{new:true,runValidators:true,...(session?{session}:{})});

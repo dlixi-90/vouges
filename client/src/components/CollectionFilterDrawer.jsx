@@ -1,7 +1,9 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
-import { ChevronDown, Search, X } from "lucide-react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { ChevronDown, RefreshCw, Search, X } from "lucide-react";
 import { PERFUME_FILTERS } from "../data/perfumeFilters";
 import { useAppContext } from "../context/AppContext";
+import useCachedResource from "../hooks/useCachedResource";
+import { filterOptionSearchKey, sortFilterOptions } from "../utils/filterOptions";
 
 const compactQuery = "(max-width: 1023px)";
 const subscribeToLayout = callback => {
@@ -16,9 +18,8 @@ function FilterGroup({ field, options = [], selected = [], onChange, sidebar, lo
   const [query, setQuery] = useState("");
   const initialLimit = sidebar ? 6 : 40;
   const [limit, setLimit] = useState(initialLimit);
-  const all = [...new Set([...selected, ...options])];
-  const normalized = value => value.normalize("NFC").toLocaleLowerCase("vi-VN");
-  const matching = all.filter(value => normalized(value).includes(normalized(query)));
+  const all = sortFilterOptions(field.id, [...selected, ...options]);
+  const matching = all.filter(value => filterOptionSearchKey(value).includes(filterOptionSearchKey(query)));
   return <details className="inessa-filter-facet" open={field.id === "gender" || (sidebar && ["brands", "sizes"].includes(field.id)) || selected.length > 0 || undefined}>
     <summary><span>{field.label}{selected.length > 0 && <small>{selected.length}</small>}</span><ChevronDown size={16} aria-hidden="true" /></summary>
     <div className="inessa-filter-facet-body">
@@ -43,15 +44,30 @@ export default function CollectionFilterDrawer({
   const dialogRef = useRef(null);
   const isSidebar = !useSyncExternalStore(subscribeToLayout, getCompactLayout, () => true);
   const { publicCatalog } = useAppContext();
-  const [options, setOptions] = useState(() => publicCatalog.peekFilters()?.options || null);
-  const [error, setError] = useState("");
-  const [attempt, setAttempt] = useState(0);
+  const visible = isSidebar || open;
+  const resource = useMemo(() => visible ? {
+    peek: () => publicCatalog.peekFilters(),
+    load: settings => publicCatalog.filters(settings),
+  } : null, [publicCatalog, visible]);
+  const { data, loading, error, reload } = useCachedResource(resource, { scope: "collection-filter-options", keepPrevious: true });
+  const options = data?.options || null;
   useEffect(() => {
-    let active = true;
-    publicCatalog.filters().then(data => { if (active) { setOptions(data.options); setError(""); } })
-      .catch(error => { if (active) setError(error.message); });
-    return () => { active = false; };
-  }, [publicCatalog, attempt]);
+    if (!visible) return;
+    let refreshedAt = Date.now();
+    const refresh = () => {
+      if (document.visibilityState !== "visible" || Date.now() - refreshedAt < 15000) return;
+      refreshedAt = Date.now();
+      reload();
+    };
+    const timer = window.setInterval(refresh, 30000);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [visible, reload]);
   const renderGroup = field => <FilterGroup key={field.id} field={field} options={options?.[field.id]} selected={selectedFilters[field.id]} onChange={onFilterChange} sidebar={isSidebar} loading={!options && !error} />;
 
   useLayoutEffect(() => {
@@ -108,15 +124,20 @@ export default function CollectionFilterDrawer({
       }}>
       <header className="inessa-filter-drawer-header">
         <h2 id="collection-filter-title">Bộ lọc sản phẩm</h2>
+        <div className="collection-filter-actions">
+        <button type="button" onClick={reload} disabled={loading} aria-label="Cập nhật bộ lọc" title="Cập nhật bộ lọc" className="inessa-filter-close">
+          <RefreshCw size={16} strokeWidth={1.5} aria-hidden="true" />
+        </button>
         {!isSidebar && <button type="button" onClick={onClose} aria-label="Đóng bộ lọc" className="inessa-filter-close">
           <X size={24} strokeWidth={1.5} aria-hidden="true" />
         </button>}
+        </div>
       </header>
 
       <div className="inessa-filter-content" tabIndex={isSidebar ? 0 : undefined}
         role={isSidebar ? "region" : undefined} aria-label={isSidebar ? "Tiêu chí lọc sản phẩm" : undefined}>
         {!options && !error && <p role="status" className="inessa-filter-help">Đang tải các tiêu chí…</p>}
-        {error && <p role="alert" className="inessa-filter-help">{error} <button type="button" onClick={() => setAttempt(value => value + 1)} className="underline">Thử lại</button></p>}
+        {error && <p role="alert" className="inessa-filter-help">{error} <button type="button" onClick={reload} className="underline">Thử lại</button></p>}
         {PERFUME_FILTERS.slice(0, 2).map(renderGroup)}
         <section className="inessa-filter-price" aria-labelledby="collection-price-title">
           <h3 id="collection-price-title">Khoảng giá</h3>

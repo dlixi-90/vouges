@@ -1,5 +1,7 @@
 import { PERFUME_FILTERS } from "../../client/src/data/perfumeFilters.js";
 import { isSizeAvailable } from "../utils/productStock.js";
+import { sortFilterOptions } from "../../client/src/utils/filterOptions.js";
+import { scentNoteNames } from "../../client/src/utils/scentNotes.js";
 
 export const filterKey = value => typeof value === "string" ? value.normalize("NFC").trim().replace(/\s+/g, " ").toLocaleLowerCase("vi-VN") : "";
 const labels = values => [...new Set(values.filter(value => typeof value === "string" && value.trim()).map(value => value.normalize("NFC").trim()))];
@@ -17,10 +19,11 @@ export const productFilterValues = product => {
     brands: [product.brand], sizes: (product.sizes || []).filter(size => isSizeAvailable(product, size)),
     longevity: dominant(fragrance.longevity), sillage: dominant(fragrance.sillage),
     suitability: (fragrance.suitability || []).filter(row => Number.isFinite(row.displayedPercent) && row.displayedPercent >= 50 && row.displayedPercent <= 100).map(row => row.label),
-    notes: ["top", "middle", "base"].flatMap(tier => (fragrance.notes?.[tier] || []).map(note => typeof note === "string" ? note : note.name)),
+    notes: scentNoteNames(fragrance),
     accords: (fragrance.accords || []).map(row => row.label),
     styles: (fragrance.style || "").split(/[,;\n]+/).map(value => value.trim().replace(/\.$/, "")),
-    concentrations: [product.concentration || product.type], origins: [product.origin],
+    concentrations: fragrance.components?.some(component => component.concentration)
+      ? fragrance.components.map(component => component.concentration) : [product.concentration || product.type], origins: [product.origin],
   }).map(([field, values]) => [field, labels(values)]));
 };
 export const parsePerfumeFilters = raw => {
@@ -44,5 +47,14 @@ export const collectPerfumeFilters = catalog => {
     for (const [field, rows] of Object.entries(values)) for (const value of rows) options[field].set(filterKey(value), value);
   }
   return Object.fromEntries(Object.entries(options).map(([field, values]) => [field,
-    [...values.values()].sort((a, b) => a.localeCompare(b, "vi", { numeric: true, sensitivity: "base" }))]));
+    sortFilterOptions(field, [...values.values()])]));
 };
+
+// Collection defaults to orderable products. Its choices must use that same scope.
+export const collectStorefrontFilters = catalog => collectPerfumeFilters(catalog.flatMap(product => {
+  const sizes = (product.sizes || []).filter(size => {
+    const price = Number(product.price?.[size]);
+    return isSizeAvailable(product, size) && Number.isSafeInteger(price) && price > 0;
+  });
+  return sizes.length ? [{ ...product, _filters: { ...(product._filters || productFilterValues(product)), sizes } }] : [];
+}));

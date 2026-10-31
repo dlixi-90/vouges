@@ -15,6 +15,7 @@ export const normalizeBrowseParams = (params = {}) => {
 
 export const createPublicCatalog = ({ axios, cache = createResourceCache({ maxAge: 15000, maxEntries: 60 }) }) => {
   const metadata = createResourceCache({ maxAge: 300000, maxEntries: 4 });
+  const filterMetadata = createResourceCache({ maxAge: 15000, maxEntries: 1 });
   const read = async (url, params, signal) => {
     const { data } = await axios.get(url, { params, signal, timeout: 15000 });
     if (!data.success) throw new Error(data.message || "Không thể tải sản phẩm.");
@@ -22,7 +23,7 @@ export const createPublicCatalog = ({ axios, cache = createResourceCache({ maxAg
   };
   const key = params => JSON.stringify(Object.entries(params).filter(([, value]) => value !== undefined).sort(([a], [b]) => a.localeCompare(b)));
   return {
-    clear: () => { cache.clear(); metadata.clear(); },
+    clear: () => { cache.clear(); metadata.clear(); filterMetadata.clear(); },
     browseKey: params => `browse:${key(normalizeBrowseParams(params))}`,
     peekBrowse: params => cache.peek(`browse:${key(normalizeBrowseParams(params))}`),
     browse: (params = {}, options) => cache.load(`browse:${key(normalizeBrowseParams(params))}`, signal => read("/api/products/browse", normalizeBrowseParams(params), signal), options),
@@ -31,8 +32,8 @@ export const createPublicCatalog = ({ axios, cache = createResourceCache({ maxAg
     related: id => cache.load(`related:${id}`, signal => read("/api/products/related", { productId: id }, signal)),
     brands: options => metadata.load("brands", signal => read("/api/products/brands", {}, signal), options),
     peekBrands: () => metadata.peek("brands"),
-    filters: options => metadata.load("filters", signal => read("/api/products/filters", {}, signal), options),
-    peekFilters: () => metadata.peek("filters"),
+    filters: options => filterMetadata.load("filters", signal => read("/api/products/filters", {}, signal), options),
+    peekFilters: () => filterMetadata.peek("filters"),
     batch: async ids => {
       const unique = [...new Set(ids)].sort(), chunks = [];
       for (let index = 0; index < unique.length; index += 100) chunks.push(unique.slice(index, index + 100));

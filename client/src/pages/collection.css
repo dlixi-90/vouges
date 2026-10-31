@@ -62,6 +62,8 @@ html:has(.collection-catalog), body:has(.collection-catalog) { overflow-x: clip;
 .net-theme.net-storefront:has(.collection-catalog) { overflow: clip; }
 .collection-catalog .collection-filter-sidebar { position: sticky; top: 16px; display: flex; min-width: 0; max-height: var(--filter-available-height, calc(100dvh - 32px)); flex-direction: column; overflow: hidden; border-radius: 0; background: #fff; }
 .collection-filter-sidebar .inessa-filter-drawer-header { min-height: 44px; padding: 0 0 16px; }
+.collection-filter-actions { display:flex; align-items:center; gap:6px; }
+.collection-filter-actions button:disabled { cursor:wait; opacity:.45; }
 .net-theme .collection-filter-sidebar .inessa-filter-drawer-header h2 { font-size: 13px; font-weight: 600; }
 .collection-filter-sidebar .inessa-filter-content { min-height: 0; padding: 0 10px 0 0; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-gutter: stable; }
 .collection-filter-sidebar .inessa-filter-content:focus-visible { outline: 1px solid #888; outline-offset: -1px; }

@@ -5,8 +5,8 @@ import { selectRelatedProducts } from "../../client/src/utils/relatedProducts.js
 import { productFilterValues, parsePerfumeFilters, matchesPerfumeFilters } from "./perfumeFilters.js";
 
 const fields = "title price sizes stockBySize inStockBySize images category type brand gender origin concentration inStock inventoryMode isPublished popular createdAt";
-const profileFields = "fragrance.notes.top.name fragrance.notes.middle.name fragrance.notes.base.name fragrance.accords.label fragrance.style fragrance.longevity.label fragrance.longevity.displayedCount fragrance.sillage.label fragrance.sillage.displayedCount fragrance.suitability.label fragrance.suitability.displayedPercent";
-const profileKeys = ["longevity", "sillage", "suitability", "notes", "accords", "styles"];
+const profileFields = "fragrance.notes.top.name fragrance.notes.middle.name fragrance.notes.base.name fragrance.notes.general.name fragrance.components.notes fragrance.components.concentration fragrance.accords.label fragrance.style fragrance.longevity.label fragrance.longevity.displayedCount fragrance.sillage.label fragrance.sillage.displayedCount fragrance.suitability.label fragrance.suitability.displayedPercent";
+const profileKeys = ["longevity", "sillage", "suitability", "notes", "accords", "styles", "concentrations"];
 const dominantRows = field => ({ $let: { vars: { rows: { $filter: { input: { $ifNull: [`$fragrance.${field}`, []] }, as: "row", cond: {
   $and: [{ $isNumber: "$$row.displayedCount" }, { $gt: ["$$row.displayedCount", 0] }, { $lte: ["$$row.displayedCount", Number.MAX_SAFE_INTEGER] }, { $eq: ["$$row.displayedCount", { $trunc: { $convert: { input: "$$row.displayedCount", to: "double", onError: 0, onNull: 0 } } }] }],
 } } } }, in: { $map: { input: { $filter: { input: "$$rows", as: "row", cond: { $eq: ["$$row.displayedCount", { $max: "$$rows.displayedCount" }] } } }, as: "row", in: { label: "$$row.label", displayedCount: "$$row.displayedCount" } } } } });
@@ -54,7 +54,8 @@ export const getStorefrontCatalog = async (includeProfiles = false) => {
   });
   const [products, metadata] = await Promise.all([cards, profiles]);
   return products.map(product => ({ ...product, _filters: { ...product._filters,
-    ...Object.fromEntries(profileKeys.map(key => [key, metadata.get(product._id)?.[key] || []])) } }));
+    ...Object.fromEntries(profileKeys.filter(key => key !== 'concentrations' || metadata.get(product._id)?.concentrations?.length)
+      .map(key => [key, metadata.get(product._id)?.[key] || []])) } }));
 };
 export const getDisplayedPrice = product => {
   const size = product.sizes?.find(size => isSizeAvailable(product, size));
