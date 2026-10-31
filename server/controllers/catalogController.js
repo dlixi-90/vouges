@@ -14,6 +14,9 @@ import { getPopularProducts } from "../services/popularProducts.js";
 import { placedOrderFilter } from "../utils/orderReporting.js";
 import { productQualityIssues } from "../services/productQuality.js";
 import { scentPhases } from "../../client/src/utils/scentNotes.js";
+import {librarySlug} from "../../client/src/utils/fragranceLibrary.js";
+import {readLibraryInput,readLibraryVersion,checkLibraryVersion,renameLibraryProducts,liveLibraryCounts} from "../services/libraryManagement.js";
+import {libraryNamePattern,libraryNameKey,activeLibraryProducts} from "../services/libraryRelations.js";
 
 const fail = (message, statusCode = 400) => { throw Object.assign(new Error(message), { statusCode }); };
 const pagination = (query) => {
@@ -158,25 +161,62 @@ export const saveCatalogProduct = catalogAction(async(req,res)=>{
 
 export const libraryTerms = catalogAction(async(req,res)=>{
   const {page,pageSize}=pagination(req.query);const kind=req.query.kind||"note";if(!["brand","group","accord","note"].includes(kind))fail("Thư viện không hợp lệ");
+  if(req.query.status&&!['linked','complete'].includes(req.query.status))fail("Tình trạng nội dung không hợp lệ");
   const filter={kind};if(req.query.q){const q=pattern(req.query.q);filter.$or=[{name:q},{key:q}];}if(req.query.status)filter.contentStatus=req.query.status;
   const [terms,total]=await Promise.all([FragranceTerm.find(filter).sort({name:1,_id:1}).skip((page-1)*pageSize).limit(pageSize).lean(),FragranceTerm.countDocuments(filter)]);
-  res.json({success:true,terms,total,page,pageSize,totalPages:Math.max(1,Math.ceil(total/pageSize))});
+  res.set("Cache-Control","private, no-store");
+  res.json({success:true,terms:await liveLibraryCounts(terms),total,page,pageSize,totalPages:Math.max(1,Math.ceil(total/pageSize))});
 });
 
-export const saveLibraryTerm = catalogAction(async(req,res)=>{
-  if(!isValidObjectId(req.params.id))fail("Mã thư viện không hợp lệ");
-  const {name,description,descriptionContent,image,contentStatus}=req.body;
-  if(typeof name!=="string"||!name.trim()||name.length>200||typeof description!=="string"||description.length>5000||image&&!address(image)||!["linked","complete"].includes(contentStatus))fail("Nội dung thư viện không hợp lệ");
-  const update={name:name.trim(),description:description.trim(),contentStatus};
-  if(descriptionContent!==undefined){
-    update.descriptionContent=sanitizeArticle(descriptionContent);
-    if(update.descriptionContent)update.description=articleToPlainText(update.descriptionContent).trim().slice(0,5000);
-  }else update.descriptionContent=null;
-  // Removing the image URL field from the editor must not erase existing brand logos.
-  if(image!==undefined)update.image=image||"";
-  const term=await FragranceTerm.findByIdAndUpdate(req.params.id,{$set:update},{new:true,runValidators:true});if(!term)fail("Không tìm thấy mục thư viện",404);
+const libraryMutation=handler=>catalogAction(async(req,res)=>{
+  try{await handler(req,res);}catch(error){if(error.code===11000)fail("Tên mục đã tồn tại trong thư viện này.",409);throw error;}
+});
+const duplicateLibraryName=async(kind,name,id,session)=>{
+  const query=FragranceTerm.findOne({kind,name:libraryNamePattern(name),...(id?{_id:{$ne:id}}:{})});
+  return await (session?query.session(session):query);
+};
+export const createLibraryTerm=libraryMutation(async(req,res)=>{
+  const kind=req.body?.kind,update=readLibraryInput(req.body,kind);
+  if(await duplicateLibraryName(kind,update.name))fail("Tên mục đã tồn tại trong thư viện này.",409);
+  const id=new mongoose.Types.ObjectId(),slug=`${librarySlug({name:update.name}).slice(0,120)||kind}-${id}`;
+  const term=await FragranceTerm.create({_id:id,kind,key:`local:${id}`,slug,...update,sourceUrl:"",productCount:0});
   invalidateStorefrontCatalog();
-  res.json({success:true,term});
+  res.status(201).json({success:true,term,message:"Đã thêm mục mới"});
+});
+
+export const saveLibraryTerm = libraryMutation(async(req,res)=>{
+  if(!isValidObjectId(req.params.id))fail("Mã thư viện không hợp lệ");
+  readLibraryInput(req.body,"brand");readLibraryVersion(req.body.expectedUpdatedAt);
+  const result=await mongoose.connection.transaction(async session=>{
+    const current=await FragranceTerm.findById(req.params.id).session(session).lean();if(!current)fail("Không tìm thấy mục thư viện",404);
+    const update=readLibraryInput(req.body,current.kind,current);checkLibraryVersion(current,req.body.expectedUpdatedAt);
+    const duplicate=await duplicateLibraryName(current.kind,update.name,current._id,session);
+    if(duplicate&&libraryNameKey(current.name)!==update.nameKey)fail("Tên mục đã tồn tại trong thư viện này.",409);
+    // Some imported notes legitimately share a translated name but have distinct
+    // source identities. They remain editable without indexing a duplicate key.
+    if(duplicate)delete update.nameKey;
+    const term=await FragranceTerm.findOneAndUpdate({_id:current._id,updatedAt:current.updatedAt},{$set:update},{new:true,runValidators:true,session});
+    if(!term)fail("Nội dung đã thay đổi. Vui lòng tải lại.",409);
+    const ambiguous=current.kind==='note'&&current.name!==update.name&&await duplicateLibraryName(current.kind,current.name,current._id,session);
+    const updatedProducts=current.name!==update.name?await renameLibraryProducts({...current,...(ambiguous?{matchNameWithoutUrl:false}:{})},update.name,session):0;
+    return {term,updatedProducts};
+  });
+  invalidateStorefrontCatalog();
+  res.json({success:true,...result,message:"Đã lưu nội dung thư viện"});
+});
+
+export const deleteLibraryTerm=libraryMutation(async(req,res)=>{
+  if(!isValidObjectId(req.params.id))fail("Mã thư viện không hợp lệ");
+  readLibraryVersion(req.body?.expectedUpdatedAt);
+  await mongoose.connection.transaction(async session=>{
+    const current=await FragranceTerm.findById(req.params.id).session(session).lean();if(!current)fail("Không tìm thấy mục thư viện",404);
+    checkLibraryVersion(current,req.body?.expectedUpdatedAt);
+    const used=await Product.countDocuments(activeLibraryProducts(current)).session(session);
+    if(used)fail(`Có ${used.toLocaleString("vi-VN")} sản phẩm đang sử dụng mục này. Hãy đổi thông tin tương ứng trên các sản phẩm đó trước khi xóa.`,409);
+    const removed=await FragranceTerm.findOneAndDelete({_id:current._id,updatedAt:current.updatedAt},{session});
+    if(!removed)fail("Nội dung đã thay đổi. Vui lòng tải lại.",409);
+  });
+  invalidateStorefrontCatalog();res.json({success:true,id:req.params.id,message:"Đã xóa mục thư viện"});
 });
 
 export const catalogMedia = catalogAction(async(req,res)=>{

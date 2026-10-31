@@ -11,7 +11,11 @@ import { ARTICLE_FONT_SIZES, ARTICLE_LIMITS, articleToPlainText, getArticleDocum
 
 const ArticleImage = Image.extend({
   addAttributes() {
-    return { ...this.parent?.(), articleWidth: {
+    const dimensions = element => {
+      const width = Number(element.getAttribute("width")), height = Number(element.getAttribute("height"));
+      return [width, height].every(value => Number.isSafeInteger(value) && value > 0 && value <= 20000) && width * height <= 40000000 ? { width, height } : { width: null, height: null };
+    };
+    return { ...this.parent?.(), width: { default: null, parseHTML: element => dimensions(element).width }, height: { default: null, parseHTML: element => dimensions(element).height }, articleWidth: {
       default: 100,
       parseHTML: element => [50, 75, 100].includes(Number(element.dataset.articleWidth)) ? Number(element.dataset.articleWidth) : 100,
       renderHTML: attrs => ({ "data-article-width": attrs.articleWidth, style: `width: ${attrs.articleWidth}%` }),
@@ -66,7 +70,7 @@ export default function ProductArticleEditor({ value, text, onChange, onUploadin
       const { data } = await axios.post("/api/catalog/media", form, { headers: { Authorization: `Bearer ${await getToken()}` } });
       if (!data.success || !data.images?.length || data.images.some(url => !isArticleUrl(url, true))) throw new Error(data.message || "Không thể tải ảnh bài viết.");
       if (editor.isDestroyed) return;
-      if (replace) editor.chain().focus().setNodeSelection(position).updateAttributes("image", { src: data.images[0] }).run();
+      if (replace) editor.chain().focus().setNodeSelection(position).updateAttributes("image", { src: data.images[0], width: null, height: null }).run();
       else editor.chain().focus().insertContentAt(position, data.images.flatMap(src => [{ type: "image", attrs: { src, alt: "", title: "", articleWidth: 100 } }, { type: "paragraph" }])).run();
     } catch (err) { setError(err.response?.data?.message || err.message); }
     finally { setUploading(false); onUploadingChange?.(false); }

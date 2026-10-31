@@ -3,6 +3,8 @@ import Product from "../models/Product.js";
 import { catalogSnapshot, toProductCard } from "../services/storefrontCatalog.js";
 import { sanitizeArticle } from "../../client/src/utils/productArticle.js";
 import { LIBRARY_KINDS, librarySlug } from "../../client/src/utils/fragranceLibrary.js";
+import {libraryImage, libraryReference, publicDirectoryOverview, libraryOriginIds} from "../services/libraryDirectory.js";
+import {libraryProductRelation} from "../services/libraryRelations.js";
 
 const fail = (message, statusCode = 400) => { throw Object.assign(new Error(message), { statusCode }); };
 const readText = value => {
@@ -22,30 +24,23 @@ const action = handler => async (req, res) => {
   }
 };
 const directory = kind => catalogSnapshot(`library-directory:${kind}`, 30000, async () => {
-  const rows = await FragranceTerm.find({ kind }).select("kind key name contentStatus").lean();
-  return rows.filter(t => t.name?.trim()).map(term => ({ id: String(term._id), kind, name: term.name, slug: librarySlug(term), contentStatus: term.contentStatus }))
+  const rows = await FragranceTerm.find({ kind }).select("kind key name slug contentStatus image").lean();
+  return rows.filter(t => t.name?.trim()).map(term => ({ id: String(term._id), kind, name: term.name, slug: librarySlug(term), contentStatus: term.contentStatus, image: libraryImage(term.image) }))
     .sort((a, b) => a.name.localeCompare(b.name, "vi", { sensitivity: "base", numeric: true }));
 });
 export const publicLibraryTerms = action(async (req, res) => {
   const q = nameKey(readText(req.query.q));
+  const origin=readText(req.query.origin),ids=origin?libraryOriginIds(req.params.kind,origin):null;
+  if(origin&&!ids)fail("Không tìm thấy nhóm nguồn gốc này.",404);
   const page = Number(req.query.page ?? 1);
   if (!Number.isSafeInteger(page) || page < 1 || page > 10000) fail("Phân trang không hợp lệ.");
-  const rows = (await directory(req.params.kind)).filter(t => !q || nameKey(t.name).includes(q));
+  const allowed=ids?new Set(ids):null;
+  const rows = (await directory(req.params.kind)).filter(t => (!allowed||allowed.has(t.id))&&(!q || nameKey(t.name).includes(q)));
   const pageSize = 24, totalPages = Math.max(1, Math.ceil(rows.length / pageSize)), active = Math.min(page, totalPages);
-  res.json({ success: true, terms: rows.slice((active - 1) * pageSize, active * pageSize), total: rows.length, page: active, pageSize, totalPages });
+  res.json({ success: true, terms: rows.slice((active - 1) * pageSize, active * pageSize), total: rows.length, page: active, pageSize, totalPages, overview:publicDirectoryOverview(req.params.kind) });
 });
-const exact = value => new RegExp(`^\\s*${value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`, "i");
 export function libraryProductFilter(term) {
-  const value = exact(term.name);
-  let relation;
-  if (term.kind === "brand") relation = { brand: value };
-  else if (term.kind === "group") relation = { $or: [{ "fragrance.group": value }, { "fragrance.components.group": value }] };
-  else if (term.kind === "accord") relation = { "fragrance.accords.label": value };
-  else {
-    const fields = ["top", "middle", "base", "general"].flatMap(phase => [`fragrance.notes.${phase}`, `fragrance.components.notes.${phase}`]);
-    relation = { $or: fields.flatMap(field => [{ [`${field}.name`]: value }, ...(term.sourceUrl ? [{ [`${field}.url`]: term.sourceUrl }] : [])]) };
-  }
-  return { isPublished: { $ne: false }, isDeleted: { $ne: true }, ...relation };
+  return { isPublished: { $ne: false }, isDeleted: { $ne: true }, ...libraryProductRelation(term) };
 }
 export const publicLibraryTerm = action(async (req, res) => {
   const slug = readText(req.params.slug), name = readText(req.query.name), page = Number(req.query.page ?? 1);
@@ -59,7 +54,7 @@ export const publicLibraryTerm = action(async (req, res) => {
   const total = await Product.countDocuments(filter), totalPages = Math.max(1, Math.ceil(total / pageSize)), active = Math.min(page, totalPages);
   const products = await Product.find(filter).select({ ...Object.fromEntries("title price sizes stockBySize inStockBySize category type brand inStock inventoryMode isPublished popular createdAt".split(" ").map(field => [field, 1])), images: { $slice: 1 } })
     .sort({ createdAt: -1, _id: -1 }).skip((active - 1) * pageSize).limit(pageSize).lean();
-  // Source URLs, import evidence and internal keys never appear in public responses.
-  res.json({ success: true, term: { ...matches[0], description: source.description, descriptionContent: source.descriptionContent ? sanitizeArticle(source.descriptionContent) : null, contentStatus: source.contentStatus },
+  // Publish an explicit reading reference; keep import evidence and internal keys private.
+  res.json({ success: true, term: { ...matches[0], description: source.description, descriptionContent: source.descriptionContent ? sanitizeArticle(source.descriptionContent) : null, contentStatus: source.contentStatus, referenceUrl:libraryReference(source.sourceUrl) },
     products: products.map(p => toProductCard({ ...p, _id: String(p._id) })), total, page: active, totalPages, pageSize });
 });

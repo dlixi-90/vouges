@@ -45,8 +45,8 @@ const Navbar = ({ containerStyles, setMenuOpened, brandDirectory, group = "all",
     <nav id={navigationId} aria-label={group === "shop" ? "Mua sắm" : group === "info" ? "Thông tin cửa hàng" : "Điều hướng chính"} className={containerStyles}>
       {group !== "info" && renderLinks(shoppingLinks)}
       {group !== "info" && <BrandMenu directory={brandDirectory} compact={group === "all"} onNavigate={() => setMenuOpened(false)} />}
-      {group !== "shop" && <NavigationDropdown title="Về Velours" links={informationLinks} compact={group === "all"} onNavigate={() => setMenuOpened(false)} />}
       {group !== "shop" && <NavigationDropdown title="Kiến thức" links={knowledgeLinks} compact={group === "all"} onNavigate={() => setMenuOpened(false)} />}
+      {group !== "shop" && <NavigationDropdown title="Về Velours" links={informationLinks} compact={group === "all"} onNavigate={() => setMenuOpened(false)} />}
     </nav>
   );
 };

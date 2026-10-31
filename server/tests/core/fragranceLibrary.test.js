@@ -7,19 +7,23 @@ import Product from "../../models/Product.js";
 import { librarySlug, libraryPath } from "../../../client/src/utils/fragranceLibrary.js";
 import router from "../../routes/libraryRoute.js";
 import { createPublicCatalog } from "../../../client/src/utils/publicCatalog.js";
+import {libraryDirectory} from "../../services/libraryDirectory.js";
 beforeEach(invalidateStorefrontCatalog);
 const response = () => ({statusCode:200,set(){},status(n){this.statusCode=n;return this;},json(body){this.body=body;return this;}});
-const rows = Array.from({length:30},(_,i)=>({_id:String(i),kind:"note",name:`Note ${i}`,key:`https://apaniche.vn/note-huong-note-${i}`,contentStatus:"complete"}));
+const rows = Array.from({length:30},(_,i)=>({_id:String(i),kind:"note",name:`Note ${i}`,key:`https://apaniche.vn/note-huong-note-${i}`,contentStatus:"complete",image:i===0?"javascript:alert(1)":"/images/library/example-thumb.webp"}));
 test("public directories expose bounded metadata, with search and clamped pagination",async t=>{
  let projection;
  t.mock.method(FragranceTerm,"find",()=>({select(value){projection=value;return{lean:async()=>rows};}}));
  const res=response();await publicLibraryTerms({params:{kind:"note"},query:{}},res);
  assert.equal(res.body.terms.length,24);assert.equal(res.body.total,30);assert.equal(res.body.totalPages,2);
- assert.equal(projection,"kind key name contentStatus");assert.equal(res.body.terms[0].key,undefined);
+ assert.equal(projection,"kind key name slug contentStatus image");assert.equal(res.body.terms[0].key,undefined);
+ assert.equal(res.body.terms.find(row=>row.id==="0").image,"");
+ assert.ok(res.body.terms.find(row=>row.id==="1").image.startsWith("/images/library/"));
+ assert.equal(res.body.overview.origins.length,16);assert.equal(res.body.overview.origins[0].termIds,undefined);
  const last=response();await publicLibraryTerms({params:{kind:"note"},query:{page:"900"}},last);assert.equal(last.body.page,2);assert.equal(last.body.terms.length,6);
  const search=response();await publicLibraryTerms({params:{kind:"note"},query:{q:"Note 29"}},search);assert.equal(search.body.total,1);
 });
-test("detail returns edited rich content and 15 related public cards without source metadata",async t=>{
+test("detail returns rich content, a deliberate reading reference and 15 related cards without import metadata",async t=>{
  const term={...rows[1],description:"Giới thiệu riêng",descriptionContent:{type:"doc",content:[{type:"paragraph",content:[{type:"text",text:"Giới thiệu riêng"}]}]},sourceUrl:rows[1].key,contentImport:{secret:true}};
  t.mock.method(FragranceTerm,"find",()=>({select:()=>({lean:async()=>rows})}));
  t.mock.method(FragranceTerm,"findById",()=>({select:()=>({lean:async()=>term})}));
@@ -30,7 +34,17 @@ test("detail returns edited rich content and 15 related public cards without sou
  assert.equal(res.statusCode,200);assert.equal(limit,15);assert.equal(skip,15);assert.equal(res.body.totalPages,3);
  assert.equal(res.body.term.description,"Giới thiệu riêng");assert.equal(res.body.products[0].source,undefined);
  assert.equal(filter.isPublished.$ne,false);assert.equal(filter.isDeleted.$ne,true);
- assert.equal(JSON.stringify(res.body).includes("apaniche"),false);assert.equal(res.body.term.contentImport,undefined);
+ assert.equal(res.body.term.referenceUrl,term.sourceUrl);assert.equal(res.body.term.sourceUrl,undefined);assert.equal(res.body.term.key,undefined);assert.equal(res.body.term.contentImport,undefined);
+});
+
+test("origin filters intersect search and never expose the membership index",async t=>{
+ const origin=libraryDirectory("note").origins[0];
+ const matching={...rows[0],_id:origin.termIds[0],name:"Cam Test"};
+ t.mock.method(FragranceTerm,"find",()=>({select:()=>({lean:async()=>[matching,...rows]})}));
+ const res=response();await publicLibraryTerms({params:{kind:"note"},query:{origin:origin.id,q:"Cam"}},res);
+ assert.equal(res.body.total,1);assert.equal(res.body.terms[0].id,matching._id);assert.equal(JSON.stringify(res.body.overview).includes('termIds'),false);
+ const invalid=response();await publicLibraryTerms({params:{kind:"note"},query:{origin:"unknown"}},invalid);assert.equal(invalid.statusCode,404);
+ const injected=response();await publicLibraryTerms({params:{kind:"note"},query:{origin:{$ne:""}}},injected);assert.equal(injected.statusCode,400);
 });
 test("invalid kinds, injected parameters and unknown entries fail without broad product reads",async t=>{
  t.mock.method(FragranceTerm,"find",()=>({select:()=>({lean:async()=>rows})}));
@@ -45,6 +59,7 @@ test("all relation filters exclude unpublished/deleted products and use literal 
  assert.ok(libraryProductFilter({kind:"note",name:"Rose"}).$or.some(row=>row["fragrance.components.notes.base.name"]));
 });
 test("canonical page paths use stable readable slugs and routes remain public",()=>{
+ assert.equal(librarySlug({name:"Renamed",slug:"original-local-123"}),"original-local-123");
  assert.equal(librarySlug({key:"https://apaniche.vn/nuoc-hoa-dior",name:"Dior"}),"dior");
  assert.equal(libraryPath({kind:"note",key:"https://apaniche.vn/note-huong-cam-bergamot"}),"/knowledge/note/cam-bergamot");
  assert.equal(librarySlug({key:"local",name:"Hoa Hồng Đỏ"}),"hoa-hong-do");

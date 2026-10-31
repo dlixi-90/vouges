@@ -70,6 +70,11 @@ export function sanitizeArticle(document) {
         if (![50, 75, 100].includes(node.attrs.articleWidth)) fail();
         attrs.articleWidth = node.attrs.articleWidth;
       }
+      if (node.attrs.width != null || node.attrs.height != null) {
+        const { width, height } = node.attrs;
+        if (![width, height].every(value => Number.isSafeInteger(value) && value > 0 && value <= 20000) || width * height > 40000000) fail();
+        attrs.width = width; attrs.height = height;
+      }
       return { type, attrs };
     }
     if (["hardBreak", "horizontalRule"].includes(type)) return result;

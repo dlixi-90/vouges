@@ -37,6 +37,14 @@ test("old descriptions remain plain text, including literal HTML, and invalid st
   assert.equal(sanitizeArticle(null), null);
 });
 
+test("intrinsic image dimensions round trip to reserve layout space without accepting malformed sizes", () => {
+  const document=doc([{type:"image",attrs:{src:"/images/article.webp",width:1200,height:800}}]);
+  const sanitized=sanitizeArticle(document);assert.equal(sanitized.content[0].attrs.width,1200);assert.equal(sanitized.content[0].attrs.height,800);
+  assert.deepEqual(sanitizeArticle(sanitized),sanitized);
+  assert.equal(sanitizeArticle(doc([{type:"image",attrs:{src:"/images/old.webp",width:null,height:null}}])).content[0].attrs.width,undefined);
+  for(const attrs of [{width:1200},{width:0,height:100},{width:1200,height:-1},{width:"1200",height:800},{width:20001,height:10},{width:20000,height:20000}])assert.throws(()=>sanitizeArticle(doc([{type:"image",attrs:{src:"/images/article.webp",...attrs}}])));
+});
+
 test("article links and images reject executable, credentialed, protocol-relative and control-character URLs", () => {
   for (const href of ["javascript:alert(1)", "data:text/html,test", "//evil.example", "/\\evil.example", "https://u:p@example.com/a", "java\nscript:alert(1)", "/images/a\u0000.png"]) {
     assert.equal(isArticleUrl(href), false, href);
@@ -112,23 +120,29 @@ test("new products save article formatting separately from their gallery and ign
   await new Product(saved).validate();
 });
 
+const libraryOriginal=(t,term)=>{
+  t.mock.method(mongoose.connection,'transaction',async callback=>callback({}));
+  t.mock.method(FragranceTerm,'findById',()=>({session:()=>({lean:async()=>term})}));
+  t.mock.method(FragranceTerm,'findOne',()=>({session:async()=>null}));
+};
 for(const kind of ['brand','group','accord','note'])test(`${kind} introductions save the complete article with formatting/images and preserve the existing illustration`, async t=>{
-  const original=new FragranceTerm({kind,key:`example-${kind}`,name:'Tên mục',description:'Giới thiệu cũ',image:'/images/existing-logo.webp',sourceUrl:'https://example.com/original'}).toObject();
-  t.mock.method(FragranceTerm,'findByIdAndUpdate',async(id,{$set:update},options)=>{
-    assert.equal(id,String(original._id));assert.equal(options.runValidators,true);
+  const original=new FragranceTerm({kind,key:`example-${kind}`,name:'Tên mục',description:'Giới thiệu cũ',image:'/images/existing-logo.webp',sourceUrl:'https://example.com/original',updatedAt:new Date('2026-10-28')}).toObject();
+  libraryOriginal(t,original);
+  t.mock.method(FragranceTerm,'findOneAndUpdate',async(filter,{$set:update},options)=>{
+    assert.equal(String(filter._id),String(original._id));assert.equal(options.runValidators,true);
     assert.deepEqual(update.descriptionContent,sanitizeArticle(sample()));
     assert.equal(update.description,articleToPlainText(sanitizeArticle(sample())));
     assert.equal(update.image,undefined);assert.equal(update.kind,undefined);assert.equal(update.sourceUrl,undefined);
     const saved=new FragranceTerm({...original,...update});await saved.validate();return saved.toObject();
   });
   const res=response();
-  await saveLibraryTerm({params:{id:String(original._id)},body:{name:original.name,description:'Forged plain-text summary',descriptionContent:sample(),contentStatus:'complete'}},res);
+  await saveLibraryTerm({params:{id:String(original._id)},body:{name:original.name,description:'Forged plain-text summary',descriptionContent:sample(),contentStatus:'complete',expectedUpdatedAt:original.updatedAt.toISOString()}},res);
   assert.equal(res.body.success,true);assert.deepEqual(res.body.term.descriptionContent,sanitizeArticle(sample()));
   assert.equal(res.body.term.image,original.image);assert.equal(res.body.term.kind,kind);
 });
 
 test('library introduction rejects unsafe or oversized article content before writing',async t=>{
-  const write=t.mock.method(FragranceTerm,'findByIdAndUpdate',()=>assert.fail('Invalid article cannot be written'));
+  const write=t.mock.method(FragranceTerm,'findOneAndUpdate',()=>assert.fail('Invalid article cannot be written'));
   const id=String(new mongoose.Types.ObjectId());
   for(const article of [doc([{type:'script'}]),doc([{type:'image',attrs:{src:'javascript:alert(1)'}}]),doc([paragraph('x'.repeat(ARTICLE_LIMITS.text+1))])]){
     const res=response();await saveLibraryTerm({params:{id},body:{name:'Giới thiệu',description:'',descriptionContent:article,contentStatus:'complete'}},res);
@@ -139,22 +153,24 @@ test('library introduction rejects unsafe or oversized article content before wr
 
 test('long library introductions keep their full document and only bound the legacy text summary',async t=>{
   const article=doc([paragraph('Hương thơm '.repeat(1000))]);
-  t.mock.method(FragranceTerm,'findByIdAndUpdate',async(id,{$set:update})=>{
+  const original={_id:new mongoose.Types.ObjectId(),kind:'brand',key:'example',name:'Brand',updatedAt:new Date('2026-10-28')};libraryOriginal(t,original);
+  t.mock.method(FragranceTerm,'findOneAndUpdate',async(filter,{$set:update})=>{
     assert.equal(update.description.length,5000);
     assert.equal(update.descriptionContent.content[0].content[0].text.length,11000);
-    const saved=new FragranceTerm({_id:id,kind:'brand',key:'example',...update});await saved.validate();return saved.toObject();
+    const saved=new FragranceTerm({...original,...update});await saved.validate();return saved.toObject();
   });
-  const res=response();await saveLibraryTerm({params:{id:String(new mongoose.Types.ObjectId())},body:{name:'Brand',description:'',descriptionContent:article,contentStatus:'complete'}},res);
+  const res=response();await saveLibraryTerm({params:{id:String(original._id)},body:{name:'Brand',description:'',descriptionContent:article,contentStatus:'complete',expectedUpdatedAt:original.updatedAt.toISOString()}},res);
   assert.equal(res.body.success,true);
 });
 
 test('legacy library descriptions remain editable and replacing rich text with plain text clears stale formatting',async t=>{
   const text='Giới thiệu cũ\nNội dung tiếng Việt <strong>nguyên văn</strong>';
   assert.equal(articleToPlainText(getArticleDocument(undefined,text)),text);
-  t.mock.method(FragranceTerm,'findByIdAndUpdate',async(id,{$set:update})=>{
+  const original={_id:new mongoose.Types.ObjectId(),kind:'brand',key:'example',name:'Brand',updatedAt:new Date('2026-10-28')};libraryOriginal(t,original);
+  t.mock.method(FragranceTerm,'findOneAndUpdate',async(filter,{$set:update})=>{
     assert.equal(update.description,text);assert.equal(update.descriptionContent,null);assert.equal(update.image,undefined);
-    return {_id:id,...update};
+    return {...original,...update};
   });
-  const res=response();await saveLibraryTerm({params:{id:String(new mongoose.Types.ObjectId())},body:{name:'Brand',description:text,contentStatus:'linked'}},res);
+  const res=response();await saveLibraryTerm({params:{id:String(original._id)},body:{name:'Brand',description:text,contentStatus:'linked',expectedUpdatedAt:original.updatedAt.toISOString()}},res);
   assert.equal(res.body.success,true);
 });

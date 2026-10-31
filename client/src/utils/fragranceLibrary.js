@@ -6,6 +6,7 @@ export const LIBRARY_KINDS = {
 };
 
 export const librarySlug = term => {
+  if(typeof term.slug==="string"&&/^[a-z0-9-]+$/i.test(term.slug))return term.slug;
   try {
     const value = new URL(term.key).pathname.split("/").filter(Boolean).pop();
     if (/^[a-z0-9-]+$/i.test(value)) return value.replace(/^(?:nuoc-hoa-|nhom-huong-|mui-huong-|note-huong-)/, "");

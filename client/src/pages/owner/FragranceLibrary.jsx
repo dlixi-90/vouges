@@ -1,56 +1,108 @@
 import {lazy,Suspense,useEffect,useRef,useState} from "react";
 import {useSearchParams} from "react-router-dom";
-import {ExternalLink,Search,X,Save} from "lucide-react";
+import {ExternalLink,Search,X,Save,Plus,Pencil,Trash2,Upload} from "lucide-react";
 import toast from "react-hot-toast";
 import {useAppContext} from "../../context/AppContext";
 import {CatalogPage,CatalogState,Pager,Badge,RefreshButton,useCatalog} from "../../components/owner/CatalogUI";
 import usePaginationScroll from "../../hooks/usePaginationScroll";
 import {sanitizeArticle} from "../../utils/productArticle";
+import {LIBRARY_KINDS} from "../../utils/fragranceLibrary";
 const ProductArticleEditor=lazy(()=>import("../../components/owner/ProductArticleEditor"));
-const kinds=[{key:"group",label:"Nhóm hương"},{key:"accord",label:"Kiểu mùi"},{key:"note",label:"Note hương"}];
+const kinds=["group","accord","note"];
+
 export default function FragranceLibrary({brands=false}){
-  const [params,setParams]=useSearchParams();const kind=brands?"brand":kinds.some(item=>item.key===params.get("kind"))?params.get("kind"):"group";
-  const [q,setQ]=useState(""),[status,setStatus]=useState(""),[page,setPage]=useState(1),[editing,setEditing]=useState(null);
-  const query=useCatalog(`/terms?${new URLSearchParams({kind,q,status,page:String(page),pageSize:"25"})}`);const rows=(query.data?.terms||[]).filter(term=>term.kind===kind);
+  const [params,setParams]=useSearchParams();
+  const kind=brands?"brand":kinds.includes(params.get("kind"))?params.get("kind"):"group";
+  return <LibraryManager key={kind} kind={kind} onKind={value=>setParams({kind:value})}/>;
+}
+
+function LibraryManager({kind,onKind}){
+  const {storeResources,publicCatalog,dashboardCache}=useAppContext();
+  const [q,setQ]=useState(""),[status,setStatus]=useState(""),[page,setPage]=useState(1),[editing,setEditing]=useState(null),[deleting,setDeleting]=useState(null);
+  const label=LIBRARY_KINDS[kind].title.toLocaleLowerCase("vi-VN");
+  const query=useCatalog(`/terms?${new URLSearchParams({kind,q,status,page:String(page),pageSize:"25"})}`);
+  const rows=(query.data?.terms||[]).filter(term=>term.kind===kind);
   const {listRef,changePage}=usePaginationScroll({page,onPageChange:setPage,ready:!query.loading&&query.data?.page===page});
-  return <CatalogPage title={brands?"Thương hiệu":"Thư viện hương"} actions={<RefreshButton onClick={query.reload} disabled={query.loading}/>}>
-    {!brands&&<nav className="perfume-tabs" aria-label="Loại thư viện">{kinds.map(item=><button type="button" key={item.key} className={kind===item.key?"active":""} onClick={()=>{setParams({kind:item.key});setPage(1);setQ("");}}>{item.label}</button>)}</nav>}
-    <div className="perfume-filter-bar"><label className="perfume-search"><Search size={17}/><input aria-label="Tìm trong thư viện" placeholder={brands?"Tìm thương hiệu…":"Tìm tên hoặc liên kết note…"} value={q} onChange={event=>{setQ(event.target.value);setPage(1);}}/></label><select aria-label="Tình trạng nội dung" value={status} onChange={event=>{setStatus(event.target.value);setPage(1);}}><option value="">Toàn bộ nội dung</option><option value="linked">Cần biên soạn</option><option value="complete">Đã hoàn thiện</option></select></div>
-    <CatalogState {...query}/><section className="perfume-table-panel"><div className="perfume-table-scroll"><table ref={listRef} tabIndex={-1} className="perfume-table pagination-list-start"><thead><tr><th>{brands?"Thương hiệu":"Tên mục"}</th><th>Sản phẩm nguồn liên kết</th><th>Nội dung</th>{!brands&&<th>Nguồn</th>}<th><span className="sr-only">Thao tác</span></th></tr></thead><tbody>{rows.map(term=><tr key={term._id}><td><strong>{term.name||"Chưa có tên"}</strong>{!term.name&&<small>{term.sourceUrl?.split("/").pop()}</small>}</td><td>{term.productCount}</td><td><Badge tone={term.contentStatus==="complete"?"green":"amber"}>{term.contentStatus==="complete"?"Đã hoàn thiện":"Cần biên soạn"}</Badge></td>{!brands&&<td>{term.sourceUrl&&<a href={term.sourceUrl} target="_blank" rel="noreferrer" className="perfume-inline-link">Xem nguồn <ExternalLink size={13}/></a>}</td>}<td><button type="button" className="perfume-button" onClick={()=>setEditing(term)}>Biên tập</button></td></tr>)}</tbody></table>{!query.loading&&!rows.length&&<p className="perfume-empty">Không tìm thấy mục phù hợp.</p>}</div><Pager page={page} totalPages={query.data?.totalPages} total={query.data?.total} onPage={changePage} disabled={query.loading}/></section>
-    {editing&&<LibraryEditor term={editing} onClose={()=>setEditing(null)} onSaved={()=>{setEditing(null);query.reload();}}/>}
+  const changed=action=>{
+    storeResources.invalidateCatalog();publicCatalog.clear();dashboardCache.clear();setEditing(null);setDeleting(null);
+    if(action==="create"){setQ("");setStatus("");if(page!==1){setPage(1);return;}}
+    if(action==="delete"&&rows.length===1&&page>1){setPage(page-1);return;}
+    query.reload();
+  };
+  return <CatalogPage title={kind==="brand"?"Thương hiệu":"Thư viện hương"} actions={<><RefreshButton onClick={query.reload} disabled={query.loading}/><button type="button" className="perfume-button primary" onClick={()=>setEditing({kind,name:"",description:"",descriptionContent:null,image:"",contentStatus:"linked"})}><Plus size={16}/>Thêm {label}</button></>}>
+    {kind!=="brand"&&<nav className="perfume-tabs" aria-label="Loại thư viện">{kinds.map(value=><button type="button" key={value} className={kind===value?"active":""} onClick={()=>onKind(value)}>{LIBRARY_KINDS[value].title}</button>)}</nav>}
+    <div className="perfume-filter-bar"><label className="perfume-search"><Search size={17}/><input aria-label="Tìm trong thư viện" placeholder={`Tìm ${label}…`} value={q} onChange={event=>{setQ(event.target.value);setPage(1);}}/></label><select aria-label="Tình trạng nội dung" value={status} onChange={event=>{setStatus(event.target.value);setPage(1);}}><option value="">Toàn bộ nội dung</option><option value="linked">Cần biên soạn</option><option value="complete">Đã hoàn thiện</option></select></div>
+    <CatalogState {...query}/><section className="perfume-table-panel"><div className="perfume-table-scroll"><table ref={listRef} tabIndex={-1} className="perfume-table pagination-list-start"><thead><tr><th>{kind==="brand"?"Thương hiệu":"Tên mục"}</th><th>Sản phẩm liên kết</th><th>Nội dung</th>{kind!=="brand"&&<th>Nguồn</th>}<th><span className="sr-only">Thao tác</span></th></tr></thead><tbody>{rows.map(term=><tr key={term._id}><td><strong>{term.name||"Chưa có tên"}</strong></td><td>{term.productCount}</td><td><Badge tone={term.contentStatus==="complete"?"green":"amber"}>{term.contentStatus==="complete"?"Đã hoàn thiện":"Cần biên soạn"}</Badge></td>{kind!=="brand"&&<td>{term.sourceUrl?<a href={term.sourceUrl} target="_blank" rel="noreferrer" className="perfume-inline-link">Xem nguồn <ExternalLink size={13}/></a>:"—"}</td>}<td><div className="perfume-library-actions"><button type="button" className="perfume-icon-button" onClick={()=>setEditing(term)} aria-label={`Sửa ${label} ${term.name}`} title="Chỉnh sửa"><Pencil size={16}/></button><button type="button" className="perfume-icon-button perfume-library-delete" onClick={()=>setDeleting(term)} aria-label={`Xóa ${label} ${term.name}`} title="Xóa"><Trash2 size={16}/></button></div></td></tr>)}</tbody></table>{!query.loading&&!rows.length&&<p className="perfume-empty">Không tìm thấy mục phù hợp.</p>}</div><Pager page={page} totalPages={query.data?.totalPages} total={query.data?.total} onPage={changePage} disabled={query.loading}/></section>
+    {editing&&<LibraryEditor term={editing} onClose={()=>setEditing(null)} onSaved={()=>changed(editing._id?"edit":"create")}/>}
+    {deleting&&<DeleteLibraryDialog term={deleting} onClose={()=>setDeleting(null)} onDeleted={()=>changed("delete")}/>}
   </CatalogPage>;
 }
-function LibraryEditor({term,onClose,onSaved}){
-  const {axios,getToken}=useAppContext();
+
+function useLibraryDialog(){
   const ref=useRef(null);
-  const [draft,setDraft]=useState({name:term.name,description:term.description||"",descriptionContent:term.descriptionContent??null,contentStatus:term.contentStatus});
-  const [busy,setBusy]=useState(false),[uploading,setUploading]=useState(false),[error,setError]=useState("");
-  const locked=busy||uploading;
-  useEffect(()=>{const dialog=ref.current;dialog.showModal();return()=>dialog.close();},[]);
+  useEffect(()=>{const dialog=ref.current,previous=document.body.style.overflow;dialog.showModal();document.body.style.overflow="hidden";return()=>{dialog.close();document.body.style.overflow=previous;};},[]);
+  return ref;
+}
+
+function LibraryEditor({term,onClose,onSaved}){
+  const {axios,getToken}=useAppContext(),ref=useLibraryDialog(),submitting=useRef(false);
+  const [draft,setDraft]=useState({name:term.name,description:term.description||"",descriptionContent:term.descriptionContent??null,image:term.image||"",contentStatus:term.contentStatus});
+  const [busy,setBusy]=useState(false),[uploading,setUploading]=useState(false),[coverUploading,setCoverUploading]=useState(false),[error,setError]=useState("");
+  const locked=busy||uploading||coverUploading,creating=!term._id,label=LIBRARY_KINDS[term.kind].title.toLocaleLowerCase("vi-VN");
   const save=async event=>{
-    event.preventDefault();if(locked)return;
-    setBusy(true);setError("");
+    event.preventDefault();if(locked||submitting.current)return;
+    submitting.current=true;setBusy(true);setError("");
     try{
-      const {data}=await axios.patch(`/api/catalog/terms/${term._id}`,{...draft,descriptionContent:sanitizeArticle(draft.descriptionContent)},{headers:{Authorization:`Bearer ${await getToken()}`}});
+      const payload={...draft,descriptionContent:sanitizeArticle(draft.descriptionContent),...(creating?{kind:term.kind}:{expectedUpdatedAt:term.updatedAt})};
+      const options={headers:{Authorization:`Bearer ${await getToken()}`},timeout:30000};
+      const {data}=creating?await axios.post("/api/catalog/terms",payload,options):await axios.patch(`/api/catalog/terms/${term._id}`,payload,options);
       if(!data.success)throw new Error(data.message||"Không thể lưu nội dung thư viện.");
-      toast.success("Đã lưu nội dung thư viện");onSaved();
-    }catch(err){setError(err.response?.data?.message||err.message);}finally{setBusy(false);}
+      toast.success(creating?`Đã thêm ${label}`:"Đã lưu nội dung thư viện");onSaved();
+    }catch(err){setError(err.response?.data?.message||err.message);}finally{submitting.current=false;setBusy(false);}
   };
-  return <dialog ref={ref} className="perfume-library-dialog" aria-labelledby="library-editor-title" onCancel={event=>{event.preventDefault();if(!locked)onClose();}}>
+  const uploadCover=async file=>{
+    if(!file||locked)return;
+    if(!["image/png","image/jpeg","image/webp"].includes(file.type)||file.size>5*1024*1024){setError("Chọn ảnh PNG, JPEG hoặc WebP, tối đa 5 MB.");return;}
+    setCoverUploading(true);setError("");
+    try{
+      const form=new FormData();form.append("images",file);
+      const {data}=await axios.post("/api/catalog/media",form,{headers:{Authorization:`Bearer ${await getToken()}`},timeout:30000});
+      if(!data.success||!data.images?.[0])throw new Error(data.message||"Không thể tải ảnh.");
+      setDraft(current=>({...current,image:data.images[0]}));
+    }catch(err){setError(err.response?.data?.message||err.message);}finally{setCoverUploading(false);}
+  };
+  return <dialog ref={ref} className="perfume-library-dialog" aria-labelledby="library-editor-title" aria-busy={locked} onCancel={event=>{event.preventDefault();if(!locked)onClose();}}>
     <form onSubmit={save}>
-      <header><div><p className="perfume-eyebrow">THƯ VIỆN VELOURS</p><h2 id="library-editor-title">Biên tập nội dung</h2></div><button type="button" className="perfume-icon-button" disabled={locked} onClick={onClose} aria-label="Đóng biên tập"><X size={20}/></button></header>
+      <header><div><p className="perfume-eyebrow">THƯ VIỆN VELOURS</p><h2 id="library-editor-title">{creating?"Thêm":"Chỉnh sửa"} {label}</h2></div><button type="button" className="perfume-icon-button" disabled={locked} onClick={onClose} aria-label="Đóng biên tập"><X size={20}/></button></header>
       {error&&<p role="alert" className="perfume-alert">{error}</p>}
-      <label className="perfume-field"><span>Tên hiển thị</span><input required maxLength={200} disabled={busy} value={draft.name} onChange={event=>setDraft(current=>({...current,name:event.target.value}))}/></label>
-      <section className="perfume-library-introduction" aria-labelledby="library-introduction-title">
-        <h3 id="library-introduction-title">Giới thiệu</h3>
-        <Suspense fallback={<p role="status" className="perfume-muted">Đang tải trình soạn thảo…</p>}>
-          <ProductArticleEditor value={draft.descriptionContent} text={draft.description} disabled={busy} ariaLabel="Trình soạn thảo giới thiệu" onUploadingChange={setUploading}
-            onChange={(descriptionContent,description)=>setDraft(current=>({...current,descriptionContent,description}))}/>
-        </Suspense>
+      <label className="perfume-field"><span>Tên {label}</span><input autoFocus required maxLength={["note","accord"].includes(term.kind)?160:200} disabled={locked} value={draft.name} onChange={event=>setDraft(current=>({...current,name:event.target.value}))}/></label>
+      <section className="perfume-library-cover" aria-label="Ảnh đại diện">
+        {draft.image&&<img src={draft.image} alt="Ảnh đại diện" width="88" height="88"/>}<div><p>Ảnh đại diện</p><div className="perfume-library-actions"><label className={`perfume-button${locked?" is-disabled":""}`}><Upload size={15}/>{coverUploading?"Đang tải…":draft.image?"Thay ảnh":"Thêm ảnh"}<input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" aria-label="Tải ảnh đại diện" disabled={locked} onChange={event=>{void uploadCover(event.target.files[0]);event.target.value="";}}/></label>{draft.image&&<button type="button" className="perfume-icon-button perfume-library-delete" disabled={locked} onClick={()=>setDraft(current=>({...current,image:""}))} aria-label="Bỏ ảnh đại diện"><Trash2 size={16}/></button>}</div></div>
       </section>
-      <label className="perfume-field"><span>Tình trạng biên soạn</span><select disabled={busy} value={draft.contentStatus} onChange={event=>setDraft(current=>({...current,contentStatus:event.target.value}))}><option value="linked">Cần biên soạn</option><option value="complete">Đã hoàn thiện</option></select></label>
+      <section className="perfume-library-introduction" aria-labelledby="library-introduction-title"><h3 id="library-introduction-title">Giới thiệu</h3><Suspense fallback={<p role="status" className="perfume-muted">Đang tải trình soạn thảo…</p>}><ProductArticleEditor value={draft.descriptionContent} text={draft.description} disabled={busy||coverUploading} ariaLabel="Trình soạn thảo giới thiệu" onUploadingChange={setUploading} onChange={(descriptionContent,description)=>setDraft(current=>({...current,descriptionContent,description}))}/></Suspense></section>
+      <label className="perfume-field"><span>Tình trạng biên soạn</span><select disabled={locked} value={draft.contentStatus} onChange={event=>setDraft(current=>({...current,contentStatus:event.target.value}))}><option value="linked">Cần biên soạn</option><option value="complete">Đã hoàn thiện</option></select></label>
       {term.sourceUrl&&<a href={term.sourceUrl} target="_blank" rel="noreferrer" className="perfume-inline-link">Đối chiếu nguồn <ExternalLink size={13}/></a>}
-      <footer><button type="button" className="perfume-button" disabled={locked} onClick={onClose}>Hủy</button><button type="submit" className="perfume-button primary" disabled={locked}><Save size={15}/>{busy?"Đang lưu…":uploading?"Đang tải ảnh…":"Lưu nội dung"}</button></footer>
+      <footer><button type="button" className="perfume-button" disabled={locked} onClick={onClose}>Hủy</button><button type="submit" className="perfume-button primary" disabled={locked}><Save size={15}/>{busy?"Đang lưu…":uploading||coverUploading?"Đang tải ảnh…":creating?`Thêm ${label}`:"Lưu thay đổi"}</button></footer>
     </form>
+  </dialog>;
+}
+
+function DeleteLibraryDialog({term,onClose,onDeleted}){
+  const {axios,getToken}=useAppContext(),ref=useLibraryDialog(),submitting=useRef(false);
+  const [busy,setBusy]=useState(false),[error,setError]=useState("");
+  const label=LIBRARY_KINDS[term.kind].title.toLocaleLowerCase("vi-VN");
+  const remove=async()=>{
+    if(submitting.current)return;submitting.current=true;setBusy(true);setError("");
+    try{
+      const {data}=await axios.delete(`/api/catalog/terms/${term._id}`,{data:{expectedUpdatedAt:term.updatedAt},headers:{Authorization:`Bearer ${await getToken()}`},timeout:30000});
+      if(!data.success)throw new Error(data.message||"Không thể xóa mục này.");
+      toast.success(`Đã xóa ${label}`);onDeleted();
+    }catch(err){setError(err.response?.data?.message||err.message);}finally{submitting.current=false;setBusy(false);}
+  };
+  return <dialog ref={ref} className="perfume-library-delete-dialog" aria-labelledby="library-delete-title" aria-describedby="library-delete-description" onCancel={event=>{event.preventDefault();if(!busy)onClose();}}>
+    <h2 id="library-delete-title">Xóa {label}?</h2><p id="library-delete-description">Mục “{term.name}” và phần giới thiệu của mục sẽ bị xóa khỏi thư viện.</p>
+    {term.productCount>0&&<p>Có {term.productCount.toLocaleString("vi-VN")} sản phẩm đang liên kết. Cần đổi thông tin tương ứng trên các sản phẩm đó trước khi xóa mục này.</p>}
+    {error&&<p role="alert" className="perfume-alert">{error}</p>}
+    <footer><button autoFocus type="button" className="perfume-button" disabled={busy} onClick={onClose}>Hủy</button><button type="button" className="perfume-button perfume-library-delete-confirm" disabled={busy} onClick={remove}><Trash2 size={15}/>{busy?"Đang xóa…":`Xóa ${label}`}</button></footer>
   </dialog>;
 }

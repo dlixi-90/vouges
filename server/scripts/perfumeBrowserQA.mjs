@@ -25,14 +25,16 @@ import Product from "../models/Product.js";
 import {getProductImageUrl} from "../../client/src/utils/productImage.js";
 import {sanitizeFragranceRows} from "../services/fragranceEditing.js";
 import {createOperationsFixtures} from "./qa/operationsFixtures.mjs";
+import {createLibraryFixtures} from "./qa/libraryFixtures.mjs";
 import accordPalette from "../../client/src/data/accordColors.json" with { type: "json" };
 import {getAccordColors} from "../../client/src/utils/accordColors.js";
 import {sanitizeArticle,articleToPlainText} from "../../client/src/utils/productArticle.js";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
 const artifacts=path.join(root,".qa-perfume");fs.mkdirSync(artifacts,{recursive:true});
-const profile=path.join(artifacts,"chrome-profile");
-const frontend="http://localhost:5188";
+const libraryRun=process.argv.includes("--library-management"),frontendPort=libraryRun?5190:5188,debugPort=libraryRun?9290:9288;
+const profile=path.join(artifacts,libraryRun?`chrome-profile-library-${Date.now()}`:"chrome-profile");
+const frontend=`http://localhost:${frontendPort}`;
 const paginationQA=process.argv.includes("--pagination");
 const typographyQA=process.argv.includes("--typography");
 const dashboardQA=process.argv.includes("--dashboard-design");
@@ -45,6 +47,9 @@ const accordsQA=process.argv.includes("--accord-colors");
 const experienceQA=process.argv.includes("--experience-design");
 const knowledgeQA=process.argv.includes("--knowledge");
 const descriptionsQA=process.argv.includes("--product-descriptions");
+const libraryQA=process.argv.includes("--library-management");
+const libraryCover=libraryQA?`/images/library/${fs.readdirSync(path.join(root,'client/public/images/library')).find(file=>file.endsWith('.webp'))}`:'';
+let libraryFixtures;
 let operationsActive=false,operationsFixtures;
 let editorProduct=null,editorUploadImages=[];
 const editorPatches=[];
@@ -70,6 +75,7 @@ const api=async request=>{
   const url=new URL(request.url),pathname=url.pathname;const req={query:Object.fromEntries(url.searchParams),params:{}};
   if(request.method==="OPTIONS")return {statusCode:204,body:null};
   if(operationsActive){const fixture=operationsFixtures.respond(request);if(fixture)return fixture;}
+  if(libraryFixtures){const fixture=libraryFixtures.respond(request);if(fixture)return fixture;}
   // These edits live only in the browser harness; never pass writes to MongoDB.
   if(editorQA&&editorProduct&&request.method==="PATCH"&&pathname===`/api/catalog/products/${editorProduct._id}`){
     const body=JSON.parse(request.postData);editorPatches.push(body);
@@ -157,11 +163,12 @@ try{
   const sample=await Product.findOne({isPublished:true,inStock:true,"sizes.1":{$exists:true},"fragrance.notes.top.0":{$exists:true},...(editorQA?{"images.2":{$exists:true}}:{})}).lean();
   assert.ok(sample);
   if(operationsQA)operationsFixtures=createOperationsFixtures(sample);
+  if(libraryQA)libraryFixtures=createLibraryFixtures(libraryCover);
   if(editorQA)editorProduct={...JSON.parse(JSON.stringify(sample)),fragrance:{...sample.fragrance,accords:[],assessmentsVisible:false}};
-  vite=spawn(process.execPath,[path.join(root,"client/node_modules/vite/bin/vite.js"),"--host","127.0.0.1","--port","5188","--strictPort"],{cwd:path.join(root,"client"),windowsHide:true,stdio:"ignore"});
+  vite=spawn(process.execPath,[path.join(root,"client/node_modules/vite/bin/vite.js"),"--host","127.0.0.1","--port",String(frontendPort),"--strictPort"],{cwd:path.join(root,"client"),windowsHide:true,stdio:"ignore"});
   for(let i=0;i<100;i++){try{if((await fetch(frontend)).ok)break;}catch{}await pause(150);}
-  chrome=spawn("C:/Program Files/Google/Chrome/Application/chrome.exe",["--headless=new","--disable-gpu","--no-first-run","--no-default-browser-check","--remote-allow-origins=*","--remote-debugging-port=9288",`--user-data-dir=${profile}`,"about:blank"],{windowsHide:true,stdio:"ignore"});
-  let target;for(let i=0;i<100;i++){try{target=(await(await fetch("http://127.0.0.1:9288/json/list")).json()).find(t=>t.type==="page");if(target)break;}catch{}await pause(150);}assert.ok(target);
+  chrome=spawn("C:/Program Files/Google/Chrome/Application/chrome.exe",["--headless=new","--disable-gpu","--no-first-run","--no-default-browser-check","--remote-allow-origins=*",`--remote-debugging-port=${debugPort}`,`--user-data-dir=${profile}`,"about:blank"],{windowsHide:true,stdio:"ignore"});
+  let target;for(let i=0;i<100;i++){try{target=(await(await fetch(`http://127.0.0.1:${debugPort}/json/list`)).json()).find(t=>t.type==="page");if(target)break;}catch{}await pause(150);}assert.ok(target);
   ws=new WebSocket(target.webSocketDebuggerUrl);await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject;});
   ws.onmessage=async event=>{
     const data=JSON.parse(event.data);if(data.id){const item=pending.get(data.id);if(item){pending.delete(data.id);data.error?item.reject(new Error(JSON.stringify(data.error))):item.resolve(data.result);}return;}
@@ -186,47 +193,132 @@ try{
     }
   };
   await send("Page.enable");await send("Runtime.enable");
-  if(typographyQA||editorQA)await send('DOM.enable');
+  if(typographyQA||editorQA||libraryQA)await send('DOM.enable');
   if(typographyQA)await send('CSS.enable');
   await send("Emulation.setDeviceMetricsOverride",{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   await send("Fetch.enable",{patterns:[{urlPattern:"*localhost:3000/*"},{urlPattern:"*@clerk_react*"}]});
-  if(descriptionsQA){
-    const records=await Product.find({isDeleted:{$ne:true},'source.id':{$in:[42518,64535,64512,46900]}}).select('title description descriptionContent').lean();
-    assert.equal(records.length,4);
+  if(libraryQA){
+    const dialogsOnly=process.argv.includes('--library-dialogs-only');
+    const labels={brand:'thương hiệu',group:'nhóm hương',accord:'kiểu mùi',note:'note hương'};
+    for(const kind of dialogsOnly?[]:['brand','group','accord','note']){
+      console.log(JSON.stringify({library:kind,step:'desktop-crud'}));
+      const url=kind==='brand'?'/owner/brands':`/owner/library?kind=${kind}`,label=labels[kind],name=`AAA kiểm thử ${kind}`,renamed=`AAA đã sửa ${kind}`;
+      await goto(url,"document.querySelectorAll('.perfume-table tbody tr').length===25");await noOverflow();
+      await clickText(`Thêm ${label}`);await wait("document.querySelector('.perfume-library-dialog[open] .tiptap')");
+      await input('.perfume-library-dialog .perfume-field input',name);
+      await evaluate("document.querySelector('.perfume-library-dialog .tiptap').focus()");await send('Input.insertText',{text:`Giới thiệu mới cho ${label}.`});
+      if(kind==='brand'){
+        const {root:documentRoot}=await send('DOM.getDocument');const {nodeId}=await send('DOM.querySelector',{nodeId:documentRoot.nodeId,selector:'input[aria-label="Tải ảnh đại diện"]'});
+        await send('DOM.setFileInputFiles',{nodeId,files:[path.join(root,'client/public',libraryCover)]});
+        await wait(`document.querySelector('.perfume-library-cover img')?.getAttribute('src')===${JSON.stringify(libraryCover)}&&!document.querySelector('.perfume-library-dialog button[type="submit"]').disabled`);
+      }
+      await evaluate("document.querySelector('.perfume-library-dialog button[type=\"submit\"]').click()");
+      await wait(`!document.querySelector('.perfume-library-dialog')&&document.querySelector('.perfume-table tbody tr')?.textContent.includes(${JSON.stringify(name)})`);
+      const created=libraryFixtures.terms.find(term=>term.name===name);assert.equal(created.kind,kind);assert.ok(created.description.includes('Giới thiệu mới'));if(kind==='brand')assert.equal(created.image,libraryCover);
+      await evaluate("document.querySelector('.perfume-table tbody tr button[title=\"Chỉnh sửa\"]').click()");await wait("document.querySelector('.perfume-library-dialog[open] .tiptap')");
+      await input('.perfume-library-dialog .perfume-field input',renamed);await evaluate("document.querySelector('.perfume-library-dialog button[type=\"submit\"]').click()");
+      await wait(`!document.querySelector('.perfume-library-dialog')&&document.querySelector('.perfume-table tbody tr')?.textContent.includes(${JSON.stringify(renamed)})`);
+      await clickText(`Thêm ${label}`);await wait("document.querySelector('.perfume-library-dialog[open] .tiptap')");await input('.perfume-library-dialog .perfume-field input',renamed);
+      await evaluate("document.querySelector('.perfume-library-dialog button[type=\"submit\"]').click()");await wait("document.querySelector('.perfume-library-dialog [role=\"alert\"]')?.textContent.includes('đã tồn tại')");
+      await evaluate("document.querySelector('[aria-label=\"Đóng biên tập\"]').click()");await wait("!document.querySelector('.perfume-library-dialog')");
+      await input('[aria-label="Tìm trong thư viện"]',`Mục kiểm thử ${kind} 00`);await wait("document.querySelectorAll('.perfume-table tbody tr').length===1");
+      await evaluate("document.querySelector('.perfume-table button[title=\"Xóa\"]').click()");await wait("document.querySelector('.perfume-library-delete-dialog[open]')");
+      await evaluate("document.querySelector('.perfume-library-delete-confirm').click()");await wait("document.querySelector('.perfume-library-delete-dialog [role=\"alert\"]')?.textContent.includes('2 sản phẩm')");
+      await screenshot(`library-delete-linked-${kind}`);await evaluate("document.querySelector('.perfume-library-delete-dialog footer button').click()");await wait("!document.querySelector('.perfume-library-delete-dialog')");
+      await input('[aria-label="Tìm trong thư viện"]',renamed);await wait(`document.querySelectorAll('.perfume-table tbody tr').length===1&&document.querySelector('.perfume-table tbody tr').textContent.includes(${JSON.stringify(renamed)})`);
+      await evaluate("document.querySelector('.perfume-table button[title=\"Xóa\"]').click()");await wait("document.querySelector('.perfume-library-delete-dialog[open]')");await evaluate("document.querySelector('.perfume-library-delete-confirm').click()");
+      await wait("!document.querySelector('.perfume-library-delete-dialog')&&document.querySelectorAll('.perfume-table tbody tr').length===0");
+      await input('[aria-label="Tìm trong thư viện"]','');await wait("document.querySelectorAll('.perfume-table tbody tr').length===25&&document.querySelector('[aria-label=\"Trang 2\"]')&&!document.querySelector('[aria-label=\"Trang 2\"]').disabled");
+      await evaluate("document.querySelector('[aria-label=\"Trang 2\"]').click()");await wait("document.querySelectorAll('.perfume-table tbody tr').length===1&&document.querySelector('.perfume-pagination').textContent.includes('Trang 2')");
+      await evaluate("document.querySelector('.perfume-table button[title=\"Xóa\"]').click()");await wait("document.querySelector('.perfume-library-delete-dialog[open]')");await evaluate("document.querySelector('.perfume-library-delete-confirm').click()");
+      await wait("!document.querySelector('.perfume-library-delete-dialog')&&document.querySelectorAll('.perfume-table tbody tr').length===25&&document.querySelector('.perfume-pagination').textContent.includes('Trang 1/1')");await noOverflow();
+    }
+    for(const width of [390,320]){
+      await send('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:true});
+      for(const kind of ['brand','group','accord','note']){
+        await goto(kind==='brand'?'/owner/brands':`/owner/library?kind=${kind}`,"document.querySelectorAll('.perfume-table tbody tr').length===25");await noOverflow();
+        await clickText(`Thêm ${labels[kind]}`);await wait("document.querySelector('.perfume-library-dialog[open] .tiptap')");await noOverflow();
+        const bounds=await evaluate("(()=>{const dialog=document.querySelector('.perfume-library-dialog'),form=dialog.querySelector('form'),title=dialog.querySelector('h2');return {width:innerWidth,dialogLeft:dialog.getBoundingClientRect().left,dialogWidth:dialog.getBoundingClientRect().width,scrollLeft:dialog.scrollLeft,scrollWidth:dialog.scrollWidth,clientWidth:dialog.clientWidth,formLeft:form.getBoundingClientRect().left,formWidth:form.getBoundingClientRect().width,titleLeft:title.getBoundingClientRect().left}})()");
+        if(kind==='brand')console.log(JSON.stringify({bounds,visual:await evaluate("({width:visualViewport.width,left:visualViewport.offsetLeft,scale:visualViewport.scale})")}));
+        assert.ok(bounds.titleLeft>=0&&bounds.scrollWidth<=bounds.clientWidth+2,JSON.stringify(bounds));await screenshot(`library-create-${kind}-${width}`);
+        await evaluate("document.querySelector('[aria-label=\"Đóng biên tập\"]').click()");await wait("!document.querySelector('.perfume-library-dialog')");
+        assert.equal(await evaluate("document.body.style.overflow==='hidden'"),false);
+      }
+    }
+    for(const kind of dialogsOnly?[]:['brand','group','accord','note']){
+      assert.ok(libraryFixtures.requests.some(request=>request.method==='POST'&&request.body?.kind===kind));
+      assert.ok(libraryFixtures.requests.some(request=>request.method==='PATCH'&&request.body?.name===`AAA đã sửa ${kind}`));
+      assert.equal(libraryFixtures.terms.filter(term=>term.kind===kind).length,25);
+    }
+    checks.push('Create/edit/delete for brands and all three fragrance libraries; rich text and cover upload; duplicate-name errors; linked-product deletion guard; deleting final pagination row; 390px/320px dialogs and close controls; all mutations isolated in memory');
+  }else if(descriptionsQA){
+    const records=await Product.find({isDeleted:{$ne:true},'source.id':{$in:[42518,64535,64512,46900,50121,39796]}}).select('title description descriptionContent source').lean();
+    assert.equal(records.length,6);
     for(const record of records){
       await goto(`/collection/${record._id}`,"document.querySelector('.product-description-copy .product-article h2')");
       await noOverflow();
       assert.equal(await evaluate("document.querySelectorAll('.product-description-copy .product-article h2').length"),record.descriptionContent.content.filter(n=>n.type==='heading').length);
       assert.equal(await evaluate("/apa[\\W_]*niche/i.test(document.querySelector('.product-description-copy .product-article').textContent)"),false);
+      const imageCount=record.descriptionContent.content.filter(node=>node.type==='image').length;
+      assert.equal(await evaluate("document.querySelectorAll('.product-description-copy .product-article img').length"),imageCount);
+      assert.equal(await evaluate("[...document.querySelectorAll('.product-description-copy .product-article img')].every(img=>Number(img.getAttribute('width'))>0&&Number(img.getAttribute('height'))>0&&img.loading==='lazy')"),true);
+      if(imageCount){
+        for(const index of [...new Set([0,imageCount-1])]){
+          await evaluate(`document.querySelectorAll('.product-description-copy .product-article img')[${index}].scrollIntoView({block:'center',behavior:'instant'})`);
+          await wait(`(()=>{const img=document.querySelectorAll('.product-description-copy .product-article img')[${index}];return img.complete&&img.naturalWidth>0})()`);
+          await noOverflow();
+        }
+      }
       await evaluate("document.querySelector('.product-detail-tabs').scrollIntoView({block:'start',behavior:'instant'})");
       await screenshot(`product-description-${record._id}-desktop`);
     }
-    const record=records[0];
+    const record=records.find(row=>row.source.id===50121);
     await goto(`/owner/edit-product/${record._id}`,"document.querySelector('.perfume-article-panel .tiptap')");
     assert.equal(await evaluate("document.querySelectorAll('.perfume-article-panel .tiptap h2').length"),record.descriptionContent.content.filter(n=>n.type==='heading').length);
+    assert.equal(await evaluate("document.querySelectorAll('.perfume-article-panel .tiptap img').length"),3);
+    await evaluate("document.querySelector('.perfume-article-panel .article-preview-toggle').click()");
+    await wait("document.querySelectorAll('.perfume-article-panel .article-editor-preview img').length===3");
+    assert.equal(await evaluate("[...document.querySelectorAll('.perfume-article-panel .article-editor-preview img')].every(img=>Number(img.getAttribute('width'))>0&&Number(img.getAttribute('height'))>0)"),true);
     for(const width of [390,320]){
       await send('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:true});
       await goto(`/collection/${record._id}`,"document.querySelector('.product-description-copy .product-article h2')");await noOverflow();
       await evaluate("document.querySelector('.product-detail-tabs').scrollIntoView({block:'start',behavior:'instant'})");await screenshot(`product-description-mobile-${width}`);
+      await evaluate("document.querySelector('.product-description-copy .product-article img').scrollIntoView({block:'center',behavior:'instant'})");
+      await wait("(()=>{const img=document.querySelector('.product-description-copy .product-article img');return img.complete&&img.naturalWidth>0})()");await noOverflow();await screenshot(`product-description-image-mobile-${width}`);
     }
-    checks.push('Four real imported product articles including supplementary manufacturer descriptions and an accessory; rich text round trip into owner editor; 390px/320px article layouts; zero database writes');
+    checks.push('Six real product articles including Adone, a 16-image article, supplementary descriptions and an accessory; all inline picture counts and intrinsic sizes; first/last original-frame images load; lazy loading; owner rich-text image preview round trip; 390px/320px text/image layouts; zero database writes');
   }else if(knowledgeQA){
     await goto('/knowledge/group',"document.querySelectorAll('.knowledge-card').length===24");
     await noOverflow();await screenshot('knowledge-groups-desktop');
-    await evaluate("document.querySelectorAll('#store-info-navigation .store-brand-trigger')[0].click()");
+    assert.equal(await evaluate("[...document.querySelectorAll('#store-info-navigation .store-brand-trigger')].map(a=>a.textContent.trim()).join('|')"),'Kiến thức|Về Velours');
+    await wait("[...document.querySelectorAll('.knowledge-card img')].slice(0,3).every(img=>img.complete&&img.naturalWidth>0)");
+    await evaluate("document.querySelectorAll('#store-info-navigation .store-brand-trigger')[1].click()");
     await wait("document.querySelectorAll('#store-info-navigation .store-info-dropdown a').length===3");
     assert.equal(await evaluate("[...document.querySelectorAll('#store-info-navigation .store-info-dropdown a')].map(a=>a.textContent).join('|')"),'Về chúng tôi|Liên hệ|Chính sách');
     await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape'});
     await wait("!document.querySelector('.store-info-dropdown')");
-    await evaluate("document.querySelectorAll('#store-info-navigation .store-brand-trigger')[1].click()");
+    await evaluate("document.querySelectorAll('#store-info-navigation .store-brand-trigger')[0].click()");
     await wait("document.querySelectorAll('.store-info-dropdown a').length===3");
     await evaluate("document.querySelector('.store-info-dropdown a[href=\"/knowledge/note\"]').click()");
     await wait("location.pathname==='/knowledge/note'&&document.querySelectorAll('.knowledge-card').length===24");
+    await wait("document.querySelectorAll('.knowledge-origin-select option').length===17");
+    assert.equal(await evaluate("document.querySelectorAll('.knowledge-origin-select option').length"),17);
+    await evaluate("document.querySelector('.knowledge-origin-browser').open=true");
+    assert.equal(await evaluate("document.querySelectorAll('.knowledge-origin-grid button').length"),16);
+    await evaluate("document.querySelector('.knowledge-origin-grid button').click()");
+    await wait("location.search.includes('origin=')&&document.querySelector('.knowledge-origin-feature')&&document.querySelector('.knowledge-directory').getAttribute('aria-busy')==='false'");
+    assert.equal(await evaluate("document.querySelector('.knowledge-count').textContent.trim()"),'36 note hương');
+    await noOverflow();await screenshot('knowledge-note-origins');
+    await evaluate("document.querySelector('.knowledge-origin-feature button').click()");
+    await wait("!location.search.includes('origin=')&&!document.querySelector('.knowledge-origin-feature')&&document.querySelectorAll('.knowledge-card').length===24&&document.querySelector('.knowledge-directory').getAttribute('aria-busy')==='false'");
     await input('.knowledge-search input','Bergamot');
     await wait("document.querySelectorAll('.knowledge-card').length===2");
     await evaluate("document.querySelector('.knowledge-card[href=\"/knowledge/note/cam-bergamot\"]').click()");
     await wait("document.querySelector('.knowledge-article .product-article')&&document.querySelectorAll('.knowledge-product-grid .net-product-card').length===15");
     assert.equal(await evaluate("/Apa\\s*Niche/i.test(document.querySelector('.knowledge-article').textContent)"),false);
+    await wait("[...document.querySelectorAll('.knowledge-article img')].every(img=>img.complete&&img.naturalWidth>0)");
+    assert.ok(await evaluate("document.querySelectorAll('.knowledge-article .product-article-gallery img').length")>=2);
+    assert.equal(await evaluate("document.querySelector('.knowledge-reference').getAttribute('href')"),'https://apaniche.vn/note-huong-cam-bergamot');
     await noOverflow();await screenshot('knowledge-note-desktop');
     const first=await evaluate("document.querySelector('.knowledge-product-grid a').getAttribute('href')");
     await evaluate("document.querySelector('[aria-label=\"Phân trang sản phẩm liên quan\"] button[aria-label=\"Trang sau\"]').click()");
@@ -245,13 +337,13 @@ try{
       await goto('/knowledge/note',"document.querySelectorAll('.knowledge-card').length===24");await noOverflow();
       await evaluate("document.querySelector('.inessa-menu-toggle').click()");
       await wait("document.querySelectorAll('#store-navigation .store-info-menu').length===2");
-      await evaluate("document.querySelectorAll('#store-navigation .store-info-menu button')[1].click()");
+      await evaluate("document.querySelectorAll('#store-navigation .store-info-menu button')[0].click()");
       await wait("document.querySelector('#store-navigation .store-info-dropdown')");await noOverflow();await screenshot(`knowledge-mobile-menu-${width}`);
       await evaluate("document.querySelector('#store-navigation .store-info-dropdown a').click()");
       await wait("location.pathname==='/knowledge/group'&&!document.querySelector('#store-navigation')");
       await goto('/knowledge/brand/dior',"document.querySelector('.knowledge-article .product-article')");await noOverflow();await screenshot(`knowledge-brand-mobile-${width}`);
     }
-    checks.push('Public library directories and search; canonical brand/group/accord/note pages; original introductions; missing-content state; 15 related products and pagination; brand introduction/collection links; both header dropdowns; Escape; 390px/320px layouts');
+    checks.push('Public library directories and loaded images; 16 source origins and 36-note citrus filtering; directory search; canonical brand/group/accord/note pages; source-backed introductions and reading references; missing-content state; image galleries; 15 related products and pagination; brand introduction/collection links; Knowledge before Velours dropdowns; Escape; 390px/320px layouts');
   }else{
   if(brandsQA){
     const directory=await call(listBrands,{}),brands=directory.body.brands;
@@ -696,7 +788,7 @@ try{
   }
   assert.deepEqual(writes,[]);assert.deepEqual(errors,[]);
   fs.writeFileSync(path.join(artifacts,"result.json"),JSON.stringify({passed:true,checks,errors,actualDatabaseReads:true,mockedAuthentication:true,paginationFixtures:paginationQA,popularFixtures:popularQA,editorFixtures:editorQA,editorFixtureSaves:editorPatches.length,operationsFixtures:operationsQA,operationsFixtureActions:operationsFixtures?.requests.length||0,typography:typographyQA,dashboardDesign:dashboardQA,databaseWrites:0},null,2));
-  console.log(JSON.stringify({passed:true,checks,screenshots:artifacts,databaseWrites:0}));
+  console.log(JSON.stringify({passed:true,checks,screenshots:artifacts,databaseWrites:0,...(libraryFixtures?{libraryFixtureActions:libraryFixtures.requests.length}:{})}));
 }finally{
   try{if(ws?.readyState===1)await send("Browser.close");}catch{}ws?.close();chrome?.kill();vite?.kill();
   await Promise.allSettled([...inFlightReads]);await mongoose.disconnect();
