@@ -375,7 +375,7 @@ const ProductForm = () => {
       return;
     }
 
-    if (!inputs.title.trim() || !inputs.description.trim() && !inputs.descriptionContent || !selectedType) {
+    if (!inputs.title.trim() || !selectedType) {
       toast.error("Vui lòng điền đầy đủ các trường bắt buộc");
       return;
     }

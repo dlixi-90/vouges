@@ -1,4 +1,6 @@
-import { getArticleDocument } from "../utils/productArticle";
+import { getArticleDocument, LIBRARY_ARTICLE_LIMITS } from "../utils/productArticle";
+import { Link } from "react-router-dom";
+import ArticleLibraryCards from "./ArticleLibraryCards";
 import "../product-article.css";
 
 function ArticleNode({ node, imageGallery = false, expandableImage = false }) {
@@ -9,13 +11,14 @@ function ArticleNode({ node, imageGallery = false, expandableImage = false }) {
       const attrs = mark.attrs || {};
       const Tag = { bold: "strong", italic: "em", underline: "u", strike: "s", code: "code" }[mark.type];
       if (Tag) text = <Tag>{text}</Tag>;
-      else if (mark.type === "link") text = <a href={attrs.href} target="_blank" rel="noopener noreferrer nofollow">{text}</a>;
+      else if (mark.type === "link") text = attrs.href.startsWith("/") ? <Link to={attrs.href}>{text}</Link> : <a href={attrs.href} target="_blank" rel="noopener noreferrer nofollow">{text}</a>;
       else if (mark.type === "textStyle") text = <span style={{ color: attrs.color, fontSize: attrs.fontSize }}>{text}</span>;
     }
     return text;
   }
   if (node.type === "hardBreak") return <br />;
   if (node.type === "horizontalRule") return <hr />;
+  if (node.type === "libraryCards") return <ArticleLibraryCards node={node} />;
   if (node.type === "image") return <figure style={{ width: `${node.attrs.articleWidth}%` }}>
     {expandableImage?<a href={node.attrs.src} target="_blank" rel="noopener noreferrer" aria-label={`Xem ảnh lớn: ${node.attrs.alt||"hình minh họa"}`}><img src={node.attrs.src} alt={node.attrs.alt} width={node.attrs.width} height={node.attrs.height} loading="lazy" decoding="async"/></a>:<img src={node.attrs.src} alt={node.attrs.alt} width={node.attrs.width} height={node.attrs.height} loading="lazy" decoding="async" />}
     {node.attrs.title && <figcaption>{node.attrs.title}</figcaption>}
@@ -37,7 +40,7 @@ function ArticleNode({ node, imageGallery = false, expandableImage = false }) {
   return Tag ? <Tag style={{ textAlign: node.attrs?.textAlign }} {...(node.type === "orderedList" ? { start: node.attrs?.start } : {})}>{children}</Tag> : null;
 }
 
-export default function ProductArticle({ content, text, imageGallery = false }) {
-  const document = getArticleDocument(content, text || "Nội dung mô tả sản phẩm đang được cập nhật.");
+export default function ProductArticle({ content, text, imageGallery = false, library = false }) {
+  const document = getArticleDocument(content, text || "Nội dung mô tả sản phẩm đang được cập nhật.", library ? LIBRARY_ARTICLE_LIMITS : undefined);
   return <div className="product-article"><ArticleNode node={document} imageGallery={imageGallery} /></div>;
 }

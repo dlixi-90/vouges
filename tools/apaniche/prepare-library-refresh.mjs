@@ -30,7 +30,7 @@ const entries=rows.map(row=>{
  const excerpt=paragraphs.length?sourceExcerpt(content):'';
  const document=paragraphs.length?{type:'doc',content:[h('Giới thiệu'),...paragraphs.map(p),...(excerpt?[
    {type:'blockquote',content:[p(excerpt)]},p('Trích đoạn bài gốc; phần giới thiệu phía trên được biên soạn lại từ thông tin trong bài.')
- ]:[]),...(illustrations.length?[h('Hình ảnh liên quan'),...illustrations.map(asset=>({type:'image',attrs:{src:asset.src,alt:name,title:'',articleWidth:100}}))]:[])]}:null;
+ ]:[]),...illustrations.map(asset=>({type:'image',attrs:{src:asset.src,alt:name,title:'',articleWidth:100}}))]}:null;
  const descriptionContent=document?sanitizeArticle(document):null;
  const description=descriptionContent?articleToPlainText(descriptionContent).trim():'';
  const words=[...paragraphs,excerpt,'Giới thiệu Hình ảnh liên quan Trích đoạn bài gốc; phần giới thiệu phía trên được biên soạn lại từ thông tin trong bài.'].join(' ').trim().split(/\s+/u).length;

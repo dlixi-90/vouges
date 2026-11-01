@@ -18,5 +18,8 @@ server/previews/
 data/cloudinary-migration-*/cache/
 data/cloudinary-migration-*/snapshot.json
 data/cloudinary-migration-*/cloudinary-inventory.json
+data/library-fulltext-*/pages/
+data/library-fulltext-*/source-samples/
+data/library-fulltext-*/source-pages.jsonl.gz
 
 *.env

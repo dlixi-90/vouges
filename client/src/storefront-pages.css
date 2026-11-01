@@ -1,8 +1,6 @@
 /* Shared with the collection page: compact headings, white cards and grey borders. */
 .net-theme .store-page-heading { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; padding-block: 28px 24px; }
 .store-page-heading-copy { min-width: 0; }
-.store-page-breadcrumb { display: flex; flex-wrap: wrap; gap: 9px; color: #8a8a8a; font-size: 11px; line-height: 1.6; }
-.store-page-breadcrumb a:hover { color: #171717; }
 .net-theme .store-page-heading .store-page-heading-copy h1 { margin: 10px 0 0; font-family: Inter, sans-serif; font-size: 23px; font-weight: 600; line-height: 1.4; letter-spacing: -.04em; text-transform: none; }
 .store-page-heading-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 

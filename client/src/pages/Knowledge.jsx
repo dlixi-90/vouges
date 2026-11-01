@@ -1,11 +1,12 @@
 import { useEffect, useMemo } from "react";
 import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowRight, BookOpen, Search } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import useCachedResource from "../hooks/useCachedResource";
 import usePaginationScroll from "../hooks/usePaginationScroll";
 import { LIBRARY_KINDS, libraryPath } from "../utils/fragranceLibrary";
 import ProductArticle from "../components/ProductArticle";
+import KnowledgeDirectory from "../components/KnowledgeDirectory";
 import StorePageHeading from "../components/StorePageHeading";
 import Pagination from "../components/Pagination";
 import Item from "../components/Item";
@@ -14,16 +15,17 @@ import "./knowledge.css";
 
 export default function Knowledge() {
   const { kind, slug } = useParams(), [search, setSearch] = useSearchParams();
-  const { publicCatalog, setSearchQuery } = useAppContext();
+  const { publicCatalog } = useAppContext();
   const config = Object.hasOwn(LIBRARY_KINDS, kind || "") ? LIBRARY_KINDS[kind] : null;
   const name = search.get("name") || "", q = search.get("q") || "", origin=search.get("origin")||"", page = Math.max(1, Number(search.get("page")) || 1);
   const detail = Boolean(slug || name);
+  const requestPage = detail ? page : 1;
   const resource = useMemo(() => {
     if (!config) return null;
-    const params = detail ? { ...(slug ? { slug } : { name }), page } : { q, page, ...(origin?{origin}:{}) };
+    const params = detail ? { ...(slug ? { slug } : { name }), page: requestPage } : { view: "directory" };
     return { peek: () => publicCatalog.peekLibrary(kind, params), load: options => publicCatalog.library(kind, params, options) };
-  }, [config, detail, slug, name, q, origin, page, publicCatalog, kind]);
-  const { data, loading, error, reload } = useCachedResource(resource, { scope: `library:${kind}:${slug || name || "directory"}`, keepPrevious: true, delay: detail ? 0 : 180 });
+  }, [config, detail, slug, name, requestPage, publicCatalog, kind]);
+  const { data, loading, error, reload } = useCachedResource(resource, { scope: `library:${kind}:${slug || name || "directory"}`, keepPrevious: true });
   const change = next => { const params = new URLSearchParams(search); params.set("page", next); setSearch(params); };
   const { listRef, changePage } = usePaginationScroll({ page: data?.page || page, onPageChange: change, ready: !loading });
   useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [kind, slug, name]);
@@ -32,44 +34,29 @@ export default function Knowledge() {
     document.title = `${data?.term?.name || config?.title || "Kiến thức"} | Velours`;
     return () => { document.title = previous; };
   }, [data?.term?.name, config?.title]);
+  if (kind === "brand") return <Navigate to={name ? `/collection?brand=${encodeURIComponent(name)}` : "/collection"} replace />;
   if (!config) return <div className="knowledge-page max-padd-container"><StorePageHeading title="Không tìm thấy thư viện" /><Link to="/knowledge/group">Khám phá kiến thức hương thơm</Link></div>;
   if (name && data?.term) return <Navigate to={`${libraryPath(data.term)}${page > 1 ? `?page=${page}` : ""}`} replace />;
   const term = data?.term;
-  const overview=data?.overview,activeOrigin=overview?.origins?.find(row=>row.id===origin);
   const selectOrigin=value=>{const params=new URLSearchParams(search);params.delete("page");if(value)params.set("origin",value);else params.delete("origin");setSearch(params);};
+  const setQuery=value=>{const params=new URLSearchParams(search);params.delete("page");if(value)params.set("q",value);else params.delete("q");setSearch(params,{replace:true});};
   return <div className="knowledge-page max-padd-container">
-    <StorePageHeading title={term?.name || config.title}>
-      {detail && <Link className="knowledge-back" to={`/knowledge/${kind}`}>Tất cả {config.title.toLocaleLowerCase("vi-VN")}</Link>}
-    </StorePageHeading>
+    {detail && <StorePageHeading title={term?.name || config.title} breadcrumbs={term ? [{ label: config.title, to: `/knowledge/${kind}` }, { label: term.name }] : [{ label: config.title }]} />}
     {error && <div role="alert" className="knowledge-empty">{error}<button onClick={reload} type="button">Thử lại</button></div>}
     <LoadingStatus active={loading} label="Đang tải thư viện…" />
-    {!detail && <>
-      <div className="knowledge-directory-heading"><p>{overview?.text||config.intro}</p><label className="knowledge-search"><Search size={18} aria-hidden="true" /><input type="search" aria-label={`Tìm ${config.title.toLocaleLowerCase("vi-VN")}`} placeholder={`Tìm ${config.title.toLocaleLowerCase("vi-VN")}…`} value={q} onChange={event => { const params = new URLSearchParams(search);params.delete("page");if (event.target.value) params.set("q", event.target.value);else params.delete("q"); setSearch(params, { replace: true }); }} /></label></div>
-      {overview?.origins?.length>0&&<>
-        <label className="knowledge-origin-select">Nguồn gốc note hương<select value={origin} onChange={event=>selectOrigin(event.target.value)}><option value="">Tất cả nguồn gốc</option>{overview.origins.map(row=><option key={row.id} value={row.id}>{row.name}</option>)}</select></label>
-        {activeOrigin?<section className="knowledge-origin-feature">{activeOrigin.image&&<img src={activeOrigin.image} alt="" width="180" height="180"/>}<div><h2>{activeOrigin.name}</h2><p>{activeOrigin.description}</p><button type="button" onClick={()=>selectOrigin("")}>Xem tất cả nguồn gốc</button></div></section>:<details className="knowledge-origin-browser"><summary>Khám phá {overview.origins.length} nhóm nguyên liệu</summary><div className="knowledge-origin-grid">{overview.origins.map(row=><button key={row.id} type="button" onClick={()=>selectOrigin(row.id)}>{row.image&&<img src={row.image} alt="" loading="lazy" width="96" height="96"/>}<strong>{row.name}</strong><span>{row.description}</span><small>{row.total} note hương <ArrowRight size={14}/></small></button>)}</div></details>}
-      </>}
-      {overview?.images?.length>0&&<details className="knowledge-source-illustrations"><summary>Hình minh họa về {config.title.toLocaleLowerCase("vi-VN")}</summary><div>{overview.images.map(image=><a href={image.src} key={image.src} target="_blank" rel="noopener noreferrer"><img src={image.src} alt={image.alt} loading="lazy" width={image.width} height={image.height}/></a>)}</div></details>}
-      {overview?.referenceUrl&&<a className="knowledge-directory-reference" href={overview.referenceUrl} target="_blank" rel="noopener noreferrer nofollow">Đối chiếu danh bạ gốc <ArrowRight size={13}/></a>}
-      {data && <p className="knowledge-count">{data.total.toLocaleString("vi-VN")} {config.title.toLocaleLowerCase("vi-VN")}</p>}
-      {loading && !data ? <PageSkeleton /> : <div ref={listRef} tabIndex={-1} className="knowledge-directory" aria-busy={loading}>{data?.terms?.map(row => <Link className={`knowledge-card${row.image?" has-image":""}`} to={libraryPath(row)} key={row.id}>{row.image&&<img src={row.image} alt="" loading="lazy" decoding="async" width="160" height="160"/>}<span><small>{config.title}</small><strong>{row.name}</strong></span><ArrowRight size={19} aria-hidden="true" /></Link>)}</div>}
-      {data?.total === 0 && <p className="knowledge-empty">Không tìm thấy nội dung phù hợp. Thử một từ khóa khác.</p>}
-    </>}
+    {!detail && <KnowledgeDirectory kind={kind} config={config} data={data} loading={loading} query={q} origin={origin} onSearch={setQuery} onOrigin={selectOrigin} />}
     {detail && !term && loading && <PageSkeleton />}
     {term && <>
       <div className="knowledge-reading-layout">
-        <article className="knowledge-article" aria-label={`Giới thiệu ${term.name}`}><p className="knowledge-eyebrow">Thư viện Velours · {config.title}</p>
-          {term.description?.trim() || term.descriptionContent ? <ProductArticle content={term.descriptionContent} text={term.description} imageGallery /> : <>{term.image&&<img className="knowledge-empty-image" src={term.image} alt={term.name} width="160" height="160"/>}<p className="knowledge-empty">{term.referenceUrl?"Bài gốc hiện chưa có phần giới thiệu chi tiết.":"Phần giới thiệu đang được biên soạn."} Bạn có thể khám phá các sản phẩm liên quan bên dưới.</p></>}
+        <article className="knowledge-article" aria-label={`Giới thiệu ${term.name}`}>
+          {term.description?.trim() || term.descriptionContent ? <ProductArticle content={term.descriptionContent} text={term.description} library /> : <>{term.image&&<img className="knowledge-empty-image" src={term.image} alt={term.name} width="160" height="160"/>}<p className="knowledge-empty">Phần giới thiệu đang được cập nhật. Bạn có thể khám phá các sản phẩm liên quan bên dưới.</p></>}
           {term.referenceUrl&&<a className="knowledge-reference" href={term.referenceUrl} target="_blank" rel="noopener noreferrer nofollow">Đọc bài gốc và đối chiếu nội dung <ArrowRight size={15}/></a>}
         </article>
-        <aside className="knowledge-reading-aside"><BookOpen size={24} strokeWidth={1.3} aria-hidden="true" /><h2>Khám phá thêm</h2><nav aria-label="Thư viện hương thơm">{Object.entries(LIBRARY_KINDS).map(([key, value]) => <Link key={key} to={`/knowledge/${key}`}>{value.title}<ArrowRight size={15} aria-hidden="true" /></Link>)}</nav>
-          {kind === "brand" && <Link className="inessa-button" to={`/collection?brand=${encodeURIComponent(term.name)}`} onClick={() => setSearchQuery("")}>Xem bộ sưu tập</Link>}
-        </aside>
       </div>
-      <section className="knowledge-related" aria-labelledby="knowledge-related-heading"><div ref={listRef} tabIndex={-1} className="knowledge-related-heading"><h2 id="knowledge-related-heading">Sản phẩm liên quan</h2><p>{data.total.toLocaleString("vi-VN")} sản phẩm</p></div>
+      <section className="knowledge-related" aria-labelledby="knowledge-related-heading"><div ref={listRef} tabIndex={-1} className="knowledge-related-heading"><h2 id="knowledge-related-heading">{term.relatedHeading || "Sản phẩm liên quan"}</h2><p>{data.total.toLocaleString("vi-VN")} sản phẩm</p></div>
         {data.products?.length ? <div className="knowledge-product-grid" aria-busy={loading}>{data.products.map(product => <Item key={product._id} product={product} />)}</div> : <p className="knowledge-empty">Chưa có sản phẩm liên quan trong bộ sưu tập.</p>}
       </section>
     </>}
-    {data && <Pagination page={data.page} totalPages={data.totalPages} disabled={loading} onPageChange={changePage} label={detail ? "Phân trang sản phẩm liên quan" : "Phân trang thư viện"} />}
+    {detail && data && <Pagination page={data.page} totalPages={data.totalPages} disabled={loading} onPageChange={changePage} label="Phân trang sản phẩm liên quan" />}
   </div>;
 }

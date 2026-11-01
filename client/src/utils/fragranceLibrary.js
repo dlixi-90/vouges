@@ -1,5 +1,4 @@
 export const LIBRARY_KINDS = {
-  brand: { title: "Thương hiệu", intro: "Câu chuyện phía sau những nhà hương trong bộ sưu tập Velours." },
   group: { title: "Nhóm hương", intro: "Khám phá các họ hương và cách chúng tạo nên bản sắc của nước hoa." },
   accord: { title: "Kiểu mùi", intro: "Tìm hiểu các sắc thái tạo nên cảm nhận tổng thể của một mùi hương." },
   note: { title: "Note hương", intro: "Làm quen với nguyên liệu, các hợp hương và những liên tưởng trong điều hương." },

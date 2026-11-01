@@ -22,13 +22,14 @@ import {dashboard} from "../controllers/dashboardController.js";
 import {listVouchers} from "../controllers/voucherController.js";
 import {getSupportInbox} from "../controllers/supportController.js";
 import Product from "../models/Product.js";
+import FragranceTerm from "../models/FragranceTerm.js";
 import {getProductImageUrl} from "../../client/src/utils/productImage.js";
 import {sanitizeFragranceRows} from "../services/fragranceEditing.js";
 import {createOperationsFixtures} from "./qa/operationsFixtures.mjs";
 import {createLibraryFixtures} from "./qa/libraryFixtures.mjs";
 import accordPalette from "../../client/src/data/accordColors.json" with { type: "json" };
 import {getAccordColors} from "../../client/src/utils/accordColors.js";
-import {sanitizeArticle,articleToPlainText} from "../../client/src/utils/productArticle.js";
+import {sanitizeArticle,articleToPlainText,LIBRARY_ARTICLE_LIMITS} from "../../client/src/utils/productArticle.js";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
 const artifacts=path.join(root,".qa-perfume");fs.mkdirSync(artifacts,{recursive:true});
@@ -47,6 +48,7 @@ const accordsQA=process.argv.includes("--accord-colors");
 const experienceQA=process.argv.includes("--experience-design");
 const knowledgeQA=process.argv.includes("--knowledge");
 const descriptionsQA=process.argv.includes("--product-descriptions");
+const fullLibraryQA=process.argv.includes("--library-fulltext");
 const libraryQA=process.argv.includes("--library-management");
 const libraryCover=libraryQA?`/images/library/${fs.readdirSync(path.join(root,'client/public/images/library')).find(file=>file.endsWith('.webp'))}`:'';
 let libraryFixtures;
@@ -262,99 +264,96 @@ try{
       assert.equal(libraryFixtures.terms.filter(term=>term.kind===kind).length,25);
     }
     checks.push(dialogsOnly?'390px/320px library dialogs fit the visual viewport and close correctly':'Create/edit/delete for brands and all three fragrance libraries; rich text and cover upload; duplicate-name errors; linked-product deletion guard; deleting final pagination row; 390px/320px dialogs and close controls; all mutations isolated in memory');
+  }else if(fullLibraryQA){
+    for(const kind of ['group','accord','note']){
+      const term=await FragranceTerm.findOne({kind,...(kind==='note'?{}:{'descriptionContent.content.type':'libraryCards'})}).lean();assert.ok(term);
+      await goto('/owner/library?kind='+kind,"document.querySelector('.perfume-search input')");
+      await input('.perfume-search input',term.name);
+      await wait(`Array.from(document.querySelectorAll('.perfume-table tbody tr')).some(row=>row.querySelector('strong')?.textContent===${JSON.stringify(term.name)})`);
+      await evaluate(`Array.from(document.querySelectorAll('.perfume-table tbody tr')).find(row=>row.querySelector('strong')?.textContent===${JSON.stringify(term.name)}).querySelector('button[title="Chỉnh sửa"]').click()`);
+      await wait("document.querySelector('.perfume-library-dialog .tiptap')?.editor");
+      const roundtrip=sanitizeArticle(await evaluate("document.querySelector('.perfume-library-dialog .tiptap').editor.getJSON()"),LIBRARY_ARTICLE_LIMITS);
+      assert.equal(articleToPlainText(roundtrip),articleToPlainText(term.descriptionContent));
+      assert.deepEqual(roundtrip.content.filter(node=>node.type==='libraryCards'),term.descriptionContent.content.filter(node=>node.type==='libraryCards'));
+      await evaluate("document.querySelector('.perfume-library-dialog .article-preview-toggle').click()");
+      await wait("document.querySelector('.perfume-library-dialog .article-editor-preview .product-article')");
+      assert.equal(await evaluate("document.querySelectorAll('.perfume-library-dialog .article-editor-preview .article-library-cards').length"),term.descriptionContent.content.filter(node=>node.type==='libraryCards').length);
+      await noOverflow();await screenshot('library-fulltext-owner-'+kind);
+      await evaluate("document.querySelector('.perfume-library-dialog header button').click()");await wait("!document.querySelector('.perfume-library-dialog')");
+    }
+    checks.push('Full source text and linked-note/product card blocks survive Tiptap JSON round trips and owner preview for all three library types; zero database writes');
   }else if(descriptionsQA){
     const records=await Product.find({isDeleted:{$ne:true},'source.id':{$in:[42518,64535,64512,46900,50121,39796]}}).select('title description descriptionContent source').lean();
     assert.equal(records.length,6);
     for(const record of records){
-      await goto(`/collection/${record._id}`,"document.querySelector('.product-description-copy .product-article h2')");
+      assert.equal(record.description,'');assert.equal(record.descriptionContent,null);
+      await goto(`/collection/${record._id}`,"document.querySelector('.product-description-copy')");
       await noOverflow();
-      assert.equal(await evaluate("document.querySelectorAll('.product-description-copy .product-article h2').length"),record.descriptionContent.content.filter(n=>n.type==='heading').length);
-      assert.equal(await evaluate("/apa[\\W_]*niche/i.test(document.querySelector('.product-description-copy .product-article').textContent)"),false);
-      const imageCount=record.descriptionContent.content.filter(node=>node.type==='image').length;
-      assert.equal(await evaluate("document.querySelectorAll('.product-description-copy .product-article img').length"),imageCount);
-      assert.equal(await evaluate("[...document.querySelectorAll('.product-description-copy .product-article img')].every(img=>Number(img.getAttribute('width'))>0&&Number(img.getAttribute('height'))>0&&img.loading==='lazy')"),true);
-      if(imageCount){
-        for(const index of [...new Set([0,imageCount-1])]){
-          await evaluate(`document.querySelectorAll('.product-description-copy .product-article img')[${index}].scrollIntoView({block:'center',behavior:'instant'})`);
-          await wait(`(()=>{const img=document.querySelectorAll('.product-description-copy .product-article img')[${index}];return img.complete&&img.naturalWidth>0})()`);
-          await noOverflow();
-        }
-      }
+      assert.equal(await evaluate("Boolean(document.querySelector('.product-description-copy .product-article'))"),false);
       await evaluate("document.querySelector('.product-detail-tabs').scrollIntoView({block:'start',behavior:'instant'})");
-      await screenshot(`product-description-${record._id}-desktop`);
+      await screenshot(`cleared-product-description-${record._id}-desktop`);
     }
     const record=records.find(row=>row.source.id===50121);
     await goto(`/owner/edit-product/${record._id}`,"document.querySelector('.perfume-article-panel .tiptap')");
-    assert.equal(await evaluate("document.querySelectorAll('.perfume-article-panel .tiptap h2').length"),record.descriptionContent.content.filter(n=>n.type==='heading').length);
-    assert.equal(await evaluate("document.querySelectorAll('.perfume-article-panel .tiptap img').length"),3);
-    await evaluate("document.querySelector('.perfume-article-panel .article-preview-toggle').click()");
-    await wait("document.querySelectorAll('.perfume-article-panel .article-editor-preview img').length===3");
-    assert.equal(await evaluate("[...document.querySelectorAll('.perfume-article-panel .article-editor-preview img')].every(img=>Number(img.getAttribute('width'))>0&&Number(img.getAttribute('height'))>0)"),true);
+    assert.equal(await evaluate("document.querySelector('.perfume-article-panel .tiptap').textContent.trim()"),'');
+    assert.equal(await evaluate("document.querySelectorAll('.perfume-article-panel .tiptap img').length"),0);
     for(const width of [390,320]){
       await send('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:true});
-      await goto(`/collection/${record._id}`,"document.querySelector('.product-description-copy .product-article h2')");await noOverflow();
-      await evaluate("document.querySelector('.product-detail-tabs').scrollIntoView({block:'start',behavior:'instant'})");await screenshot(`product-description-mobile-${width}`);
-      await evaluate("document.querySelector('.product-description-copy .product-article img').scrollIntoView({block:'center',behavior:'instant'})");
-      await wait("(()=>{const img=document.querySelector('.product-description-copy .product-article img');return img.complete&&img.naturalWidth>0})()");await noOverflow();await screenshot(`product-description-image-mobile-${width}`);
+      await goto(`/collection/${record._id}`,"document.querySelector('.product-description-copy')");await noOverflow();
+      assert.equal(await evaluate("Boolean(document.querySelector('.product-description-copy .product-article'))"),false);
+      await evaluate("document.querySelector('.product-detail-tabs').scrollIntoView({block:'start',behavior:'instant'})");await screenshot(`cleared-product-description-mobile-${width}`);
     }
-    checks.push('Six real product articles including Adone, a 16-image article, supplementary descriptions and an accessory; all inline picture counts and intrinsic sizes; first/last original-frame images load; lazy loading; owner rich-text image preview round trip; 390px/320px text/image layouts; zero database writes');
+    checks.push('Six real products have empty text and rich descriptions; no article or replacement placeholder renders; owner editor is empty; 390px/320px layouts; zero database writes');
   }else if(knowledgeQA){
-    await goto('/knowledge/group',"document.querySelectorAll('.knowledge-card').length===24");
-    await noOverflow();await screenshot('knowledge-groups-desktop');
-    assert.equal(await evaluate("[...document.querySelectorAll('#store-info-navigation .store-brand-trigger')].map(a=>a.textContent.trim()).join('|')"),'Kiến thức|Về Velours');
+    const groupDirectory=(await call(publicLibraryTerms,{params:{kind:'group'},query:{view:'directory'}})).body;
+    const accordDirectory=(await call(publicLibraryTerms,{params:{kind:'accord'},query:{view:'directory'}})).body;
+    const noteDirectory=(await call(publicLibraryTerms,{params:{kind:'note'},query:{view:'directory'}})).body;
+    await goto('/knowledge/group',"document.querySelectorAll('.knowledge-card').length==="+groupDirectory.total);
+    assert.equal(await evaluate("document.querySelectorAll('.knowledge-family-scroll tbody tr').length"),10);
+    assert.equal(await evaluate("Boolean(document.querySelector('.knowledge-page > .velours-pagination'))"),false);
+    assert.equal(await evaluate("getComputedStyle(document.querySelector('.knowledge-directory')).gridTemplateColumns.split(' ').length"),3);
     await wait("[...document.querySelectorAll('.knowledge-card img')].slice(0,3).every(img=>img.complete&&img.naturalWidth>0)");
-    await evaluate("document.querySelectorAll('#store-info-navigation .store-brand-trigger')[1].click()");
-    await wait("document.querySelectorAll('#store-info-navigation .store-info-dropdown a').length===3");
-    assert.equal(await evaluate("[...document.querySelectorAll('#store-info-navigation .store-info-dropdown a')].map(a=>a.textContent).join('|')"),'Về chúng tôi|Liên hệ|Chính sách');
-    await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape'});
-    await wait("!document.querySelector('.store-info-dropdown')");
-    await evaluate("document.querySelectorAll('#store-info-navigation .store-brand-trigger')[0].click()");
-    await wait("document.querySelectorAll('.store-info-dropdown a').length===3");
-    await evaluate("document.querySelector('.store-info-dropdown a[href=\"/knowledge/note\"]').click()");
-    await wait("location.pathname==='/knowledge/note'&&document.querySelectorAll('.knowledge-card').length===24");
-    await wait("document.querySelectorAll('.knowledge-origin-select option').length===17");
-    assert.equal(await evaluate("document.querySelectorAll('.knowledge-origin-select option').length"),17);
-    await evaluate("document.querySelector('.knowledge-origin-browser').open=true");
-    assert.equal(await evaluate("document.querySelectorAll('.knowledge-origin-grid button').length"),16);
-    await evaluate("document.querySelector('.knowledge-origin-grid button').click()");
-    await wait("location.search.includes('origin=')&&document.querySelector('.knowledge-origin-feature')&&document.querySelector('.knowledge-directory').getAttribute('aria-busy')==='false'");
-    assert.equal(await evaluate("document.querySelector('.knowledge-count').textContent.trim()"),'36 note hương');
-    await noOverflow();await screenshot('knowledge-note-origins');
-    await evaluate("document.querySelector('.knowledge-origin-feature button').click()");
-    await wait("!location.search.includes('origin=')&&!document.querySelector('.knowledge-origin-feature')&&document.querySelectorAll('.knowledge-card').length===24&&document.querySelector('.knowledge-directory').getAttribute('aria-busy')==='false'");
-    await input('.knowledge-search input','Bergamot');
-    await wait("document.querySelectorAll('.knowledge-card').length===2");
+    await noOverflow();await screenshot('knowledge-groups-desktop');
+    await evaluate("document.querySelector('.knowledge-introduction-more').open=true");
+    assert.equal(await evaluate("document.querySelectorAll('.knowledge-concept-comparison h3').length"),3);
+    await evaluate("document.querySelector('.knowledge-introduction-more').open=false");
+    await goto('/knowledge/accord',"document.querySelectorAll('.knowledge-card').length==="+accordDirectory.total);
+    assert.equal(await evaluate("getComputedStyle(document.querySelector('.knowledge-directory')).gridTemplateColumns.split(' ').length"),6);
+    assert.equal(await evaluate("document.querySelector('.knowledge-card small').textContent"),'Aldehydes');
+    await wait("[...document.querySelectorAll('.knowledge-card img')].slice(0,6).every(img=>img.complete&&img.naturalWidth>0)");
+    await noOverflow();await screenshot('knowledge-accords-desktop');
+    await input('.knowledge-search input','aldehydes');await wait("document.querySelectorAll('.knowledge-card').length===1");
+    assert.equal(await evaluate("document.querySelector('.knowledge-card').getAttribute('href')"),'/knowledge/accord/andehit');
+    await goto('/knowledge/note',"document.querySelectorAll('.knowledge-origin-banner.has-image').length===16");
+    assert.equal(await evaluate("new Set([...document.querySelectorAll('.knowledge-card')].map(a=>a.getAttribute('href'))).size"),noteDirectory.total);
+    await wait("document.querySelector('.knowledge-origin-banner img').complete&&document.querySelector('.knowledge-origin-banner img').naturalWidth>0");
+    await noOverflow();await screenshot('knowledge-note-origins-desktop');
+    await evaluate("document.querySelector('.knowledge-origin-navigation a:last-child').click()");
+    await wait("location.hash.startsWith('#origin-')&&(()=>{const box=document.getElementById(location.hash.slice(1)).getBoundingClientRect();return box.top>=0&&box.top<innerHeight/2})()");
+    await noOverflow();await screenshot('knowledge-note-last-origin');
+    await goto('/knowledge/note?origin=cam-chanh-citrus-smells',"document.querySelectorAll('.knowledge-note-section').length===1");
+    assert.equal(await evaluate("document.querySelectorAll('.knowledge-card').length"),36);
+    await input('.knowledge-search input','Bergamot');await wait("document.querySelector('.knowledge-card[href=\"/knowledge/note/cam-bergamot\"]')");
     await evaluate("document.querySelector('.knowledge-card[href=\"/knowledge/note/cam-bergamot\"]').click()");
     await wait("document.querySelector('.knowledge-article .product-article')&&document.querySelectorAll('.knowledge-product-grid .net-product-card').length===15");
-    assert.equal(await evaluate("/Apa\\s*Niche/i.test(document.querySelector('.knowledge-article').textContent)"),false);
-    await wait("[...document.querySelectorAll('.knowledge-article img')].every(img=>img.complete&&img.naturalWidth>0)");
-    assert.ok(await evaluate("document.querySelectorAll('.knowledge-article .product-article-gallery img').length")>=2);
-    assert.equal(await evaluate("document.querySelector('.knowledge-reference').getAttribute('href')"),'https://apaniche.vn/note-huong-cam-bergamot');
-    await noOverflow();await screenshot('knowledge-note-desktop');
-    const first=await evaluate("document.querySelector('.knowledge-product-grid a').getAttribute('href')");
-    await evaluate("document.querySelector('[aria-label=\"Phân trang sản phẩm liên quan\"] button[aria-label=\"Trang sau\"]').click()");
-    await wait(`document.querySelector('.knowledge-product-grid a')?.getAttribute('href')!==${JSON.stringify(first)}&&document.querySelector('.knowledge-page>.velours-pagination [aria-current=\"page\"]')?.textContent==='2'`);
-    await goto('/knowledge/brand?name=Dior',"location.pathname==='/knowledge/brand/dior'&&document.querySelector('.knowledge-article .product-article')");
-    await evaluate("document.querySelector('.knowledge-reading-aside .inessa-button').click()");
-    await wait("location.pathname==='/collection'&&location.search==='?brand=Dior'&&document.querySelector('.inessa-collection-heading a.knowledge-back')");
-    await evaluate("document.querySelector('.inessa-collection-heading a.knowledge-back').click()");
-    await wait("location.pathname==='/knowledge/brand/dior'&&document.querySelector('.knowledge-article .product-article')");
-    await goto('/knowledge/accord/go',"document.querySelector('.knowledge-article .product-article')");await noOverflow();
-    await goto('/knowledge/group/cam-chanh',"document.querySelector('.knowledge-article .product-article')");await noOverflow();
-    await goto('/knowledge/brand/4711',"document.querySelector('.knowledge-article .knowledge-empty')");
-    await goto('/policies',"document.querySelectorAll('.knowledge-policy-list section').length===3");
+    assert.equal(await evaluate("Boolean(document.querySelector('.knowledge-reading-aside,.knowledge-eyebrow,.store-page-heading-actions'))"),false);
+    assert.equal(await evaluate("document.querySelectorAll('.store-page-breadcrumb li').length"),3);
+    await noOverflow();await screenshot('knowledge-note-detail-desktop');
+    await goto('/knowledge/note?q=unmatched-example-xyz',"document.querySelector('.knowledge-directory-empty a')");
+    await evaluate("document.querySelector('.knowledge-directory-empty a').click()");
+    await wait("!location.search&&document.querySelectorAll('.knowledge-origin-banner.has-image').length===16");
     for(const width of [390,320]){
       await send('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:true});
-      await goto('/knowledge/note',"document.querySelectorAll('.knowledge-card').length===24");await noOverflow();
+      for(const kind of ['group','accord','note']){
+        await goto('/knowledge/'+kind,"document.querySelector('.knowledge-card')");await noOverflow();await screenshot('knowledge-'+kind+'-mobile-'+width);
+      }
       await evaluate("document.querySelector('.inessa-menu-toggle').click()");
       await wait("document.querySelectorAll('#store-navigation .store-info-menu').length===2");
       await evaluate("document.querySelectorAll('#store-navigation .store-info-menu button')[0].click()");
-      await wait("document.querySelector('#store-navigation .store-info-dropdown')");await noOverflow();await screenshot(`knowledge-mobile-menu-${width}`);
-      await evaluate("document.querySelector('#store-navigation .store-info-dropdown a').click()");
-      await wait("location.pathname==='/knowledge/group'&&!document.querySelector('#store-navigation')");
-      await goto('/knowledge/brand/dior',"document.querySelector('.knowledge-article .product-article')");await noOverflow();await screenshot(`knowledge-brand-mobile-${width}`);
+      await wait("document.querySelector('#store-navigation .store-info-dropdown')");await noOverflow();
+      await goto('/knowledge/brand/dior',"location.pathname==='/collection'&&document.querySelector('.collection-catalog-main')");
     }
-    checks.push('Public library directories and loaded images; 16 source origins and 36-note citrus filtering; directory search; canonical brand/group/accord/note pages; source-backed introductions and reading references; missing-content state; image galleries; 15 related products and pagination; brand introduction/collection links; Knowledge before Velours dropdowns; Escape; 390px/320px layouts');
+    checks.push('All group/accord/note directory entries visible; 10-row family table; 3-column banners and 6-column ingredient grids; English and Vietnamese labels; English search; 16 origin banners and anchor navigation; source-category deep links; original detail articles and related-product pagination; empty-state reset; 390px/320px layouts; mobile menus; old brand pages remain removed');
   }else{
   if(brandsQA){
     const directory=await call(listBrands,{}),brands=directory.body.brands;

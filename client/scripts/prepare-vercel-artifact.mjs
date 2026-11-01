@@ -21,6 +21,8 @@ const html = await fs.readFile(path.join(client, 'dist/index.html'), 'utf8');
 if (!html.includes(`href="${backend.origin}"`) || /href="https?:\/\/(?:localhost|127\.0\.0\.1)/u.test(html)) throw new Error('Production backend connection hint is missing');
 
 const output = path.join(workspace, '.deploy-media-frontend/.vercel/output');
+// Vercel validates the configured client root even when deploying prebuilt output.
+await fs.mkdir(path.join(workspace, '.deploy-media-frontend/client'), { recursive: true });
 const staticDirectory = path.join(output, 'static');
 if (!staticDirectory.startsWith(path.join(workspace, '.deploy-media-frontend') + path.sep)) throw new Error('Unexpected artifact directory');
 await fs.rm(staticDirectory, { recursive: true, force: true });

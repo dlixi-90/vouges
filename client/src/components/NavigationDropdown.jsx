@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
+import "./navigation-dropdown.css";
 
 export default function NavigationDropdown({ title, links, compact, onNavigate }) {
   const location = useLocation(), id = useId(), root = useRef(null), trigger = useRef(null);

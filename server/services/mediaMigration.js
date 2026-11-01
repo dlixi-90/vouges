@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
 
 export const mediaDigest = (value, algorithm = 'sha256') => crypto.createHash(algorithm).update(value).digest('hex');
-export const isLocalContentImage = value => typeof value === 'string' && /^\/images\/(?:library|product-articles|brands)\/[a-zA-Z0-9._-]+\.(?:webp|png|jpg|jpeg)$/u.test(value);
+export const isLocalContentImage = value => typeof value === 'string' && /^\/images\/(?:library|library-source|product-articles|brands)\/[a-zA-Z0-9._-]+\.(?:webp|png|jpg|jpeg|gif|avif)$/u.test(value);
 export const isSourceImage = value => {
   try { const url = new URL(value); return url.protocol === 'https:' && url.hostname === 'apaniche.vn' && !url.username && !url.password && url.pathname.startsWith('/wp-content/'); }
   catch { return false; }
@@ -14,6 +14,7 @@ export function mapArticleImages(node, replace) {
   if (!node || typeof node !== 'object') return node;
   const result = { ...node };
   if (node.type === 'image' && typeof node.attrs?.src === 'string') result.attrs = { ...node.attrs, src: replace(node.attrs.src) };
+  if (node.type === 'libraryCards' && Array.isArray(node.attrs?.items)) result.attrs = { ...node.attrs, items: node.attrs.items.map(item => typeof item.image === 'string' ? { ...item, image: replace(item.image) } : item) };
   if (Array.isArray(node.content)) result.content = node.content.map(child => mapArticleImages(child, replace));
   return result;
 }

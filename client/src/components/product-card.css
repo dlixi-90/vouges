@@ -1,0 +1,49 @@
+/* One product frame for every storefront placement. Sizes follow the card width. */
+.net-theme .net-product-card {
+  container-type: inline-size;
+  display: flex;
+  min-width: 0;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 8px;
+  border: 1px solid #ededed;
+  border-radius: 22px;
+  background: #fff;
+  color: #111;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.net-theme .net-product-card:is(:hover, :focus-visible) { border-color: #ccc; box-shadow: 0 5px 18px #00000006; }
+.net-theme .net-product-card:focus-visible { outline: 2px solid #555; outline-offset: 3px; }
+.net-theme .net-product-card > .net-product-media {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #f6f8fe;
+}
+.net-theme .net-product-card > .net-product-media > img { width: 76%; height: 76%; margin: 0; object-fit: contain; border-radius: 0; transition: transform .3s ease; }
+.net-theme .net-product-card:is(:hover, :focus-visible) > .net-product-media > img { transform: scale(1.04); }
+.net-theme .net-product-card > .net-product-info { min-width: 0; padding: 16px clamp(8px, 4.3cqi, 22px) 24px; }
+.net-theme .net-product-card .net-product-category { min-height: 1.6em; margin: 0; overflow: hidden; color: #999; font-family: Inter, sans-serif; font-size: clamp(11px, 3.1cqi, 16px); line-height: 1.6; text-overflow: ellipsis; white-space: nowrap; }
+.net-theme .net-product-card h5 { display: -webkit-box; overflow: hidden; margin: 8px 0 7px; font-family: var(--inessa-serif, Georgia, serif); font-size: clamp(13px, 4cqi + 2px, 20px); font-weight: 400; line-height: 1.35; letter-spacing: 0; text-transform: uppercase; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.net-theme .net-product-card .net-product-price { margin: 0; padding: 0; border: 0; color: #555; font-family: Inter, sans-serif; font-size: clamp(12px, 4cqi + 2px, 20px); font-weight: 700; line-height: 1.5; }
+.net-product-price > span { white-space: nowrap; }
+.net-theme .net-product-card .net-product-stock { position: absolute; top: 8px; left: 8px; margin: 0; padding: 3px 9px; border: 1px solid #fecaca; border-radius: 20px; background: #fff1f2; color: #b91c1c; font-family: Inter, sans-serif; font-size: 10px; line-height: 1.6; }
+.net-product-carousel .swiper-slide { height: auto; }
+@media (max-width: 600px) {
+  .net-theme .net-product-card { padding: 6px; border-radius: 16px; }
+  .net-theme .net-product-card > .net-product-info { padding-block: 12px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .net-theme .net-product-card, .net-theme .net-product-card > .net-product-media > img { transition: none; }
+}

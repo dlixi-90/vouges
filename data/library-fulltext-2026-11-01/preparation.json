@@ -1,0 +1,10 @@
+{
+  "total": 1049,
+  "prepared": 1049,
+  "failures": [],
+  "missingImages": [],
+  "textCharacters": 808375,
+  "imageInstances": 3361,
+  "maxCharacters": 5925,
+  "maxImages": 32
+}

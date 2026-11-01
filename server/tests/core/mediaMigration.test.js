@@ -37,6 +37,15 @@ test('partial batches change only verified URLs and retain unmigrated images; cu
   assert.deepEqual(mediaFields({ image: local, descriptionContent: null }, 'fragranceterms', () => replacement), { image: replacement, descriptionContent: null });
 });
 
+test('library card photos join future migration batches while editorial names, text and links remain intact',()=>{
+ const image='/images/library-source/photo.png';
+ const term={image:local,descriptionContent:{type:'doc',content:[{type:'libraryCards',attrs:{columns:4,items:[{name:image,href:image,description:image,image}]}}]}};
+ const patch=mediaPatch(term,'fragranceterms',new Map([[image,replacement]]));
+ assert.deepEqual(mediaUrls(term,'fragranceterms').sort(),[local,image].sort());
+ assert.deepEqual(patch.descriptionContent.content[0].attrs.items[0],{name:image,href:image,description:image,image:replacement});
+ assert.equal(term.descriptionContent.content[0].attrs.items[0].image,image);
+});
+
 test('static metadata migration replaces image delivery keys while retaining source URLs and attribution', () => {
   const metadata = { sourceImage: old, sourceUrl: old, downloadedFrom: old, images: [{ src: local, thumbnail: local }], origins: [{ image: local }], text: local };
   const result = mapStaticImages(metadata, value => value === local ? replacement : value);

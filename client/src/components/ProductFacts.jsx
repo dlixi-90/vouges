@@ -17,7 +17,7 @@ export default function ProductFacts({ product }) {
   ];
   return <dl className="product-detail-facts" aria-label="Thông tin nước hoa">
     {rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>
-      {value ? label === "Thương hiệu" ? <><Link to={`/collection?brand=${encodeURIComponent(value)}`} onClick={() => setSearchQuery("")}>{value}</Link><Link className="ml-3 text-xs underline underline-offset-4" to={libraryNamePath("brand", value)}>Giới thiệu</Link></> : label === "Nhóm hương" && fragrance.group ? <Link to={libraryNamePath("group", value)}>{value}</Link> : value : <span className="product-fact-missing">Đang cập nhật</span>}
+      {value ? label === "Thương hiệu" ? <Link to={`/collection?brand=${encodeURIComponent(value)}`} onClick={() => setSearchQuery("")}>{value}</Link> : label === "Nhóm hương" && fragrance.group ? <Link to={libraryNamePath("group", value)}>{value}</Link> : value : <span className="product-fact-missing">Đang cập nhật</span>}
     </dd></div>)}
     {!accessory && <div className="product-detail-accords">
       <dt>Mùi hương chính</dt>

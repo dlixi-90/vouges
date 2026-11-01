@@ -93,6 +93,21 @@ test("catalog rejects unsafe articles before writing, and legacy plain-text edit
   assert.equal(valid.body.success, true);assert.equal(writes[0].descriptionContent, null);
 });
 
+test("cleared descriptions remain empty and products still pass save validation", async t => {
+  const current = { ...product(), category: "Nước hoa", type: "EDP", descriptionContent: sample() };
+  t.mock.method(Product, "findOne", async () => current);
+  t.mock.method(Product, "findOneAndUpdate", async (_filter, { $set: update }, options) => {
+    assert.equal(options.runValidators, true);
+    assert.equal(update.description, "");assert.equal(update.descriptionContent, null);
+    assert.equal(update.images, undefined);assert.equal(update.source, undefined);
+    const saved = new Product({ ...current, ...update });await saved.validate();return saved;
+  });
+  const res = response();
+  await saveCatalogProduct({ params: { id: String(current._id) }, body: { expectedUpdatedAt: current.updatedAt, description: "", descriptionContent: null } }, res);
+  assert.equal(res.statusCode, 200);assert.equal(res.body.success, true);
+  assert.equal(res.body.product.description, "");assert.equal(res.body.product.descriptionContent, null);
+});
+
 test("long articles retain their full document while legacy consumers receive a bounded text description", async t => {
   const current = product(), article = doc([paragraph("Hương thơm ".repeat(1000))]);
   t.mock.method(Product, "findOne", async () => current);
@@ -118,6 +133,19 @@ test("new products save article formatting separately from their gallery and ign
   assert.equal(saved.description, articleToPlainText(sanitizeArticle(sample())));
   assert.deepEqual(saved.images, ["https://example.com/product.jpg"]);
   await new Product(saved).validate();
+});
+
+test("products can be created without an optional description", async t => {
+  t.mock.method(Category, "findOne", async () => ({ name: "Nước hoa", types: [{ name: "EDP", nameKey: "edp" }] }));
+  t.mock.method(cloudinary.uploader, "upload", async () => ({ secure_url: "https://example.com/product.jpg" }));
+  const save = t.mock.method(Product, "create", async value => {
+    const saved = new Product(value);await saved.validate();return saved;
+  });
+  const res = response();
+  await createProduct({ body: { productData: JSON.stringify({ title: "Nước hoa", description: "", descriptionContent: null, category: "Nước hoa", type: "EDP", sizes: ["50ml"], price: { "50ml": 1000000 }, stockBySize: { "50ml": 10 } }) }, files: { images: [{ path: "empty-article-test-gallery" }] } }, res);
+  assert.equal(res.statusCode, 201);
+  assert.equal(save.mock.calls[0].arguments[0].description, "");
+  assert.equal(save.mock.calls[0].arguments[0].descriptionContent, null);
 });
 
 const libraryOriginal=(t,term)=>{

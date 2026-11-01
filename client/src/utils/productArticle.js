@@ -1,4 +1,5 @@
 export const ARTICLE_LIMITS = { text: 30000, images: 30, nodes: 2000, depth: 12, json: 120000 };
+export const LIBRARY_ARTICLE_LIMITS = { text: 60000, images: 120, nodes: 8000, depth: 20, json: 800000, library: true };
 export const ARTICLE_FONT_SIZES = [12, 14, 16, 18, 20, 24, 28, 32];
 const fail = () => { throw Object.assign(new Error("Bài viết không hợp lệ hoặc vượt giới hạn 30.000 ký tự / 30 ảnh."), { statusCode: 400 }); };
 const isObject = value => value && typeof value === "object" && !Array.isArray(value);
@@ -20,19 +21,19 @@ function safeColor(value) {
   fail();
 }
 
-export function sanitizeArticle(document) {
+export function sanitizeArticle(document, limits = ARTICLE_LIMITS) {
   if (document === null) return null;
   if (!isObject(document) || document.type !== "doc") fail();
-  if (JSON.stringify(document).length > ARTICLE_LIMITS.json) fail();
+  if (JSON.stringify(document).length > limits.json) fail();
   let nodes = 0, textLength = 0, images = 0;
-  const inline = ["text", "hardBreak"], blocks = ["paragraph", "heading", "bulletList", "orderedList", "blockquote", "horizontalRule", "image"];
+  const inline = ["text", "hardBreak"], blocks = ["paragraph", "heading", "bulletList", "orderedList", "blockquote", "horizontalRule", "image", ...(limits.library ? ["libraryCards"] : [])];
   const visit = (node, parent, depth) => {
-    if (!isObject(node) || ++nodes > ARTICLE_LIMITS.nodes || depth > ARTICLE_LIMITS.depth) fail();
+    if (!isObject(node) || ++nodes > limits.nodes || depth > limits.depth) fail();
     const type = node.type;
     if (parent && !(parent === "bulletList" || parent === "orderedList" ? type === "listItem" : parent === "paragraph" || parent === "heading" ? inline.includes(type) : blocks.includes(type))) fail();
     const result = { type };
     if (type === "text") {
-      if (typeof node.text !== "string" || !node.text || (textLength += node.text.length) > ARTICLE_LIMITS.text) fail();
+      if (typeof node.text !== "string" || !node.text || (textLength += node.text.length) > limits.text) fail();
       result.text = node.text;
       if (node.marks !== undefined) {
         if (!Array.isArray(node.marks) || node.marks.length > 7) fail();
@@ -58,7 +59,7 @@ export function sanitizeArticle(document) {
       return result;
     }
     if (type === "image") {
-      if (++images > ARTICLE_LIMITS.images || !isArticleUrl(node.attrs?.src, true)) fail();
+      if (++images > limits.images || !isArticleUrl(node.attrs?.src, true)) fail();
       const attrs = { src: node.attrs.src, alt: "", title: "", articleWidth: 100 };
       for (const key of ["alt", "title"]) {
         if (node.attrs[key] != null) {
@@ -76,6 +77,31 @@ export function sanitizeArticle(document) {
         attrs.width = width; attrs.height = height;
       }
       return { type, attrs };
+    }
+    if (type === "libraryCards" && limits.library) {
+      if (!Array.isArray(node.attrs?.items) || !node.attrs.items.length || node.attrs.items.length > 200) fail();
+      const columns = node.attrs.columns ?? 4;
+      if (![2, 3, 4, 6].includes(columns)) fail();
+      const items = node.attrs.items.map(item => {
+        if (!isObject(item) || typeof item.name !== "string" || !item.name.trim() || item.name.length > 500 || !isArticleUrl(item.href)) fail();
+        const safe = { name: item.name, href: item.href };
+        for (const key of ["englishName", "description"]) if (item[key]) {
+          if (typeof item[key] !== "string" || item[key].length > (key === "description" ? 15000 : 500)) fail();
+          safe[key] = item[key];
+        }
+        textLength += [safe.name, safe.englishName, safe.description].filter(Boolean).join(" ").length;
+        if (textLength > limits.text) fail();
+        if (item.image) {
+          if (!isArticleUrl(item.image, true) || ++images > limits.images) fail();
+          safe.image = item.image;
+          if (item.width != null && item.height != null) {
+            if (![item.width, item.height].every(value => Number.isSafeInteger(value) && value > 0 && value <= 20000) || item.width * item.height > 40000000) fail();
+            safe.width = item.width; safe.height = item.height;
+          }
+        }
+        return safe;
+      });
+      return { type, attrs: { columns, items } };
     }
     if (["hardBreak", "horizontalRule"].includes(type)) return result;
     if (!["doc", "listItem", ...blocks].includes(type)) fail();
@@ -109,6 +135,7 @@ export function articleToPlainText(node) {
   if (node.type === "text") return node.text;
   if (node.type === "hardBreak") return "\n";
   if (node.type === "image") return node.attrs?.title || node.attrs?.alt || "";
+  if (node.type === "libraryCards") return node.attrs.items.map(item => [item.name, item.englishName, item.description].filter(Boolean).join("\n")).join("\n");
   return (node.content || []).map(articleToPlainText).join(["paragraph", "heading"].includes(node.type) ? "" : "\n");
 }
 
@@ -116,6 +143,6 @@ export function articleFromText(text = "") {
   return { type: "doc", content: String(text).split(/\r?\n/).map(line => ({ type: "paragraph", content: line ? [{ type: "text", text: line }] : [] })) };
 }
 
-export function getArticleDocument(content, text = "") {
-  try { return sanitizeArticle(content) || articleFromText(text); } catch { return articleFromText(text); }
+export function getArticleDocument(content, text = "", limits = ARTICLE_LIMITS) {
+  try { return sanitizeArticle(content, limits) || articleFromText(text); } catch { return articleFromText(text); }
 }

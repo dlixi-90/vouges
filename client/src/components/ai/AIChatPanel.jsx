@@ -20,6 +20,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { AI_MESSAGE_MAX_LENGTH } from "../../apis/aiService";
 import { useAppContext } from "../../context/AppContext";
 import useAIAgent from "../../hooks/useAIAgent";
+import ProductCard from "../ProductCard";
 const SupportChatPanel = lazy(() => import("../support/SupportChatPanel"));
 
 const suggestedPrompts = [
@@ -129,22 +130,6 @@ const formatOrderDate = (value) => {
     month: "2-digit",
     year: "numeric",
   });
-};
-
-const formatProductPrice = (priceRange) => {
-  const minimumPrice = Number(priceRange?.min);
-  const maximumPrice = Number(priceRange?.max);
-  const currency = priceRange?.currency || "";
-
-  if (!Number.isFinite(minimumPrice)) return "Liên hệ";
-
-  const formattedMinimum = minimumPrice.toLocaleString("vi-VN");
-
-  if (!Number.isFinite(maximumPrice) || maximumPrice === minimumPrice) {
-    return `${formattedMinimum} ${currency}`.trim();
-  }
-
-  return `${formattedMinimum}–${maximumPrice.toLocaleString("vi-VN")} ${currency}`.trim();
 };
 
 const AIChatPanel = ({ isOpen, onClose }) => {
@@ -443,52 +428,13 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                         {!isUserMessage && message.products?.length > 0 && (
                           <div className="mt-2 space-y-2">
                             {message.products.map((product) => (
-                              <Link
+                              <ProductCard
                                 key={product.id}
-                                to={product.url}
+                                product={product}
+                                priceRange={product.priceRange}
+                                isAvailable={product.isAvailable !== false}
                                 onClick={onClose}
-                                className="flex gap-3 rounded-2xl border border-slate-200 bg-white p-2.5 text-left shadow-sm transition hover:border-amber-300 hover:shadow-md"
-                              >
-                                <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100">
-                                  {product.image ? (
-                                    <img
-                                      src={product.image}
-                                      alt={product.title}
-                                      className="h-full w-full object-cover"
-                                    />
-                                  ) : (
-                                    <Sparkles
-                                      className="h-5 w-5 text-slate-400"
-                                      aria-hidden="true"
-                                    />
-                                  )}
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <p className="truncate text-xs font-bold text-slate-900">
-                                    {product.title}
-                                  </p>
-                                  <p className="mt-0.5 text-[11px] text-slate-500">
-                                    {product.type} ·{" "}
-                                    {formatProductPrice(product.priceRange)}
-                                  </p>
-                                  <div className="mt-1 flex flex-wrap gap-1">
-                                    {product.isAvailable === false ? (
-                                      <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-medium text-red-700">
-                                        Hết hàng
-                                      </span>
-                                    ) : (
-                                      product.availableOptions?.map((option) => (
-                                        <span
-                                          key={option.size}
-                                          className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700"
-                                        >
-                                          {option.size}
-                                        </span>
-                                      ))
-                                    )}
-                                  </div>
-                                </div>
-                              </Link>
+                              />
                             ))}
                           </div>
                         )}

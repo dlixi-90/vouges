@@ -84,7 +84,7 @@ const normalizeProductData = (productData, currentProduct = null) => {
     typeof size === "string" ? size.trim() : "",
   );
 
-  if (!title || !description || (!typeId && (!category || !type)) || sizes.length === 0) {
+  if (!title || (!typeId && (!category || !type)) || sizes.length === 0) {
     throw new ProductRequestError("Dữ liệu sản phẩm không hợp lệ");
   }
 

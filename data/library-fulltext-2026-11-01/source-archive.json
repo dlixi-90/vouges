@@ -1,0 +1,7 @@
+{
+  "sourcePages": 1049,
+  "sha256": "faa5ab0e48e2688ed6ed3efe48977573667ac756f1d12a08786762bce6ccdb13",
+  "bytes": 68977063,
+  "format": "gzip-compressed JSON Lines with original HTML and per-page SHA-256",
+  "restoredBy": "tools/apaniche/collect-library-fulltext.mjs"
+}

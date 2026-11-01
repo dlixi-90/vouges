@@ -1,0 +1,8 @@
+/* Header menus must be styled before any lazy page stylesheet loads. */
+.store-info-menu { position: relative; flex-shrink: 0; }
+.net-header .store-info-dropdown { position: absolute; z-index: 61; top: calc(100% + 12px); right: 0; min-width: 190px; padding: 8px; border: 1px solid #e7e7e7; border-radius: 12px; background: #fff; box-shadow: 0 16px 48px #00000016; }
+.net-header nav .store-info-dropdown a { display: block; padding: 12px; max-width: none; font-size: 13px; text-transform: none; letter-spacing: 0; border-radius: 6px; white-space: nowrap; }
+.net-header nav .store-info-dropdown a:is(:hover,.active) { background: #f6f6f4; }
+.net-header .store-info-menu.is-compact { width: 100%; }
+.net-header .store-info-menu.is-compact > button { width: 100%; justify-content: space-between; }
+.net-header .is-compact .store-info-dropdown { position: static; width: 100%; box-shadow: none; margin-block: 6px; }

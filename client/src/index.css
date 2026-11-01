@@ -3,6 +3,7 @@
 @import "./inessa-theme.css";
 @import "./white-surfaces.css";
 @import "./brand-menu.css";
+@import "./components/product-card.css";
 
 @theme {
   --color-primary: #ffffff;
@@ -12,7 +13,6 @@
   --color-gray-50: #7b7b7b;
 }
 
-.knowledge-back { font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }
 
 @keyframes cart-add-bounce {
   0%,

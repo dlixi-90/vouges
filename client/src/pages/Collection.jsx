@@ -1,6 +1,5 @@
 import { lazy, Suspense, useEffect, useLayoutEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { libraryNamePath } from "../utils/fragranceLibrary";
+import { useSearchParams } from "react-router-dom";
 import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
 const CollectionFilterDrawer = lazy(() => import("../components/CollectionFilterDrawer"));
@@ -13,6 +12,7 @@ import useCollectionPage from "../hooks/useCollectionPage";
 import { emptyPerfumeFilters } from "../data/perfumeFilters";
 import { COLLECTION_PAGE_SIZE } from "../utils/publicCatalog";
 import StorePageHeading from "../components/StorePageHeading";
+import { collectionBreadcrumbs } from "../utils/breadcrumbs";
 import { LoadingStatus, ProductGridSkeleton } from "../components/LoadingState";
 import "./collection.css";
 
@@ -110,7 +110,7 @@ const Collection = () => {
           <p>Những mùi hương được tuyển chọn, dành cho từng phong cách và mọi khoảnh khắc.</p>
         </div>
       </section>
-      <StorePageHeading title="Bộ sưu tập" className="inessa-collection-heading">{routeBrand && <Link to={libraryNamePath("brand", routeBrand)} className="knowledge-back">Giới thiệu thương hiệu {routeBrand}</Link>}</StorePageHeading>
+      <StorePageHeading title="Bộ sưu tập" className="inessa-collection-heading" breadcrumbs={collectionBreadcrumbs({ category: searchParams.get("category"), brand: routeBrand })} onBreadcrumbNavigate={() => setSearchQuery("")} />
 
       <div className="collection-catalog-layout">
         <Suspense fallback={<div className="collection-filter-placeholder" aria-hidden="true" />}><CollectionFilterDrawer

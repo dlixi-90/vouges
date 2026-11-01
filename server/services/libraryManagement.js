@@ -1,5 +1,5 @@
 import Product from '../models/Product.js';
-import {sanitizeArticle,articleToPlainText,isArticleUrl} from '../../client/src/utils/productArticle.js';
+import {sanitizeArticle,articleToPlainText,isArticleUrl,LIBRARY_ARTICLE_LIMITS} from '../../client/src/utils/productArticle.js';
 import {normalizeLibraryName,libraryNameKey,activeLibraryProducts,libraryProductRelation,renamedLibraryFields} from './libraryRelations.js';
 export const rejectLibrary=(message,statusCode=400)=>{throw Object.assign(new Error(message),{statusCode});};
 export const validLibraryKind=kind=>['brand','group','accord','note'].includes(kind);
@@ -9,7 +9,7 @@ export function readLibraryInput(body,kind,current){
  const description=body.description===undefined?(current?.description||''):body.description,contentStatus=body.contentStatus===undefined?(current?.contentStatus||'linked'):body.contentStatus;
  if(typeof description!=='string'||description.length>5000||!['linked','complete'].includes(contentStatus))rejectLibrary('Nội dung thư viện không hợp lệ.');
  const document=body.descriptionContent===undefined?(body.description===undefined?current?.descriptionContent??null:null):body.descriptionContent;
- const update={name,nameKey:libraryNameKey(name),description:description.trim(),descriptionContent:sanitizeArticle(document),contentStatus};
+ const update={name,nameKey:libraryNameKey(name),description:description.trim(),descriptionContent:sanitizeArticle(document,LIBRARY_ARTICLE_LIMITS),contentStatus};
  if(update.descriptionContent)update.description=articleToPlainText(update.descriptionContent).trim().slice(0,5000);
  if(body.image!==undefined){if(typeof body.image!=='string'||body.image&&!isArticleUrl(body.image,true))rejectLibrary('Ảnh đại diện không hợp lệ.');update.image=body.image;}
  return update;

@@ -16,6 +16,8 @@ import { formatVnd } from "../utils/money";
 import { flyProductToCart } from "../utils/cartAnimation";
 import ProductImage from "../components/ProductImage";
 import ProductFacts from "../components/ProductFacts";
+import Breadcrumbs from "../components/Breadcrumbs";
+import { productBreadcrumbs } from "../utils/breadcrumbs";
 import FragranceCharts from "../components/FragranceCharts";
 import { getDetailGallery } from "../utils/productImage";
 import { getRemainingPurchaseQuantity } from "../utils/purchaseQuantity";
@@ -53,6 +55,7 @@ const ProductDetail = () => {
     storeResources,
     publicCatalog,
     registerProducts,
+    setSearchQuery,
   } = useAppContext();
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -190,6 +193,7 @@ const ProductDetail = () => {
     <div className="net-product-detail max-padd-container pb-14 pt-24 sm:pt-28">
       {loadError && <p role="alert">{loadError} <button type="button" onClick={reloadDetail} className="underline">Thử lại</button></p>}
       <LoadingStatus active={detailLoading} label="Đang cập nhật sản phẩm…" />
+      <Breadcrumbs items={productBreadcrumbs(product)} className="product-detail-breadcrumb" onNavigate={() => setSearchQuery("")} />
       <div className="product-detail-overview">
         <div className="product-detail-visual-column">
           <section

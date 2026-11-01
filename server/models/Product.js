@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const productSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String, default: "" },
     descriptionContent: { type: Object, default: null },
     ingredients: { type: String, default: "" },
     price: { type: Object, required: true },

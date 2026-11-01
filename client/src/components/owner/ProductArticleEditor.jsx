@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { EditorContent, Node, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import TextAlign from "@tiptap/extension-text-align";
@@ -7,7 +7,18 @@ import { TextStyleKit } from "@tiptap/extension-text-style";
 import { AlignCenter, AlignJustify, AlignLeft, AlignRight, Bold, Eye, ImagePlus, Italic, Link2, List, ListOrdered, Minus, Quote, Redo2, RemoveFormatting, Strikethrough, Trash2, Underline, Undo2, Unlink } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import ProductArticle from "../ProductArticle";
-import { ARTICLE_FONT_SIZES, ARTICLE_LIMITS, articleToPlainText, getArticleDocument, isArticleUrl } from "../../utils/productArticle";
+import { ARTICLE_FONT_SIZES, ARTICLE_LIMITS, LIBRARY_ARTICLE_LIMITS, articleToPlainText, getArticleDocument, isArticleUrl, sanitizeArticle } from "../../utils/productArticle";
+
+const LibraryCards = Node.create({
+  name: "libraryCards", group: "block", atom: true,
+  addAttributes() { return { items: { default: [] }, columns: { default: 4 } }; },
+  parseHTML() { return [{ tag: "div[data-library-cards]", getAttrs: element => { try { return sanitizeArticle({ type: "doc", content: [{ type: "libraryCards", attrs: JSON.parse(element.getAttribute("data-library-cards")) }] }, LIBRARY_ARTICLE_LIMITS).content[0].attrs; } catch { return false; } } }]; },
+  renderHTML({ node }) {
+    return ["div", { "data-library-cards": JSON.stringify(node.attrs), class: `article-library-cards columns-${node.attrs.columns}` }, ...node.attrs.items.map(item => ["div", { class: "article-library-card" },
+      ["a", { href: item.href }, ...(item.image ? [["img", { src: item.image, alt: "", width: item.width || 180, height: item.height || 180 }]] : []), ["strong", {}, item.name], ...(item.englishName ? [["small", { lang: "en" }, item.englishName]] : [])], ...(item.description ? [["p", {}, item.description]] : []),
+    ])];
+  },
+});
 
 const ArticleImage = Image.extend({
   addAttributes() {
@@ -23,19 +34,21 @@ const ArticleImage = Image.extend({
   },
 });
 
-export default function ProductArticleEditor({ value, text, onChange, onUploadingChange, disabled = false, ariaLabel = "Trình soạn thảo mô tả sản phẩm" }) {
+export default function ProductArticleEditor({ value, text, onChange, onUploadingChange, disabled = false, library = false, ariaLabel = "Trình soạn thảo mô tả sản phẩm" }) {
   const { axios, getToken } = useAppContext();
   const [preview, setPreview] = useState(false), [uploading, setUploading] = useState(false), [error, setError] = useState("");
   const [linkOpen, setLinkOpen] = useState(false), [linkUrl, setLinkUrl] = useState("");
   const linkRef = useRef(null);
+  const limits = library ? LIBRARY_ARTICLE_LIMITS : ARTICLE_LIMITS;
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ heading: { levels: [2, 3] }, codeBlock: false, link: { openOnClick: false, autolink: false, isAllowedUri: url => isArticleUrl(url) } }),
       ArticleImage.configure({ allowBase64: false }),
+      ...(library ? [LibraryCards] : []),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       TextStyleKit.configure({ backgroundColor: false, fontFamily: false, lineHeight: false }),
     ],
-    content: getArticleDocument(value, text),
+    content: getArticleDocument(value, text, limits),
     shouldRerenderOnTransaction: true,
     editorProps: { attributes: { class: "product-article product-article-editable", role: "textbox", "aria-label": ariaLabel, "aria-multiline": "true" } },
     onUpdate: ({ editor: current }) => {
@@ -50,8 +63,8 @@ export default function ProductArticleEditor({ value, text, onChange, onUploadin
   const busy = disabled || uploading;
   const content = editor.getJSON();
   let imageCount = 0;
-  editor.state.doc.descendants(node => { if (node.type.name === "image") imageCount++; });
-  const textLength = editor.getText().length;
+  editor.state.doc.descendants(node => { if (node.type.name === "image") imageCount++; if (node.type.name === "libraryCards") imageCount += node.attrs.items.filter(item => item.image).length; });
+  const textLength = articleToPlainText(content).length;
   const selectedImage = editor.isActive("image");
   const imageAttrs = selectedImage ? editor.getAttributes("image") : {};
   const tool = (label, Icon, action, active = false, unavailable = false) => <button type="button" title={label} aria-label={label} aria-pressed={active}
@@ -62,7 +75,7 @@ export default function ProductArticleEditor({ value, text, onChange, onUploadin
     if (files.length > 4 || files.some(file => !["image/png", "image/jpeg", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024)) {
       setError("Chọn tối đa 4 ảnh PNG, JPEG hoặc WebP, mỗi ảnh không quá 5 MB."); return;
     }
-    if (imageCount + (replace ? 0 : files.length) > ARTICLE_LIMITS.images) { setError("Bài viết tối đa 30 ảnh."); return; }
+    if (imageCount + (replace ? 0 : files.length) > limits.images) { setError(`Bài viết tối đa ${limits.images} ảnh.`); return; }
     const position = editor.state.selection.from;
     setUploading(true); onUploadingChange?.(true);
     try {
@@ -126,8 +139,8 @@ export default function ProductArticleEditor({ value, text, onChange, onUploadin
     {error && <p role="alert" className="article-editor-error">{error}</p>}
     {uploading && <p role="status" className="article-editor-status">Đang tải ảnh bài viết…</p>}
     <div hidden={preview}><EditorContent editor={editor} /></div>
-    {preview && <div className="article-editor-preview"><ProductArticle content={content} /></div>}
-    <div className="article-editor-footer"><span>{textLength.toLocaleString("vi-VN")} / 30.000 ký tự</span><span>{imageCount} / 30 ảnh</span></div>
-    {textLength > ARTICLE_LIMITS.text && <p role="alert" className="article-editor-error">Bài viết vượt giới hạn 30.000 ký tự. Vui lòng rút gọn trước khi lưu.</p>}
+    {preview && <div className="article-editor-preview"><ProductArticle content={content} library={library} /></div>}
+    <div className="article-editor-footer"><span>{textLength.toLocaleString("vi-VN")} / {limits.text.toLocaleString("vi-VN")} ký tự</span><span>{imageCount} / {limits.images} ảnh</span></div>
+    {textLength > limits.text && <p role="alert" className="article-editor-error">Bài viết vượt giới hạn {limits.text.toLocaleString("vi-VN")} ký tự. Vui lòng rút gọn trước khi lưu.</p>}
   </div>;
 }

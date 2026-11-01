@@ -1,5 +1,4 @@
-/* Inessa presentation layer with white surfaces.
-   Product colours remain owned by Item.jsx. */
+/* Inessa presentation layer with white surfaces. */
 :root {
   --inessa-serif: "Lora", serif;
   --inessa-serif-weight: 500;
@@ -112,22 +111,12 @@
 .inessa-story-reverse .inessa-story-inset { left: auto; right: 0; top: 45%; }
 .inessa-story-reverse .inessa-image-index { text-align: right; }
 
-/* Product colours retain their original calculation; the whole card is a link. */
+/* Product sections share the global product-card presentation. */
 .net-theme :is(.net-new-arrivals,.net-popular-products) { padding-top: 25px; margin-top: 0; padding-bottom: 55px; }
 .inessa-section-eyebrow { text-align: center; margin-bottom: 12px; }
 .net-theme :is(.net-new-arrivals,.net-popular-products) .net-section-title { text-align: center; padding-bottom: 42px; }
 .net-theme :is(.net-new-arrivals,.net-popular-products) .net-section-title :is(h3,h3 > span) { font-weight: var(--inessa-serif-weight); text-transform: uppercase; }
 .net-section-title > div { margin-inline: auto; margin-top: 25px; }
-.net-theme .net-product-card { --product-card-text-size: 15px; border-radius: var(--inessa-radius-small); background: #fff; cursor: pointer; }
-.net-product-card > div:first-child { height: auto; aspect-ratio: 1; border-radius: var(--inessa-radius-small); }
-.net-product-card > div:first-child > img { width: 76%; height: 76%; object-fit: contain; transition: transform .4s ease; }
-.net-product-card:is(:hover,:focus-visible) > div:first-child > img { transform: scale(1.04); }
-.net-product-card > div:nth-child(2) { padding: 13px 18px 18px; background: #fff; text-align: left; }
-.net-product-card h5 { margin: 8px 0 7px; font-family: var(--inessa-serif); font-size: var(--product-card-text-size); font-weight: var(--inessa-serif-weight); line-height: 1.35; letter-spacing: .02em; }
-.net-product-card .net-product-category { margin: 0; color: #999; font-size: 13px; line-height: 1.6; }
-.net-product-card .net-product-price { margin-top: 7px; color: #555; font-size: var(--product-card-text-size); font-weight: 700; line-height: 1.5; }
-.net-product-card > div:first-child > p { padding-inline: 10px; font-size: 9px; letter-spacing: .04em; }
-.net-product-carousel .net-product-card > div:nth-child(2) { padding: 12px 14px 16px; }
 .inessa-campaign { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: clamp(30px, 6vw, 90px); margin-block: 50px 90px; }
 .inessa-campaign-image { overflow: hidden; border-radius: var(--inessa-radius-panel); }
 .inessa-campaign-image img { width: 100%; aspect-ratio: 1; object-fit: cover; }
@@ -183,8 +172,6 @@
 .net-collection .inessa-collection-page-arrows button { width: 38px; min-width: 38px; height: 38px; padding: 0; }
 .net-collection .inessa-collection-grid.pagination-list-start { scroll-margin-top: 100px; }
 .net-collection .inessa-collection-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px 26px; min-height: 260px; }
-.net-collection .net-product-card > div:nth-child(2) { padding: 13px 18px 18px; }
-.net-collection .net-product-card h5 { line-height: 1.35; -webkit-line-clamp: 2; }
 .inessa-collection-empty { display: flex; grid-column: 1 / -1; flex-direction: column; align-items: center; justify-content: center; gap: 16px; min-height: 260px; padding: 36px 20px; text-align: center; }
 .net-theme .inessa-collection-empty h2 { font-size: 32px; }
 .net-theme .inessa-collection-empty p { max-width: 420px; color: #777; font-size: 13px; }
@@ -247,10 +234,6 @@
   .inessa-collection-sort-tools { justify-content: space-between; gap: 10px; width: 100%; }
   .net-collection .inessa-collection-sort-tools select { padding-right: 4px; font-size: 12px; border-radius: var(--inessa-radius-control); }
   .net-collection .inessa-collection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 14px; }
-  .net-collection .net-product-card > div:nth-child(2) { padding: 10px 8px 16px; }
-  .net-collection .net-product-card { --product-card-text-size: 13px; }
-  .net-collection .net-product-card .net-product-category { font-size: 11px; }
-  .net-collection .net-product-card > div:first-child > p { max-width: calc(100% - 12px); padding-inline: 6px; font-size: 8px; }
   .inessa-collection-pagination { padding-block: 24px 36px; }
 }
 @media (max-width: 480px) {
@@ -849,5 +832,5 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
   .net-theme dialog.inessa-cart-drawer { border-radius: var(--inessa-radius-panel) var(--inessa-radius-panel) 0 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .inessa-button,.inessa-category > img,.net-product-card > div:first-child > img { transition: none; }
+  .inessa-button,.inessa-category > img { transition: none; }
 }
