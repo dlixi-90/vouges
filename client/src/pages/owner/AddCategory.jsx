@@ -1,3 +1,4 @@
+import { LoadingStatus } from "../../components/LoadingState";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
@@ -207,7 +208,7 @@ const AddCategory = () => {
       <OperationsPanel className="admin-categories-list" title="Danh sách danh mục" description="Quản lý tên danh mục và các loại sản phẩm bên trong." actions={<Badge>{categoriesLoading ? "—" : categories.length} danh mục</Badge>}>
         <div className="admin-operation-toolbar"><label className="perfume-search"><Search size={16} aria-hidden="true" /><input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Tìm danh mục hoặc loại sản phẩm…" aria-label="Tìm danh mục hoặc loại sản phẩm" /></label>{query && <span role="status">{visibleCategories.length}/{categories.length} danh mục</span>}</div>
         <div aria-busy={categoriesLoading}>
-          {categoriesLoading ? <p role="status" className="perfume-loading">Đang tải danh mục…</p> : categoriesError ? <div role="alert" className="perfume-alert">{categoriesError}<button type="button" onClick={fetchCategories}>Thử lại</button></div> : !categories.length ? <OperationsEmptyState icon={Tags} title="Chưa có danh mục nào" description="Thêm danh mục đầu tiên bằng biểu mẫu bên cạnh." /> : !visibleCategories.length ? <OperationsEmptyState icon={Search} title="Không tìm thấy danh mục phù hợp" description="Thử tên danh mục hoặc loại sản phẩm khác."><button type="button" className="perfume-button" onClick={() => setSearch("")}>Xóa nội dung tìm kiếm</button></OperationsEmptyState> : <ul className="admin-category-list">
+          {categoriesLoading ? <LoadingStatus label="Đang tải danh mục…" /> : categoriesError ? <div role="alert" className="perfume-alert">{categoriesError}<button type="button" onClick={fetchCategories}>Thử lại</button></div> : !categories.length ? <OperationsEmptyState icon={Tags} title="Chưa có danh mục nào" description="Thêm danh mục đầu tiên bằng biểu mẫu bên cạnh." /> : !visibleCategories.length ? <OperationsEmptyState icon={Search} title="Không tìm thấy danh mục phù hợp" description="Thử tên danh mục hoặc loại sản phẩm khác."><button type="button" className="perfume-button" onClick={() => setSearch("")}>Xóa nội dung tìm kiếm</button></OperationsEmptyState> : <ul className="admin-category-list">
             {visibleCategories.map(category => {
               const expanded = expandedId === category._id;
               const types = category.types || [];

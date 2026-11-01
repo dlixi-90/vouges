@@ -48,7 +48,6 @@
 
 
 .collection-loading-area { position:relative; }
-.collection-update-status { position:absolute; top:-28px; right:0; z-index:2; padding-inline:8px; border-radius:4px; background:#fff; pointer-events:none; }
 .collection-catalog .inessa-collection-grid.is-updating { opacity:.62; transition:opacity 150ms; }
 /* Keep the sidebar in view; only its criteria scroll, with the title/reset fixed. */
 html:has(.collection-catalog), body:has(.collection-catalog) { overflow-x: clip; }

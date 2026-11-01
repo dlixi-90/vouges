@@ -40,7 +40,7 @@ export default function Knowledge() {
   const term = data?.term;
   const selectOrigin=value=>{const params=new URLSearchParams(search);params.delete("page");if(value)params.set("origin",value);else params.delete("origin");setSearch(params);};
   const setQuery=value=>{const params=new URLSearchParams(search);params.delete("page");if(value)params.set("q",value);else params.delete("q");setSearch(params,{replace:true});};
-  return <div className="knowledge-page max-padd-container">
+  return <div className={`knowledge-page max-padd-container${detail ? " knowledge-detail-page" : ""}`}>
     {detail && <StorePageHeading title={term?.name || config.title} breadcrumbs={term ? [{ label: config.title, to: `/knowledge/${kind}` }, { label: term.name }] : [{ label: config.title }]} />}
     {error && <div role="alert" className="knowledge-empty">{error}<button onClick={reload} type="button">Thử lại</button></div>}
     <LoadingStatus active={loading} label="Đang tải thư viện…" />

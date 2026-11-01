@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { getAvailableSizes } from "../utils/productStock";
 import ProductCard from "./ProductCard";
+import LibraryTermCard from "./LibraryTermCard";
 
 const productId = item => /^\/collection\/([a-f0-9]{24})$/u.exec(item.href)?.[1];
 
@@ -45,7 +46,8 @@ export default function ArticleLibraryCards({ node }) {
         {id ? <ProductCard product={product || { _id: id, title: item.name, image: item.image }}
           currency={currency} isAvailable={!product || getAvailableSizes(product).length > 0}
           pricePending={loaded?.ids !== ids} />
-          : item.href.startsWith("/") ? <Link to={item.href}>{label}</Link>
+          : item.href.startsWith("/knowledge/") ? <LibraryTermCard to={item.href} name={item.name} englishName={item.englishName} image={item.image} width={item.width || 180} height={item.height || 180} />
+            : item.href.startsWith("/") ? <Link to={item.href}>{label}</Link>
             : <a href={item.href} target="_blank" rel="noopener noreferrer nofollow">{label}</a>}
         {item.description && <p>{item.description}</p>}
       </div>;

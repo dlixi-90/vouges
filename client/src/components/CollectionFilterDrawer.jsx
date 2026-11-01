@@ -1,3 +1,4 @@
+import { LoadingStatus } from "./LoadingState";
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ChevronDown, RefreshCw, Search, X } from "lucide-react";
 import { PERFUME_FILTERS } from "../data/perfumeFilters";
@@ -136,7 +137,7 @@ export default function CollectionFilterDrawer({
 
       <div className="inessa-filter-content" tabIndex={isSidebar ? 0 : undefined}
         role={isSidebar ? "region" : undefined} aria-label={isSidebar ? "Tiêu chí lọc sản phẩm" : undefined}>
-        {!options && !error && <p role="status" className="inessa-filter-help">Đang tải các tiêu chí…</p>}
+        {!options && !error && <LoadingStatus label="Đang tải các tiêu chí…" />}
         {error && <p role="alert" className="inessa-filter-help">{error} <button type="button" onClick={reload} className="underline">Thử lại</button></p>}
         {PERFUME_FILTERS.slice(0, 2).map(renderGroup)}
         <section className="inessa-filter-price" aria-labelledby="collection-price-title">

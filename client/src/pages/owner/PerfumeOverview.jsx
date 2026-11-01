@@ -1,3 +1,4 @@
+import { LoadingStatus } from "../../components/LoadingState";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { ArrowUpRight, Banknote, CalendarDays, ChevronRight, Layers3, Library, Package, ShoppingBag, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -67,7 +68,7 @@ export default function PerfumeOverview() {
     <div className="admin-overview-grid">
       <section className="admin-dashboard-panel admin-revenue-panel">
         <header className="admin-panel-heading"><div><h2>Doanh thu & giá trị đơn hàng</h2><p>Đơn vị: VND · Theo thời điểm tạo đơn</p></div><label className="admin-period-control"><CalendarDays size={15} /><select aria-label="Khoảng thời gian biểu đồ" value={months} onChange={event => setMonths(Number(event.target.value))}><option value={3}>3 tháng</option><option value={6}>6 tháng</option><option value={12}>1 năm</option></select></label></header>
-        {!query.loading && !query.error && <div className="admin-revenue-chart"><Suspense fallback={<p className="perfume-loading">Đang tải biểu đồ…</p>}><RevenueChart data={monthlyData} currency="₫" /></Suspense>{!hasSales && <div className="admin-chart-empty"><Banknote size={23} strokeWidth={1.4} /><strong>Chưa có giao dịch trong kỳ</strong><span>Biểu đồ sẽ cập nhật khi phát sinh đơn hàng.</span></div>}</div>}
+        {!query.loading && !query.error && <div className="admin-revenue-chart"><Suspense fallback={<LoadingStatus label="Đang tải biểu đồ…" />}><RevenueChart data={monthlyData} currency="₫" /></Suspense>{!hasSales && <div className="admin-chart-empty"><Banknote size={23} strokeWidth={1.4} /><strong>Chưa có giao dịch trong kỳ</strong><span>Biểu đồ sẽ cập nhật khi phát sinh đơn hàng.</span></div>}</div>}
       </section>
       <section className="admin-dashboard-panel">
         <header className="admin-panel-heading"><div><h2>Trạng thái danh mục</h2><p>Phân bổ catalog hiện tại</p></div><Link to="/owner/list-product" aria-label="Xem trạng thái hàng" className="admin-panel-arrow"><ArrowUpRight size={16} /></Link></header>

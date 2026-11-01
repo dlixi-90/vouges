@@ -1,3 +1,4 @@
+import { LoadingStatus } from "../LoadingState";
 import { useEffect, useRef, useState } from "react";
 import { EditorContent, Node, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -59,7 +60,7 @@ export default function ProductArticleEditor({ value, text, onChange, onUploadin
   useEffect(() => { editor?.setEditable(!disabled && !uploading, false); }, [editor, disabled, uploading]);
   useEffect(() => { if (linkOpen) linkRef.current?.focus(); }, [linkOpen]);
 
-  if (!editor) return <p role="status">Đang tải trình soạn thảo…</p>;
+  if (!editor) return <LoadingStatus label="Đang tải trình soạn thảo…" />;
   const busy = disabled || uploading;
   const content = editor.getJSON();
   let imageCount = 0;
@@ -137,7 +138,7 @@ export default function ProductArticleEditor({ value, text, onChange, onUploadin
       <button type="button" disabled={busy} onClick={() => editor.chain().focus().deleteSelection().run()}><Trash2 size={16} />Xóa ảnh</button>
     </div>}
     {error && <p role="alert" className="article-editor-error">{error}</p>}
-    {uploading && <p role="status" className="article-editor-status">Đang tải ảnh bài viết…</p>}
+    {uploading && <LoadingStatus label="Đang tải ảnh bài viết…" />}
     <div hidden={preview}><EditorContent editor={editor} /></div>
     {preview && <div className="article-editor-preview"><ProductArticle content={content} library={library} /></div>}
     <div className="article-editor-footer"><span>{textLength.toLocaleString("vi-VN")} / {limits.text.toLocaleString("vi-VN")} ký tự</span><span>{imageCount} / {limits.images} ảnh</span></div>

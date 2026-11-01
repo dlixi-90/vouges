@@ -1,3 +1,4 @@
+import { LoadingStatus } from "./LoadingState";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
@@ -43,9 +44,7 @@ const CartSummary = ({
             </div>
           </dl>
           {checkout.loading && (
-            <p role="status" className="inessa-cart-summary-note">
-              Đang cập nhật tổng tiền…
-            </p>
+            <LoadingStatus label="Đang cập nhật tổng tiền…" />
           )}
           {checkout.error && (
             <div role="alert" className="inessa-cart-quote-error">

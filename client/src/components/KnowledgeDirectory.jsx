@@ -5,6 +5,7 @@ import { LIBRARY_KINDS, libraryPath } from "../utils/fragranceLibrary";
 import { filterLibraryTerms, groupLibraryTerms, libraryDisplayName } from "../utils/libraryDirectory";
 import { PageSkeleton } from "./LoadingState";
 import Breadcrumbs from "./Breadcrumbs";
+import LibraryTermCard from "./LibraryTermCard";
 import "./knowledge-directory.css";
 
 const titles = { group: "Thư viện nhóm hương", accord: "Thư viện kiểu mùi hương", note: "Nguồn gốc note hương" };
@@ -23,13 +24,8 @@ const families = [
 ];
 
 function TermCard({ term, kind, eager }) {
-  return <Link className={`knowledge-card knowledge-card--${kind}`} to={libraryPath(term)}>
-    <span className="knowledge-card-image">{term.image
-      ? <img src={term.image} alt="" loading={eager ? "eager" : "lazy"} decoding="async" width={kind === "group" ? 360 : 180} height={kind === "group" ? 93 : 180} />
-      : <span className="knowledge-card-letter" aria-hidden="true">{libraryDisplayName(term).slice(0, 1)}</span>}</span>
-    <strong>{libraryDisplayName(term)}</strong>
-    {term.englishName && <small lang="en">{term.englishName}</small>}
-  </Link>;
+  return <LibraryTermCard to={libraryPath(term)} name={libraryDisplayName(term)} englishName={term.englishName}
+    image={term.image} variant={kind} eager={eager} width={kind === "group" ? 360 : 180} height={kind === "group" ? 93 : 180} />;
 }
 
 function TermGrid({ terms, kind, eager = false }) {

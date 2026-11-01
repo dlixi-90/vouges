@@ -1,3 +1,4 @@
+import { LoadingStatus } from "../components/LoadingState";
 import {
   lazy,
   Suspense,
@@ -662,9 +663,7 @@ const Cart = () => {
         {currentStep === 2 && (
           <Suspense
             fallback={
-              <p role="status" className="py-12 text-center">
-                Đang tải thông tin thanh toán…
-              </p>
+              <LoadingStatus label="Đang tải thông tin thanh toán…" />
             }
           >
             <CartTotal
@@ -693,9 +692,7 @@ const Cart = () => {
         {currentStep === 3 && createdOrder?.paymentMethod === "QR" && (
           <Suspense
             fallback={
-              <p role="status" className="py-12 text-center">
-                Đang tải thông tin thanh toán…
-              </p>
+              <LoadingStatus label="Đang tải thông tin thanh toán…" />
             }
           >
             <QrPaymentStatus

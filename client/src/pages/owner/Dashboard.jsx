@@ -1,3 +1,4 @@
+import { LoadingStatus } from "../../components/LoadingState";
 import { getSizeImage } from "../../utils/productImage";
 import { getOrderStatusLabel, getPaymentMethodLabel } from "../../utils/localization.js";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
@@ -136,18 +137,18 @@ const Dashboard = () => {
     </div>
     <div className="admin-overview-grid admin-orders-analytics">
       <OperationsPanel title="Doanh thu theo tháng" description="Giá trị đơn hàng và số tiền đã thanh toán · VND" actions={<label className="admin-period-control"><CalendarDays size={15} /><select aria-label="Khoảng thời gian doanh thu" value={months} onChange={event => setMonths(Number(event.target.value))}><option value={3}>3 tháng</option><option value={6}>6 tháng</option><option value={12}>1 năm</option></select></label>}>
-        <div className="admin-revenue-chart"><Suspense fallback={<p className="perfume-loading" role="status">Đang tải biểu đồ…</p>}><RevenueChart data={dashboardData.monthlyData.slice(-months)} currency={currency} /></Suspense>{!isLoading && !loadError && !dashboardData.monthlyData.slice(-months).some(month => month.total > 0 || month.successful > 0) && <div className="admin-chart-empty"><Banknote size={23} strokeWidth={1.4} /><strong>Chưa có giao dịch trong kỳ</strong><span>Biểu đồ cập nhật khi có đơn hàng.</span></div>}</div>
+        <div className="admin-revenue-chart"><Suspense fallback={<LoadingStatus label="Đang tải biểu đồ…" />}><RevenueChart data={dashboardData.monthlyData.slice(-months)} currency={currency} /></Suspense>{!isLoading && !loadError && !dashboardData.monthlyData.slice(-months).some(month => month.total > 0 || month.successful > 0) && <div className="admin-chart-empty"><Banknote size={23} strokeWidth={1.4} /><strong>Chưa có giao dịch trong kỳ</strong><span>Biểu đồ cập nhật khi có đơn hàng.</span></div>}</div>
       </OperationsPanel>
       <OperationsPanel title="Sản phẩm bán chạy" description="Xếp hạng theo số lượng đã thanh toán">
         {popularProductsError && <p role="alert" className="perfume-alert">{popularProductsError}<button type="button" onClick={fetchPopularProducts}>Thử lại</button></p>}
-        {popularProductsLoading && <p role="status" className="perfume-loading">Đang tải sản phẩm bán chạy…</p>}
+        {popularProductsLoading && <LoadingStatus label="Đang tải sản phẩm bán chạy…" />}
         <div className="admin-sales-ranking">{popularProducts.slice(0, 4).map((product, index) => <Link key={product._id} to={`/owner/edit-product/${product._id}`}><span className="admin-ranking-number">{index + 1}</span><span className="admin-product-image">{product.images?.[0] ? <ProductImage src={product.images[0]} imageWidth={100} alt="" /> : <Package size={18} />}</span><span><strong>{product.title}</strong><small>{product.category}</small></span><Badge>{product.soldQuantity} đã bán</Badge></Link>)}</div>
         {!popularProductsLoading && !popularProductsError && !popularProducts.length && <OperationsEmptyState icon={Package} title="Chưa có sản phẩm nào được bán" description="Danh sách sẽ xuất hiện sau khi có đơn được thanh toán." />}
       </OperationsPanel>
     </div>
     <section ref={listRef} tabIndex={-1} className="admin-dashboard-panel admin-order-list pagination-list-start" aria-busy={isLoading}>
       <header className="admin-panel-heading"><div><h2>Tất cả đơn hàng</h2><p>Thông tin sản phẩm, khách hàng và trạng thái giao hàng</p></div><Badge>{dashboardData.totalOrders ?? "—"} đơn hàng</Badge></header>
-      {isLoading && <p role="status" className="perfume-loading">Đang tải đơn hàng…</p>}
+      {isLoading && <LoadingStatus label="Đang tải đơn hàng…" />}
       <div className="admin-order-cards">{!isLoading && dashboardData.page === page && orders.map(order => <OrderCard key={order._id} order={order} currency={currency} onStatusChange={statusHandler} updating={updatingOrderIds.includes(order._id)} />)}</div>
       {!isLoading && !loadError && !orders.length && <OperationsEmptyState icon={ShoppingBag} title="Chưa có đơn hàng nào" description="Các đơn hàng được tiếp nhận sẽ xuất hiện tại đây để bạn theo dõi và xử lý." />}
       <div className="admin-operation-pagination"><span>Trang {page}/{dashboardData.totalPages || 1}</span><Pagination label="Phân trang đơn hàng" page={page} totalPages={dashboardData.totalPages} onPageChange={changePage} disabled={isLoading || updatingOrderIds.length > 0} /></div>

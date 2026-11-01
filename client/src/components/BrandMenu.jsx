@@ -1,3 +1,4 @@
+import { LoadingStatus } from "./LoadingState";
 import { useEffect, useId, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronDown, Search, X } from "lucide-react";
@@ -42,7 +43,7 @@ export default function BrandMenu({ directory, compact = false, onNavigate }) {
     {open && <div id={id} className="store-brand-dropdown" role="region" aria-label="Danh sách thương hiệu nước hoa">
       <header><div><strong>Thương hiệu nước hoa</strong><span>{brands.length} thương hiệu trong bộ sưu tập</span></div><button type="button" onClick={() => { setOpenedAt(null); buttonRef.current?.focus(); }} aria-label="Đóng danh sách thương hiệu"><X size={17} /></button></header>
       <label className="store-brand-search"><Search size={15} aria-hidden="true" /><input ref={searchRef} type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Tìm thương hiệu…" aria-label="Tìm thương hiệu nước hoa" /></label>
-      {directory?.loading && !brands.length && <p role="status" className="store-brand-state">Đang tải thương hiệu…</p>}
+      {directory?.loading && !brands.length && <LoadingStatus label="Đang tải thương hiệu…" />}
       {directory?.error && <p role="alert" className="store-brand-state">{brands.length ? "Chưa thể cập nhật danh sách." : directory.error}<button type="button" onClick={directory.reload}>Thử lại</button></p>}
       {(brands.length > 0 || (!directory?.loading && !directory?.error)) && <div className="store-brand-grid">{visible.map((brand, index) => <Link key={brand.name} to={`/collection?brand=${encodeURIComponent(brand.name)}`} onClick={choose} onPointerEnter={event => prefetchCollection(publicCatalog, event.currentTarget.getAttribute("href"))} onFocus={event => prefetchCollection(publicCatalog, event.currentTarget.getAttribute("href"))} aria-current={active && normalized(selectedBrand) === normalized(brand.name) ? "page" : undefined} className="store-brand-card"><BrandImage brand={brand} eager={index < 10} /><strong>{brand.name}</strong></Link>)}{!visible.length && <p className="store-brand-state">{query ? "Không tìm thấy thương hiệu phù hợp." : "Chưa có thương hiệu trong bộ sưu tập."}</p>}</div>}
       <footer><Link to="/collection" onClick={choose}>Khám phá toàn bộ bộ sưu tập</Link></footer>

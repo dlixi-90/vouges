@@ -1,3 +1,4 @@
+import { LoadingStatus } from "./LoadingState";
 import { useCallback, useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
@@ -55,7 +56,7 @@ export default function ProductReviews({ productId, onSummaryChange, embedded = 
       {error && <div role="alert" className="mt-3 text-sm text-red-600">{error}
         <button type="button" onClick={() => setAttempt((value) => value + 1)} className="ml-2 cursor-pointer underline">Thử lại</button>
       </div>}
-      {!data && !error && <p role="status" className="mt-4 text-sm text-gray-500">Đang tải đánh giá…</p>}
+      {!data && !error && <LoadingStatus label="Đang tải đánh giá…" />}
       <div ref={listRef} tabIndex={-1} className="pagination-list-start mt-5 divide-y divide-gray-100">{data?.reviews.map((review) => (
         <article key={review._id} className="py-5">
           <div className="flex flex-wrap items-center gap-3">

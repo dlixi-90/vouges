@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { ArrowLeft, ImagePlus, PackagePlus, Plus, X } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
+import { LoadingStatus } from "../../components/LoadingState";
 import { useLocation, useParams } from "react-router-dom";
 import {
   restoreProductDraft,
@@ -637,9 +638,7 @@ const ProductForm = () => {
                       ))}
                   </select>
                   {categoriesLoading && (
-                    <span className="mt-1 block text-xs text-[#839099]">
-                      Đang tải danh sách loại sản phẩm…
-                    </span>
+                    <LoadingStatus label="Đang tải danh sách loại sản phẩm…" />
                   )}
                   {categoriesError && (
                     <span className="mt-1 block text-xs text-[#b55f5f]">

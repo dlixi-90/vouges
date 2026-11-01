@@ -1,5 +1,6 @@
+import { LoadingStatus } from "../LoadingState";
 import { useEffect, useRef, useState } from "react";
-import { AlertCircle, ArrowDown, CheckCheck, LoaderCircle, Send } from "lucide-react";
+import { AlertCircle, ArrowDown, CheckCheck, Send } from "lucide-react";
 import { useSupportApi, useSupportFeed } from "../../hooks/useSupportChat";
 import { SUPPORT_MESSAGE_LIMIT, supportStatuses } from "../../utils/supportChat";
 
@@ -95,7 +96,7 @@ export default function SupportThread({ conversationId, role = "customer", onCon
   return (
     <div className={`flex min-h-0 flex-1 flex-col overflow-hidden ${className}`}>
       <div className="support-thread-status flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-secondary/10 bg-primary/60 px-4 py-3">
-        <p className="text-xs text-gray-500">{conversation ? supportStatuses[conversation.status] : "Đang tải hội thoại…"}
+        <p className="text-xs text-gray-500">{conversation ? supportStatuses[conversation.status] : <LoadingStatus label="Đang tải hội thoại…" />}
           <span className={`ml-2 inline-block h-1.5 w-1.5 rounded-full ${feed.status === "live" ? "bg-emerald-500" : "bg-amber-500"}`} aria-hidden="true" />
           <span className="ml-1.5">{feed.status === "live" ? "Đã kết nối" : feed.status === "error" ? "Mất kết nối" : "Đang kết nối…"}</span>
         </p>
@@ -111,7 +112,7 @@ export default function SupportThread({ conversationId, role = "customer", onCon
           void api.request("post", `/api/support/conversations/${conversationId}/read`, { sequence: conversation.sequence }).catch(() => { if (acknowledged.current === readKey) acknowledged.current = ""; });
         }
       }} className="support-thread-history min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-5" aria-label="Lịch sử tin nhắn">
-        {!conversation && feed.status !== "error" && <p role="status" className="flex items-center justify-center gap-2 py-10 text-sm text-gray-500"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />Đang tải tin nhắn…</p>}
+        {!conversation && feed.status !== "error" && <LoadingStatus label="Đang tải tin nhắn…" />}
         {messages[0]?.sequence > 1 && <button type="button" disabled={loadingOlder} onClick={loadOlder} className="block w-full cursor-pointer py-2 text-xs text-secondary underline disabled:opacity-50">{loadingOlder ? "Đang tải…" : "Xem tin nhắn trước"}</button>}
         {conversation?.context?.length > 0 && <details className="rounded-xl border border-secondary/10 bg-primary p-3 text-xs text-gray-600">
           <summary className="cursor-pointer font-medium text-secondary">Nội dung trao đổi với AI được khách chia sẻ</summary>

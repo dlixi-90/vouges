@@ -1,3 +1,4 @@
+import { LoadingStatus } from "../LoadingState";
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { Check, Ticket, X } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
@@ -177,7 +178,7 @@ const CheckoutVoucherPicker = ({ checkout, subtotal, disabled, compact = false }
           </fieldset>
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
             {!user ? <p className="py-12 text-center text-gray-500">Đăng nhập để xem mã giảm giá của bạn.</p>
-              : !currentWallet ? <p role="status" className="py-12 text-center text-gray-500">Đang tải mã giảm giá…</p>
+              : !currentWallet ? <LoadingStatus label="Đang tải mã giảm giá…" />
               : currentWallet.error ? <div role="alert" className="py-8 text-center text-gray-500">{currentWallet.error}
                 <button type="button" onClick={() => { setWallet(null); setAttempt((value) => value + 1); }} className="mt-3 block w-full cursor-pointer text-secondary underline">Thử lại</button>
               </div>

@@ -1,5 +1,6 @@
+import { LoadingStatus } from "../../components/LoadingState";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Headset, LoaderCircle, MessageSquare, Search } from "lucide-react";
+import { ArrowLeft, Headset, MessageSquare, Search } from "lucide-react";
 import { useSupportFeed } from "../../hooks/useSupportChat";
 import { supportStatuses } from "../../utils/supportChat";
 import SupportThread from "../../components/support/SupportThread";
@@ -30,7 +31,7 @@ export default function Messages() {
         <header className="admin-inbox-heading"><h2>Hộp thư</h2><Badge>{inbox ? inbox.total : "—"} hội thoại</Badge></header>
         <div className="admin-inbox-filters"><label className="perfume-search"><Search size={16} aria-hidden="true" /><input type="search" value={search} onChange={event => setSearch(event.target.value)} aria-label="Tìm khách hàng theo tên hoặc email" placeholder="Tìm khách hàng, email…" /></label><select aria-label="Lọc hội thoại" value={status} onChange={event => { setStatus(event.target.value); setPage(1); }} className="admin-operation-input"><option value="all">Tất cả hội thoại</option><option value="unread">Chưa đọc</option>{Object.entries(supportStatuses).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
         <div className="admin-inbox-scroll overflow-y-auto"><div ref={listRef} tabIndex={-1} className="pagination-list-start">
-          {!inbox && !feed.error && <p role="status" className="admin-inbox-loading"><LoaderCircle size={16} className="animate-spin" />Đang tải hộp thư…</p>}
+          {!inbox && !feed.error && <LoadingStatus label="Đang tải hộp thư…" />}
           {inbox?.conversations.length === 0 && <OperationsEmptyState icon={MessageSquare} title="Chưa có hội thoại phù hợp" description="Yêu cầu hỗ trợ từ khách sẽ xuất hiện tại đây." />}
           {inbox?.conversations.map(conversation => <button key={conversation._id} type="button" onClick={() => setSelected(conversation)} aria-pressed={selected?._id === conversation._id} className="admin-conversation-row"><span className="admin-conversation-avatar">{conversation.customerName?.charAt(0).toUpperCase() || "K"}</span><span className="admin-conversation-copy"><span className="admin-conversation-top"><strong className={conversation.unreadStaff ? "is-unread" : ""}>{conversation.customerName}</strong>{conversation.unreadStaff > 0 && <b>{conversation.unreadStaff > 99 ? "99+" : conversation.unreadStaff}</b>}</span><span className="admin-conversation-preview">{conversation.lastMessage}</span><span className="admin-conversation-meta"><span>{supportStatuses[conversation.status]}</span><time>{new Date(conversation.lastMessageAt).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Ho_Chi_Minh" })}</time></span></span></button>)}
         </div></div>

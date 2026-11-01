@@ -296,9 +296,7 @@ const ProductDetail = () => {
                 </>
               ) : (
                 <span className="text-gray-500">
-                  {reviewStats?.error
-                    ? "Xem đánh giá sản phẩm"
-                    : "Đang tải đánh giá…"}
+                  Xem đánh giá sản phẩm
                 </span>
               )}
             </a>

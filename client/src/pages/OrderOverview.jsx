@@ -1,3 +1,4 @@
+import { LoadingStatus } from "../components/LoadingState";
 import { getSizeImage } from "../utils/productImage";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -57,7 +58,7 @@ const OrderOverview = () => {
   }, [axios, getToken, orderId, requestKey, userId, validId]);
 
   const shell = (content) => <div className="net-cart inessa-overview-page"><div className="max-padd-container">{content}</div></div>;
-  if (!isLoaded) return shell(<div className="inessa-overview-state" role="status">Đang tải tài khoản…</div>);
+  if (!isLoaded) return shell(<LoadingStatus label="Đang tải tài khoản…" />);
   if (!user) return shell(<div className="inessa-overview-state">
     <Package size={34} strokeWidth={1.3} aria-hidden="true" /><h1>Xem đơn hàng của bạn</h1>
     <p>Đăng nhập bằng tài khoản đã đặt hàng để xem thông tin đơn hàng.</p>
@@ -68,7 +69,7 @@ const OrderOverview = () => {
     <div>{validId && <button type="button" onClick={() => setAttempt((value) => value + 1)} className="btn-dark">Thử lại</button>}
       <Link to="/my-orders" className="btn-outline">Đơn hàng của tôi</Link></div>
   </div>);
-  if (!current?.order) return shell(<div className="inessa-overview-state" role="status">Đang tải thông tin đơn hàng…</div>);
+  if (!current?.order) return shell(<LoadingStatus label="Đang tải thông tin đơn hàng…" />);
 
   const order = current.order;
   const address = typeof order.address === "object" && order.address ? order.address : {};

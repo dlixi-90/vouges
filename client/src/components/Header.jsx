@@ -1,3 +1,4 @@
+import { LoadingStatus } from "./LoadingState";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { assets } from "../assets/data";
@@ -197,7 +198,7 @@ const Header = () => {
               <div
                 className="inessa-chat-loading flex items-center justify-between gap-4 rounded-xl bg-white p-5 shadow-lg"
               >
-                <p role="status">Đang tải cuộc trò chuyện…</p>
+                <LoadingStatus label="Đang tải cuộc trò chuyện…" />
                 <button type="button" onClick={closeAIChat} aria-label="Đóng trò chuyện tư vấn" className="cursor-pointer rounded-md p-1"><X size={20} aria-hidden="true" /></button>
               </div>
             ) : null

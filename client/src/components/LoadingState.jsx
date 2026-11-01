@@ -1,8 +1,8 @@
 import "./loading-state.css";
 
-export function LoadingStatus({ active = true, label = "Đang tải…", className = "" }) {
+export function LoadingStatus({ active = true, label = "Đang tải…" }) {
   if (!active) return null;
-  return <span role="status" aria-live="polite" className={`loading-status ${className}`}><span className="loading-status-dot" aria-hidden="true" />{label}</span>;
+  return <span role="status" aria-live="polite" className="sr-only">{label}</span>;
 }
 
 export function ProductCardSkeleton() {

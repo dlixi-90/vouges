@@ -1,3 +1,4 @@
+import { LoadingStatus } from "../LoadingState";
 import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
@@ -330,9 +331,7 @@ const CheckoutAddressForm = ({
       <h2 id="checkout-address-title">Thông tin giao hàng</h2>
 
       {isLoadingAddresses && !address._id ? (
-        <p className="mt-8" role="status">
-          Đang tải danh sách địa chỉ của bạn…
-        </p>
+        <LoadingStatus label="Đang tải danh sách địa chỉ của bạn…" />
       ) : addressLoadError ? (
         <div className="mt-6 rounded-md bg-primary p-4" role="alert">
           <p>{addressLoadError}</p>

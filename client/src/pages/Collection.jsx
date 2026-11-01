@@ -136,7 +136,7 @@ const Collection = () => {
             <div className="inessa-collection-sort-tools">
               <div className="inessa-collection-results-tools">
                 <p className="inessa-collection-results" role="status" aria-live="polite">
-                  {!collection ? productsLoading ? "Đang tải sản phẩm…" : "0 sản phẩm" : total
+                  {!collection ? productsLoading ? "" : "0 sản phẩm" : total
                     ? `${startIndex + 1}–${Math.min(startIndex + itemsPerPage, total)} / ${total} sản phẩm`
                     : "0 sản phẩm"}
                 </p>
@@ -156,7 +156,7 @@ const Collection = () => {
           </div>
 
           <div className="collection-loading-area">
-          <LoadingStatus active={productsLoading && Boolean(collection)} label="Đang cập nhật sản phẩm…" className="collection-update-status" />
+          <LoadingStatus active={productsLoading && Boolean(collection)} label="Đang cập nhật sản phẩm…" />
           <div ref={listRef} tabIndex={-1} className={`inessa-collection-grid pagination-list-start ${productsLoading && collection ? "is-updating" : ""}`} aria-busy={productsLoading}>
             {pageError && <div role="alert" className="inessa-collection-empty"><p>{pageError}</p><button type="button" onClick={reload} className="inessa-button">Thử lại</button></div>}
             {!collection && productsLoading && <ProductGridSkeleton count={itemsPerPage} />}
