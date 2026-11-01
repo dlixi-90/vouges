@@ -9,6 +9,11 @@
 .backups
 .qa-perfume
 .venv-media
+.npm-cache
+.deploy-media*
 /data
 /docs
 /tools
+**/tests
+**/scripts
+**/previews

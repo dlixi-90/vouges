@@ -1,5 +1,6 @@
 import { Clock3, Headphones, Leaf, MoonStar, Snowflake, Sun, Umbrella } from "lucide-react";
 import { getAssessmentRows } from "../utils/fragrance";
+import "../fragrance-charts.css";
 
 // Palette from the public Apaniche assessment CSS, checked 28/10/2026.
 const seasons = {

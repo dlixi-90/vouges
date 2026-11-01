@@ -19,7 +19,7 @@ const sources=JSON.parse(sourceText),variants=JSON.parse(variantsText);
 if(sources.length!==2444||new Set(sources.map(item=>item.sourceId)).size!==sources.length)throw new Error("Unexpected source catalog; refusing reset");
 const catalog=buildApanicheCatalog(sources,variants,"source");
 const knownTerms=new Set(catalog.terms.map(term=>`${term.kind}:${term.key}`));
-for(const line of fs.readFileSync(path.join(root,"docs/research/apaniche/sitemap-inventory.csv"),"utf8").split(/\r?\n/).slice(1)){
+for(const line of fs.readFileSync(path.join(directory,"sitemap-inventory.csv"),"utf8").split(/\r?\n/).slice(1)){
   const cells=[...line.matchAll(/"((?:[^"]|"")*)"/g)].map(match=>match[1].replaceAll('""','"'));
   const kind=cells[0]?.endsWith("/note_huong-sitemap.xml")?"note":cells[0]?.endsWith("/nhom_huong-sitemap.xml")?"group":cells[0]?.endsWith("/thu_vien_mui_huong-sitemap.xml")?"accord":null;
   if(!kind||!cells[1]||knownTerms.has(`${kind}:${cells[1]}`))continue;

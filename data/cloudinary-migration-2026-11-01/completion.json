@@ -1,0 +1,49 @@
+{
+  "completedAt": "2026-11-01T06:54:12.295Z",
+  "status": "first-batch-complete-awaiting-free-quota",
+  "cloudinaryPlan": "Free",
+  "mappedUrls": 9443,
+  "uniqueImages": 9429,
+  "remoteUrlsMigrated": 7889,
+  "localFilesMigrated": 1554,
+  "remainingLocalFiles": 12651,
+  "oldImagesDeleted": 164,
+  "oldImagesCutoff": "2026-09-01T00:00:00+07:00",
+  "estimatedCredits": 22.499944403148138,
+  "creditCeiling": 22.5,
+  "creditLimit": 25,
+  "deliveryFailures": 0,
+  "remainingActiveSourceUrls": 0,
+  "deployments": {
+    "backend": {
+      "id": "dpl_SL6ayeShzpZDC6twX2LroiKnS2D7",
+      "url": "https://vouges-backend.vercel.app",
+      "healthStatus": 200,
+      "publicBrandsStatus": 200,
+      "anonymousPrivateStatus": 401
+    },
+    "frontend": {
+      "id": "dpl_21zyXNBBMLogjHqEtvAUmXDytXLM",
+      "url": "https://velours-jet.vercel.app",
+      "artifactHtmlMatches": true,
+      "retainedLocalImageStatus": 200,
+      "browserLoadedMigratedImages": 5,
+      "browserErrors": 0,
+      "mobileOverflow": false
+    }
+  },
+  "tests": {
+    "application": 531,
+    "tools": 36,
+    "lint": "passed",
+    "productionArtifactBuild": "passed"
+  },
+  "publicFilesPreserved": true,
+  "downloadCacheRemoved": true,
+  "temporaryDeploymentDirectoriesRemoved": true,
+  "backendPackagingTrace": {
+    "rewrittenModules": 11,
+    "tracedModules": 99,
+    "importsOutsideFunctionRoot": 0
+  }
+}

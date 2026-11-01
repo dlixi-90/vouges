@@ -1,0 +1,31 @@
+{
+  "at": "2026-11-01T06:18:28.509Z",
+  "mappingUrls": 9443,
+  "products": 595,
+  "fragranceterms": 732,
+  "files": [
+    "server/data/libraryDirectory.json",
+    "server/data/brandImages.json",
+    "client/src/data/brandDirectory.json"
+  ],
+  "conflicts": [],
+  "backups": [
+    ".backups/cloudinary-migration-2026-11-01/1793513912652-21108-products-0.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513913106-21108-products-100.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513913421-21108-products-200.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513913775-21108-products-300.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513914135-21108-products-400.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513914510-21108-products-500.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513915921-21108-fragranceterms-0.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513916249-21108-fragranceterms-100.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513916530-21108-fragranceterms-200.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513916799-21108-fragranceterms-300.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513918081-21108-fragranceterms-400.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513918582-21108-fragranceterms-500.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513918910-21108-fragranceterms-600.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513919213-21108-fragranceterms-700.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513919423-libraryDirectory.json-file.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513919458-brandImages.json-file.json",
+    ".backups/cloudinary-migration-2026-11-01/1793513919501-brandDirectory.json-file.json"
+  ]
+}

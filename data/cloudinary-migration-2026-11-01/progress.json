@@ -1,0 +1,14 @@
+{
+  "stage": "upload",
+  "scope": "local",
+  "completed": 78,
+  "uploaded": 78,
+  "reused": 0,
+  "failed": 0,
+  "mappedUrls": 9443,
+  "totalUrls": 22094,
+  "estimatedCredits": 22.4999,
+  "ceiling": 22.5,
+  "quotaStopped": true,
+  "at": "2026-11-01T06:14:22.570Z"
+}

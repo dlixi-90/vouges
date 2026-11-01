@@ -9,6 +9,14 @@ data/media-processing/output/
 data/media-processing/results/
 data/media-processing/uploads/
 data/media-processing/samples/
-tools/media/__pycache__/
+server/previews/
+**/__pycache__/
+*.pyc
+.npm-cache/
+.vercel/
+.deploy-media*/
+data/cloudinary-migration-*/cache/
+data/cloudinary-migration-*/snapshot.json
+data/cloudinary-migration-*/cloudinary-inventory.json
 
 *.env

@@ -1,0 +1,26 @@
+{
+  "at": "2026-11-01T06:14:22.933Z",
+  "lastUpdated": "2026-10-31",
+  "plan": "Free",
+  "credits": {
+    "usage": 19.87,
+    "limit": 25,
+    "used_percent": 79.48
+  },
+  "storage": {
+    "usage": 2322047710,
+    "credits_usage": 2.16
+  },
+  "transformations": {
+    "usage": 17601,
+    "credits_usage": 17.6,
+    "breakdown": {
+      "transformation": 8360
+    }
+  },
+  "bandwidth": {
+    "usage": 119688784,
+    "credits_usage": 0.11
+  },
+  "resources": 6094
+}

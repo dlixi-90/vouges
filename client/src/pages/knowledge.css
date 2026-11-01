@@ -1,5 +1,4 @@
 .net-theme .knowledge-page { padding-block: 0 64px; min-height: 65vh; }
-.knowledge-back { font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }
 .knowledge-directory-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
 .knowledge-directory-heading > p { max-width: 650px; color: #777; font-size: 14px; }
 .knowledge-search { display: flex; align-items: center; gap: 10px; min-width: 260px; border: 1px solid #e5e5e5; border-radius: 24px; padding: 11px 16px; color: #777; }

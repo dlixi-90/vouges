@@ -1,0 +1,52 @@
+{
+  "at": "2026-11-01T06:20:38.493Z",
+  "collections": {
+    "products": {
+      "documents": 2444,
+      "remainingRemoteUrls": 0,
+      "remainingLocalUrls": 8357
+    },
+    "fragranceterms": {
+      "documents": 1228,
+      "remainingRemoteUrls": 0,
+      "remainingLocalUrls": 2650
+    }
+  },
+  "staticFiles": {
+    "server/data/libraryDirectory.json": {
+      "remainingUrls": 16
+    },
+    "server/data/brandImages.json": {
+      "remainingUrls": 0
+    },
+    "client/src/data/brandDirectory.json": {
+      "remainingUrls": 0
+    }
+  },
+  "usage": {
+    "at": "2026-11-01T06:20:45.724Z",
+    "lastUpdated": "2026-10-31",
+    "plan": "Free",
+    "credits": {
+      "usage": 20.09,
+      "limit": 25,
+      "used_percent": 80.36
+    },
+    "storage": {
+      "usage": 2322047710,
+      "credits_usage": 2.16
+    },
+    "transformations": {
+      "usage": 17818,
+      "credits_usage": 17.82,
+      "breakdown": {
+        "transformation": 8360
+      }
+    },
+    "bandwidth": {
+      "usage": 119688784,
+      "credits_usage": 0.11
+    },
+    "resources": 6094
+  }
+}

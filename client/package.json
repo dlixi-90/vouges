@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "optimize:images": "node scripts/optimize-images.mjs",
     "dev": "vite",
     "build": "vite build",
+    "build:artifact": "node scripts/prepare-vercel-artifact.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

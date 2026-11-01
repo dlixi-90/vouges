@@ -68,5 +68,5 @@ test('all collected illustrations have local full frames and thumbnails, and all
   for(const src of [asset.src,asset.src.replace('.webp','-thumb.webp')])assert.ok(fs.statSync(new URL(`../../client/public${src}`,import.meta.url)).size>0,src);
  }
  const directories=JSON.parse(fs.readFileSync(new URL('../../server/data/libraryDirectory.json',import.meta.url),'utf8'));assert.equal(directories.note.origins.length,16);
- for(const origin of directories.note.origins){assert.ok(origin.description);assert.ok(origin.image.startsWith('/images/library/'));assert.ok(origin.termIds.length);for(const id of origin.termIds)assert.ok(ids.has(id));}
+ for(const origin of directories.note.origins){assert.ok(origin.description);assert.match(origin.image,/^(?:\/images\/library\/|https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/fl_original\/v\d+\/)/u);assert.ok(origin.termIds.length);for(const id of origin.termIds)assert.ok(ids.has(id));}
 });

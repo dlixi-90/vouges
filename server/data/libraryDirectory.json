@@ -181,7 +181,7 @@
         "id": "gia-vi-spices",
         "name": "Gia Vị (Spices)",
         "description": "Gia vị cho nhiều kiểu cay khác nhau, từ nóng và ngọt đến tươi, sắc hoặc hơi khô. Chất thơm có thể nằm ở hạt, vỏ, rễ hay nụ. Quế, tiêu, đinh hương và bạch đậu khấu vì vậy không tạo cùng một cảm giác dù được xếp chung nhóm.",
-        "image": "/images/library/12a29745fa03cda038163cff-thumb.webp",
+        "image": "https://res.cloudinary.com/dhsui22lz/image/upload/fl_original/v1793513522/velours/media-v2/3007cd1a931eee9a474497929816db1bd824e8c4903533c9f49fd29a7fba62cf.webp",
         "termIds": [
           "0e26d678e0d8a11b7cd742c6",
           "0ef51d225b7bd764c1b724ff",
@@ -377,7 +377,7 @@
         "id": "hoa-flowers",
         "name": "Hoa (Flowers)",
         "description": "Hương hoa gồm nhiều sắc thái: tươi, phấn, xanh, quả, mật hoặc hơi cay. Có loài cho chiết xuất dùng trong nước hoa, có loài khó thu hương nên cần tái tạo. Mỗi trang note giúp phân biệt mùi được hình dung với loại nguyên liệu thực sự có thể thu nhận.",
-        "image": "/images/library/0e41d0962a36f291d6833897-thumb.webp",
+        "image": "https://res.cloudinary.com/dhsui22lz/image/upload/fl_original/v1793513515/velours/media-v2/29c044cb8595c6047b858eb9eae1da32881927b59dc5cd07eb0073b774959a3b.webp",
         "termIds": [
           "005aa6895c45715df2473b83",
           "02c2aef3f59b9825ed197634",
@@ -572,7 +572,7 @@
         "id": "hoa-trang-white-flowers",
         "name": "Hoa Trắng (White Flowers)",
         "description": "Hoa trắng là một nhóm cảm nhận quan trọng của điều hương, nổi bật với nhài, huệ và hoa cam. Sắc thái có thể rất trong, cũng có thể dày, ngọt hoặc mang nét indolic; màu cánh hoa không đủ để dự đoán toàn bộ tính cách mùi.",
-        "image": "/images/library/4404d350ea32fbf5db9678c5-thumb.webp",
+        "image": "https://res.cloudinary.com/dhsui22lz/image/upload/fl_original/v1793513622/velours/media-v2/2dea545d42869433e6cae0f7b041b6af1a3b74c838ffea74b142ee831db170d6.webp",
         "termIds": [
           "01e62987d73f710207760fe5",
           "094c886083c8536879ff15b9",
@@ -1010,7 +1010,7 @@
         "id": "xanh-thao-moc-duong-xi-va-reu-soi-greens-herbs-fougeres-and-mosses",
         "name": "Xanh, Thảo Mộc, Dương Xỉ Và Rêu Sồi (Greens, Herbs, Fougeres And Mosses)",
         "description": "Lá, cỏ, thảo mộc và rêu mở ra các sắc xanh từ giòn, tươi đến ẩm, đất hoặc hơi đắng. Fougere là một cấu trúc phối hương mang liên tưởng xanh, không phải tinh dầu lấy từ cây dương xỉ. Nhóm này nối các nguyên liệu thực vật với những cách diễn đạt cảnh quan trong nước hoa.",
-        "image": "/images/library/0b7e459dc375b578083bfd5f-thumb.webp",
+        "image": "https://res.cloudinary.com/dhsui22lz/image/upload/fl_original/v1793513509/velours/media-v2/3e32c244c925337eae1f4a387d6c0063f36e4b899dae29c333b343f19c0260bf.webp",
         "termIds": [
           "009afe8a01f7633dbcd5f5a3",
           "0235d880027d98e497918e29",

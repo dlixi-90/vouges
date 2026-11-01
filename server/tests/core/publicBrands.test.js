@@ -40,13 +40,15 @@ test("owner brand images take priority and source URLs match brands with differe
   assert.equal(buildPublicBrands([product("Unknown")], [], images)[0].image, "");
 });
 
-test("downloaded brand logos are local, present, nonempty and retain source attribution", () => {
+test("downloaded brand logos retain source attribution and use local files or versioned Cloudinary delivery", () => {
   assert.ok(logos.brands.length > 100);
   for (const brand of logos.brands) {
     assert.ok(["apaniche.vn", "4711.com"].includes(new URL(brand.sourceUrl).hostname));
-    assert.match(brand.image, /^\/images\/brands\/[a-z0-9.-]+$/);
-    const file = new URL(`../../../client/public${brand.image}`, import.meta.url);
-    assert.ok(fs.statSync(file).size > 0);
+    if (brand.image.startsWith('/')) {
+      assert.match(brand.image, /^\/images\/brands\/[a-z0-9.-]+$/);
+      const file = new URL(`../../../client/public${brand.image}`, import.meta.url);
+      assert.ok(fs.statSync(file).size > 0);
+    } else assert.match(brand.image, /^https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/fl_original\/v\d+\//);
   }
 });
 
@@ -110,7 +112,7 @@ test("failed directory refreshes can be retried without caching a failed promise
   assert.equal((await getPublicBrands())[0].name, "Dior"); assert.equal(reads, 2);
 });
 
-test("the immediate header directory contains only public names and working local logos", () => {
+test("the immediate header directory contains only public names and valid image delivery URLs", () => {
   assert.ok(headerDirectory.brands.length > 100);
   const names = new Set();
   for (const brand of headerDirectory.brands) {
@@ -118,8 +120,10 @@ test("the immediate header directory contains only public names and working loca
     assert.ok(brand.name.trim()); assert.equal(names.has(brand.name.toLocaleLowerCase("vi-VN")), false);
     names.add(brand.name.toLocaleLowerCase("vi-VN"));
     if (brand.image) {
-      assert.match(brand.image, /^\/images\/brands\/[a-z0-9.-]+$/);
-      assert.ok(fs.statSync(new URL(`../../../client/public${brand.image}`, import.meta.url)).size > 0);
+      if (brand.image.startsWith('/')) {
+        assert.match(brand.image, /^\/images\/brands\/[a-z0-9.-]+$/);
+        assert.ok(fs.statSync(new URL(`../../../client/public${brand.image}`, import.meta.url)).size > 0);
+      } else assert.match(brand.image, /^https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/fl_original\/v\d+\//);
     }
   }
 });

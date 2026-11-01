@@ -1,4 +1,5 @@
 import { getArticleDocument } from "../utils/productArticle";
+import "../product-article.css";
 
 function ArticleNode({ node, imageGallery = false, expandableImage = false }) {
   const children = node.content?.map((child, index) => <ArticleNode key={index} node={child} />);

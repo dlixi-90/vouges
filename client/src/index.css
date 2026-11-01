@@ -3,9 +3,6 @@
 @import "./inessa-theme.css";
 @import "./white-surfaces.css";
 @import "./brand-menu.css";
-@import "./pages/knowledge.css";
-@import "./fragrance-charts.css";
-@import "./product-article.css";
 
 @theme {
   --color-primary: #ffffff;
@@ -14,6 +11,8 @@
   --color-tertiary: #000000e3;
   --color-gray-50: #7b7b7b;
 }
+
+.knowledge-back { font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }
 
 @keyframes cart-add-bounce {
   0%,

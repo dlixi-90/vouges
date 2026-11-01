@@ -1,9 +1,14 @@
 import { assets } from "../assets/data";
+import badge from "../assets/badge.svg";
+import user1 from "../assets/user1.png";
+import user2 from "../assets/user2.png";
+import user3 from "../assets/user3.png";
+import user4 from "../assets/user4.png";
 
 const Testimonial = () => {
   const cardsData = [
     {
-      image: assets.user1,
+      image: user1,
       name: "Briar Martin",
       handle: "@neilstellar",
       date: "20 tháng 4, 2026",
@@ -11,7 +16,7 @@ const Testimonial = () => {
         "Velours chỉn chu, tinh tế và tạo cảm giác rất dễ chịu.",
     },
     {
-      image: assets.user2,
+      image: user2,
       name: "Avery Johnson",
       handle: "@averywrites",
       date: "10 tháng 5, 2026",
@@ -19,7 +24,7 @@ const Testimonial = () => {
         "Bộ sưu tập của Velours đa dạng và rất hợp gu mình.",
     },
     {
-      image: assets.user3,
+      image: user3,
       name: "Jordan Lee",
       handle: "@jordantalks",
       date: "5 tháng 6, 2026",
@@ -27,7 +32,7 @@ const Testimonial = () => {
         "Mình thích nét tối giản, thanh lịch của Velours.",
     },
     {
-      image: assets.user4,
+      image: user4,
       name: "Avery Johnson",
       handle: "@averywrites",
       date: "10 tháng 5, 2026",
@@ -49,7 +54,7 @@ const Testimonial = () => {
         <div className="flex flex-col">
           <div className="flex items-center gap-1">
             <p>{card.name}</p>
-            <img src={assets.badge} alt="" width={15} />
+            <img src={badge} alt="" width={15} />
           </div>
           <span className="text-xs text-slate-500">{card.handle}</span>
         </div>
