@@ -1,5 +1,15 @@
 # Catalog và dashboard nước hoa Velours
 
+## Quản lý thương hiệu và thư viện hương
+
+Trang **Thương hiệu** và ba mục **Nhóm hương, Kiểu mùi, Note hương** dùng chung giao diện thêm, sửa, xóa. Nút thêm nằm ở đầu trang; mỗi dòng có nút bút chì và thùng rác. Hộp biên tập giữ trình soạn thảo giới thiệu, hỗ trợ tải/thay/bỏ ảnh đại diện và chèn ảnh trong bài viết, không yêu cầu nhập liên kết ảnh.
+
+API dành cho owner: `POST /api/catalog/terms`, `PATCH /api/catalog/terms/:id`, `DELETE /api/catalog/terms/:id`. Khi sửa hoặc xóa, gửi `expectedUpdatedAt` của bản đang hiển thị; dữ liệu vừa thay đổi trả về HTTP 409. Tên trùng trong cùng thư viện bị từ chối. Các note nhập từ nguồn cũ có cùng tên dịch nhưng khác liên kết vẫn được biên tập riêng.
+
+Đổi tên cập nhật các nhãn tương ứng trên sản phẩm trong cùng giao dịch MongoDB, kể cả hồ sơ thành phần của bộ sản phẩm. Với note trùng tên, chỉ đổi các liên kết xác định được đúng mục nguồn. Mục còn được sản phẩm sử dụng, kể cả sản phẩm chưa xuất bản, không thể xóa; cần đổi liên kết trên sản phẩm trước. Số sản phẩm liên kết được tính trực tiếp, không dùng số đếm nhập cũ. Mục tự tạo có URL ổn định sau khi đổi tên. Các cache danh mục, thư viện công khai và dashboard được làm mới sau thao tác thành công.
+
+Kiểm tra backend nằm trong `server/tests/core/libraryManagement.test.js` và bộ `npm test`. Kiểm tra trình duyệt: chạy `node scripts/perfumeBrowserQA.mjs --library-management` từ `server/`; các thao tác tạo/sửa/xóa và tải ảnh được mô phỏng trong bộ nhớ, không ghi database. Thêm `--library-dialogs-only` để kiểm tra riêng hộp thoại trên màn hình 320 px và 390 px.
+
 Catalog Apaniche đã được nhập làm dữ liệu vận hành của database `vouges`. Kết quả thực tế nằm trong [import-result.json](../data/research/apaniche/import-result.json).
 
 Storefront hiện tải theo trang 16 sản phẩm, header cố định ba danh mục nước hoa và hỗ trợ 12 tiêu chí lọc. Các thay đổi tối ưu không sửa catalog/kho trong database. Xem quy tắc lọc, cache, số đo và danh sách dọn dẹp tại [STOREFRONT_PERFORMANCE.md](STOREFRONT_PERFORMANCE.md).

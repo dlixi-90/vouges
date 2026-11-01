@@ -126,7 +126,7 @@ const api=async request=>{
   return {statusCode:404,body:{success:false,message:`Unhandled QA read: ${pathname}`}};
 };
 const send=(method,params={})=>new Promise((resolve,reject)=>{
-  const requestId=++id;const timer=setTimeout(()=>{pending.delete(requestId);reject(new Error(`CDP timeout: ${method}`));},15000);
+  const requestId=++id;const timer=setTimeout(()=>{pending.delete(requestId);reject(new Error(`CDP timeout: ${method}${method==='Page.navigate'?` ${params.url}`:''}`));},method==='Page.navigate'?45000:15000);
   pending.set(requestId,{resolve:value=>{clearTimeout(timer);resolve(value);},reject:error=>{clearTimeout(timer);reject(error);}});ws.send(JSON.stringify({id:requestId,method,params}));
 });
 const evaluate=async(expression)=>{
@@ -135,7 +135,12 @@ const evaluate=async(expression)=>{
   return result.result.value;
 };
 const wait=async(expression)=>{const started=Date.now();while(Date.now()-started<25000){try{if(await evaluate(`Boolean(${expression})`))return;}catch{}await pause(150);}throw new Error(`UI timeout ${expression}: ${await evaluate('document.body.innerText.slice(0,800)')}`);};
-const goto=async(url,condition)=>{await evaluate('window.__oldQaDocument=true');await send("Page.navigate",{url:frontend+url});await wait(`!window.__oldQaDocument&&(${condition})`);};
+const goto=async(url,condition)=>{
+  await evaluate('window.__oldQaDocument=true');
+  try{await send("Page.navigate",{url:frontend+url});}
+  catch(error){throw new Error(`${error.message}; state=${JSON.stringify(await evaluate("({url:location.href,ready:document.readyState,text:document.body?.innerText.slice(0,500)})"))}`);}
+  await wait(`!window.__oldQaDocument&&(${condition})`);
+};
 const screenshot=async(name)=>{const result=await send("Page.captureScreenshot",{format:"png",captureBeyondViewport:false});fs.writeFileSync(path.join(artifacts,`${name}.png`),Buffer.from(result.data,"base64"));};
 const clickText=async(text)=>evaluate(`(()=>{const button=[...document.querySelectorAll('button')].find(el=>el.textContent.trim()===${JSON.stringify(text)});if(!button)throw new Error('Missing button');button.click();return true;})()`);
 const input=async(selector,value)=>evaluate(`(()=>{const element=document.querySelector(${JSON.stringify(selector)});if(!element)throw new Error('Missing input');Object.getOwnPropertyDescriptor(element.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value').set.call(element,${JSON.stringify(value)});element.dispatchEvent(new Event('input',{bubbles:true}));return true;})()`);
@@ -239,9 +244,15 @@ try{
         await goto(kind==='brand'?'/owner/brands':`/owner/library?kind=${kind}`,"document.querySelectorAll('.perfume-table tbody tr').length===25");await noOverflow();
         await clickText(`Thêm ${labels[kind]}`);await wait("document.querySelector('.perfume-library-dialog[open] .tiptap')");await noOverflow();
         const bounds=await evaluate("(()=>{const dialog=document.querySelector('.perfume-library-dialog'),form=dialog.querySelector('form'),title=dialog.querySelector('h2');return {width:innerWidth,dialogLeft:dialog.getBoundingClientRect().left,dialogWidth:dialog.getBoundingClientRect().width,scrollLeft:dialog.scrollLeft,scrollWidth:dialog.scrollWidth,clientWidth:dialog.clientWidth,formLeft:form.getBoundingClientRect().left,formWidth:form.getBoundingClientRect().width,titleLeft:title.getBoundingClientRect().left}})()");
-        if(kind==='brand')console.log(JSON.stringify({bounds,visual:await evaluate("({width:visualViewport.width,left:visualViewport.offsetLeft,scale:visualViewport.scale})")}));
-        assert.ok(bounds.titleLeft>=0&&bounds.scrollWidth<=bounds.clientWidth+2,JSON.stringify(bounds));await screenshot(`library-create-${kind}-${width}`);
+        const visual=await evaluate("({width:visualViewport.width,left:visualViewport.offsetLeft,scale:visualViewport.scale})");
+        assert.ok(bounds.dialogWidth<=width+2&&bounds.titleLeft>=visual.left&&bounds.scrollWidth<=bounds.clientWidth+2,JSON.stringify({bounds,visual}));
+        assert.ok(Math.abs(visual.width-width)<=2&&visual.left<=2,JSON.stringify(visual));await screenshot(`library-create-${kind}-${width}`);
         await evaluate("document.querySelector('[aria-label=\"Đóng biên tập\"]').click()");await wait("!document.querySelector('.perfume-library-dialog')");
+        assert.equal(await evaluate("document.body.style.overflow==='hidden'"),false);
+        await evaluate("document.querySelector('.perfume-table button[title=\"Xóa\"]').click()");await wait("document.querySelector('.perfume-library-delete-dialog[open]')");
+        const confirmation=await evaluate("(()=>{const rect=document.querySelector('.perfume-library-delete-dialog').getBoundingClientRect();return {left:rect.left,right:rect.right,offset:visualViewport.offsetLeft}})()");
+        assert.ok(confirmation.left>=0&&confirmation.right<=width+2&&confirmation.offset<=2,JSON.stringify(confirmation));await screenshot(`library-delete-${kind}-${width}`);
+        await evaluate("document.querySelector('.perfume-library-delete-dialog footer button').click()");await wait("!document.querySelector('.perfume-library-delete-dialog')");
         assert.equal(await evaluate("document.body.style.overflow==='hidden'"),false);
       }
     }
@@ -250,7 +261,7 @@ try{
       assert.ok(libraryFixtures.requests.some(request=>request.method==='PATCH'&&request.body?.name===`AAA đã sửa ${kind}`));
       assert.equal(libraryFixtures.terms.filter(term=>term.kind===kind).length,25);
     }
-    checks.push('Create/edit/delete for brands and all three fragrance libraries; rich text and cover upload; duplicate-name errors; linked-product deletion guard; deleting final pagination row; 390px/320px dialogs and close controls; all mutations isolated in memory');
+    checks.push(dialogsOnly?'390px/320px library dialogs fit the visual viewport and close correctly':'Create/edit/delete for brands and all three fragrance libraries; rich text and cover upload; duplicate-name errors; linked-product deletion guard; deleting final pagination row; 390px/320px dialogs and close controls; all mutations isolated in memory');
   }else if(descriptionsQA){
     const records=await Product.find({isDeleted:{$ne:true},'source.id':{$in:[42518,64535,64512,46900,50121,39796]}}).select('title description descriptionContent source').lean();
     assert.equal(records.length,6);
