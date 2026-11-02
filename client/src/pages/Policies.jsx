@@ -1,11 +1,61 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { ArrowUpRight, CreditCard, LifeBuoy, LockKeyhole, ShieldCheck } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import StorePageHeading from "../components/StorePageHeading";
-import "./knowledge.css";
+import "./policies.css";
+
+const sections = [
+  { id: "don-hang", title: "Đặt hàng và thanh toán", Icon: CreditCard },
+  { id: "ho-tro", title: "Hỗ trợ đơn hàng", Icon: LifeBuoy },
+  { id: "thong-tin", title: "Thông tin cá nhân", Icon: LockKeyhole },
+];
 
 export default function Policies() {
-  return <div className="knowledge-page max-padd-container"><StorePageHeading title="Chính sách" /><div className="knowledge-policy-list">
-    <section id="don-hang"><h2>Đặt hàng và thanh toán</h2><p>Kiểm tra sản phẩm, dung tích, số lượng và địa chỉ trước khi xác nhận. Phí giao hàng và mã giảm giá được thể hiện tại bước thanh toán.</p><p>Bạn có thể theo dõi tình trạng xử lý và thanh toán trong <Link to="/my-orders">Đơn hàng của tôi</Link>.</p></section>
-    <section id="ho-tro"><h2>Hỗ trợ đơn hàng</h2><p>Nếu cần thay đổi, hủy đơn hoặc phản ánh về sản phẩm đã nhận, vui lòng <Link to="/contact">liên hệ với Velours</Link> và cung cấp mã đơn hàng để được kiểm tra, hỗ trợ.</p></section>
-    <section id="thong-tin"><h2>Thông tin cá nhân</h2><p>Thông tin người nhận và địa chỉ bạn cung cấp được dùng trong quá trình xử lý đơn hàng và giao hàng. Bạn có thể cập nhật địa chỉ khi thanh toán hoặc liên hệ để được hỗ trợ về thông tin tài khoản.</p></section>
-  </div></div>;
+  const { hash, key } = useLocation();
+  const activeId = sections.some(section => hash === `#${section.id}`) ? hash.slice(1) : "don-hang";
+  useEffect(() => {
+    const previousTitle = document.title;
+    document.title = "Chính sách | Velours";
+    return () => { document.title = previousTitle; };
+  }, []);
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const section = sections.some(section => hash === `#${section.id}`) ? document.getElementById(hash.slice(1)) : null;
+      if (section) {
+        section.focus({ preventScroll: true });
+        section.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+      } else window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [hash, key]);
+
+  return <div className="policies-page max-padd-container store-page-container">
+    <StorePageHeading title="Chính sách">
+      <Link className="policies-contact" to="/contact">Liên hệ hỗ trợ <ArrowUpRight size={15} aria-hidden="true" /></Link>
+    </StorePageHeading>
+    <div className="policies-intro">
+      <span className="policies-intro-icon"><ShieldCheck size={22} strokeWidth={1.5} aria-hidden="true" /></span>
+      <p>Thông tin về đặt hàng, thanh toán và hỗ trợ tại Velours.</p>
+    </div>
+    <div className="policies-layout">
+      <aside className="policies-sidebar">
+        <p id="policies-nav-title">Trong trang này</p>
+        <nav aria-labelledby="policies-nav-title">
+          {sections.map((section, index) => <Link key={section.id} to={`/policies#${section.id}`} aria-current={activeId === section.id ? "location" : undefined}>
+            <span aria-hidden="true">0{index + 1}</span><span>{section.title}</span>
+          </Link>)}
+        </nav>
+      </aside>
+      <div className="policies-content">
+        {sections.map(({ id, title, Icon }) => <section key={id} id={id} tabIndex={-1} aria-labelledby={`${id}-title`} className="policies-section">
+          <header><span className="policies-section-icon"><Icon size={21} strokeWidth={1.5} aria-hidden="true" /></span><h2 id={`${id}-title`}>{title}</h2></header>
+          <div className="policies-section-copy">
+            {id === "don-hang" && <><p>Kiểm tra sản phẩm, dung tích, số lượng và địa chỉ trước khi xác nhận. Phí giao hàng và mã giảm giá được thể hiện tại bước thanh toán.</p><p>Bạn có thể theo dõi tình trạng xử lý và thanh toán trong <Link to="/my-orders">Đơn hàng của tôi</Link>.</p></>}
+            {id === "ho-tro" && <p>Nếu cần thay đổi, hủy đơn hoặc phản ánh về sản phẩm đã nhận, vui lòng <Link to="/contact">liên hệ với Velours</Link> và cung cấp mã đơn hàng để được kiểm tra, hỗ trợ.</p>}
+            {id === "thong-tin" && <p>Thông tin người nhận và địa chỉ bạn cung cấp được dùng trong quá trình xử lý đơn hàng và giao hàng. Bạn có thể cập nhật địa chỉ khi thanh toán hoặc liên hệ để được hỗ trợ về thông tin tài khoản.</p>}
+          </div>
+        </section>)}
+      </div>
+    </div>
+  </div>;
 }

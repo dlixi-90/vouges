@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "checks": [
+    "Policies at 1440/1024/768/390/320px: wide shared page bounds, desktop sidebar and three-column mobile contents, no horizontal overflow, one page heading, all three existing sections/four paragraphs and order/contact links preserved; every contents link, keyboard Enter, direct support URL, footer privacy link and browser Back reach the correct visible section with focus and active navigation; zero database writes"
+  ],
+  "errors": [],
+  "actualDatabaseReads": true,
+  "mockedAuthentication": false,
+  "builtArtifact": true,
+  "paginationFixtures": false,
+  "popularFixtures": false,
+  "editorFixtures": false,
+  "editorFixtureSaves": 0,
+  "operationsFixtures": false,
+  "operationsFixtureActions": 0,
+  "typography": false,
+  "dashboardDesign": false,
+  "databaseWrites": 0
+}

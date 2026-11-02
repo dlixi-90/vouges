@@ -67,10 +67,13 @@ const descriptionsQA=process.argv.includes("--product-descriptions");
 const fullLibraryQA=process.argv.includes("--library-fulltext");
 const libraryQA=process.argv.includes("--library-management");
 const membershipDesignQA=process.argv.includes("--membership-design");
+const policiesDesignQA=process.argv.includes("--policies-design");
 const collectionFilterScrollQA=process.argv.includes("--collection-filter-scroll");
 const builtCollectionQA=collectionFilterScrollQA&&process.argv.includes("--built");
 const builtMembershipQA=membershipDesignQA&&process.argv.includes("--built");
-const builtArtifactQA=builtCollectionQA||builtMembershipQA;
+const builtKnowledgeQA=(accordOpeningQA||knowledgeOpeningQA||noteCoverQA)&&process.argv.includes("--built");
+const builtPoliciesQA=policiesDesignQA&&process.argv.includes("--built");
+const builtArtifactQA=builtCollectionQA||builtMembershipQA||builtKnowledgeQA||builtPoliciesQA;
 const loyaltyQA=process.argv.includes("--loyalty"),loyaltyFixtures=loyaltyQA||knowledgeWidthQA||membershipDesignQA?createLoyaltyFixtures():null;
 const libraryCover=libraryQA?`/images/library/${fs.readdirSync(path.join(root,'client/public/images/library')).find(file=>file.endsWith('.webp'))}`:'';
 let libraryFixtures;
@@ -267,7 +270,39 @@ try{
   if(typographyQA)await send('CSS.enable');
   await send("Emulation.setDeviceMetricsOverride",{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   await send("Fetch.enable",{patterns:[{urlPattern:"*localhost:3000/*"},{urlPattern:"*@clerk_react*"},...(builtArtifactQA?[{urlPattern:'*vouges-backend.vercel.app/*'}]:[]),...(builtClerkMock?[{urlPattern:'*/'+builtClerkMock.name}]:[])]});
-  if(collectionFilterScrollQA){
+  if(policiesDesignQA){
+    const ids=['don-hang','ho-tro','thong-tin'];
+    const assertAnchor=async id=>{
+      await wait(`location.hash==='#${id}'&&document.activeElement.id==='${id}'&&document.querySelector('.policies-sidebar [aria-current=location]')?.getAttribute('href')==='/policies#${id}'`);
+      await wait(`(()=>{const section=document.getElementById('${id}'),margin=parseFloat(getComputedStyle(section).scrollMarginTop),target=scrollY+section.getBoundingClientRect().top-margin,max=document.documentElement.scrollHeight-innerHeight;return Math.abs(scrollY-Math.max(0,Math.min(target,max)))<3})()`);
+      await noOverflow();
+    };
+    for(const width of [1440,1024,768,390,320]){
+      console.log(JSON.stringify({phase:'policies-design',width}));
+      await send('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width<500});
+      await goto('/policies',"document.querySelectorAll('.policies-section').length===3&&document.querySelectorAll('.policies-sidebar a').length===3");
+      await wait("document.title==='Chính sách | Velours'&&scrollY<1");await noOverflow();
+      assert.equal(await evaluate("document.querySelectorAll('h1').length"),1);
+      assert.deepEqual(await evaluate("[...document.querySelectorAll('.policies-section')].map(section=>section.id)"),ids,'Original footer anchor IDs remain valid');
+      assert.equal(await evaluate("document.querySelectorAll('.policies-section-copy p').length"),4,'All four existing policy paragraphs remain');
+      assert.deepEqual(await evaluate("[...document.querySelectorAll('.policies-section-copy a')].map(link=>link.getAttribute('href'))"),['/my-orders','/contact']);
+      assert.equal(await evaluate("[...document.querySelectorAll('.policies-section')].every(section=>!!document.getElementById(section.getAttribute('aria-labelledby')))"),true);
+      const layout=await evaluate("(()=>{const box=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,width:r.width}};return {sidebar:box('.policies-sidebar'),content:box('.policies-content'),page:box('.policies-page'),columns:getComputedStyle(document.querySelector('.policies-sidebar nav')).gridTemplateColumns.split(' ').length}})()");
+      assert.equal(await evaluate("getComputedStyle(document.querySelector('.policies-page')).maxWidth"),'1500px');
+      assert.ok(width>900?layout.content.left>layout.sidebar.right:layout.content.top>layout.sidebar.top,'Policy layout adapts to the screen');
+      assert.equal(layout.columns,width>900?1:3);
+      await screenshot('policies-overview-'+width);
+      for(const id of ids){await evaluate(`document.querySelector('.policies-sidebar a[href="/policies#${id}"]').click()`);await assertAnchor(id);}
+      if(width>900)assert.equal(await evaluate(`(()=>{const top=document.querySelector('.policies-sidebar').getBoundingClientRect().top;return Math.abs(top-Math.max(24,${layout.sidebar.top}-scrollY))<2})()`),true,'Desktop contents stays visible while reading');
+      await evaluate("document.querySelector('.policies-sidebar a').focus({preventScroll:true})");
+      await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});await assertAnchor('don-hang');
+      await send('Page.navigate',{url:frontend+'/policies#ho-tro'});await send('Page.reload',{ignoreCache:true});await wait("!window.__oldQaDocument&&document.querySelector('#ho-tro')");await assertAnchor('ho-tro');
+      await evaluate("document.querySelector('footer a[href=\"/policies#thong-tin\"]').click()");await assertAnchor('thong-tin');
+      await evaluate('history.back()');await assertAnchor('ho-tro');
+      await screenshot('policies-support-'+width);
+    }
+    checks.push('Policies at 1440/1024/768/390/320px: wide shared page bounds, desktop sidebar and three-column mobile contents, no horizontal overflow, one page heading, all three existing sections/four paragraphs and order/contact links preserved; every contents link, keyboard Enter, direct support URL, footer privacy link and browser Back reach the correct visible section with focus and active navigation; zero database writes');
+  }else if(collectionFilterScrollQA){
     const ready="document.querySelector('.inessa-collection-grid')?.getAttribute('aria-busy')==='false'";
     const settled=async()=>{await wait(ready);await pause(250);};
     const scrollDown=async()=>{await evaluate('window.scrollTo({top:1200,left:0,behavior:"instant"})');await pause(80);assert.ok(await evaluate('window.scrollY>600'),'Start below the top of the page');return evaluate('window.scrollY');};
@@ -404,7 +439,7 @@ try{
     for(const [kind,name] of [['group','Cam Chanh (Citrus)'],['accord','Biển']]){
       const term=await FragranceTerm.findOne({kind,name}).select('kind key name').lean();assert.ok(term);await goto(libraryPath(term),"document.querySelector('.knowledge-hero-image')");
       const box=await evaluate("(()=>{const r=document.querySelector('.knowledge-hero-image').getBoundingClientRect();return {width:r.width,height:r.height}})()");
-      assert.ok(kind==='group'?Math.abs(box.width/box.height-3.4)<.02:Math.abs(box.width-240)<1&&Math.abs(box.height-240)<1,'Group and accord covers retain their layouts');
+      assert.ok(kind==='group'?Math.abs(box.width/box.height-3.4)<.02:box.width>400&&box.width<470&&Math.abs(box.width-box.height)<1,'Group banner and balanced accord cover retain their layouts');
     }
     checks.push(`Balanced covers across ${banners.length} note banners: ${views} browser views at 1920x1080/1440x900/1366x768/1024x768/390x844/320x740; 200-300px desktop and 130-170px mobile height, full article width, original full-image links and text retained; Grapefruit introduction fits entirely in the first desktop viewport; group/accord layouts and product grids preserved, no overflow, zero database writes`);
   }else if(accordOpeningQA){
@@ -421,7 +456,7 @@ try{
     }
     const examples=['Biển','Rượu Whisky','Động Vật','Vani'].map(name=>terms.find(term=>term.name===name));assert.ok(examples.every(Boolean));
     let views=0;
-    for(const width of [1440,1024,768,390,320]){
+    for(const width of [1920,1440,1024,900,768,390,320]){
       console.log(JSON.stringify({phase:'accord-opening',width,articles:width===1440?terms.length:examples.length}));
       await send('Emulation.setDeviceMetricsOverride',{width,height:1100,deviceScaleFactor:1,mobile:width<500});
       for(const term of width===1440?terms:examples){
@@ -433,11 +468,18 @@ try{
         assert.deepEqual(actual.map(normalize),view.facts[0].fields.map(field=>normalize(field.label+' '+articleToPlainText(field.content))));
         assert.equal(await evaluate("(()=>{const section=document.querySelector('.knowledge-accord-facts'),list=section.querySelector('ul'),items=[...list.children];return document.querySelector('.knowledge-opening-copy').contains(section)&&getComputedStyle(list).listStyleType==='disc'&&getComputedStyle(section).borderTopWidth==='0px'&&items.every((item,index)=>!index||item.getBoundingClientRect().top>items[index-1].getBoundingClientRect().bottom)})()"),true,'Facts form individual bullet points directly under the intro, without a separate framed panel');
         const boxes=await evaluate("(()=>{const box=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}};return {image:box('.knowledge-hero-image'),copy:box('.knowledge-opening-copy'),opening:box('.knowledge-opening--accord'),facts:box('.knowledge-accord-facts'),page:box('.knowledge-article'),related:getComputedStyle(document.querySelector('.knowledge-product-grid')).gridTemplateColumns.split(' ').length}})()");
-        assert.ok(boxes.image.width<241&&Math.abs(boxes.image.width-boxes.image.height)<1,'Compact square cover stays within 240px');
-        if(width>900)assert.ok(boxes.copy.left>boxes.image.right&&Math.abs(boxes.copy.top-boxes.image.top)<1,'Desktop intro aligns to the top of the image');
-        else assert.ok(boxes.copy.top>boxes.image.bottom&&Math.abs((boxes.image.left+boxes.image.right-boxes.opening.left-boxes.opening.right)/2)<1,'Small screens stack the centered cover above full-width text');
+        assert.ok(Math.abs(boxes.image.width-boxes.image.height)<1,'Square covers retain their full proportions');
+        if(width>900){
+          assert.ok(boxes.image.width>=280&&boxes.image.width<=470&&boxes.image.width/boxes.opening.width>.31&&boxes.image.width/boxes.opening.width<.35,'Desktop cover fills about one third of the opening');
+          assert.ok(boxes.copy.left>boxes.image.right&&Math.abs((boxes.copy.top+boxes.copy.bottom-boxes.image.top-boxes.image.bottom)/2)<1,'Desktop image and copy are vertically balanced');
+        }else{
+          assert.ok(Math.abs(boxes.image.width-Math.min(width<=700?300:360,boxes.opening.width))<1,'Larger tablet/mobile covers fit the screen');
+          assert.ok(boxes.copy.top>boxes.image.bottom&&Math.abs((boxes.image.left+boxes.image.right-boxes.opening.left-boxes.opening.right)/2)<1,'Small screens stack the centered cover above full-width text');
+        }
+        assert.equal(await evaluate("getComputedStyle(document.querySelector('.knowledge-hero img')).objectFit"),'contain','Show every part of the source image');
+        assert.equal(await evaluate("document.querySelector('.knowledge-hero-image').getAttribute('href')"),view.hero.attrs.src,'Full-image link is preserved');
         assert.ok(Math.abs(boxes.facts.left-boxes.copy.left)<1&&Math.abs(boxes.facts.right-boxes.copy.right)<1,'The bullet list aligns with the introductory text column');
-        assert.equal(boxes.related,width===1440?5:width===1024?4:width===768?3:2);await assertKnowledgeProductCards();await noOverflow();
+        assert.equal(boxes.related,width>=1440?5:width>=1024?4:width>=768?3:2);await assertKnowledgeProductCards();await noOverflow();
         assert.equal(await evaluate("document.querySelectorAll('.article-library-category,.knowledge-reference').length"),0);
         if(term.name==='Biển'){
           await wait("document.querySelector('.knowledge-hero img').complete&&document.querySelector('.knowledge-hero img').naturalWidth>0");
@@ -447,7 +489,12 @@ try{
         views++;
       }
     }
-    checks.push(`All ${terms.length} accord articles display ${fields} original fields as individual bullet points immediately below the intro in the same text column, without a separate framed panel; ${views} browser views at 1440/1024/768/390/320px preserve every source word, compact covers, mobile stacking, accurate optional fields, original image links and 5/4/3/2 product grids without overflow; zero database writes`);
+    await send('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
+    for(const [kind,name] of [['group','Cam Chanh (Citrus)'],['note','Bưởi']]){
+      const term=await FragranceTerm.findOne({kind,name}).select('kind key name').lean();assert.ok(term);await goto(libraryPath(term),"document.querySelector('.knowledge-opening--banner .knowledge-hero-image')");
+      assert.equal(await evaluate("(()=>{const image=document.querySelector('.knowledge-hero-image').getBoundingClientRect(),article=document.querySelector('.knowledge-article').getBoundingClientRect();return Math.abs(image.width-article.width)<1})()"),true,'Group/note banners keep their full article width');await noOverflow();
+    }
+    checks.push(`All ${terms.length} accord articles retain ${fields} original bullet fields; ${views} views at 1920/1440/1024/900/768/390/320px show proportional, vertically centered desktop covers and larger centered tablet/mobile images without cropping; source text and full-image links, product grids, and group/note banner layouts preserved; zero database writes`);
   }else if(knowledgeOpeningQA){
     const terms=await FragranceTerm.find({kind:{$in:['group','accord','note']}}).select('kind key slug name description descriptionContent').lean();
     let merged=0;
@@ -482,11 +529,13 @@ try{
           if(term.kind==='note')assert.ok(Math.abs(boxes.hero.height-(width<=700?170:300))<1);
           else assert.ok(Math.abs(boxes.hero.width/boxes.hero.height-(width<=700?2.3:3.4))<.02);
         }else if(view.layout==='accord'){
-          assert.ok(Math.abs(boxes.hero.width-Math.min(width>900?240:220,boxes.article.width-48))<1&&Math.abs(boxes.hero.width-boxes.hero.height)<1);
+          assert.ok(Math.abs(boxes.hero.width-boxes.hero.height)<1);
+          assert.ok(width>900?boxes.hero.width/boxes.article.width>.31&&boxes.hero.width/boxes.article.width<.35:Math.abs(boxes.hero.width-Math.min(width<=700?300:360,boxes.article.width))<1);
           assert.ok(width>900?boxes.copy.left>boxes.hero.right:boxes.copy.top>=boxes.hero.bottom);
         }else{
-          assert.ok(Math.abs(boxes.hero.width-Math.min(420,boxes.article.width))<1&&Math.abs(boxes.hero.width-boxes.hero.height)<1);
-          assert.ok(width>1100?boxes.copy.left>boxes.hero.right:boxes.copy.top>=boxes.hero.bottom);
+          assert.ok(Math.abs(boxes.hero.width-boxes.hero.height)<1);
+          assert.ok(width>900?boxes.hero.width/boxes.article.width>.31&&boxes.hero.width/boxes.article.width<.35:Math.abs(boxes.hero.width-Math.min(width<=700?300:360,boxes.article.width))<1);
+          assert.ok(width>900?boxes.copy.left>boxes.hero.right:boxes.copy.top>=boxes.hero.bottom);
           const normalize=value=>value.replace(/\s+/gu,' ').trim();
           assert.equal(normalize(await evaluate("document.querySelector('.knowledge-opening-copy .product-article').innerText")),normalize(articleToPlainText(view.intro)));
         }
@@ -1429,7 +1478,7 @@ try{
   }
   }
   assert.deepEqual(writes,[]);assert.deepEqual(errors,[]);
-  fs.writeFileSync(path.join(artifacts,"result.json"),JSON.stringify({passed:true,checks,errors,actualDatabaseReads:true,mockedAuthentication:!builtCollectionQA,builtArtifact:builtArtifactQA,paginationFixtures:paginationQA,popularFixtures:popularQA,editorFixtures:editorQA,editorFixtureSaves:editorPatches.length,operationsFixtures:operationsQA,operationsFixtureActions:operationsFixtures?.requests.length||0,typography:typographyQA,dashboardDesign:dashboardQA,databaseWrites:0},null,2));
+  fs.writeFileSync(path.join(artifacts,"result.json"),JSON.stringify({passed:true,checks,errors,actualDatabaseReads:true,mockedAuthentication:!builtCollectionQA&&!builtKnowledgeQA&&!builtPoliciesQA,builtArtifact:builtArtifactQA,paginationFixtures:paginationQA,popularFixtures:popularQA,editorFixtures:editorQA,editorFixtureSaves:editorPatches.length,operationsFixtures:operationsQA,operationsFixtureActions:operationsFixtures?.requests.length||0,typography:typographyQA,dashboardDesign:dashboardQA,databaseWrites:0},null,2));
   console.log(JSON.stringify({passed:true,checks,screenshots:artifacts,databaseWrites:0,...(libraryFixtures?{libraryFixtureActions:libraryFixtures.requests.length}:{})}));
 }finally{
   try{if(ws?.readyState===1)await send("Browser.close");}catch{}ws?.close();chrome?.kill();vite?.kill();
