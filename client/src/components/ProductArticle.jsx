@@ -1,9 +1,10 @@
 import { getArticleDocument, LIBRARY_ARTICLE_LIMITS } from "../utils/productArticle";
 import { Link } from "react-router-dom";
 import ArticleLibraryCards from "./ArticleLibraryCards";
+import { groupArticleSeasons } from "../utils/articleSeasons";
 import "../product-article.css";
 
-function ArticleNode({ node, imageGallery = false, expandableImage = false }) {
+function ArticleNode({ node, imageGallery = false, expandableImage = false, library = false }) {
   const children = node.content?.map((child, index) => <ArticleNode key={index} node={child} />);
   if (node.type === "text") {
     let text = node.text;
@@ -19,11 +20,18 @@ function ArticleNode({ node, imageGallery = false, expandableImage = false }) {
   if (node.type === "hardBreak") return <br />;
   if (node.type === "horizontalRule") return <hr />;
   if (node.type === "libraryCards") return <ArticleLibraryCards node={node} />;
+  if (node.type === "seasonRow") return <div className="article-season-row" role="list" aria-label="Mùa phù hợp">
+    {node.items.map(({ image, label }, index) => <div className="article-season-item" role="listitem" key={index}>
+      <img src={image.attrs.src} alt="" width={40} height={40} loading="lazy" decoding="async" />
+      <div className="article-season-label"><ArticleNode node={label} /></div>
+    </div>)}
+  </div>;
   if (node.type === "image") return <figure style={{ width: `${node.attrs.articleWidth}%` }}>
     {expandableImage?<a href={node.attrs.src} target="_blank" rel="noopener noreferrer" aria-label={`Xem ảnh lớn: ${node.attrs.alt||"hình minh họa"}`}><img src={node.attrs.src} alt={node.attrs.alt} width={node.attrs.width} height={node.attrs.height} loading="lazy" decoding="async"/></a>:<img src={node.attrs.src} alt={node.attrs.alt} width={node.attrs.width} height={node.attrs.height} loading="lazy" decoding="async" />}
     {node.attrs.title && <figcaption>{node.attrs.title}</figcaption>}
   </figure>;
   if (node.type === "doc") {
+    if (library) return groupArticleSeasons(node.content).map((child, index) => <ArticleNode key={index} node={child} />);
     if (!imageGallery) return children;
     const groups=[];
     for(let i=0;i<(node.content||[]).length;i++){
@@ -42,5 +50,5 @@ function ArticleNode({ node, imageGallery = false, expandableImage = false }) {
 
 export default function ProductArticle({ content, text, imageGallery = false, library = false }) {
   const document = getArticleDocument(content, text || "Nội dung mô tả sản phẩm đang được cập nhật.", library ? LIBRARY_ARTICLE_LIMITS : undefined);
-  return <div className="product-article"><ArticleNode node={document} imageGallery={imageGallery} /></div>;
+  return <div className="product-article"><ArticleNode node={document} imageGallery={imageGallery} library={library} /></div>;
 }

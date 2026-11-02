@@ -1,0 +1,44 @@
+{
+  "at": "2026-11-02T02:47:11.453Z",
+  "passed": true,
+  "frontend": "https://velours-jet.vercel.app",
+  "deployment": "dpl_DD97y3hMKK2Aty9MY3Ngb64LwEHr",
+  "articles": 31,
+  "verifiedCardPlacements": 176,
+  "viewportWidths": [
+    1440,
+    768,
+    390,
+    320
+  ],
+  "maximumEmbeddedCardWidth": 260,
+  "lint": "passed",
+  "productionBuild": "passed",
+  "browser": {
+    "passed": true,
+    "checks": [
+      "Compact embedded product cards across 31 articles (176 placements at 1440/768/390/320px): maximum 260px width, centered rows, five products balanced 3+2, equal card heights and aligned prices; original product links, descriptions, ID-based colors, shared wide layout and bottom related-product columns preserved; zero database writes"
+    ],
+    "errors": [],
+    "actualDatabaseReads": true,
+    "mockedAuthentication": true,
+    "databaseWrites": 0
+  },
+  "liveChecks": [
+    {
+      "path": "/knowledge/group/cam-chanh-ngot-ngao",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/knowledge-DOFUyxFl.css",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/ProductArticle-Bj_-uH8y.js",
+      "status": 200,
+      "matchesBuild": true
+    }
+  ]
+}

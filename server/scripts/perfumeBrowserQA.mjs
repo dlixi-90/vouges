@@ -33,6 +33,8 @@ import {getAccordColors} from "../../client/src/utils/accordColors.js";
 import {sanitizeArticle,articleToPlainText,LIBRARY_ARTICLE_LIMITS} from "../../client/src/utils/productArticle.js";
 import {libraryPath} from "../../client/src/utils/fragranceLibrary.js";
 import {reviseLibraryPresentation,reviseProductPresentation} from "../../tools/apaniche/library-presentation.mjs";
+import {knowledgePresentation} from "../../client/src/utils/knowledgePresentation.js";
+import {libraryEnglishName} from "../services/libraryDirectory.js";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
 const artifacts=path.join(root,".qa-perfume");fs.mkdirSync(artifacts,{recursive:true});
@@ -45,6 +47,7 @@ const dashboardQA=process.argv.includes("--dashboard-design");
 const popularQA=process.argv.includes("--popular-products");
 const editorQA=process.argv.includes("--editor-fields");
 const operationsQA=process.argv.includes("--operations-ui");
+const operationsOnly=operationsQA&&process.argv.includes("--operations-only");
 const brandsQA=process.argv.includes("--brand-menu");
 const productTabsQA=process.argv.includes("--product-tabs");
 const accordsQA=process.argv.includes("--accord-colors");
@@ -52,6 +55,10 @@ const experienceQA=process.argv.includes("--experience-design");
 const knowledgeQA=process.argv.includes("--knowledge");
 const knowledgeWidthQA=process.argv.includes("--knowledge-width");
 const knowledgeIconsQA=process.argv.includes("--knowledge-icons");
+const knowledgeGroupCardsQA=process.argv.includes("--knowledge-group-cards");
+const knowledgeProductCardsQA=process.argv.includes("--knowledge-product-cards");
+const knowledgeOpeningQA=process.argv.includes("--knowledge-opening");
+const knowledgeRelatedCardsQA=process.argv.includes("--knowledge-related-cards");
 const libraryPresentationQA=process.argv.includes("--library-presentation");
 const presentationPreview=libraryPresentationQA&&!process.argv.includes("--live-presentation-data");
 const descriptionsQA=process.argv.includes("--product-descriptions");
@@ -166,6 +173,17 @@ const screenshot=async(name)=>{const result=await send("Page.captureScreenshot",
 const clickText=async(text)=>evaluate(`(()=>{const button=[...document.querySelectorAll('button')].find(el=>el.textContent.trim()===${JSON.stringify(text)});if(!button)throw new Error('Missing button');button.click();return true;})()`);
 const input=async(selector,value)=>evaluate(`(()=>{const element=document.querySelector(${JSON.stringify(selector)});if(!element)throw new Error('Missing input');Object.getOwnPropertyDescriptor(element.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value').set.call(element,${JSON.stringify(value)});element.dispatchEvent(new Event('input',{bubbles:true}));return true;})()`);
 const noOverflow=async()=>assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth+2'),true,"Document overflows horizontally");
+const assertKnowledgeProductCards=async()=>{
+  const layout=await evaluate("(()=>{const grid=document.querySelector('.knowledge-product-grid');if(!grid)return null;const box=grid.getBoundingClientRect();return {left:box.left,right:box.right,cards:[...grid.querySelectorAll('.net-product-card')].map(card=>{const r=card.getBoundingClientRect(),media=card.querySelector('.net-product-media'),m=media.getBoundingClientRect(),p=card.querySelector('.net-product-price').getBoundingClientRect();return {href:card.getAttribute('href'),left:r.left,right:r.right,top:r.top,width:r.width,height:r.height,mediaWidth:m.width,mediaHeight:m.height,priceTop:p.top,color:getComputedStyle(media).backgroundColor}})}})()");
+  if(!layout)return [];
+  for(const card of layout.cards){assert.ok(card.width<=260.5&&card.height<430&&Math.abs(card.mediaWidth-card.mediaHeight)<1,JSON.stringify(card));const id=card.href.split('/').pop();assert.equal(card.color,['rgb(242, 242, 242)','rgb(246, 249, 246)','rgb(246, 248, 254)'][parseInt(id.slice(-4),16)%3]);}
+  for(const row of Map.groupBy(layout.cards,card=>Math.round(card.top)).values()){
+    assert.ok(row.length<=4);assert.ok(Math.abs((row[0].left+row.at(-1).right-layout.left-layout.right)/2)<1,'Related-product rows are centered');
+    assert.ok(Math.max(...row.map(card=>card.height))-Math.min(...row.map(card=>card.height))<1,'Related-product card heights align');
+    assert.ok(Math.max(...row.map(card=>card.priceTop))-Math.min(...row.map(card=>card.priceTop))<1,'Related-product prices align');
+  }
+  return layout.cards;
+};
 const checkSerif=async(selector)=>{
   await evaluate("document.fonts.ready");
   await evaluate("document.fonts.load('500 32px Lora','ĐÁNH THỨC VẺ ĐẸP CỦA BẠN ƯU ĐÃI')");
@@ -256,30 +274,185 @@ try{
     assert.equal(await evaluate("/apa\\s*niche/iu.test(document.querySelector('.knowledge-article').innerText)"),false);
     assert.equal(await evaluate("document.querySelector('.knowledge-article').innerText.includes('Jean Paul Gaultier Scandal')"),true);
     checks.push(`31 category sections become three aligned internal links with 44px icons (40px mobile), reviewed at 1440/390/320px; all three category links navigate within Velours; 1049 articles contain no source-store brand; wide layout and editorial content preserved; ${presentationPreview?"preview transformations":"unmodified stored data and responses"} and no database writes`);
+  }else if(knowledgeRelatedCardsQA){
+    const examples=[];
+    for(const [kind,name] of [['group','Cam Chanh (Citrus)'],['accord','Trầm Hương'],['note','Hoa Mẫu Đơn']]){
+      const term=await FragranceTerm.findOne({kind,name}).select('kind key slug name').lean();assert.ok(term,kind+': '+name);
+      const response=await call(publicLibraryTerm,{params:{kind,slug:libraryPath(term).split('/').pop()},query:{page:'1'}});assert.equal(response.body.success,true);assert.ok(response.body.total>15);
+      examples.push({term,data:response.body});
+    }
+    let checked=0;
+    for(const width of [1920,1440,1024,768,390,320]){
+      console.log(JSON.stringify({phase:'knowledge-related-cards',width}));
+      await send('Emulation.setDeviceMetricsOverride',{width,height:1100,deviceScaleFactor:1,mobile:width<500});
+      for(const {term,data} of examples){
+        await goto(libraryPath(term),"document.querySelectorAll('.knowledge-product-grid .net-product-card').length===15");
+        await evaluate("document.querySelector('.knowledge-related-heading').scrollIntoView({block:'start',behavior:'instant'})");
+        const cards=await assertKnowledgeProductCards();checked+=cards.length;
+        assert.deepEqual(cards.map(card=>card.href),data.products.map(product=>'/collection/'+product._id),'Product links and order are unchanged');
+        const rows=Map.groupBy(cards,card=>Math.round(card.top));assert.equal([...rows.values()][0].length,width>=1440?4:width===1024?3:2);
+        assert.equal(await evaluate("getComputedStyle(document.querySelector('.knowledge-detail-page')).maxWidth"),'1500px');await noOverflow();
+        await wait(`[...document.querySelectorAll('.knowledge-product-grid img')].slice(0,${[...rows.values()][0].length}).every(image=>image.complete&&image.naturalWidth>0)`);
+        await screenshot('knowledge-related-'+term.kind+'-'+width);
+        if(width===1440){
+          await selectPage('[aria-label="Phân trang sản phẩm liên quan"]','.knowledge-related-heading',2);
+          await wait(`document.querySelector('.knowledge-product-grid .net-product-card')?.getAttribute('href')!==${JSON.stringify(cards[0].href)}`);checked+=(await assertKnowledgeProductCards()).length;await noOverflow();
+        }
+      }
+    }
+    checks.push(`Resized related products on group/accord/note detail pages: ${checked} card placements at 1920/1440/1024/768/390/320px; maximum 260px width, 4/3/2 responsive columns, centered rows, equal card heights and aligned prices; original product links, order, ID-based colors, 15-item pagination and wide page container preserved; zero database writes`);
+  }else if(knowledgeOpeningQA){
+    const terms=await FragranceTerm.find({kind:{$in:['group','accord','note']}}).select('kind key slug name description descriptionContent').lean();
+    let merged=0;
+    for(const term of terms){
+      const input=sanitizeArticle(term.descriptionContent,LIBRARY_ARTICLE_LIMITS),before=JSON.stringify(term),view=knowledgePresentation({...term,englishName:libraryEnglishName(term)});
+      assert.deepEqual([view.hero,...(view.mergedHeading?[input.content[1]]:[]),...view.intro.content,...view.body.content].filter(Boolean),input.content,term.name);
+      assert.equal(JSON.stringify(term),before);assert.equal(view.mergedHeading,true,term.name);merged++;
+    }
+    const examples=[terms.find(term=>term.kind==='group'&&term.name==='Cam Chanh Ngọt Ngào (Citrus Gourmand)'),terms.find(term=>term.kind==='accord'&&term.name==='Mật Ong'),terms.find(term=>term.kind==='note'&&term.name==='Hoa Mẫu Đơn'),terms.find(term=>term.kind==='accord'&&term.name==='Coca Cola'),terms.find(term=>term.kind==='note'&&term.name==='Đinh hương'),terms.filter(term=>term.kind==='note').sort((a,b)=>b.name.length-a.name.length)[0]];
+    assert.ok(examples.every(Boolean));let pagesChecked=0;
+    console.log(JSON.stringify({phase:'knowledge-opening',articles:terms.length,merged,examples:examples.length}));
+    for(const width of [1440,1024,768,390,320]){
+      console.log(JSON.stringify({phase:'knowledge-opening-viewport',width}));
+      await send('Emulation.setDeviceMetricsOverride',{width,height:1100,deviceScaleFactor:1,mobile:width<500});
+      for(const term of examples){
+        const view=knowledgePresentation({...term,englishName:libraryEnglishName(term)});
+        await goto(libraryPath(term),"document.querySelector('.knowledge-hero img')&&document.querySelector('.knowledge-heading-primary')");
+        assert.equal(await evaluate("document.querySelectorAll('h1').length"),1);
+        assert.equal(await evaluate("document.querySelector('.knowledge-heading-primary').textContent"),view.title);
+        assert.equal(await evaluate("document.querySelector('.knowledge-heading-secondary')?.textContent||''"),view.secondaryTitle);
+        assert.equal(await evaluate("document.querySelector('.store-page-breadcrumb [aria-current=page]').textContent"),view.label);
+        assert.deepEqual(await evaluate("[...document.querySelectorAll('.store-page-breadcrumb a')].map(link=>link.getAttribute('href'))"),['/',`/knowledge/${term.kind}`]);
+        assert.equal(await evaluate("document.querySelector('.knowledge-hero-image').getAttribute('href')"),view.hero.attrs.src);
+        assert.equal(await evaluate("document.querySelector('.knowledge-hero-image').target"),'_blank');
+        assert.equal(await evaluate("[...document.querySelectorAll('.knowledge-article :is(h2,h3)')].some(heading=>heading.textContent.trim()===document.querySelector('.knowledge-heading-primary').textContent.trim()||heading.textContent.trim()===document.querySelector('.knowledge-heading-secondary')?.textContent.trim())"),false,'A translated leading heading is not repeated below the hero');
+        const boxes=await evaluate("(()=>{const box=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}};return {hero:box('.knowledge-hero-image'),article:box('.knowledge-article'),copy:document.querySelector('.knowledge-opening-copy')?box('.knowledge-opening-copy'):null,titleSize:parseFloat(getComputedStyle(document.querySelector('h1')).fontSize),bodySize:parseFloat(getComputedStyle(document.querySelector('.knowledge-article .product-article')).fontSize)}})()");
+        assert.ok(boxes.titleSize>boxes.bodySize*1.6,'Main title has a distinct hierarchy');
+        if(view.layout==='banner'){
+          assert.ok(Math.abs(boxes.hero.width-boxes.article.width)<1);assert.ok(Math.abs(boxes.hero.width/boxes.hero.height-(width<=700?2.3:3.4))<.02);
+        }else{
+          assert.ok(Math.abs(boxes.hero.width-Math.min(420,boxes.article.width))<1&&Math.abs(boxes.hero.width-boxes.hero.height)<1);
+          assert.ok(width>1100?boxes.copy.left>boxes.hero.right:boxes.copy.top>=boxes.hero.bottom);
+          const normalize=value=>value.replace(/\s+/gu,' ').trim();
+          assert.equal(normalize(await evaluate("document.querySelector('.knowledge-opening-copy .product-article').innerText")),normalize(articleToPlainText(view.intro)));
+        }
+        assert.equal(await evaluate("getComputedStyle(document.querySelector('.knowledge-detail-page')).maxWidth"),'1500px');
+        await assertKnowledgeProductCards();
+        assert.equal(await evaluate("[...document.querySelectorAll('.article-library-product .net-product-card')].every(card=>card.getBoundingClientRect().width<=260.5)"),true,'Compact editorial product cards are preserved');
+        await noOverflow();await wait("document.querySelector('.knowledge-hero img').complete&&document.querySelector('.knowledge-hero img').naturalWidth>0");
+        await evaluate('scrollTo({top:0,behavior:"instant"})');await screenshot('knowledge-opening-'+libraryPath(term).split('/').pop()+'-'+width);pagesChecked++;
+      }
+    }
+    checks.push(`Unified bilingual headings and larger hero layout across all ${terms.length} articles: ${merged} repeated lead titles merged without losing any remaining document nodes or image references; ${pagesChecked} browser views at 1440/1024/768/390/320px cover group/accord/note, identical aliases, missing English metadata and long titles; original image links, intro text, breadcrumbs, wide page bounds, compact product cards and bottom product columns preserved; zero database writes`);
+  }else if(knowledgeProductCardsQA){
+    const hasProducts=node=>node.type==='libraryCards'&&node.attrs.items.length&&node.attrs.items.every(item=>/^\/collection\/[a-f0-9]{24}$/u.test(item.href));
+    const terms=await FragranceTerm.find({kind:{$in:['group','accord','note']},'descriptionContent.content.attrs.items.href':/^\/collection\/[a-f0-9]{24}$/u}).select('kind key slug name descriptionContent').lean();
+    const entries=terms.filter(term=>term.descriptionContent?.content?.some(hasProducts)).sort((a,b)=>Number(b.name==='Cam Chanh Ngọt Ngào (Citrus Gourmand)')-Number(a.name==='Cam Chanh Ngọt Ngào (Citrus Gourmand)'));assert.ok(entries.length);
+    const examples=[...new Set([2,3,4,5].map(count=>entries.find(entry=>entry.descriptionContent.content.some(node=>hasProducts(node)&&node.attrs.items.length===count))).filter(Boolean))];
+    let cardsChecked=0;
+    console.log(JSON.stringify({phase:'article-product-cards',articles:entries.length}));
+    for(const width of [1440,768,390,320]){
+      console.log(JSON.stringify({phase:'article-product-viewport',width}));
+      await send('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width<500});
+      for(const entry of width===1440?entries:examples){
+        await goto(libraryPath(entry),"document.querySelector('.article-library-cards--products')");
+        await evaluate("document.querySelector('.article-library-cards--products').scrollIntoView({block:'center',behavior:'instant'})");
+        await wait("![...document.querySelectorAll('.article-library-product .net-product-price')].some(price=>price.getAttribute('aria-busy')==='true')");
+        const expected=entry.descriptionContent.content.filter(hasProducts).flatMap(node=>node.attrs.items);
+        const grids=await evaluate("[...document.querySelectorAll('.article-library-cards--products')].map(grid=>{const g=grid.getBoundingClientRect();return {left:g.left,right:g.right,cards:[...grid.querySelectorAll('.article-library-product')].map(item=>{const card=item.querySelector('.net-product-card'),media=card.querySelector('.net-product-media'),price=card.querySelector('.net-product-price'),r=card.getBoundingClientRect(),m=media.getBoundingClientRect(),p=price.getBoundingClientRect();return {href:card.getAttribute('href'),left:r.left,right:r.right,top:r.top,width:r.width,height:r.height,mediaWidth:m.width,mediaHeight:m.height,priceTop:p.top,priceHeight:p.height,color:getComputedStyle(media).backgroundColor,description:item.querySelector(':scope > p')?.textContent||''}})}})");
+        const cards=grids.flatMap(grid=>grid.cards);assert.equal(cards.length,expected.length);
+        for(let index=0;index<cards.length;index++){
+          const card=cards[index],source=expected[index],id=source.href.split('/').pop();
+          assert.equal(card.href,source.href);assert.equal(card.description,source.description||'');
+          assert.ok(card.width<=260.5&&card.height<430&&Math.abs(card.mediaWidth-card.mediaHeight)<1,JSON.stringify({width,entry:entry.name,card}));
+          if(width>=768)assert.ok(Math.abs(card.width-260)<1);
+          assert.equal(card.color,['rgb(242, 242, 242)','rgb(246, 249, 246)','rgb(246, 248, 254)'][parseInt(id.slice(-4),16)%3],'Product ID still controls frame color');cardsChecked++;
+        }
+        for(const grid of grids){
+          const rows=Map.groupBy(grid.cards,card=>Math.round(card.top));
+          for(const row of rows.values()){
+            assert.ok(Math.abs((row[0].left+row.at(-1).right-grid.left-grid.right)/2)<1,'Each product row is centered');
+            assert.ok(Math.max(...row.map(card=>card.priceTop))-Math.min(...row.map(card=>card.priceTop))<1,'Prices align within a row');
+            assert.ok(Math.max(...row.map(card=>card.height))-Math.min(...row.map(card=>card.height))<1,'Cards have equal height');
+          }
+          if(width===1440&&grid.cards.length===5)assert.deepEqual([...rows.values()].map(row=>row.length),[3,2]);
+          if(width<500)assert.ok([...rows.values()].every(row=>row.length<=2));
+        }
+        await noOverflow();assert.equal(await evaluate("getComputedStyle(document.querySelector('.knowledge-detail-page')).maxWidth"),'1500px');
+        await assertKnowledgeProductCards();
+        if(entry.name==='Cam Chanh Ngọt Ngào (Citrus Gourmand)'){
+          await wait("[...document.querySelectorAll('.article-library-product img')].every(image=>image.complete&&image.naturalWidth>0)");
+          await screenshot('knowledge-product-cards-'+width);
+        }
+      }
+    }
+    checks.push(`Compact embedded product cards across ${entries.length} articles (${cardsChecked} placements at 1440/768/390/320px): maximum 260px width, centered rows, five products balanced 3+2, equal card heights and aligned prices; original product links, descriptions, ID-based colors, shared wide layout and bottom related-product columns preserved; zero database writes`);
+  }else if(knowledgeGroupCardsQA){
+    const hasGroupCards=node=>node.type==="libraryCards"&&node.attrs.items.length&&node.attrs.items.every(item=>item.href.startsWith("/knowledge/group/"));
+    const terms=await FragranceTerm.find({kind:{$in:["group","accord","note"]},"descriptionContent.content.attrs.items.href":/^\/knowledge\/group\//}).select("kind key slug name descriptionContent").lean();
+    const entries=terms.filter(term=>term.descriptionContent?.content?.some(hasGroupCards)&&(!process.argv.includes('--group-cards-screenshots-only')||term.name==="Cam Chanh Ngọt Ngào (Citrus Gourmand)"));
+    assert.ok(entries.length);
+    console.log(JSON.stringify({phase:'group-card-checks',articles:entries.length}));
+    const examples=[entries.find(entry=>entry.name==="Cam Chanh Ngọt Ngào (Citrus Gourmand)"),...['accord','note'].map(kind=>entries.find(entry=>entry.kind===kind))].filter(Boolean);
+    assert.ok(examples.length);
+    let cardsChecked=0;
+    for(const width of [1440,768,390,320]){
+      console.log(JSON.stringify({phase:'group-card-viewport',width}));
+      await send("Emulation.setDeviceMetricsOverride",{width,height:1000,deviceScaleFactor:1,mobile:width<500});
+      for(const entry of width===1440?entries:examples){
+        await goto(libraryPath(entry),"document.querySelector('.article-library-cards--groups')");
+        const expected=entry.descriptionContent.content.filter(hasGroupCards).flatMap(node=>node.attrs.items);
+        const cards=await evaluate("[...document.querySelectorAll('.article-library-cards--groups .knowledge-card')].map(card=>{const frame=card.querySelector('.knowledge-card-image').getBoundingClientRect(),box=card.getBoundingClientRect(),name=card.querySelector('strong'),english=card.querySelector('small');return {href:card.getAttribute('href'),name:name.textContent,english:english?.textContent||'',imageWidth:frame.width,imageHeight:frame.height,cardWidth:box.width,fontSize:getComputedStyle(name).fontSize,englishFont:english?getComputedStyle(english).fontSize:null,radius:getComputedStyle(card).borderRadius}})");
+        assert.equal(cards.length,expected.length);
+        for(let index=0;index<cards.length;index++){
+          const card=cards[index],source=expected[index];
+          assert.equal(card.href,source.href);assert.equal(card.name,source.name);assert.equal(card.english,source.englishName||'');
+          assert.ok(card.imageWidth>230&&Math.abs(card.imageWidth/card.imageHeight-3.88)<.02&&Math.abs(card.cardWidth-card.imageWidth-26)<1,JSON.stringify({width,entry:entry.name,card}));
+          assert.equal(card.fontSize,'16px');if(card.englishFont)assert.equal(card.englishFont,'13px');assert.equal(card.radius,'14px');cardsChecked++;
+        }
+        const columns=await evaluate("[...document.querySelectorAll('.article-library-cards--groups')].map(grid=>getComputedStyle(grid).gridTemplateColumns.split(' ').length)");
+        assert.ok(columns.every(count=>count===(width===1440?3:width===768?2:1)));
+        await noOverflow();assert.equal(await evaluate("getComputedStyle(document.querySelector('.knowledge-detail-page')).maxWidth"),'1500px');
+        await assertKnowledgeProductCards();
+        assert.equal(await evaluate("[...document.querySelectorAll('.article-library-cards--terms:not(.article-library-cards--groups) .knowledge-card-image')].every(image=>image.getBoundingClientRect().width<=(innerWidth>600?112:96)+1)"),true,'Note and accord thumbnail sizes are preserved');
+        if(examples.includes(entry)){
+          await evaluate("document.querySelector('.article-library-cards--groups').scrollIntoView({block:'center',behavior:'instant'})");await pause(300);
+          await wait("[...document.querySelectorAll('.article-library-cards--groups img')].every(image=>image.complete&&image.naturalWidth>0)");
+          await screenshot('knowledge-group-cards-'+entry.kind+'-'+width);
+        }
+      }
+    }
+    checks.push(`Larger full-width landscape group banners and 16px/13px labels across ${entries.length} articles (${cardsChecked} cards checked); responsive 3/2/1 columns at 1440/768/390/320px, original internal links and labels, rounded frames and hover zoom; note thumbnails, wide article layout and related-product columns preserved; zero database writes`);
   }else if(knowledgeIconsQA){
     const labels=["Xuân","Hạ","Hè","Thu","Đông"];
     const entries=await FragranceTerm.find({kind:{$in:["group","accord","note"]},"descriptionContent.content.attrs.alt":{$in:labels},...(process.argv.includes("--icons-screenshots-only")?{name:"Cam Chanh (Citrus)"}:{})}).select("kind key slug name descriptionContent").lean();
     assert.ok(entries.length);
     let iconsChecked=0;
-    for(const width of [1440,390]){
+    for(const width of [1440,390,320]){
       await send("Emulation.setDeviceMetricsOverride",{width,height:1000,deviceScaleFactor:1,mobile:width<500});
       for(const entry of entries){
         const expected=entry.descriptionContent.content.filter(node=>node.type==="image"&&labels.includes(node.attrs.alt)).length;
         await goto(libraryPath(entry),"document.querySelector('.knowledge-article .product-article')");
-        const icons=await evaluate(`[...document.querySelectorAll('.knowledge-article .product-article figure > img')].filter(img=>${JSON.stringify(labels)}.includes(img.alt)).map(img=>{const box=img.getBoundingClientRect();return {alt:img.alt,width:box.width,height:box.height,frame:img.parentElement.getBoundingClientRect().width}})`);
+        const icons=await evaluate("[...document.querySelectorAll('.article-season-item')].map(item=>{const img=item.querySelector('img'),label=item.querySelector('.article-season-label'),box=img.getBoundingClientRect(),text=label.getBoundingClientRect(),card=item.getBoundingClientRect();return {label:label.innerText.trim(),width:box.width,height:box.height,top:card.top,left:card.left,cardHeight:card.height,aligned:Math.abs((box.top+box.height/2)-(text.top+text.height/2))<1,imageBeforeText:box.right<=text.left}})");
         assert.equal(icons.length,expected);
-        for(const icon of icons){const limit=width>600?64:48;assert.ok(Math.abs(icon.width-limit)<1&&Math.abs(icon.height-limit)<1&&Math.abs(icon.frame-limit)<1,JSON.stringify({entry:entry.name,width,icon}));iconsChecked++;}
+        assert.deepEqual(icons.map(icon=>icon.label),entry.descriptionContent.content.filter(node=>node.type==="image"&&labels.includes(node.attrs.alt)).map(node=>`Mùa ${node.attrs.alt==="Hạ"?"Hè":node.attrs.alt}`));
+        for(const icon of icons){const limit=width>600?40:32;assert.ok(Math.abs(icon.width-limit)<1&&Math.abs(icon.height-limit)<1&&icon.cardHeight<=80&&icon.aligned&&icon.imageBeforeText,JSON.stringify({entry:entry.name,width,icon}));iconsChecked++;}
+        assert.equal(new Set(icons.map(icon=>Math.round(icon.top))).size,width>600?1:Math.ceil(expected/2),"Seasons share one desktop row and at most two mobile columns");
+        const seasonRows=await evaluate("[...document.querySelectorAll('.article-season-row')].map(row=>{const box=row.getBoundingClientRect();return {left:box.left,right:box.right,items:[...row.children].map(item=>{const r=item.getBoundingClientRect();return {top:r.top,left:r.left,right:r.right}})}})");
+        for(const row of seasonRows)for(const items of Map.groupBy(row.items,item=>Math.round(item.top)).values())assert.ok(Math.abs((items[0].left+items.at(-1).right-row.left-row.right)/2)<1,'Every season row, including a single season or a wrapped last row, is centered');
+        assert.equal(await evaluate(`[...document.querySelectorAll('.knowledge-article .product-article figure > img')].filter(img=>${JSON.stringify(labels)}.includes(img.alt)).length`),0,"Season icons no longer render as detached full-width figures");
         await noOverflow();
         assert.equal(await evaluate("getComputedStyle(document.querySelector('.knowledge-detail-page')).maxWidth"),"1500px","The shared wide page container is preserved");
         assert.equal(await evaluate(`[...document.querySelectorAll('.knowledge-article .product-article figure > img')].filter(img=>!${JSON.stringify(labels)}.includes(img.alt)).every(img=>getComputedStyle(img).maxHeight===${JSON.stringify(width>600?"240px":"180px")})`),true,"Illustration size limits are preserved");
-        if(entry.name==="Cam Chanh (Citrus)"){
-          await evaluate(`[...document.querySelectorAll('.knowledge-article .product-article figure > img')].find(img=>${JSON.stringify(labels)}.includes(img.alt)).closest('figure').scrollIntoView({block:'center',behavior:'instant'})`);
+        await assertKnowledgeProductCards();
+        if(["Cam Chanh Ngọt Ngào (Citrus Gourmand)","Gỗ Thơm Và Thảo Mộc (Woody Aromatic)","Cam Chanh (Citrus)"].includes(entry.name)){
+          await evaluate("document.querySelector('.article-season-row').scrollIntoView({block:'center',behavior:'instant'})");
           await pause(300);
-          await screenshot("knowledge-season-icons-"+width);
+          await screenshot("knowledge-season-row-"+libraryPath(entry).split("/").pop()+"-"+width);
         }
       }
     }
-    checks.push(`Season icons across all ${entries.length} matching articles render at 64px desktop / 48px mobile (${iconsChecked} icon placements checked); shared 1500px page container and illustration limits preserved; no overflow; zero database writes`);
+    checks.push(`All ${entries.length} articles display centered season rows, including single items and wrapped last rows: one desktop row, two mobile columns, 40px/32px icons (${iconsChecked} placements at 1440/390/320px); shared 1500px page container, illustration limits and related-product columns preserved; no overflow; zero database writes`);
   }else if(knowledgeWidthQA){
     const entries=[];
     for(const kind of ["group","accord","note"]){
@@ -295,12 +468,12 @@ try{
       assert.deepEqual(membership,orders,"The account pages share the same content bounds");
       for(const entry of entries){
         await goto(entry.path,"document.querySelector('.knowledge-article .product-article')");
-        for(const selector of [".knowledge-detail-page",".knowledge-detail-page > .store-page-heading",".knowledge-article",".knowledge-article .product-article"]){
+        for(const selector of [".knowledge-detail-page",".knowledge-detail-page > .store-page-heading",".knowledge-article",...(await evaluate("Boolean(document.querySelector('.knowledge-article > .product-article'))")?[".knowledge-article > .product-article"]:[])]){
           const actual=await bounds(selector);
           assert.ok(Math.abs(actual.left-orders.left)<1&&Math.abs(actual.width-orders.width)<1,JSON.stringify({width,kind:entry.kind,selector,actual,expected:orders}));
         }
         await noOverflow();
-        assert.equal(await evaluate("(()=>{const grid=document.querySelector('.knowledge-product-grid');return grid?getComputedStyle(grid).gridTemplateColumns.split(' ').length:0})()"),await evaluate("document.querySelector('.knowledge-product-grid')?(innerWidth>600?3:2):0"),"Related products keep their existing column layout");
+        await assertKnowledgeProductCards();
         await screenshot("knowledge-width-"+entry.kind+"-"+width);
       }
     }
@@ -330,17 +503,40 @@ try{
       await clickText("Đóng");
     }
     await send("Emulation.setDeviceMetricsOverride",{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+    await goto('/owner',"document.querySelectorAll('.admin-metric-card').length===4");
+    const design=()=>evaluate("(()=>{const card=document.querySelectorAll('.admin-metric-card')[1],s=getComputedStyle(card),p=getComputedStyle(card.querySelector('p')),h=getComputedStyle(document.querySelector('.perfume-page-heading h1'));return {radius:s.borderRadius,background:s.backgroundColor,border:s.borderTopColor,font:s.fontFamily,caption:p.fontSize,captionMargin:p.marginBottom,titleFont:h.fontFamily,titleSize:h.fontSize}})()");
+    const dashboardDesign=await design();
     await goto('/owner/loyalty',"document.querySelectorAll('.loyalty-admin-tier').length===4");
+    assert.deepEqual(await design(),dashboardDesign,'Membership uses the same metric cards and page heading as Dashboard');
+    assert.equal(await evaluate("document.querySelector('.admin-sidebar a[aria-current=page]').getAttribute('href')"),'/owner/loyalty');
+    await screenshot('loyalty-admin-overview');
+    const checkDrawer=async()=>{
+      await wait("document.querySelector('.admin-operation-drawer[open]')");await noOverflow();
+      assert.equal(await evaluate("(()=>{const d=document.querySelector('.admin-operation-drawer'),r=d.getBoundingClientRect(),f=d.querySelector('footer').getBoundingClientRect(),button=d.querySelector('footer button[type=submit]');return r.width<=innerWidth&&r.height<=innerHeight+1&&f.bottom<=innerHeight+1&&(!button||button.form===d.querySelector('form'))})()"),true,'Drawer fits the viewport and its pinned save button submits the correct form');
+    };
+    const fillField=async(label,value)=>evaluate(`(()=>{const field=[...document.querySelectorAll('.loyalty-admin-form label')].find(label=>label.textContent.startsWith(${JSON.stringify(label)})).querySelector('input,textarea,select');Object.getOwnPropertyDescriptor(field.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:field.tagName==='SELECT'?HTMLSelectElement.prototype:HTMLInputElement.prototype,'value').set.call(field,${JSON.stringify(String(value))});field.dispatchEvent(new Event(field.tagName==='SELECT'?'change':'input',{bubbles:true}));})()`);
     await evaluate("document.querySelector('.loyalty-admin-tier').open=true");await noOverflow();await screenshot('loyalty-admin-policy');
     await input('.loyalty-admin-form>label:last-of-type textarea',"Kiểm thử thay đổi cấu hình");
-    await clickText("Lưu chính sách");await wait("document.querySelectorAll('.loyalty-admin-tier').length===4");await pause(200);
+    await clickText("Lưu chính sách");await wait("document.querySelectorAll('.loyalty-admin-tier').length===4&&!document.querySelector('.loyalty-admin-policy button[type=submit]').disabled");await pause(200);
     assert.equal(loyaltyFixtures.requests.filter(row=>row.path.endsWith('/policy')).length,1);
-    for(const width of [1440,390,320]){
+    for(const width of [1440,1024,390,320]){
+      console.log(JSON.stringify({phase:'loyalty-dashboard-design',width}));
       await send("Emulation.setDeviceMetricsOverride",{width,height:900,deviceScaleFactor:1,mobile:width<500});
       await noOverflow();await clickText("Danh mục quà");await clickText("Thêm quà");await noOverflow();
+      await checkDrawer();
       assert.equal(await evaluate("document.querySelector('.loyalty-admin-form').innerText.includes('Giá vốn nội bộ')"),true);
-      await screenshot('loyalty-admin-reward-'+width);await clickText("Đóng");
+      await screenshot('loyalty-admin-reward-'+width);
+      if(width===1440){
+        await fillField('Tên quà','Quà QA');await clickText('Lưu thay đổi');await pause(100);
+        assert.equal(loyaltyFixtures.requests.filter(row=>row.path.endsWith('/rewards')).length,0,'A required reason cannot be skipped by the footer button');
+        await fillField('Lý do chỉnh sửa','QA kiểm tra quà');loyaltyFixtures.failNext('/api/loyalty/admin/rewards');
+        await clickText('Lưu thay đổi');await wait("document.querySelector('.admin-operation-drawer [role=alert]')");
+        assert.equal(await evaluate("document.querySelector('.loyalty-admin-form > label:last-of-type textarea').value"),'QA kiểm tra quà');
+        await clickText('Lưu thay đổi');await wait("!document.querySelector('.admin-operation-drawer')");
+        const rewardAttempt=loyaltyFixtures.requests.filter(row=>row.path.endsWith('/rewards'));assert.equal(rewardAttempt.length,2);assert.equal(rewardAttempt.at(-1).body.name,'Quà QA');assert.equal(rewardAttempt.at(-1).body.points,100);
+      }else await clickText("Đóng");
       await clickText("Chiến dịch VIP");await clickText("Thêm chiến dịch");await noOverflow();await screenshot('loyalty-admin-campaign-'+width);
+      await checkDrawer();
       if(width===1440){
         await evaluate("(()=>{const field=[...document.querySelectorAll('.loyalty-admin-form label')].find(label=>label.textContent.startsWith('Mã tài khoản')).querySelector('textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(field,'user_one\\nuser_two');field.dispatchEvent(new Event('input',{bubbles:true}));})()");
         assert.equal(await evaluate("[...document.querySelectorAll('.loyalty-admin-form label')].find(label=>label.textContent.startsWith('Mã tài khoản')).querySelector('textarea').value"),"user_one\nuser_two","Targeted customer IDs retain line breaks while editing");
@@ -351,13 +547,42 @@ try{
       }else await clickText("Đóng");
       await evaluate("[...document.querySelectorAll('.loyalty-admin-tabs>button')].find(button=>button.textContent==='Thành viên').click()");
       await wait("document.querySelector('.perfume-table tbody button')");await noOverflow();await clickText("Quản lý");await noOverflow();
-      await clickText("Gia hạn / điều chỉnh hạng");await noOverflow();await screenshot('loyalty-admin-member-'+width);await clickText("Đóng");
+      await checkDrawer();await clickText("Gia hạn / điều chỉnh hạng");await noOverflow();await screenshot('loyalty-admin-member-'+width);
+      if(width===1440){
+        await fillField('Lý do bắt buộc','QA gia hạn hạng');await clickText('Lưu thay đổi');await wait("!document.querySelector('.admin-operation-drawer')");
+        const tier=loyaltyFixtures.requests.find(row=>row.path.endsWith('/tier'));assert.equal(tier.body.action,'extend');assert.equal(tier.body.months,12);assert.equal(tier.body.reason,'QA gia hạn hạng');
+        await clickText('Quản lý');await checkDrawer();await fillField('Số điểm điều chỉnh',-25);await fillField('Lý do bắt buộc','QA điều chỉnh điểm');
+        await evaluate("document.querySelector('.admin-operation-drawer form').requestSubmit();document.querySelector('.admin-operation-drawer form').requestSubmit()");await wait("!document.querySelector('.admin-operation-drawer')");
+        const points=loyaltyFixtures.requests.filter(row=>row.path.endsWith('/points'));assert.equal(points.length,1);assert.equal(points[0].body.points,-25);assert.ok(points[0].body.requestId);
+      }else await clickText("Đóng");
       await clickText("Yêu cầu đổi quà");await pause(200);await noOverflow();
+      if(width===1440){
+        await wait("document.querySelector('.loyalty-admin-row button')");await clickText('Xử lý');await checkDrawer();
+        await fillField('Lý do / ghi chú xử lý','QA xác nhận quà');await clickText('Lưu thay đổi');await wait("!document.querySelector('.admin-operation-drawer')");
+        await evaluate("(()=>{const select=document.querySelector('[aria-label=\"Lọc trạng thái đổi quà\"]');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(select,'Confirmed');select.dispatchEvent(new Event('change',{bubbles:true}));})()");
+        await wait("document.querySelector('.loyalty-admin-row button')");await clickText('Xử lý');await checkDrawer();
+        assert.deepEqual(await evaluate("[...document.querySelector('.admin-operation-drawer select').options].map(option=>option.value)"),['Fulfilled','Cancelled']);
+        await fillField('Lý do / ghi chú xử lý','QA giao quà');await clickText('Lưu thay đổi');await wait("!document.querySelector('.admin-operation-drawer')");
+        assert.deepEqual(loyaltyFixtures.requests.filter(row=>row.method==='PATCH'&&row.path.includes('/redemptions/')).map(row=>row.body.status),['Confirmed','Fulfilled']);
+      }
       await clickText("Hoàn trả & đối soát");await noOverflow();await screenshot('loyalty-admin-refund-'+width);
+      if(width===1440){
+        await fillField('Mã đơn hàng','6a0000000000000000000333');await wait("document.querySelector('.loyalty-admin-refund-layout').innerText.includes('10.000.000')");
+        await fillField('Tiền hàng hoàn trả lần này',100000);await fillField('Lý do / mã chứng từ hoàn trả','QA hoàn trả');await clickText('Ghi nhận điều chỉnh');
+        await wait("document.querySelector('.loyalty-admin-refund-layout input[type=number]').value==='0'");
+        assert.equal(loyaltyFixtures.requests.find(row=>row.path.endsWith('/refund')).body.amountVnd,100000);
+      }
       await clickText("Nhật ký");await pause(200);await noOverflow();
+      await wait("document.querySelector('.loyalty-admin-audit-details')");await evaluate("document.querySelector('.loyalty-admin-audit-details').open=true");
+      assert.deepEqual(await evaluate("JSON.parse(document.querySelector('.loyalty-admin-audit-details pre').textContent)"),{before:{version:0},after:{version:1}});await screenshot('loyalty-admin-audit-'+width);
       await clickText("Chính sách hạng");await pause(100);
     }
-    checks.push("Loyalty member confirmation/idempotent clicks/history/privacy, Admin configurable policy/rewards/campaigns/member management/refunds/audit at 1440px,390px,320px; in-memory mutations only");
+    loyaltyFixtures.setEmpty(true);await goto('/owner/loyalty',"document.querySelectorAll('.loyalty-admin-tier').length===4");
+    for(const [tab,title] of [['Danh mục quà','Chưa có quà tặng'],['Chiến dịch VIP','Chưa có chiến dịch VIP'],['Thành viên','Chưa có thành viên'],['Yêu cầu đổi quà','Chưa có yêu cầu trong trạng thái này'],['Nhật ký','Chưa có nhật ký quản trị']]){await clickText(tab);await wait(`document.querySelector('.admin-operation-empty strong')?.textContent===${JSON.stringify(title)}`);await noOverflow();}
+    await clickText('Danh mục quà');await evaluate("[...document.querySelectorAll('.loyalty-admin button')].find(button=>button.textContent==='Thêm quà').focus()");await clickText('Thêm quà');await checkDrawer();
+    await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await wait("!document.querySelector('.admin-operation-drawer')");
+    assert.equal(await evaluate("document.activeElement.textContent"),'Thêm quà');
+    checks.push("Dashboard-matched metric cards and typography; all seven Loyalty admin tabs and pinned native drawers at 1440/1024/390/320px; policy save, required reasons, reward error/retry, targeted campaign IDs, tier extension, duplicate-protected point changes, redemption statuses, refunds, empty states, audit JSON, Escape/focus restore; customer point/reward privacy retained; all mutations isolated in memory, zero database writes");
   }else if(libraryQA){
     const dialogsOnly=process.argv.includes('--library-dialogs-only');
     const labels={brand:'thương hiệu',group:'nhóm hương',accord:'kiểu mùi',note:'note hương'};
@@ -828,6 +1053,7 @@ try{
     await goto('/about',"document.querySelector('.inessa-about-hero h1')");await checkSerif('.inessa-about-hero h1');await noOverflow();await screenshot('typography-about-desktop');
     checks.push('Lora font files render Vietnamese serif headings with actual glyphs');
   }
+  if(!operationsOnly){
   await goto("/owner","document.querySelectorAll('.admin-metric-card strong')[2]?.textContent.includes('2.444')");await noOverflow();await screenshot("dashboard-desktop");checks.push("overview: 2444 products and zero revenue");
   if(typographyQA)assert.ok((await evaluate("getComputedStyle(document.querySelector('.perfume-page-heading h1')).fontFamily")).includes('Inter'));
   if(dashboardQA){
@@ -948,6 +1174,7 @@ try{
     await selectPage('[aria-label="Phân trang hội thoại"]','.net-admin-messages .pagination-list-start',2,'.net-admin-messages .overflow-y-auto');
     await wait("document.querySelector('.net-admin-messages .overflow-y-auto').scrollTop<5");
     checks.push('compact 320px pagination and conversation list scroll');
+  }
   }
   }
   assert.deepEqual(writes,[]);assert.deepEqual(errors,[]);

@@ -22,6 +22,17 @@
 .product-article > :first-child { margin-top: 0; }
 .product-article > :last-child { margin-bottom: 0; }
 .product-article:has(.article-library-cards) { container-type: inline-size; }
+.product-article .article-season-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-block: 20px 24px; }
+.product-article .article-season-item { display: flex; align-items: center; gap: 12px; flex: 0 1 180px; min-width: 0; padding: 16px 20px; border: 1px solid #ededed; border-radius: 12px; background: #fcfcfa; }
+.product-article .article-season-item > img { flex: none; width: 40px; height: 40px; margin: 0; border-radius: 0; object-fit: contain; }
+.article-season-label { min-width: 0; }
+.net-theme .product-article .article-season-item p { margin: 0; font-size: 15px; line-height: 1.5; }
+@media (max-width: 600px) {
+ .product-article .article-season-row { gap: 10px; margin-block: 16px 20px; }
+ .product-article .article-season-item { flex-basis: calc((100% - 10px) / 2); padding: 12px; gap: 10px; }
+ .product-article .article-season-item > img { width: 32px; height: 32px; }
+ .net-theme .product-article .article-season-item p { font-size: 14px; }
+}
 .article-library-cards { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 24px 18px; margin-block: 28px; }
 .article-library-cards.columns-2 { grid-template-columns: repeat(2,minmax(0,1fr)); }
 .article-library-card { min-width: 0; }

@@ -1,0 +1,63 @@
+{
+  "at": "2026-11-02T04:25:11.107Z",
+  "passed": true,
+  "frontend": "https://velours-jet.vercel.app",
+  "deployment": "dpl_62MNHPrysHrQEQgMQwakt8buQyCY",
+  "deploymentUrl": "https://velours-7bt57j5eb-ixi4.vercel.app",
+  "pageTypes": [
+    "group",
+    "accord",
+    "note"
+  ],
+  "viewportWidths": [
+    1920,
+    1440,
+    1024,
+    768,
+    390,
+    320
+  ],
+  "verifiedCardPlacements": 311,
+  "maxCardWidth": 260,
+  "productionBuild": "passed",
+  "browser": {
+    "passed": true,
+    "checks": [
+      "Resized related products on group/accord/note detail pages: 311 card placements at 1920/1440/1024/768/390/320px; maximum 260px width, 4/3/2 responsive columns, centered rows, equal card heights and aligned prices; original product links, order, ID-based colors, 15-item pagination and wide page container preserved; zero database writes"
+    ],
+    "errors": [],
+    "actualDatabaseReads": true,
+    "mockedAuthentication": true,
+    "paginationFixtures": false,
+    "popularFixtures": false,
+    "editorFixtures": false,
+    "editorFixtureSaves": 0,
+    "operationsFixtures": false,
+    "operationsFixtureActions": 0,
+    "typography": false,
+    "dashboardDesign": false,
+    "databaseWrites": 0
+  },
+  "liveChecks": [
+    {
+      "path": "/knowledge/group/cam-chanh",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/knowledge/accord/tram-huong",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/knowledge/note/hoa-mau-don",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/knowledge-BaCMbgWC.css",
+      "status": 200,
+      "matchesBuild": true
+    }
+  ]
+}

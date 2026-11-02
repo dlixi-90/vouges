@@ -6,13 +6,15 @@ export function createLoyaltyFixtures(){
   const campaign={_id:"6a0000000000000000000222",name:"Tri ân thành viên",description:"Chiến dịch kiểm thử.",type:"vip",tierIds:reward.tierIds,userIds:[],benefit:{type:"points",points:50,condition:"Theo điều kiện chiến dịch."},startsAt:now,endsAt:addMonths(now),maxUses:100,usedCount:0,minOrderVnd:0,stackable:false,active:true,version:0};
   const membership={tier:policy.tiers[1],tiers:policy.tiers,achievedAt:now,expiresAt:addMonths(now),salesVnd:20000000,nextTier:{...policy.tiers[2],remainingVnd:20000000},points:{available:500,debt:0,earned:500,used:0,expired:0,expiringSoon:50},programEnabled:true,canRedeem:true};
   const requests=[],redemptions=[],claims=[],ledger=[{_id:"grant",kind:"grant",delta:500,at:now,source:"order:fixture",data:{}}],notifications=[{_id:"notice",title:"Chúc mừng đạt hạng Prestige",message:"Quyền lợi mới đã có hiệu lực.",createdAt:now,readAt:null}];
-  const overview=()=>({policy,rewards:[reward],campaigns:[campaign],reviews:[]});
+  let failure=null,empty=false;
+  const overview=()=>({policy,rewards:empty?[]:[reward],campaigns:empty?[]:[campaign],reviews:[]});
   const success=body=>({statusCode:200,body:{success:true,...structuredClone(body)}});
-  return {requests,policy,membership,respond(request){
+  return {requests,policy,membership,failNext(path){failure=path;},setEmpty(value){empty=value;},respond(request){
     const url=new URL(request.url),p=url.pathname,body=request.postData?JSON.parse(request.postData):{};
     if(p==="/api/vouchers/mine")return success({profile:{username:"Khách kiểm thử",email:"qa@example.invalid",phone:"0900000000",birthday:"2000-01-01"},vouchers:[]});
     if(!p.startsWith("/api/loyalty"))return null;
     if(request.method!=="GET")requests.push({path:p,method:request.method,body});
+    if(failure===p){failure=null;return {statusCode:422,body:{success:false,message:"Không thể lưu dữ liệu kiểm thử. Vui lòng thử lại."}};}
     if(p==="/api/loyalty/me")return success({membership,rewards:[Object.fromEntries(Object.entries(reward).filter(([key])=>key!=="costVnd"))],campaigns:[{...campaign,minOrderVnd:1000000,eligibleOrders:[{_id:"6a0000000000000000000333",eligibleVnd:2000000,completedAt:now}],available:true,claimed:claims.length>0}],claims,redemptions,notifications,tierHistory:[{_id:"tier",kind:"upgrade",from:"signature",to:"prestige",at:now,expiresAt:addMonths(now),reason:"Đạt ngưỡng doanh số."}]});
     if(p==="/api/loyalty/redeem"){
       const old=redemptions.find(row=>row._id===body.requestId);if(old)return success({redemption:old});
@@ -24,10 +26,11 @@ export function createLoyaltyFixtures(){
     if(p.startsWith("/api/loyalty/notifications/")){notifications[0].readAt=now;return success({});}
     if(p==="/api/loyalty/admin")return success(overview());
     if(p==="/api/loyalty/admin/policy"){Object.assign(policy,body,{version:policy.version+1});return success({policy});}
-    if(p==="/api/loyalty/admin/members")return success({page:1,total:1,members:[{_id:"qa-owner",name:"Khách kiểm thử",phone:"0900000000",membership}]});
+    if(p==="/api/loyalty/admin/members"){const q=url.searchParams.get('q')||'',found=!empty&&(!q||'Khách kiểm thử qa-owner 0900000000'.toLocaleLowerCase('vi-VN').includes(q.toLocaleLowerCase('vi-VN')));return success({page:1,total:found?1:0,members:found?[{_id:"qa-owner",name:"Khách kiểm thử",phone:"0900000000",membership}]:[]});}
     if(p==="/api/loyalty/admin/members/qa-owner")return success({membership,ledger,history:[]});
-    if(p==="/api/loyalty/admin/redemptions")return success({requests:redemptions,total:redemptions.length,page:1});
-    if(p==="/api/loyalty/admin/audit")return success({entries:[{_id:"audit",action:"policy",subject:"program",actorId:"qa-owner",at:now,reason:"Kiểm thử giao diện",before:{version:0},after:{version:1}}],total:1,page:1});
+    if(p==="/api/loyalty/admin/redemptions"){const rows=empty?[]:redemptions.filter(row=>!url.searchParams.get('status')||row.status===url.searchParams.get('status'));return success({requests:rows,total:rows.length,page:1});}
+    if(p.startsWith('/api/loyalty/admin/redemptions/')&&request.method==='PATCH'){const row=redemptions.find(item=>item._id===p.split('/').pop());if(row)row.status=body.status;return success({redemption:row});}
+    if(p==="/api/loyalty/admin/audit")return success({entries:empty?[]:[{_id:"audit",action:"policy",subject:"program",actorId:"qa-owner",at:now,reason:"Kiểm thử giao diện",before:{version:0},after:{version:1}}],total:empty?0:1,page:1});
     if(p.startsWith("/api/loyalty/admin/orders/"))return success({order:{eligibleVnd:10000000,loyaltyRefundedVnd:0,remainingVnd:10000000}});
     return success({});
   }};

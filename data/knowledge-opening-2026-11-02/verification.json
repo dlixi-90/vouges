@@ -1,0 +1,73 @@
+{
+  "at": "2026-11-02T03:16:10.974Z",
+  "passed": true,
+  "frontend": "https://velours-jet.vercel.app",
+  "deployment": "dpl_F2LqRmqd2QUoK1MX3HJMpov1cx3E",
+  "articles": 1049,
+  "byKind": {
+    "group": 31,
+    "accord": 68,
+    "note": 950
+  },
+  "mergedLeadHeadings": 1049,
+  "browserViews": 30,
+  "viewportWidths": [
+    1440,
+    1024,
+    768,
+    390,
+    320
+  ],
+  "targetedTests": {
+    "passed": 11,
+    "failed": 0
+  },
+  "lint": "passed",
+  "productionBuild": "passed",
+  "browser": {
+    "passed": true,
+    "checks": [
+      "Unified bilingual headings and larger hero layout across all 1049 articles: 1049 repeated lead titles merged without losing any remaining document nodes or image references; 30 browser views at 1440/1024/768/390/320px cover group/accord/note, identical aliases, missing English metadata and long titles; original image links, intro text, breadcrumbs, wide page bounds, compact product cards and bottom product columns preserved; zero database writes"
+    ],
+    "errors": [],
+    "actualDatabaseReads": true,
+    "mockedAuthentication": true,
+    "databaseWrites": 0
+  },
+  "preserved": {
+    "allNonduplicateDocumentNodes": true,
+    "imageReferences": true,
+    "originalImageLinks": true,
+    "widePageContainer": true,
+    "compactEmbeddedProductCards": true,
+    "bottomRelatedProductColumns": true,
+    "storedDocumentsUnchanged": true
+  },
+  "liveChecks": [
+    {
+      "path": "/knowledge/group/cam-chanh-ngot-ngao",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/knowledge/accord/mat-ong",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/knowledge/note/hoa-mau-don",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/knowledge-DckS-09I.css",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/Knowledge-BEeBJSzY.js",
+      "status": 200,
+      "matchesBuild": true
+    }
+  ]
+}

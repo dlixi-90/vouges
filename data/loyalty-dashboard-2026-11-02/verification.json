@@ -1,0 +1,64 @@
+{
+  "at": "2026-11-02T04:04:55.756Z",
+  "passed": true,
+  "frontend": "https://velours-jet.vercel.app",
+  "deployment": "dpl_FwRuSe22XPPywrXHLmApCqDcheHv",
+  "page": "/owner/loyalty",
+  "tabs": 7,
+  "viewportWidths": [
+    1440,
+    1024,
+    390,
+    320
+  ],
+  "lint": "passed",
+  "productionBuild": "passed",
+  "loyaltyBrowser": {
+    "passed": true,
+    "checks": [
+      "Dashboard-matched metric cards and typography; all seven Loyalty admin tabs and pinned native drawers at 1440/1024/390/320px; policy save, required reasons, reward error/retry, targeted campaign IDs, tier extension, duplicate-protected point changes, redemption statuses, refunds, empty states, audit JSON, Escape/focus restore; customer point/reward privacy retained; all mutations isolated in memory, zero database writes"
+    ],
+    "errors": [],
+    "mockedAuthentication": true,
+    "databaseWrites": 0
+  },
+  "sharedOperationsBrowser": {
+    "passed": true,
+    "checks": [
+      "unified operations pages: category load/search/edit cancellation, order status/pagination, voucher create/toggle/delete, staff messaging/status, 390px/320px and drawer Escape (in-memory fixtures only)"
+    ],
+    "errors": [],
+    "mockedAuthentication": true,
+    "databaseWrites": 0,
+    "fixtureActions": 6
+  },
+  "financialActions": "Tested with in-memory fixtures; no production financial writes",
+  "businessApiUnchanged": true,
+  "liveChecks": [
+    {
+      "path": "/owner/loyalty",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/owner/vouchers",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/Loyalty-DpBmSV_x.css",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/Loyalty-2mOFgqI4.js",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/index-DQ6sMUFy.js",
+      "status": 200,
+      "matchesBuild": true
+    }
+  ]
+}

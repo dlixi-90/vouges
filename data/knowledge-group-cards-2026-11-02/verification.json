@@ -1,0 +1,50 @@
+{
+  "at": "2026-11-02T02:32:37.794Z",
+  "passed": true,
+  "frontend": "https://velours-jet.vercel.app",
+  "deployment": "dpl_HvfPZczuuXXJVdcHa1Y9bbqNVpSD",
+  "articles": 30,
+  "verifiedCards": 161,
+  "viewportWidths": [
+    1440,
+    768,
+    390,
+    320
+  ],
+  "lint": "passed",
+  "productionBuild": "passed",
+  "browser": {
+    "passed": true,
+    "checks": [
+      "Larger full-width landscape group banners and 16px/13px labels across 30 articles (161 cards checked); responsive 3/2/1 columns at 1440/768/390/320px, original internal links and labels, rounded frames and hover zoom; note thumbnails, wide article layout and related-product columns preserved; zero database writes"
+    ],
+    "errors": [],
+    "actualDatabaseReads": true,
+    "mockedAuthentication": true,
+    "databaseWrites": 0
+  },
+  "imageLoading": {
+    "passed": true,
+    "cards": 20,
+    "representativeArticle": "/knowledge/group/cam-chanh-ngot-ngao",
+    "allImagesLoadedBeforeCapture": true,
+    "errors": []
+  },
+  "liveChecks": [
+    {
+      "path": "/knowledge/group/cam-chanh-ngot-ngao",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/knowledge-DDtzXwBk.css",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/ProductArticle-Bu5Rou-c.js",
+      "status": 200,
+      "matchesBuild": true
+    }
+  ]
+}
