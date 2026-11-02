@@ -1,0 +1,57 @@
+{
+  "at": "2026-11-01T18:31:08.764Z",
+  "database": "vouges",
+  "mode": "apply",
+  "historicalMode": "all",
+  "thresholdsVnd": [
+    0,
+    15000000,
+    40000000,
+    100000000
+  ],
+  "rates": [
+    10,
+    12,
+    15,
+    20
+  ],
+  "customers": 3,
+  "eligibleHistoricalOrders": 0,
+  "eligibleHistoricalGrossVnd": 0,
+  "policyAlreadyExists": false,
+  "enrolled": 3,
+  "orderCredits": 0,
+  "pointGrants": 0,
+  "totalEarnedPoints": 0,
+  "policy": {
+    "_id": "program",
+    "version": 1,
+    "enabled": true,
+    "tiers": [
+      {
+        "id": "signature",
+        "thresholdVnd": 0,
+        "rate": 10
+      },
+      {
+        "id": "prestige",
+        "thresholdVnd": 15000000,
+        "rate": 12
+      },
+      {
+        "id": "elite",
+        "thresholdVnd": 40000000,
+        "rate": 15
+      },
+      {
+        "id": "private-circle",
+        "thresholdVnd": 100000000,
+        "rate": 20
+      }
+    ]
+  },
+  "ordersUnchanged": true,
+  "completed": true,
+  "runId": "d0161d4b-4c01-472c-aa1d-6bb65755e990",
+  "backup": ".backups/loyalty-2026-11-01T18-31-08-762Z"
+}

@@ -16,6 +16,8 @@ import voucherRouter from "./routes/voucherRoute.js";
 import supportRouter from "./routes/supportRoute.js";
 import catalogRouter from "./routes/catalogRoute.js";
 import libraryRouter from "./routes/libraryRoute.js";
+import loyaltyRouter from "./routes/loyaltyRoute.js";
+import { loyaltyCron } from "./controllers/loyaltyController.js";
 import { awardBirthdays } from "./controllers/voucherController.js";
 import multer from "multer";
 
@@ -38,6 +40,7 @@ app.use(
 app.use(express.json({ limit: "512kb" })); // Allows structured product articles; individual fields retain validation.
 // Cron uses its own bearer secret, not a Clerk session token.
 app.get("/api/vouchers/birthdays", awardBirthdays);
+app.get("/api/loyalty/maintenance", loyaltyCron);
 app.use(clerkMiddleware());
 
 // Define API Routes
@@ -50,6 +53,7 @@ app.use("/api/addresses", addressRouter); // Routes for handling addresses
 app.use("/api/cart", cartRouter); // Routes for handling cart
 app.use("/api/orders", orderRouter);
 app.use("/api/vouchers", voucherRouter);
+app.use("/api/loyalty", loyaltyRouter);
 app.use("/api/support", supportRouter);
 app.use("/api/ai", aiRouter); // Routes for handling order
 

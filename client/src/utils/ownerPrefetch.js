@@ -26,6 +26,7 @@ export const prefetchOwnerRoute = (path, context) => {
   if (path === "/owner/orders") tasks.push(context.dashboardCache.load(ownerDashboardKey(context.authenticatedUserId),
     signal => readOwnerDashboard({ ...context, signal })));
   if (path === "/owner/vouchers") tasks.push(context.storeResources.loadCatalog("/", "/api/vouchers"));
+  if (path === "/owner/loyalty") tasks.push(context.storeResources.loadCatalog("/admin", "/api/loyalty"));
   if (path === "/owner/messages") tasks.push(context.storeResources.loadSupportInbox(defaultInboxPath));
   if (path === "/owner/customers") tasks.push(context.storeResources.loadCatalog("/customers?q=&page=1&pageSize=25", "/api/users"));
   if (["/owner", "/owner/orders"].includes(path)) tasks.push(import("../components/owner/RevenueChart"));

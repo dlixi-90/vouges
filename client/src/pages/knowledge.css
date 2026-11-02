@@ -1,5 +1,4 @@
 .net-theme .knowledge-page { padding-block: 0 64px; min-height: 65vh; }
-.net-theme .knowledge-detail-page { width: 100%; max-width: 1200px; margin-inline: auto; padding-inline: clamp(20px, 4vw, 56px); }
 .knowledge-reference { display:inline-flex; align-items:center; gap:10px; font-size:12px; color:#777; text-decoration:underline; text-underline-offset:4px; margin-top:24px; }
 .knowledge-empty-image { width:160px; height:160px; object-fit:contain; }
 .knowledge-article .product-article-gallery { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin-block:32px; }
@@ -9,8 +8,34 @@
 .knowledge-article .product-article-gallery:has(> figure:only-child) img { height:clamp(220px,34vw,460px); object-fit:contain; }
 .knowledge-reading-layout { padding-block: 8px 48px; border-bottom: 1px solid #ededed; }
 .knowledge-article { width: 100%; min-width: 0; }
-.knowledge-article .product-article { max-width: none; margin-inline: 0; font-size: 16px; line-height: 1.9; }
-.knowledge-article .product-article > figure > img { width: auto; max-width: 100%; height: auto; max-height: 640px; margin-inline: auto; }
+.knowledge-article .product-article { max-width: none; margin-inline: 0; font-size: 16px; line-height: 1.85; }
+.net-theme .knowledge-article .product-article h2 { margin-block: 28px 16px; font-size: clamp(20px, 2vw, 24px); line-height: 1.45; }
+.net-theme .knowledge-article .product-article h3 { margin-block: 24px 12px; font-size: 20px; line-height: 1.5; }
+.knowledge-article .product-article figure { margin-block: 20px; }
+.knowledge-article .product-article figure > img { width: auto; max-width: min(100%, 720px); height: auto; max-height: 240px; margin-inline: auto; object-fit: contain; }
+.knowledge-article .product-article figure:has(> img:is([alt="Xuân"],[alt="Hạ"],[alt="Hè"],[alt="Thu"],[alt="Đông"])) { max-width: 64px; margin-block: 16px; }
+.knowledge-article .product-article figure:has(> img:is([alt="Xuân"],[alt="Hạ"],[alt="Hè"],[alt="Thu"],[alt="Đông"])) > img { width: 100%; aspect-ratio: 1; }
+.knowledge-article .product-article hr { margin-block: 24px; }
+.knowledge-article .product-article .article-library-cards--terms { grid-template-columns: repeat(6,minmax(0,1fr)); gap: 20px 12px; margin-block: 20px 28px; }
+.knowledge-article .knowledge-card-image { width: min(100%,112px); border-radius: 10px; }
+.knowledge-article .knowledge-card > strong { margin-top: 8px; font-size: 13px; font-weight: 500; }
+.knowledge-article .knowledge-card > small { margin-top: 3px; font-size: 11px; }
+.knowledge-article .product-article .article-library-cards--products { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 24px 16px; margin-block: 20px 28px; }
+.net-theme .knowledge-article .article-library-product > .net-product-card { padding: 6px; border-radius: 16px; }
+.net-theme .knowledge-article .article-library-product .net-product-info { padding: 12px 10px 16px; }
+.net-theme .knowledge-article .article-library-product h5 { min-height: 2.7em; }
+@container (max-width: 760px) {
+ .knowledge-article .product-article .article-library-cards--terms { grid-template-columns: repeat(4,minmax(0,1fr)); }
+}
+@container (max-width: 600px) {
+ .knowledge-article .product-article .article-library-cards--products { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px 12px; }
+}
+@container (max-width: 480px) {
+ .knowledge-article .product-article .article-library-cards--terms { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@container (max-width: 330px) {
+ .knowledge-article .product-article .article-library-cards--terms { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
 .knowledge-empty { padding-block: 24px; color: #777; font-size: 14px; }
 .knowledge-empty button { margin-left: 12px; text-decoration: underline; }
 .knowledge-related { padding-top: 36px; }
@@ -26,6 +51,11 @@
 .knowledge-policy-list p { font-size: 14px; color: #666; margin-block: 10px; }
 .knowledge-policy-list a { text-decoration: underline; text-underline-offset: 3px; }
 @media(max-width: 600px) {
+ .knowledge-article .product-article figure:has(> img:is([alt="Xuân"],[alt="Hạ"],[alt="Hè"],[alt="Thu"],[alt="Đông"])) { max-width: 48px; }
+ .knowledge-article .product-article figure > img { max-height: 180px; }
+ .knowledge-article .knowledge-card-image { width: min(100%,96px); }
+ .knowledge-article .knowledge-card > strong { font-size: 12px; }
+ .net-theme .knowledge-article .article-library-product .net-product-price { min-height: 3em; }
  .knowledge-product-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px 12px; }
  .knowledge-article .product-article-gallery { gap:10px; }
  .knowledge-article .product-article-gallery > figure { padding:6px; }

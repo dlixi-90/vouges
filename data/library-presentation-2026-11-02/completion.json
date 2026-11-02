@@ -1,0 +1,399 @@
+{
+  "at": "2026-11-01T19:32:31.458Z",
+  "mode": "apply",
+  "database": "vouges",
+  "scanned": 1049,
+  "changed": 32,
+  "productsScanned": 2444,
+  "productsChanged": 11,
+  "retailSections": 31,
+  "categoryLinks": 93,
+  "imagesPreserved": true,
+  "sourceMetadataPreserved": true,
+  "commercePreserved": true,
+  "entries": [
+    {
+      "id": "7afac0dbf4c86cd07800c9f6",
+      "kind": "accord",
+      "name": "Mật Ong",
+      "sections": 0,
+      "beforeSha256": "0e4974e28a647a07a9164f786f17fdc7044d489dae60fd164cb780ca97c3df7f",
+      "afterSha256": "932d5fdbf173d23d1913e65d1f4371d8933614c4bbdcbb4caf951f6fe2c5e097"
+    },
+    {
+      "id": "563ba99bbd40811f7fd62ea2",
+      "kind": "group",
+      "name": "Hoa Cỏ Phương Đông (Oriental Floral)",
+      "sections": 1,
+      "beforeSha256": "1b583d0871908dd52cd7cd88ffd29f7be4052ec38cb5b977034e89367b65349e",
+      "afterSha256": "4ad12b098b4b998c7d3564dd621027dee7835e3c0e35defb9caf0a3df4ac807c"
+    },
+    {
+      "id": "0a2499f39c0e226ca59d1e8d",
+      "kind": "group",
+      "name": "Trái Cây Chypre (Chypre Fruity)",
+      "sections": 1,
+      "beforeSha256": "bf058a0a65e8d16b00206299fe964d467c9c45a82778c6255765687e306111af",
+      "afterSha256": "09c790fbcc217ac529971482a205ae3ae0efbed0e9cfd3b26634401c60898fb3"
+    },
+    {
+      "id": "0281a1a645020c156867e2cf",
+      "kind": "group",
+      "name": "Cay Nồng Phương Đông (Oriental Spicy)",
+      "sections": 1,
+      "beforeSha256": "7b4eabf3820bd4c2ec856afb592740474734d0b2ccd4acb649ff0bc8a1b90640",
+      "afterSha256": "c0994ee643f31165fac29d6f2b829f1f685f154f876faff7b7bd68b6c7109edd"
+    },
+    {
+      "id": "ddc2cef2c4ee8aca208f38bf",
+      "kind": "group",
+      "name": "Gỗ Thơm Và Thảo Mộc (Woody Aromatic)",
+      "sections": 1,
+      "beforeSha256": "ab63bbf9c7af66b798069befeb5c4a42db76e66eb3c31436dbbf1a1a80c2e978",
+      "afterSha256": "f700c1b587969d653bf9e12f8358bbe6c588e52ea00155967929a93efb7ee8c7"
+    },
+    {
+      "id": "b8a12e04660c815fdd521f47",
+      "kind": "group",
+      "name": "Dương Xỉ Phương Đông (Oriental Fougere)",
+      "sections": 1,
+      "beforeSha256": "93727ed2fdbe5734c2153260d051616f54ee4f9271339db398501095878b7143",
+      "afterSha256": "712c716cc06021017b3a8112273ca971853ca72899ef9f6c72184f11889805a2"
+    },
+    {
+      "id": "d02c303d99a9db1c686d34fa",
+      "kind": "group",
+      "name": "Hoa Cỏ Trái Cây (Floral Fruity)",
+      "sections": 1,
+      "beforeSha256": "433b687f937da66327adb9c0c4881226e1a29b8ea3eaf3e65371e595037373e6",
+      "afterSha256": "bcb965da3cfabfe87d95434326ba7d14a3d1740ce440fd784d6d3d1f53d3ed81"
+    },
+    {
+      "id": "c549b06425680b07b503ab84",
+      "kind": "group",
+      "name": "Cam Chanh Thảo Mộc (Citrus Aromatic)",
+      "sections": 1,
+      "beforeSha256": "79a6cdde157662d2993d490b2330715c2955d734a1f24a5e4fb2360c86ffe7a3",
+      "afterSha256": "38eddbef7ebec0f8f101dee128860948b3a392f893925ca65516208971518d48"
+    },
+    {
+      "id": "8e922f0e74ba2e6008407c0b",
+      "kind": "group",
+      "name": "Hoa Cỏ Xanh (Floral Green)",
+      "sections": 1,
+      "beforeSha256": "094409341f9d074e01a3f797bccf0e567961bccb2854050899f60229347b5c97",
+      "afterSha256": "75909f8b448836c0e52bc9a67f6e3fae5e9ace7cddacf8cd58ceee2c38f1a847"
+    },
+    {
+      "id": "de78ea2125e6bcb3bb05f24a",
+      "kind": "group",
+      "name": "Cam Chanh (Citrus)",
+      "sections": 1,
+      "beforeSha256": "828af2ecb85a180034641fa17892c39e09a2b69cc3231a48919a54d13e5a9e8e",
+      "afterSha256": "250ad7403f3e49da3e958ac8a7459b94199cc844471c6fb30038bf9b30c60445"
+    },
+    {
+      "id": "07d71f86941617408f97b402",
+      "kind": "group",
+      "name": "Da Thuộc (Leather)",
+      "sections": 1,
+      "beforeSha256": "2e304b4bd43c8f7ddde85b053963e22298b0b4bc2216b6905419ffe9e847d2df",
+      "afterSha256": "bfd59883c1e08812b6078283de3813e6e16aa98bbabf2adc023a9fbf463f1051"
+    },
+    {
+      "id": "f283f5cbb35aeb3ba4834c92",
+      "kind": "group",
+      "name": "Gỗ Thơm Và Biển Cả (Woody Aquatic)",
+      "sections": 1,
+      "beforeSha256": "7573a05d9bdcfe84fe448e0ea12b1c3c8757bf1d4305f88ac96b76c4c0636fee",
+      "afterSha256": "690241e9ea97b738550bf71493c694b96ac7c267656ed99771c50973f732c38e"
+    },
+    {
+      "id": "0223147b7d04c2377a6e0dd7",
+      "kind": "group",
+      "name": "Gỗ (Woody)",
+      "sections": 1,
+      "beforeSha256": "9582b8887e4b2f469db40b09918fa225e0a5c1758673d094c3105a4be00b837d",
+      "afterSha256": "694a51c9d8f715ce923f217513914903e640c415c207cf3f878b88ea815e6772"
+    },
+    {
+      "id": "3260d403d4297deddcd327f3",
+      "kind": "group",
+      "name": "Hoa Cỏ Aldehyde (Floral Aldehyde)",
+      "sections": 1,
+      "beforeSha256": "8d7093f990a89e4adf8ffd16e8a08b9f8b504894a6c8b0e2afd10d6228a9a168",
+      "afterSha256": "065573ca609c9fd39671827ddbdc15e8cbc7fd6fccd0a34b5b5dd8adc36b684f"
+    },
+    {
+      "id": "438e740ba2b7bc2450567837",
+      "kind": "group",
+      "name": "Hoa Cỏ Và Biển Cả (Floral Aquatic)",
+      "sections": 1,
+      "beforeSha256": "cf1cbd99280406bb24f0e5488c9cd1754b81e6e9fca7a9d4c4d82ec5a8e806d0",
+      "afterSha256": "543a1f7b96bb62c3fa90f526edce0bb1d44de2ac2d6e49ad64e3c91c21eab1af"
+    },
+    {
+      "id": "07e97b7f8d9b55783897276a",
+      "kind": "group",
+      "name": "Hoa Cỏ, Gỗ, Xạ Hương (Floral Woody Musk)",
+      "sections": 1,
+      "beforeSha256": "b24eee54548c75cf47582b1201714dece6c1f555e464930622160bc9df589d4f",
+      "afterSha256": "fff781211818afb34d8444e9cfb5c0a107b6e66aab36e0b9d6e13fd9cb1c90a0"
+    },
+    {
+      "id": "e55266ec17bee5385b7bbf23",
+      "kind": "group",
+      "name": "Vani Phương Đông (Oriental Vanilla)",
+      "sections": 1,
+      "beforeSha256": "b1cc799986f0c0e73f0145f70ad6bf186edfa33cafb5eed764a6eadcb3479c1a",
+      "afterSha256": "64a2a230268c47fd39db20ada387681be79b7ffe338515ceaa16816f3dd38421"
+    },
+    {
+      "id": "5c751b423eed8a753f30d685",
+      "kind": "group",
+      "name": "Gỗ Phương Đông (Oriental Woody)",
+      "sections": 1,
+      "beforeSha256": "ff648093d54d856380640726d2c40f70553d90bdb0472f85310880e6e4dc8f09",
+      "afterSha256": "20cf29fde68cc036df77dcb6f7ebe1c5eff5d0f02cbd36078f700c37db91a623"
+    },
+    {
+      "id": "abbb043fe1d92a7746a80715",
+      "kind": "group",
+      "name": "Hoa Cỏ Chypre (Chypre Floral)",
+      "sections": 1,
+      "beforeSha256": "faf6cad5e2cfab6256f5bb7d4920c4803c251d75d96309cf84ff8f4157ca8caf",
+      "afterSha256": "3b088c415775a1a38726dc6c681f94ecbb83f41e3eebd37b85139dc7e0e488d4"
+    },
+    {
+      "id": "2741d879ff10c6cdbb287853",
+      "kind": "group",
+      "name": "Hoa Cỏ Trái Cây Ngọt Ngào (Floral Fruity Gourmand)",
+      "sections": 1,
+      "beforeSha256": "499728cf8145d0f93b503068bf135a484dcb66bc83118f4f0ef0ddbd9f8a8cff",
+      "afterSha256": "1ce89bda7af9014d09bf23349e17e380eb4b54d895021b3cbe7c1523d6f4c866"
+    },
+    {
+      "id": "e81d804b64ecd85b215d4ee7",
+      "kind": "group",
+      "name": "Thảo Mộc Trái Cây (Aromatic Fruity)",
+      "sections": 1,
+      "beforeSha256": "6c8444ce5a95ce66fadaa78184e57ea2c46cc584567abc9651250e4fbb304c66",
+      "afterSha256": "e67333e62fefdb580d693b936a2a1a7c7d169be17d24bc2b03974937fd5d4858"
+    },
+    {
+      "id": "92ebcc09eb80811ebb7b9617",
+      "kind": "group",
+      "name": "Thảo Mộc (Aromatic)",
+      "sections": 1,
+      "beforeSha256": "9e5c7588960bd906e866de59e3a2d5ee020f2ca54b6abd569022627466d9db34",
+      "afterSha256": "15e9194893dc610b90d725eb52d1dfd012308702c0f5ed39eaae20a6d4d41755"
+    },
+    {
+      "id": "c866cf5c76c59ad5d8cbd00a",
+      "kind": "group",
+      "name": "Phương Đông (Oriental)",
+      "sections": 1,
+      "beforeSha256": "11240318f1193a276b47f25b8705f2947ba9c16ba8545d3d2b91bb16e51c4fc0",
+      "afterSha256": "5ab943e8cf732dffbc1fcde67102a79c6afe98d02e1245bb57e6a317836765fb"
+    },
+    {
+      "id": "939693d0cacf3f9ba8e52b5b",
+      "kind": "group",
+      "name": "Gỗ Cay Nồng (Woody Spicy)",
+      "sections": 1,
+      "beforeSha256": "d1e40d8661458a72ddf7ec86fd05227bb14f7b64ece8a82f293d77c8c628a4da",
+      "afterSha256": "8762c5cda3b84a1cf68df20391f78d0dbaa47f8173a325881fc6a139e6aa82ea"
+    },
+    {
+      "id": "04dae96d1d70e47d9856aa55",
+      "kind": "group",
+      "name": "Hoa (Floral)",
+      "sections": 1,
+      "beforeSha256": "5611da0bfa086ed2e9d7d8e95e98e5156dd940a78f1a49aeccf0aa79f73cd7c1",
+      "afterSha256": "458109ff2ad05861b14818edc89e49e705913517ecaa8213d1d252ace6073ae5"
+    },
+    {
+      "id": "186523ac810b91dcb2a635f8",
+      "kind": "group",
+      "name": "Thảo Mộc Và Biển Cả (Aromatic Aquatic)",
+      "sections": 1,
+      "beforeSha256": "77d0a90afc60790f7f0d594b5ddd8cfde8ec0e2815f748148d305afade2070ba",
+      "afterSha256": "b1b8557386542be866bb18ab79c730f5e5dea890a138200bc2f9a24495b29bf1"
+    },
+    {
+      "id": "ea501506d5b9dae97c623c2d",
+      "kind": "group",
+      "name": "Thảo Mộc Dương Xỉ (Aromatic Fougere)",
+      "sections": 1,
+      "beforeSha256": "1123c6bb9c0445a74b9f780d8ae6a9cc7cb0d08dcf8a6de82d5f4faa2ba00732",
+      "afterSha256": "0983cbd80a5ae6b0748063611dd91a7810c8124ad25ff8ed5d0337845d3e4e1c"
+    },
+    {
+      "id": "4841e93c502000f7ff821c67",
+      "kind": "group",
+      "name": "Gỗ Chypre (Woody Chypre)",
+      "sections": 1,
+      "beforeSha256": "5657d5f4c2f5361720b45c476f9fb4536cb22b66b59b86cd0ea80a2d2916bf7e",
+      "afterSha256": "f316d08ae0e1e7054d1c28a03605ee4e5452c3bb2b47d1a63fed202edf15449a"
+    },
+    {
+      "id": "254c19355277b50ab4e7f7e2",
+      "kind": "group",
+      "name": "Thảo Mộc Xanh (Aromatic Green)",
+      "sections": 1,
+      "beforeSha256": "a1bd47f02b6c926fe773f9deee926ae8806d81783521007a2d42baa2ac05183a",
+      "afterSha256": "285855e193564b403b0479e651e6e2f81a7ddc2bfc3373eae60642599f39d12e"
+    },
+    {
+      "id": "1ee2abd62e662b98cf667bbe",
+      "kind": "group",
+      "name": "Chypre (Chypre)",
+      "sections": 1,
+      "beforeSha256": "669d53047563213e9d9cab841fcf7a6dd2c8f8a6b36ee252ea00176fa1d97a08",
+      "afterSha256": "fd111c66a735c364dd6c7192ca9e9fe73d36d109b1df4b9132c2c159c34e0edf"
+    },
+    {
+      "id": "55392c77f7ff2d124b37d35b",
+      "kind": "group",
+      "name": "Thảo Mộc Cay Nồng (Aromatic Spicy)",
+      "sections": 1,
+      "beforeSha256": "5f405c2f0ed56b54d3d38337161cf09ffa5f9919ed1807c89b37f9347aca9974",
+      "afterSha256": "7af4685a8e7fd43005b5cb5306c72ad291b248bde229b010fc4136293ae8a4e2"
+    },
+    {
+      "id": "2ccd038f0e508e8a33efead8",
+      "kind": "group",
+      "name": "Cam Chanh Ngọt Ngào (Citrus Gourmand)",
+      "sections": 1,
+      "beforeSha256": "8df87e29c91a0ddc1274654b3d743c601c14f11b1d237cb9f54373fb44b5e018",
+      "afterSha256": "0352b7909db481b73c67fb9a9c23cd497b15d9a51a2493cb98a2f09473609e53"
+    }
+  ],
+  "productEntries": [
+    {
+      "id": "25f6f42760b5d2446fb9d9b7",
+      "before": {
+        "title": "Set Nước Hoa Nữ Công Sở Apa Niche",
+        "brand": "Apa Niche"
+      },
+      "after": {
+        "title": "Set Nước Hoa Nữ Công Sở",
+        "brand": ""
+      }
+    },
+    {
+      "id": "ace225fcfef1914420c3bc83",
+      "before": {
+        "title": "Set Nước Hoa Nam Doanh Nhân Apa Niche",
+        "brand": "Apa Niche"
+      },
+      "after": {
+        "title": "Set Nước Hoa Nam Doanh Nhân",
+        "brand": ""
+      }
+    },
+    {
+      "id": "a141c39a42886e5140fe2040",
+      "before": {
+        "title": "Set Nước Hoa Nữ Doanh Nhân",
+        "brand": "Apa Niche"
+      },
+      "after": {
+        "title": "Set Nước Hoa Nữ Doanh Nhân",
+        "brand": ""
+      }
+    },
+    {
+      "id": "136c96a78a3fa5fa500ac130",
+      "before": {
+        "title": "Set Nước Hoa Nam Hẹn Hò Apa Niche",
+        "brand": "Apa Niche"
+      },
+      "after": {
+        "title": "Set Nước Hoa Nam Hẹn Hò",
+        "brand": ""
+      }
+    },
+    {
+      "id": "06482dd73e675749c256fbc4",
+      "before": {
+        "title": "Set Nước Hoa Nữ Đa Dụng Apa Niche",
+        "brand": "Apa Niche"
+      },
+      "after": {
+        "title": "Set Nước Hoa Nữ Đa Dụng",
+        "brand": ""
+      }
+    },
+    {
+      "id": "1bbe295fb580cfc336aaa884",
+      "before": {
+        "title": "Hộp hoa – Set quà Apa Niche",
+        "brand": "Apa Niche"
+      },
+      "after": {
+        "title": "Hộp hoa – Set quà",
+        "brand": ""
+      }
+    },
+    {
+      "id": "450dce1f22530cdf11b1f096",
+      "before": {
+        "title": "Set Nước Hoa Nữ Hẹn Hò Apa Niche",
+        "brand": "Apa Niche"
+      },
+      "after": {
+        "title": "Set Nước Hoa Nữ Hẹn Hò",
+        "brand": ""
+      }
+    },
+    {
+      "id": "fe0f1b32a250edde27c9c60e",
+      "before": {
+        "title": "Set Nước Hoa Nam Lãng Tử",
+        "brand": "Apa Niche"
+      },
+      "after": {
+        "title": "Set Nước Hoa Nam Lãng Tử",
+        "brand": ""
+      }
+    },
+    {
+      "id": "b844ee313bbe151be46104e9",
+      "before": {
+        "title": "Set Nước Hoa Nam Best Seller Apa Niche",
+        "brand": "Apa Niche"
+      },
+      "after": {
+        "title": "Set Nước Hoa Nam Best Seller",
+        "brand": ""
+      }
+    },
+    {
+      "id": "7d191b6661cb727cdf9ebb03",
+      "before": {
+        "title": "Set Nước Hoa Nam Hàng Ngày Apa Niche",
+        "brand": "Apa Niche"
+      },
+      "after": {
+        "title": "Set Nước Hoa Nam Hàng Ngày",
+        "brand": ""
+      }
+    },
+    {
+      "id": "8b251db7b5a92faa6cb889bb",
+      "before": {
+        "title": "Set Nước Hoa Nữ Best Seller Apa Niche",
+        "brand": "Apa Niche"
+      },
+      "after": {
+        "title": "Set Nước Hoa Nữ Best Seller",
+        "brand": ""
+      }
+    }
+  ],
+  "remainingBrandedArticles": 0,
+  "remainingBrandedProducts": 0,
+  "backup": ".backups/library-presentation-2026-11-01T19-32-31-481Z",
+  "completed": true
+}

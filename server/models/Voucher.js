@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const voucherSchema = new mongoose.Schema({
   code: { type: String, required: true, unique: true },
-  kind: { type: String, enum: ["general", "birthday"], default: "general" },
+  kind: { type: String, enum: ["general", "birthday", "loyalty"], default: "general" },
   userId: { type: String, ref: "User", default: null },
   birthdayYear: { type: Number },
   type: { type: String, enum: ["percent", "fixed"], required: true },

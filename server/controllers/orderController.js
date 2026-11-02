@@ -14,6 +14,7 @@ import { sendOrderConfirmation } from "../services/orderEmail.js";
 import { normalizeOrderNote } from "../utils/orderNote.js";
 import { invalidateStorefrontCatalog } from "../services/storefrontCatalog.js";
 import { placedOrderFilter } from "../utils/orderReporting.js";
+import { loyaltyHooks } from "../services/loyalty/engine.js";
 
 // Global variables for payment
 const orderStatuses = ["Order Placed", "Packing", "Shipping", "Delivery"];
@@ -976,10 +977,18 @@ export const updateStatus = async (req, res) => {
     }
 
     if (nextStep === currentStep) {
+      if (status === "Delivery" && order.userId) {
+        try { await loyaltyHooks.reconcile(order.userId); }
+        catch (error) { console.error("Loyalty award pending reconciliation", String(order._id), error.message); }
+      }
       return res.json({ success: true, message: "Trạng thái đơn hàng không thay đổi", order });
     }
 
     const update = { status };
+    if (status === "Delivery") {
+      update.completedAt = new Date();
+      update.loyaltyPending = true;
+    }
 
     if (
       order.paymentMethod === "COD" &&
@@ -1003,6 +1012,11 @@ export const updateStatus = async (req, res) => {
         success: false,
         message: "Đơn hàng đã thay đổi. Vui lòng tải lại và thử lại",
       });
+    }
+
+    if (status === "Delivery" && updatedOrder.userId) {
+      try { await loyaltyHooks.reconcile(updatedOrder.userId); }
+      catch (error) { console.error("Loyalty award pending reconciliation", String(updatedOrder._id), error.message); }
     }
 
     return res.json({

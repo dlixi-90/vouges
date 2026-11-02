@@ -1,0 +1,189 @@
+{
+  "at": "2026-11-01T19:36:02.734Z",
+  "passed": true,
+  "frontend": "https://velours-jet.vercel.app",
+  "backend": "https://vouges-backend.vercel.app",
+  "liveApiChecks": 44,
+  "groups": 31,
+  "products": 11,
+  "brandNavigationClean": true,
+  "frontendMatchesVerifiedBuild": true,
+  "checks": [
+    {
+      "path": "/api/library/group/cay-nong-phuong-dong",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/hoa-co-phuong-dong",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/go-thom-va-thao-moc",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/trai-cay-chypre",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/duong-xi-phuong-dong",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/hoa-co-xanh",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/cam-chanh-thao-moc",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/hoa-co-trai-cay",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/cam-chanh",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/da-thuoc",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/go",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/go-thom-va-bien-ca",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/vani-phuong-dong",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/hoa-co-va-bien-ca",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/hoa-co-aldehyde",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/hoa-co-go-xa-huong",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/hoa-co-chypre",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/thao-moc-trai-cay",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/go-phuong-dong",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/hoa-co-trai-cay-ngot-ngao",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/thao-moc",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/hoa",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/go-cay-nong",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/phuong-dong",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/go-chypre",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/thao-moc-duong-xi",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/thao-moc-xanh",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/thao-moc-va-bien-ca",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/cam-chanh-ngot-ngao",
+      "status": 200
+    },
+    {
+      "path": "/api/library/accord/mat-ong",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/thao-moc-cay-nong",
+      "status": 200
+    },
+    {
+      "path": "/api/library/group/chypre",
+      "status": 200
+    },
+    {
+      "path": "/api/products/single?productId=06482dd73e675749c256fbc4",
+      "status": 200
+    },
+    {
+      "path": "/api/products/single?productId=25f6f42760b5d2446fb9d9b7",
+      "status": 200
+    },
+    {
+      "path": "/api/products/single?productId=1bbe295fb580cfc336aaa884",
+      "status": 200
+    },
+    {
+      "path": "/api/products/single?productId=136c96a78a3fa5fa500ac130",
+      "status": 200
+    },
+    {
+      "path": "/api/products/single?productId=8b251db7b5a92faa6cb889bb",
+      "status": 200
+    },
+    {
+      "path": "/api/products/single?productId=7d191b6661cb727cdf9ebb03",
+      "status": 200
+    },
+    {
+      "path": "/api/products/single?productId=450dce1f22530cdf11b1f096",
+      "status": 200
+    },
+    {
+      "path": "/api/products/single?productId=a141c39a42886e5140fe2040",
+      "status": 200
+    },
+    {
+      "path": "/api/products/single?productId=b844ee313bbe151be46104e9",
+      "status": 200
+    },
+    {
+      "path": "/api/products/single?productId=fe0f1b32a250edde27c9c60e",
+      "status": 200
+    },
+    {
+      "path": "/api/products/single?productId=ace225fcfef1914420c3bc83",
+      "status": 200
+    },
+    {
+      "path": "/api/products/brands",
+      "status": 200
+    }
+  ]
+}

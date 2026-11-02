@@ -28,6 +28,15 @@
 .knowledge-family-scroll thead th { color: #383731; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
 .knowledge-family-scroll tbody th { width: 25%; color: #34332f; }
 .knowledge-family-scroll td { color: #78736a; }
+.knowledge-directory-page .knowledge-introduction-more > summary { border-radius: 8px; }
+.knowledge-directory-page .knowledge-concept-comparison { border-radius: 14px; }
+.knowledge-directory-page .knowledge-introduction-images > a { display: block; overflow: hidden; border-radius: 14px; }
+.knowledge-directory-page .knowledge-family-scroll { border: 1px solid #e9e6df; border-radius: 14px; }
+.knowledge-directory-page .knowledge-family-scroll tbody tr:last-child > * { border-bottom: 0; }
+.knowledge-directory-page .knowledge-search { border-radius: 10px; }
+.knowledge-directory-page .knowledge-card-image { border-radius: 12px; }
+.knowledge-directory-page .knowledge-origin-filter { border-radius: 10px; }
+.knowledge-directory-page .knowledge-origin-banner { overflow: hidden; border-radius: 14px; }
 .knowledge-directory-toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 28px; }
 .knowledge-directory-toolbar h2 { margin: 0; }
 .knowledge-count { margin-top: 6px; color: #8b857b; font-size: 12px; }

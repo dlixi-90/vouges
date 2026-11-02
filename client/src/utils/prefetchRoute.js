@@ -9,6 +9,7 @@ export const prefetchRoute = path => {
     "/owner": () => import("../pages/owner/PerfumeOverview"),
     "/owner/orders": () => import("../pages/owner/Dashboard"),
     "/owner/vouchers": () => import("../pages/owner/Vouchers"),
+    "/owner/loyalty": () => import("../pages/owner/Loyalty"),
     "/owner/messages": () => import("../pages/owner/Messages"),
     "/owner/customers": () => import("../pages/owner/Customers"),
     "/owner/list-product": () => import("../pages/owner/PerfumeProducts"),

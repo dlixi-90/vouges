@@ -22,6 +22,7 @@ const dependencies = {
   "./config/cloudinary.js": { default: async () => {} },
   "./controllers/ClerkWebhooks.js": { default: noop },
   "./controllers/voucherController.js": { awardBirthdays: noop },
+  "./controllers/loyaltyController.js": { loyaltyCron: noop },
 };
 const source = await readFile(new URL("../../server.js", import.meta.url), "utf8");
 const entry = new SourceTextModule(source, { context, identifier: "server.js" });

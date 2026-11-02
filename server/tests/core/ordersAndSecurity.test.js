@@ -1,4 +1,6 @@
 import test from "node:test";
+import { loyaltyHooks } from "../../services/loyalty/engine.js";
+test.beforeEach(t => { t.mock.method(loyaltyHooks,"reconcile",async()=>({})); });
 import assert from "node:assert/strict";
 import Order from "../../models/Order.js";
 import Product from "../../models/Product.js";

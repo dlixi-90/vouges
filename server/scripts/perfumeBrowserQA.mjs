@@ -27,9 +27,12 @@ import {getProductImageUrl} from "../../client/src/utils/productImage.js";
 import {sanitizeFragranceRows} from "../services/fragranceEditing.js";
 import {createOperationsFixtures} from "./qa/operationsFixtures.mjs";
 import {createLibraryFixtures} from "./qa/libraryFixtures.mjs";
+import {createLoyaltyFixtures} from "./qa/loyaltyFixtures.mjs";
 import accordPalette from "../../client/src/data/accordColors.json" with { type: "json" };
 import {getAccordColors} from "../../client/src/utils/accordColors.js";
 import {sanitizeArticle,articleToPlainText,LIBRARY_ARTICLE_LIMITS} from "../../client/src/utils/productArticle.js";
+import {libraryPath} from "../../client/src/utils/fragranceLibrary.js";
+import {reviseLibraryPresentation,reviseProductPresentation} from "../../tools/apaniche/library-presentation.mjs";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
 const artifacts=path.join(root,".qa-perfume");fs.mkdirSync(artifacts,{recursive:true});
@@ -47,9 +50,14 @@ const productTabsQA=process.argv.includes("--product-tabs");
 const accordsQA=process.argv.includes("--accord-colors");
 const experienceQA=process.argv.includes("--experience-design");
 const knowledgeQA=process.argv.includes("--knowledge");
+const knowledgeWidthQA=process.argv.includes("--knowledge-width");
+const knowledgeIconsQA=process.argv.includes("--knowledge-icons");
+const libraryPresentationQA=process.argv.includes("--library-presentation");
+const presentationPreview=libraryPresentationQA&&!process.argv.includes("--live-presentation-data");
 const descriptionsQA=process.argv.includes("--product-descriptions");
 const fullLibraryQA=process.argv.includes("--library-fulltext");
 const libraryQA=process.argv.includes("--library-management");
+const loyaltyQA=process.argv.includes("--loyalty"),loyaltyFixtures=loyaltyQA||knowledgeWidthQA?createLoyaltyFixtures():null;
 const libraryCover=libraryQA?`/images/library/${fs.readdirSync(path.join(root,'client/public/images/library')).find(file=>file.endsWith('.webp'))}`:'';
 let libraryFixtures;
 let operationsActive=false,operationsFixtures;
@@ -71,11 +79,20 @@ UserButton.MenuItems=({children})=>children;UserButton.Action=()=>null;UserButto
 
 const call=async(handler,req)=>{
   const res={statusCode:200,status(code){this.statusCode=code;return this;},set(){},json(body){this.body=body;return this;}};
-  await handler({...req,user:{_id:"qa-owner",role:"owner"},auth:()=>({userId:"qa-owner"})},res);return res;
+  await handler({...req,user:{_id:"qa-owner",role:"owner"},auth:()=>({userId:"qa-owner"})},res);
+  if(presentationPreview&&res.body){
+    if(Array.isArray(res.body.products))res.body.products=res.body.products.map(product=>({...product,...reviseProductPresentation(product)}));
+    if(res.body.product)res.body.product={...res.body.product,...reviseProductPresentation(res.body.product)};
+    if(Array.isArray(res.body.brands))res.body.brands=res.body.brands.filter(brand=>!/apa\s*niche/iu.test(brand.name));
+    for(const options of [res.body.options,res.body.filters?.options])if(Array.isArray(options?.brands))options.brands=options.brands.filter(brand=>!/apa\s*niche/iu.test(brand));
+  }
+  return res;
 };
 const api=async request=>{
   const url=new URL(request.url),pathname=url.pathname;const req={query:Object.fromEntries(url.searchParams),params:{}};
   if(request.method==="OPTIONS")return {statusCode:204,body:null};
+  if(knowledgeWidthQA&&url.pathname==="/api/orders/mine")return {statusCode:200,body:{success:true,orders:[],total:0,page:1,totalPages:1}};
+  if(loyaltyFixtures){const fixture=loyaltyFixtures.respond(request);if(fixture)return fixture;}
   if(operationsActive){const fixture=operationsFixtures.respond(request);if(fixture)return fixture;}
   if(libraryFixtures){const fixture=libraryFixtures.respond(request);if(fixture)return fixture;}
   // These edits live only in the browser harness; never pass writes to MongoDB.
@@ -99,7 +116,9 @@ const api=async request=>{
   if(pathname==="/api/catalog/products")return call(catalogProducts,req);
   if(pathname.startsWith("/api/catalog/products/")){req.params.id=pathname.split("/").pop();const result=await call(catalogProduct,req);if(editorQA&&req.params.id===editorProduct?._id)result.body.product=editorProduct;return result;}
   if(pathname==="/api/catalog/terms")return call(libraryTerms,req);
-  if(pathname.startsWith('/api/library/')){const parts=pathname.split('/').filter(Boolean);req.params.kind=parts[2];if(parts[3]&&parts[3]!=='entry')req.params.slug=decodeURIComponent(parts[3]);return call(parts[3]?publicLibraryTerm:publicLibraryTerms,req);}
+  if(pathname.startsWith('/api/library/')){const parts=pathname.split('/').filter(Boolean);req.params.kind=parts[2];if(parts[3]&&parts[3]!=='entry')req.params.slug=decodeURIComponent(parts[3]);const result=await call(parts[3]?publicLibraryTerm:publicLibraryTerms,req);
+    if(presentationPreview&&result.body?.term){const revised=reviseLibraryPresentation({...result.body.term,contentImport:{relatedHeading:result.body.term.relatedHeading}});if(revised.changed)result.body.term={...result.body.term,description:revised.description,descriptionContent:revised.descriptionContent,relatedHeading:revised.relatedHeading};}
+    return result;}
   if(pathname==="/api/products")return call(listProduct,req);
   if(pathname==="/api/products/browse")return call(browseProducts,req);
   if(pathname==="/api/products/filters")return call(productFilters,req);
@@ -204,7 +223,142 @@ try{
   if(typographyQA)await send('CSS.enable');
   await send("Emulation.setDeviceMetricsOverride",{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   await send("Fetch.enable",{patterns:[{urlPattern:"*localhost:3000/*"},{urlPattern:"*@clerk_react*"}]});
-  if(libraryQA){
+  if(libraryPresentationQA){
+    const terms=await FragranceTerm.find({kind:{$in:["group","accord","note"]}}).select("kind key name slug description descriptionContent contentImport").lean();
+    const entries=terms.filter(term=>reviseLibraryPresentation(term).sections||term.descriptionContent?.content?.some(node=>node.type==="libraryCards"&&node.attrs.items.every(item=>item.href.startsWith("/collection?category="))));
+    assert.equal(entries.length,31);
+    for(const term of terms){const revised=reviseLibraryPresentation(term);if(!presentationPreview)assert.equal(revised.changed,false,"Stored article needs no further cleanup");assert.equal(/apa\s*niche/iu.test(articleToPlainText(revised.descriptionContent||term.descriptionContent)),false);}
+    for(const width of [1440,390,320]){
+      await send("Emulation.setDeviceMetricsOverride",{width,height:1000,deviceScaleFactor:1,mobile:width<500});
+      for(const entry of width===1440?entries:entries.filter(row=>row.name==="Cam Chanh (Citrus)")){
+        await goto(libraryPath(entry),"document.querySelectorAll('.article-library-category').length===3");
+        const leaked=await evaluate("document.body.innerText.match(/.{0,80}apa\\s*niche.{0,80}/giu)||[]");
+        assert.deepEqual(leaked,[],JSON.stringify({entry:entry.name,leaked}));
+        const cards=await evaluate("[...document.querySelectorAll('.article-library-category')].map(link=>{const r=link.getBoundingClientRect(),img=link.querySelector('img').getBoundingClientRect();return {href:link.getAttribute('href'),top:r.top,left:r.left,height:r.height,image:img.width}})");
+        assert.deepEqual(cards.map(card=>new URL(card.href,frontend).searchParams.get("category")),["Nước hoa nam","Nước hoa nữ","Nước hoa unisex"]);
+        assert.ok(cards.every(card=>Math.abs(card.image-(width>600?44:40))<1&&card.height<125));
+        assert.equal(new Set(cards.map(card=>Math.round(width>600?card.top:card.left))).size,1,"Categories align into a desktop row or mobile stack");
+        await noOverflow();assert.equal(await evaluate("getComputedStyle(document.querySelector('.knowledge-detail-page')).maxWidth"),"1500px");
+        if(entry.name==="Cam Chanh (Citrus)"){
+          await evaluate("document.querySelector('.article-library-cards--categories').scrollIntoView({block:'center',behavior:'instant'})");await pause(250);await screenshot("library-category-cards-"+width);
+          await evaluate("document.querySelector('.article-library-category').focus()");assert.equal(await evaluate("document.activeElement.classList.contains('article-library-category')"),true);
+        }
+      }
+    }
+    for(const category of ["Nước hoa nam","Nước hoa nữ","Nước hoa unisex"]){
+      const entry=entries.find(row=>row.name==="Cam Chanh (Citrus)");
+      await goto(libraryPath(entry),"document.querySelectorAll('.article-library-category').length===3");
+      await evaluate(`[...document.querySelectorAll('.article-library-category')].find(link=>new URL(link.href).searchParams.get('category')===${JSON.stringify(category)}).click()`);
+      await wait("location.pathname==='/collection'&&document.querySelector('.collection-catalog-main')");
+      assert.equal(await evaluate("new URLSearchParams(location.search).get('category')"),category);await noOverflow();
+    }
+    const honey=terms.find(row=>row.kind==="accord"&&row.name==="Mật Ong");await goto(libraryPath(honey),"document.querySelector('.knowledge-article .product-article')");
+    assert.equal(await evaluate("/apa\\s*niche/iu.test(document.querySelector('.knowledge-article').innerText)"),false);
+    assert.equal(await evaluate("document.querySelector('.knowledge-article').innerText.includes('Jean Paul Gaultier Scandal')"),true);
+    checks.push(`31 category sections become three aligned internal links with 44px icons (40px mobile), reviewed at 1440/390/320px; all three category links navigate within Velours; 1049 articles contain no source-store brand; wide layout and editorial content preserved; ${presentationPreview?"preview transformations":"unmodified stored data and responses"} and no database writes`);
+  }else if(knowledgeIconsQA){
+    const labels=["Xuân","Hạ","Hè","Thu","Đông"];
+    const entries=await FragranceTerm.find({kind:{$in:["group","accord","note"]},"descriptionContent.content.attrs.alt":{$in:labels},...(process.argv.includes("--icons-screenshots-only")?{name:"Cam Chanh (Citrus)"}:{})}).select("kind key slug name descriptionContent").lean();
+    assert.ok(entries.length);
+    let iconsChecked=0;
+    for(const width of [1440,390]){
+      await send("Emulation.setDeviceMetricsOverride",{width,height:1000,deviceScaleFactor:1,mobile:width<500});
+      for(const entry of entries){
+        const expected=entry.descriptionContent.content.filter(node=>node.type==="image"&&labels.includes(node.attrs.alt)).length;
+        await goto(libraryPath(entry),"document.querySelector('.knowledge-article .product-article')");
+        const icons=await evaluate(`[...document.querySelectorAll('.knowledge-article .product-article figure > img')].filter(img=>${JSON.stringify(labels)}.includes(img.alt)).map(img=>{const box=img.getBoundingClientRect();return {alt:img.alt,width:box.width,height:box.height,frame:img.parentElement.getBoundingClientRect().width}})`);
+        assert.equal(icons.length,expected);
+        for(const icon of icons){const limit=width>600?64:48;assert.ok(Math.abs(icon.width-limit)<1&&Math.abs(icon.height-limit)<1&&Math.abs(icon.frame-limit)<1,JSON.stringify({entry:entry.name,width,icon}));iconsChecked++;}
+        await noOverflow();
+        assert.equal(await evaluate("getComputedStyle(document.querySelector('.knowledge-detail-page')).maxWidth"),"1500px","The shared wide page container is preserved");
+        assert.equal(await evaluate(`[...document.querySelectorAll('.knowledge-article .product-article figure > img')].filter(img=>!${JSON.stringify(labels)}.includes(img.alt)).every(img=>getComputedStyle(img).maxHeight===${JSON.stringify(width>600?"240px":"180px")})`),true,"Illustration size limits are preserved");
+        if(entry.name==="Cam Chanh (Citrus)"){
+          await evaluate(`[...document.querySelectorAll('.knowledge-article .product-article figure > img')].find(img=>${JSON.stringify(labels)}.includes(img.alt)).closest('figure').scrollIntoView({block:'center',behavior:'instant'})`);
+          await pause(300);
+          await screenshot("knowledge-season-icons-"+width);
+        }
+      }
+    }
+    checks.push(`Season icons across all ${entries.length} matching articles render at 64px desktop / 48px mobile (${iconsChecked} icon placements checked); shared 1500px page container and illustration limits preserved; no overflow; zero database writes`);
+  }else if(knowledgeWidthQA){
+    const entries=[];
+    for(const kind of ["group","accord","note"]){
+      const term=await FragranceTerm.findOne({kind,descriptionContent:{$ne:null}}).select("kind key slug name").lean();assert.ok(term);entries.push({kind,...term,path:libraryPath(term)});
+    }
+    const bounds=selector=>evaluate(`(()=>{const el=document.querySelector(${JSON.stringify(selector)}),r=el.getBoundingClientRect(),s=getComputedStyle(el);return {left:r.left+parseFloat(s.paddingLeft),width:r.width-parseFloat(s.paddingLeft)-parseFloat(s.paddingRight)}})()`);
+    for(const width of [1920,1440,390,320]){
+      await send("Emulation.setDeviceMetricsOverride",{width,height:1000,deviceScaleFactor:1,mobile:width<500});
+      await goto("/my-orders","document.querySelector('.net-orders.store-page-container')");
+      const orders=await bounds(".net-orders.store-page-container");
+      await goto("/membership","document.querySelector('.loyalty-member')");
+      const membership=await bounds(".net-membership .store-page-container");
+      assert.deepEqual(membership,orders,"The account pages share the same content bounds");
+      for(const entry of entries){
+        await goto(entry.path,"document.querySelector('.knowledge-article .product-article')");
+        for(const selector of [".knowledge-detail-page",".knowledge-detail-page > .store-page-heading",".knowledge-article",".knowledge-article .product-article"]){
+          const actual=await bounds(selector);
+          assert.ok(Math.abs(actual.left-orders.left)<1&&Math.abs(actual.width-orders.width)<1,JSON.stringify({width,kind:entry.kind,selector,actual,expected:orders}));
+        }
+        await noOverflow();
+        assert.equal(await evaluate("(()=>{const grid=document.querySelector('.knowledge-product-grid');return grid?getComputedStyle(grid).gridTemplateColumns.split(' ').length:0})()"),await evaluate("document.querySelector('.knowledge-product-grid')?(innerWidth>600?3:2):0"),"Related products keep their existing column layout");
+        await screenshot("knowledge-width-"+entry.kind+"-"+width);
+      }
+    }
+    checks.push("All three knowledge detail pages match both account pages at 1920px/1440px/390px/320px; headings and articles fill the shared content bounds; no horizontal overflow; related-product columns preserved; zero database writes");
+  }else if(loyaltyQA){
+    await goto('/membership',"document.querySelector('.loyalty-member')");
+    await noOverflow();await screenshot('loyalty-member-desktop');
+    assert.equal(await evaluate("document.querySelector('#loyalty-current-tier').textContent"),"Prestige");
+    assert.equal(await evaluate("document.querySelector('.loyalty-member').innerText.includes('555.555')"),false,"Internal gift cost is private");
+    await evaluate("document.querySelector('.loyalty-reward button').click()");
+    await wait("document.querySelector('.loyalty-dialog[open]')");
+    await evaluate("document.querySelector('.loyalty-dialog form').requestSubmit();document.querySelector('.loyalty-dialog form').requestSubmit()");
+    await wait("!document.querySelector('.loyalty-dialog')");
+    assert.equal(loyaltyFixtures.requests.filter(row=>row.path.endsWith('/redeem')).length,1,"Repeated confirm submits only once");
+    await clickText("Đặc quyền");await clickText("Nhận quyền lợi");await wait("document.querySelector('.loyalty-dialog select')");
+    await evaluate("(()=>{const select=document.querySelector('.loyalty-dialog select');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(select,select.options[1].value);select.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('.loyalty-dialog form').requestSubmit();})()");
+    await wait("!document.querySelector('.loyalty-dialog')");
+    assert.equal(loyaltyFixtures.requests.find(row=>row.path.endsWith('/claim')).body.orderId,"6a0000000000000000000333");
+    for(const tab of ["Đặc quyền","Quà đã đổi","Lịch sử điểm","Lịch sử hạng"]){await clickText(tab);await pause(200);await noOverflow();}
+    await evaluate("[...document.querySelectorAll('.loyalty-tabs button')].find(button=>button.textContent.startsWith('Thông báo')).click()");
+    await clickText("Đánh dấu đã đọc");await wait("!document.querySelector('.loyalty-link')");
+    for(const width of [390,320]){
+      await send("Emulation.setDeviceMetricsOverride",{width,height:850,deviceScaleFactor:1,mobile:true});
+      await clickText("Đổi quà");await noOverflow();await screenshot('loyalty-member-'+width);
+      await evaluate("document.querySelector('.loyalty-reward button').click()");await wait("document.querySelector('.loyalty-dialog[open]')");await noOverflow();
+      assert.equal(await evaluate("document.querySelector('.loyalty-dialog').getBoundingClientRect().width<=innerWidth"),true);
+      await clickText("Đóng");
+    }
+    await send("Emulation.setDeviceMetricsOverride",{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+    await goto('/owner/loyalty',"document.querySelectorAll('.loyalty-admin-tier').length===4");
+    await evaluate("document.querySelector('.loyalty-admin-tier').open=true");await noOverflow();await screenshot('loyalty-admin-policy');
+    await input('.loyalty-admin-form>label:last-of-type textarea',"Kiểm thử thay đổi cấu hình");
+    await clickText("Lưu chính sách");await wait("document.querySelectorAll('.loyalty-admin-tier').length===4");await pause(200);
+    assert.equal(loyaltyFixtures.requests.filter(row=>row.path.endsWith('/policy')).length,1);
+    for(const width of [1440,390,320]){
+      await send("Emulation.setDeviceMetricsOverride",{width,height:900,deviceScaleFactor:1,mobile:width<500});
+      await noOverflow();await clickText("Danh mục quà");await clickText("Thêm quà");await noOverflow();
+      assert.equal(await evaluate("document.querySelector('.loyalty-admin-form').innerText.includes('Giá vốn nội bộ')"),true);
+      await screenshot('loyalty-admin-reward-'+width);await clickText("Đóng");
+      await clickText("Chiến dịch VIP");await clickText("Thêm chiến dịch");await noOverflow();await screenshot('loyalty-admin-campaign-'+width);
+      if(width===1440){
+        await evaluate("(()=>{const field=[...document.querySelectorAll('.loyalty-admin-form label')].find(label=>label.textContent.startsWith('Mã tài khoản')).querySelector('textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(field,'user_one\\nuser_two');field.dispatchEvent(new Event('input',{bubbles:true}));})()");
+        assert.equal(await evaluate("[...document.querySelectorAll('.loyalty-admin-form label')].find(label=>label.textContent.startsWith('Mã tài khoản')).querySelector('textarea').value"),"user_one\nuser_two","Targeted customer IDs retain line breaks while editing");
+        await input('.loyalty-admin-form>label:first-child input',"Campaign QA");
+        await input('.loyalty-admin-form>label:last-of-type textarea',"QA multi-customer configuration");
+        await clickText("Lưu thay đổi");await wait("!document.querySelector('.loyalty-admin-form')");
+        assert.deepEqual(loyaltyFixtures.requests.find(row=>row.path.endsWith('/campaigns')).body.userIds,["user_one","user_two"]);
+      }else await clickText("Đóng");
+      await evaluate("[...document.querySelectorAll('.loyalty-admin-tabs>button')].find(button=>button.textContent==='Thành viên').click()");
+      await wait("document.querySelector('.perfume-table tbody button')");await noOverflow();await clickText("Quản lý");await noOverflow();
+      await clickText("Gia hạn / điều chỉnh hạng");await noOverflow();await screenshot('loyalty-admin-member-'+width);await clickText("Đóng");
+      await clickText("Yêu cầu đổi quà");await pause(200);await noOverflow();
+      await clickText("Hoàn trả & đối soát");await noOverflow();await screenshot('loyalty-admin-refund-'+width);
+      await clickText("Nhật ký");await pause(200);await noOverflow();
+      await clickText("Chính sách hạng");await pause(100);
+    }
+    checks.push("Loyalty member confirmation/idempotent clicks/history/privacy, Admin configurable policy/rewards/campaigns/member management/refunds/audit at 1440px,390px,320px; in-memory mutations only");
+  }else if(libraryQA){
     const dialogsOnly=process.argv.includes('--library-dialogs-only');
     const labels={brand:'thương hiệu',group:'nhóm hương',accord:'kiểu mùi',note:'note hương'};
     for(const kind of dialogsOnly?[]:['brand','group','accord','note']){

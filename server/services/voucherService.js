@@ -2,6 +2,9 @@ import crypto from "node:crypto";
 import Voucher from "../models/Voucher.js";
 import VoucherUse from "../models/VoucherUse.js";
 import { birthdayWindow } from "../utils/membership.js";
+import { getPolicy } from "./loyalty/engine.js";
+// Once migrated, pausing Loyalty must not revive the old automatic birthday discount.
+export const birthdayPolicy = { isLoyaltyEnabled: async () => {const policy=await getPolicy();return Boolean(policy.activatedAt||policy.enabled);} };
 
 export class VoucherError extends Error {
   constructor(message, statusCode = 400) { super(message); this.statusCode = statusCode; }
@@ -9,6 +12,7 @@ export class VoucherError extends Error {
 export const issueBirthdayVoucher = async (user, now = new Date()) => {
   const window = birthdayWindow(user.birthday, now);
   if (!window) return null;
+  if (await birthdayPolicy.isLoyaltyEnabled()) return null;
   const filter = { userId: user._id, kind: "birthday", birthdayYear: window.year };
   try {
     return await Voucher.findOneAndUpdate(filter, { $setOnInsert: {

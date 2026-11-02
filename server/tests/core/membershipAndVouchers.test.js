@@ -13,6 +13,8 @@ import { calculateDiscount, validateVoucher, issueBirthdayVoucher, reserveVouche
 import { saveBirthday } from "../../controllers/userController.js";
 import { awardBirthdays, createVoucher, deleteVoucher, listVouchers, listMyVouchers, setVoucherActive } from "../../controllers/voucherController.js";
 import voucherRouter from "../../routes/voucherRoute.js";
+import { birthdayPolicy } from "../../services/voucherService.js";
+test.beforeEach(t => { t.mock.method(birthdayPolicy,"isLoyaltyEnabled",async()=>false); });
 import authUser, { requireOwner } from "../../middleware/authMiddleware.js";
 import { quoteOrder, placeOrderCOD, placeOrderQr, cancelQrOrder, sepayWebhook } from "../../controllers/orderController.js";
 import { buildOrderConfirmationEmail } from "../../emails/orderConfirmation.js";
@@ -138,6 +140,7 @@ test("membership returns the authenticated profile with vouchers and overlaps in
   const headers = {};
   res.set = (key, value) => { headers[key] = value; };
   const request = listMyVouchers({ user }, res, (error) => { throw error; });
+  await Promise.resolve();
   assert.equal(issue.mock.callCount(), 1);
   assert.equal(uses.mock.callCount(), 1);
   assert.equal(find.mock.callCount(), 0);

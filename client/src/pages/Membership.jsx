@@ -21,6 +21,7 @@ import { formatVnd } from "../utils/money";
 import { formatVoucherExpiryDate } from "../utils/voucherDates";
 import { latestAdultBirthday } from "../utils/customerProfile";
 import StorePageHeading from "../components/StorePageHeading";
+import LoyaltyMemberPanel from "../components/LoyaltyMemberPanel";
 import { PageSkeleton } from "../components/LoadingState";
 
 const focusStyles =
@@ -74,6 +75,7 @@ export default function Membership() {
         { headers: { Authorization: `Bearer ${await getToken()}` } },
       );
       storeResources.invalidateMembership();
+      storeResources.invalidateCatalog();
       setData(await storeResources.loadMembership());
       setLoadedAt(Date.now());
       toast.success("Đã lưu ngày sinh.");
@@ -121,7 +123,7 @@ export default function Membership() {
             </span>
             <h2 className="text-xl font-semibold">Ưu đãi của bạn đang chờ</h2>
             <p className="mt-3 max-w-sm text-sm leading-6 text-gray-500">
-              Đăng nhập để xem mã giảm giá và lưu ngày sinh nhận quà hằng năm.
+              Đăng nhập để xem hạng thành viên, điểm thưởng và quyền lợi theo các chiến dịch đang mở.
             </p>
             <button
               type="button"
@@ -198,7 +200,7 @@ export default function Membership() {
                         {displayName}
                       </h2>
                       <p className="net-member-muted mt-1 text-xs">
-                        Khách hàng thường
+                        Thành viên Velours
                       </p>
                     </div>
                   </div>
@@ -293,42 +295,7 @@ export default function Membership() {
             </div>
 
             <div className="min-w-0 space-y-6">
-              <section
-                aria-labelledby="birthday-gift-title"
-                className="net-member-gift overflow-hidden rounded-[20px] border p-6 sm:p-7"
-              >
-                <div className="net-member-gift-layout flex items-start justify-between gap-5">
-                  <div className="min-w-0">
-                    <span className="net-member-gift-label mb-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium">
-                      <Gift size={13} aria-hidden="true" />
-                      Quà sinh nhật
-                    </span>
-                    <h2
-                      id="birthday-gift-title"
-                      className="max-w-sm text-xl font-semibold leading-snug sm:text-2xl"
-                    >
-                      Một ngày đặc biệt.
-                      <br />
-                      Một món quà dành riêng bạn.
-                    </h2>
-                    <p className="net-member-muted mt-3 text-sm leading-6">
-                      Giảm tối đa 100.000đ cho đơn từ 300.000đ.
-                    </p>
-                  </div>
-                  <div className="net-member-gift-value shrink-0 text-center">
-                    <p className="net-member-muted text-[11px] font-medium">
-                      Ưu đãi
-                    </p>
-                    <p className="net-member-discount mt-1 font-semibold tracking-tighter">
-                      10<span>%</span>
-                    </p>
-                  </div>
-                </div>
-                <p className="net-member-gift-note net-member-muted mt-6 border-t pt-4 text-xs leading-5">
-                  Có hiệu lực 7 ngày từ ngày sinh nhật, một lần mỗi năm. Sinh
-                  ngày 29/2 nhận quà ngày 28/2 trong năm không nhuận.
-                </p>
-              </section>
+              <LoyaltyMemberPanel key={`${userId}:${current.profile.birthday}`} onChange={() => setAttempt(value => value + 1)} />
 
               <section
                 aria-labelledby="member-wallet-title"

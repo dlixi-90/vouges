@@ -347,6 +347,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
       </div>
 
       <footer className="net-order-actions flex flex-col gap-2 border-t px-4 py-3 sm:flex-row sm:items-center sm:justify-end sm:px-5">
+        {order.status === "Delivery" && order.isPaid && <Link to={`/owner/loyalty?tab=refunds&order=${order._id}`} className="perfume-button">Điều chỉnh điểm & doanh số</Link>}
         <label
           htmlFor={`status-${order._id}`}
           className="net-order-meta text-xs font-medium"
