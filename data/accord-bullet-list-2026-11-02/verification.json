@@ -1,0 +1,93 @@
+{
+  "at": "2026-11-02T08:39:53.106Z",
+  "passed": true,
+  "frontend": "https://velours-jet.vercel.app/knowledge/accord/bien",
+  "deployment": "dpl_Er7QKL7TppKNXaCtHfw7xSAACzZd",
+  "deploymentUrl": "https://velours-9dzkar08d-ixi4.vercel.app",
+  "accordArticles": 68,
+  "originalFieldsPresented": 271,
+  "viewportWidths": [
+    1440,
+    1024,
+    768,
+    390,
+    320
+  ],
+  "browserViews": 84,
+  "productionBuild": "passed",
+  "frontendLint": "passed",
+  "browser": {
+    "passed": true,
+    "checks": [
+      "All 68 accord articles display 271 original fields as individual bullet points immediately below the intro in the same text column, without a separate framed panel; 84 browser views at 1440/1024/768/390/320px preserve every source word, compact covers, mobile stacking, accurate optional fields, original image links and 5/4/3/2 product grids without overflow; zero database writes"
+    ],
+    "errors": [],
+    "actualDatabaseReads": true,
+    "mockedAuthentication": true,
+    "paginationFixtures": false,
+    "popularFixtures": false,
+    "editorFixtures": false,
+    "editorFixtureSaves": 0,
+    "operationsFixtures": false,
+    "operationsFixtureActions": 0,
+    "typography": false,
+    "dashboardDesign": false,
+    "databaseWrites": 0
+  },
+  "productionBrowser": {
+    "at": "2026-11-02T08:39:31.480Z",
+    "passed": true,
+    "authentication": "Fresh signed-out Chrome using real production public APIs",
+    "checks": [
+      {
+        "url": "https://velours-jet.vercel.app/knowledge/accord/bien",
+        "width": 1440,
+        "withinIntro": true,
+        "bullets": [
+          "Loại: Nguyên liệu tổng hợp",
+          "Nhóm hương chính: Tự nhiên và tổng hợp",
+          "Bộ phận sử dụng: Hợp chất tổng hợp",
+          "Kết hợp ấn tượng với: Cam chanh (Citruses), Gỗ tuyết tùng (Cedar), Xạ hương (Musk), Hổ phách (Amber), Hoa trắng (White Flowers), Hoắc hương (Patchouli)."
+        ],
+        "marker": "disc",
+        "border": "0px",
+        "legacyTable": false,
+        "overflow": false,
+        "productColumns": 5
+      },
+      {
+        "url": "https://velours-jet.vercel.app/knowledge/accord/bien",
+        "width": 390,
+        "withinIntro": true,
+        "bullets": [
+          "Loại: Nguyên liệu tổng hợp",
+          "Nhóm hương chính: Tự nhiên và tổng hợp",
+          "Bộ phận sử dụng: Hợp chất tổng hợp",
+          "Kết hợp ấn tượng với: Cam chanh (Citruses), Gỗ tuyết tùng (Cedar), Xạ hương (Musk), Hổ phách (Amber), Hoa trắng (White Flowers), Hoắc hương (Patchouli)."
+        ],
+        "marker": "disc",
+        "border": "0px",
+        "legacyTable": false,
+        "overflow": false,
+        "productColumns": 2
+      }
+    ]
+  },
+  "liveChecks": [
+    {
+      "path": "/knowledge/accord/bien",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/knowledge-B6tiXgDV.css",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/Knowledge-g85D42xy.js",
+      "status": 200,
+      "matchesBuild": true
+    }
+  ]
+}

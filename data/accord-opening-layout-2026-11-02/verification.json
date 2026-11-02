@@ -1,0 +1,145 @@
+{
+  "at": "2026-11-02T08:16:04.010Z",
+  "passed": true,
+  "frontend": "https://velours-jet.vercel.app/knowledge/accord/bien",
+  "deployment": "dpl_FY2pfdbyyyzZtKVEYMLM4Ue37r65",
+  "deploymentUrl": "https://velours-pr8r732cq-ixi4.vercel.app",
+  "accordArticles": 68,
+  "originalFieldsPresented": 271,
+  "viewportWidths": [
+    1440,
+    1024,
+    768,
+    390,
+    320
+  ],
+  "browserViews": 84,
+  "productionBuild": "passed",
+  "frontendLint": "passed",
+  "presentationUnitTests": {
+    "passed": 12,
+    "failed": 0
+  },
+  "browser": {
+    "passed": true,
+    "checks": [
+      "All 68 accord articles split 271 original fields into labeled fact sections without losing words or changing stored content; 84 browser views at 1440/1024/768/390/320px verify compact 240px covers, top-aligned desktop introductions, stacked mobile layout, accurate optional fields, unchanged 5/4/3/2 product grids, original images/links and no overflow; zero database writes"
+    ],
+    "errors": [],
+    "actualDatabaseReads": true,
+    "mockedAuthentication": true,
+    "paginationFixtures": false,
+    "popularFixtures": false,
+    "editorFixtures": false,
+    "editorFixtureSaves": 0,
+    "operationsFixtures": false,
+    "operationsFixtureActions": 0,
+    "typography": false,
+    "dashboardDesign": false,
+    "databaseWrites": 0
+  },
+  "productionBrowser": {
+    "at": "2026-11-02T08:15:24.918Z",
+    "passed": true,
+    "authentication": "Fresh signed-out Chrome using production public APIs",
+    "checks": [
+      {
+        "url": "https://velours-jet.vercel.app/knowledge/accord/bien",
+        "width": 1440,
+        "coverWidth": 240,
+        "coverHeight": 240,
+        "coverRight": 321,
+        "coverTop": 301.1875,
+        "copyTop": 301.1875,
+        "copyLeft": 353,
+        "accordOpening": true,
+        "fields": [
+          "Loại:",
+          "Nhóm hương chính:",
+          "Bộ phận sử dụng:",
+          "Kết hợp ấn tượng với:"
+        ],
+        "overflow": false,
+        "products": 15
+      },
+      {
+        "url": "https://velours-jet.vercel.app/knowledge/accord/dong-vat",
+        "width": 1440,
+        "coverWidth": 240,
+        "coverHeight": 240,
+        "coverRight": 321,
+        "coverTop": 301.1875,
+        "copyTop": 301.1875,
+        "copyLeft": 353,
+        "accordOpening": true,
+        "fields": [
+          "Loại:",
+          "Nhóm hương chính:",
+          "Kết hợp ấn tượng với:"
+        ],
+        "overflow": false,
+        "products": 15
+      },
+      {
+        "url": "https://velours-jet.vercel.app/knowledge/accord/bien",
+        "width": 390,
+        "coverWidth": 220,
+        "coverHeight": 220,
+        "coverRight": 305,
+        "coverTop": 272.328125,
+        "copyTop": 516.328125,
+        "copyLeft": 41,
+        "accordOpening": true,
+        "fields": [
+          "Loại:",
+          "Nhóm hương chính:",
+          "Bộ phận sử dụng:",
+          "Kết hợp ấn tượng với:"
+        ],
+        "overflow": false,
+        "products": 15
+      },
+      {
+        "url": "https://velours-jet.vercel.app/knowledge/group/cam-chanh",
+        "width": 1440,
+        "coverWidth": 1322,
+        "coverHeight": 388.8125,
+        "coverRight": 1378,
+        "coverTop": 276.1875,
+        "accordOpening": false,
+        "fields": [],
+        "overflow": false,
+        "products": 15
+      },
+      {
+        "url": "https://velours-jet.vercel.app/knowledge/note/hoa-mau-don",
+        "width": 1440,
+        "coverWidth": 1322,
+        "coverHeight": 388.8125,
+        "coverRight": 1378,
+        "coverTop": 276.1875,
+        "accordOpening": false,
+        "fields": [],
+        "overflow": false,
+        "products": 15
+      }
+    ]
+  },
+  "liveChecks": [
+    {
+      "path": "/knowledge/accord/bien",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/knowledge-DKnUjeS2.css",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/Knowledge-BGrvr60W.js",
+      "status": 200,
+      "matchesBuild": true
+    }
+  ]
+}

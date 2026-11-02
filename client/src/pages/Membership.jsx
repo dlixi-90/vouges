@@ -23,6 +23,7 @@ import { latestAdultBirthday } from "../utils/customerProfile";
 import StorePageHeading from "../components/StorePageHeading";
 import LoyaltyMemberPanel from "../components/LoyaltyMemberPanel";
 import { PageSkeleton } from "../components/LoadingState";
+import "../membership.css";
 
 const focusStyles =
   "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary";
@@ -115,6 +116,12 @@ export default function Membership() {
             <ArrowUpRight size={17} aria-hidden="true" />
           </Link>
         </StorePageHeading>
+        <p className="membership-intro">Không gian dành riêng cho bạn — theo dõi hạng thành viên, khám phá quà tặng và tận hưởng ưu đãi từ Velours.</p>
+        {current && !accountLoading && !error && <nav className="membership-shortcuts" aria-label="Các mục thành viên">
+          <a href="#loyalty-overview">Hạng & điểm thưởng <ArrowRight size={14} aria-hidden="true" /></a>
+          <a href="#loyalty-workspace">Quà tặng & đặc quyền <ArrowRight size={14} aria-hidden="true" /></a>
+          <a href="#member-wallet-title">Mã giảm giá <span>{vouchers.length}</span><ArrowRight size={14} aria-hidden="true" /></a>
+        </nav>}
 
         {accountLoading ? <PageSkeleton compact label="Đang tải tài khoản…" /> : !user ? (
           <section className="net-member-panel flex flex-col items-center px-6 py-16 text-center">
@@ -157,7 +164,7 @@ export default function Membership() {
             <div className="min-w-0">
               <section
                 aria-labelledby="member-profile-title"
-                className="net-member-panel overflow-hidden"
+                className="net-member-panel membership-profile overflow-hidden"
               >
                 <div className="net-member-profile-cover p-6">
                   <div className="flex items-center justify-between gap-3">
@@ -294,21 +301,24 @@ export default function Membership() {
               </section>
             </div>
 
-            <div className="min-w-0 space-y-6">
+            <div className="membership-content min-w-0">
               <LoyaltyMemberPanel key={`${userId}:${current.profile.birthday}`} onChange={() => setAttempt(value => value + 1)} />
 
               <section
                 aria-labelledby="member-wallet-title"
-                className="net-member-panel overflow-hidden"
+                className="net-member-panel membership-wallet overflow-hidden"
               >
                 <div className="net-member-wallet-header flex flex-wrap items-center justify-between gap-3 border-b px-6 py-5">
-                  <h2
-                    id="member-wallet-title"
-                    className="flex items-center gap-2.5 text-lg font-semibold"
-                  >
-                    <Ticket size={21} strokeWidth={1.7} aria-hidden="true" />
-                    Mã giảm giá
-                  </h2>
+                  <div>
+                    <h2
+                      id="member-wallet-title"
+                      className="flex items-center gap-2.5 text-lg font-semibold"
+                    >
+                      <Ticket size={21} strokeWidth={1.7} aria-hidden="true" />
+                      Mã giảm giá của bạn
+                    </h2>
+                    <p className="membership-wallet-caption">Ưu đãi còn hiệu lực, sẵn sàng cho lần mua sắm tiếp theo.</p>
+                  </div>
                   <span className="net-member-wallet-count rounded-full px-3 py-1.5 text-xs font-medium">
                     {vouchers.length} mã khả dụng
                   </span>
@@ -318,10 +328,8 @@ export default function Membership() {
                     <span className="net-member-empty-icon mb-5 flex h-16 w-16 items-center justify-center rounded-2xl">
                       <Ticket size={32} strokeWidth={1.3} aria-hidden="true" />
                     </span>
-                    <h3 className="text-base font-semibold">
-                      Mã giảm giá còn hiệu lực và chưa sử dụng sẽ xuất hiện tại
-                      đây.
-                    </h3>
+                    <h3 className="text-base font-semibold">Chưa có mã giảm giá khả dụng</h3>
+                    <p className="membership-wallet-caption">Mã còn hiệu lực và chưa sử dụng sẽ xuất hiện tại đây.</p>
                     <Link
                       to="/collection"
                       className={`mt-5 inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm font-medium underline decoration-secondary/25 underline-offset-4 ${focusStyles}`}
@@ -331,7 +339,7 @@ export default function Membership() {
                     </Link>
                   </div>
                 ) : (
-                  <div className="space-y-4 p-5 sm:p-6">
+                  <div className="membership-vouchers p-5 sm:p-6">
                     {vouchers.map((voucher) => (
                       <article
                         key={voucher._id}

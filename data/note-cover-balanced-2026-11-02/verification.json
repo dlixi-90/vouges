@@ -1,0 +1,77 @@
+{
+  "at": "2026-11-02T09:11:13.285Z",
+  "passed": true,
+  "frontend": "https://velours-jet.vercel.app/knowledge/note/buoi",
+  "deployment": "dpl_9hk4BrFP2paZJhMsqVAVk4gziRGw",
+  "deploymentUrl": "https://velours-prqhi3yss-ixi4.vercel.app",
+  "noteBanners": 950,
+  "viewportSizes": [
+    [
+      1920,
+      1080
+    ],
+    [
+      1440,
+      900
+    ],
+    [
+      1366,
+      768
+    ],
+    [
+      1024,
+      768
+    ],
+    [
+      390,
+      844
+    ],
+    [
+      320,
+      740
+    ]
+  ],
+  "noteBrowserViews": 18,
+  "otherLibraryRegressionViews": 2,
+  "coverHeight": {
+    "desktop": [
+      200,
+      300
+    ],
+    "mobile": [
+      130,
+      170
+    ]
+  },
+  "productionBuild": "passed",
+  "browser": {
+    "passed": true,
+    "checks": [
+      "Balanced covers across 950 note banners: 18 browser views at 1920x1080/1440x900/1366x768/1024x768/390x844/320x740; 200-300px desktop and 130-170px mobile height, full article width, original full-image links and text retained; Grapefruit introduction fits entirely in the first desktop viewport; group/accord layouts and product grids preserved, no overflow, zero database writes"
+    ],
+    "errors": [],
+    "actualDatabaseReads": true,
+    "mockedAuthentication": true,
+    "paginationFixtures": false,
+    "popularFixtures": false,
+    "editorFixtures": false,
+    "editorFixtureSaves": 0,
+    "operationsFixtures": false,
+    "operationsFixtureActions": 0,
+    "typography": false,
+    "dashboardDesign": false,
+    "databaseWrites": 0
+  },
+  "liveChecks": [
+    {
+      "path": "/knowledge/note/buoi",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/knowledge-DO40u-6T.css",
+      "status": 200,
+      "matchesBuild": true
+    }
+  ]
+}

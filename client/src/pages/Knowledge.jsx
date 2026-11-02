@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from "react";
 import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import useCachedResource from "../hooks/useCachedResource";
 import usePaginationScroll from "../hooks/usePaginationScroll";
@@ -21,6 +20,17 @@ function KnowledgeHero({ image, title }) {
     </a>
     {image.attrs.title && <figcaption>{image.attrs.title}</figcaption>}
   </figure>;
+}
+
+function AccordFacts({ sections }) {
+  return sections.map((section, index) => <section className="knowledge-accord-facts" key={index} aria-labelledby={`accord-facts-${index}`}>
+    <h2 id={`accord-facts-${index}`}>{section.title}</h2>
+    <ul>{section.fields.map(field => <li key={field.label}>
+      <ProductArticle content={{ ...field.content, content: field.content.content.map((node, position) => position === 0 ? {
+        ...node, content: [{ type: "text", text: `${field.label} ` }, ...node.content],
+      } : node) }} library />
+    </li>)}</ul>
+  </section>);
 }
 
 export default function Knowledge() {
@@ -51,8 +61,8 @@ export default function Knowledge() {
   if (name && data?.term) return <Navigate to={`${libraryPath(data.term)}${page > 1 ? `?page=${page}` : ""}`} replace />;
   const selectOrigin=value=>{const params=new URLSearchParams(search);params.delete("page");if(value)params.set("origin",value);else params.delete("origin");setSearch(params);};
   const setQuery=value=>{const params=new URLSearchParams(search);params.delete("page");if(value)params.set("q",value);else params.delete("q");setSearch(params,{replace:true});};
-  return <div className={`knowledge-page max-padd-container${detail ? " knowledge-detail-page store-page-container" : ""}`}>
-    {detail && <StorePageHeading className="knowledge-heading" title={presentation ? <><span className="knowledge-heading-primary">{presentation.title}</span>{presentation.secondaryTitle && <> <span className="knowledge-heading-secondary" lang="en">{presentation.secondaryTitle}</span></>}</> : config.title} breadcrumbs={term ? [{ label: config.title, to: `/knowledge/${kind}` }, { label: presentation.label }] : [{ label: config.title }]} />}
+  return <div className={`knowledge-page max-padd-container${detail ? ` knowledge-detail-page knowledge-detail-page--${kind} store-page-container` : ""}`}>
+    {detail && <StorePageHeading className="knowledge-heading" title={presentation ? <>{presentation.title}{presentation.secondaryTitle && <> <span lang="en">({presentation.secondaryTitle})</span></>}</> : config.title} breadcrumbs={term ? [{ label: config.title, to: `/knowledge/${kind}` }, { label: presentation.label }] : [{ label: config.title }]} />}
     {error && <div role="alert" className="knowledge-empty">{error}<button onClick={reload} type="button">Thử lại</button></div>}
     <LoadingStatus active={loading} label="Đang tải thư viện…" />
     {!detail && <KnowledgeDirectory kind={kind} config={config} data={data} loading={loading} query={q} origin={origin} onSearch={setQuery} onOrigin={selectOrigin} />}
@@ -61,13 +71,15 @@ export default function Knowledge() {
       <div className="knowledge-reading-layout">
         <article className="knowledge-article" aria-label={`Giới thiệu ${term.name}`}>
           {term.description?.trim() || term.descriptionContent ? <>
-            {presentation.hero && <div className={`knowledge-opening knowledge-opening--${presentation.layout === "banner" ? "banner" : presentation.intro.content.length ? "split" : "portrait"}`}>
+            {presentation.hero && <div className={`knowledge-opening knowledge-opening--${presentation.layout === "accord" ? "accord" : presentation.layout === "banner" ? "banner" : presentation.intro.content.length ? "split" : "portrait"}`}>
               <KnowledgeHero image={presentation.hero} title={presentation.title} />
-              {presentation.intro.content.length > 0 && <div className="knowledge-opening-copy"><ProductArticle content={presentation.intro} library /></div>}
+              {(presentation.intro.content.length > 0 || presentation.facts.length > 0) && <div className="knowledge-opening-copy">
+                {presentation.intro.content.length > 0 && <ProductArticle content={presentation.intro} library />}
+                <AccordFacts sections={presentation.facts} />
+              </div>}
             </div>}
             {presentation.body.content.length > 0 && <ProductArticle content={presentation.body} library />}
           </> : <>{term.image&&<img className="knowledge-empty-image" src={term.image} alt={term.name} width="160" height="160"/>}<p className="knowledge-empty">Phần giới thiệu đang được cập nhật. Bạn có thể khám phá các sản phẩm liên quan bên dưới.</p></>}
-          {term.referenceUrl&&<a className="knowledge-reference" href={term.referenceUrl} target="_blank" rel="noopener noreferrer nofollow">Đọc bài gốc và đối chiếu nội dung <ArrowRight size={15}/></a>}
         </article>
       </div>
       <section className="knowledge-related" aria-labelledby="knowledge-related-heading"><div ref={listRef} tabIndex={-1} className="knowledge-related-heading"><h2 id="knowledge-related-heading">{term.relatedHeading || "Sản phẩm liên quan"}</h2><p>{data.total.toLocaleString("vi-VN")} sản phẩm</p></div>

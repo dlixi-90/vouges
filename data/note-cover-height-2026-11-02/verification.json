@@ -1,0 +1,126 @@
+{
+  "at": "2026-11-02T08:51:06.954Z",
+  "passed": true,
+  "frontend": "https://velours-jet.vercel.app/knowledge/note/buoi",
+  "deployment": "dpl_Cey1L4tsaKWSFwvi73C44AXjfSK8",
+  "deploymentUrl": "https://velours-8152fm12q-ixi4.vercel.app",
+  "noteBanners": 950,
+  "viewportSizes": [
+    [
+      1920,
+      1080
+    ],
+    [
+      1440,
+      900
+    ],
+    [
+      1366,
+      768
+    ],
+    [
+      1024,
+      768
+    ],
+    [
+      390,
+      844
+    ],
+    [
+      320,
+      740
+    ]
+  ],
+  "noteBrowserViews": 18,
+  "otherLibraryRegressionViews": 2,
+  "maxCoverHeight": {
+    "desktop": 200,
+    "mobile": 120
+  },
+  "productionBuild": "passed",
+  "frontendLint": "passed",
+  "browser": {
+    "passed": true,
+    "checks": [
+      "Compact covers across 950 note banners: 18 browser views at 1920x1080/1440x900/1366x768/1024x768/390x844/320x740; maximum 200px desktop and 120px mobile height, full article width, original full-image links and text retained; Grapefruit introduction fits entirely in the first desktop viewport; group/accord layouts and product grids preserved, no overflow, zero database writes"
+    ],
+    "errors": [],
+    "actualDatabaseReads": true,
+    "mockedAuthentication": true,
+    "paginationFixtures": false,
+    "popularFixtures": false,
+    "editorFixtures": false,
+    "editorFixtureSaves": 0,
+    "operationsFixtures": false,
+    "operationsFixtureActions": 0,
+    "typography": false,
+    "dashboardDesign": false,
+    "databaseWrites": 0
+  },
+  "productionBrowser": {
+    "at": "2026-11-02T08:50:30.608Z",
+    "passed": true,
+    "authentication": "Fresh signed-out Chrome using real public APIs",
+    "checks": [
+      {
+        "url": "https://velours-jet.vercel.app/knowledge/note/buoi",
+        "width": 1440,
+        "height": 900,
+        "imageHeight": 180,
+        "imageWidth": 1322,
+        "articleWidth": 1322,
+        "introBottom": 613.75,
+        "paragraphCount": 2,
+        "paragraphCharacters": 428,
+        "imageHref": "/images/library/e842ebeae88297a63c5f3dd6.webp",
+        "imageLoaded": true,
+        "overflow": false
+      },
+      {
+        "url": "https://velours-jet.vercel.app/knowledge/note/buoi",
+        "width": 1366,
+        "height": 768,
+        "imageHeight": 153.59375,
+        "imageWidth": 1250.75,
+        "articleWidth": 1250.75,
+        "introBottom": 586.0625,
+        "paragraphCount": 2,
+        "paragraphCharacters": 428,
+        "imageHref": "/images/library/e842ebeae88297a63c5f3dd6.webp",
+        "imageLoaded": true,
+        "overflow": false
+      },
+      {
+        "url": "https://velours-jet.vercel.app/knowledge/note/buoi",
+        "width": 390,
+        "height": 844,
+        "imageHeight": 118.15625,
+        "imageWidth": 350,
+        "articleWidth": 350,
+        "introBottom": 700.609375,
+        "paragraphCount": 2,
+        "paragraphCharacters": 428,
+        "imageHref": "/images/library/e842ebeae88297a63c5f3dd6.webp",
+        "imageLoaded": true,
+        "overflow": false
+      }
+    ]
+  },
+  "liveChecks": [
+    {
+      "path": "/knowledge/note/buoi",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/knowledge-CPcXaYJg.css",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/Knowledge-CbuooRmr.js",
+      "status": 200,
+      "matchesBuild": true
+    }
+  ]
+}

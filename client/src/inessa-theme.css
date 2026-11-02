@@ -131,9 +131,9 @@
 .inessa-category { position: relative; display: block; min-width: 0; overflow: hidden; border-radius: var(--inessa-radius-card); background: #f7f7f7; }
 .inessa-category > img { display: block; width: 100%; aspect-ratio: 1.2; object-fit: contain; padding: 28px 24px 82px; transition: transform .5s; }
 .inessa-category:hover > img { transform: scale(1.04); }
-.inessa-category-label { position: absolute; display: flex; justify-content: space-between; align-items: center; gap: 8px; inset: auto 12px 12px; min-height: 44px; background: #ffffffed; padding: 10px 14px; font-family: var(--inessa-serif); font-size: 18px; font-weight: var(--inessa-serif-weight); line-height: 1.4; border-radius: var(--inessa-radius-control); }
-.inessa-category-label > span { min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
-.inessa-category-label > svg { width: 18px; height: 18px; flex-shrink: 0; }
+.inessa-category-label { position: absolute; display: grid; grid-template-columns: 18px minmax(0, 1fr) 18px; align-items: center; gap: 8px; inset: auto 12px 12px; min-height: 44px; background: #ffffffed; padding: 10px 14px; font-family: var(--inessa-serif); font-size: 18px; font-weight: var(--inessa-serif-weight); line-height: 1.4; border-radius: var(--inessa-radius-control); }
+.inessa-category-label > span { grid-area: 1 / 2; min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; text-align: center; }
+.inessa-category-label > svg { grid-area: 1 / 3; width: 18px; height: 18px; }
 .net-features { border-top: 1px solid var(--inessa-line); padding-top: 45px; }
 .net-features h4 { font-size: 22px; }
 .net-features > div > div > img { border-radius: var(--inessa-radius-card); }

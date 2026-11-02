@@ -1,0 +1,44 @@
+{
+  "at": "2026-11-02T07:15:04.929Z",
+  "passed": true,
+  "frontend": "https://velours-jet.vercel.app",
+  "deployment": "dpl_7sNMS2b9ozRoB4Yu42go8a8UHgtK",
+  "viewportWidths": [
+    1920,
+    1440,
+    768,
+    390,
+    320
+  ],
+  "productionBuild": "passed",
+  "browser": {
+    "passed": true,
+    "checks": [
+      "All three homepage category labels centered exactly within their cards at 1920/1440/768/390/320px; arrows stay on the right, links preserved, no overflow or overlapping text; read-only browser verification"
+    ],
+    "errors": [],
+    "actualDatabaseReads": true,
+    "mockedAuthentication": true,
+    "paginationFixtures": false,
+    "popularFixtures": false,
+    "editorFixtures": false,
+    "editorFixtureSaves": 0,
+    "operationsFixtures": false,
+    "operationsFixtureActions": 0,
+    "typography": false,
+    "dashboardDesign": false,
+    "databaseWrites": 0
+  },
+  "liveChecks": [
+    {
+      "path": "/",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/index-CT_OawOB.css",
+      "status": 200,
+      "matchesBuild": true
+    }
+  ]
+}

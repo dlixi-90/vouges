@@ -41,7 +41,7 @@ test("landscape note images remain full-width banners; old dimensionless covers 
   const dimensionless={...image,attrs:{src:image.attrs.src,alt:image.attrs.alt,articleWidth:100}};
   for(const kind of ['group','note','accord']){
     const result=knowledgePresentation(term("Hoa Hồng","Rose",kind,[dimensionless,heading("Rose"),paragraph("Giới thiệu.")]));
-    assert.equal(result.layout,kind==='accord'?'portrait':'banner');
+    assert.equal(result.layout,kind==='accord'?'accord':'banner');
   }
 });
 test("generic or unrelated headings, linked titles, plain-text entries and missing images do not lose content",()=>{
@@ -54,4 +54,30 @@ test("generic or unrelated headings, linked titles, plain-text entries and missi
   assert.equal(view.mergedHeading,false);assert.deepEqual(view.body.content[0],linked);
   const plain=knowledgePresentation({name:"Hoa Hồng",kind:"note",description:"Văn bản thường."});
   assert.equal(plain.hero,null);assert.equal(plain.body.content[0].content[0].text,"Văn bản thường.");
+});
+
+const categoryCards = {type:"libraryCards",attrs:{columns:3,items:["Nước hoa nam","Nước hoa nữ","Nước hoa unisex"].map(name=>({name,href:"/collection?"+new URLSearchParams({category:name}),image:"/images/category.webp"}))}};
+
+test("gender-navigation heading and cards are removed while article content, product recommendations and stored data survive",()=>{
+  const productCards={type:"libraryCards",attrs:{columns:3,items:[{name:"Sản phẩm tiêu biểu",href:"/collection/6a0000000000000000000001",image:"/images/product.webp",description:"Mô tả giữ nguyên."}]}};
+  const original=term("Cam Chanh","Citrus","group",[image,heading("Citrus"),paragraph("Thông tin về nguyên liệu."),productCards,heading("Khám phá nước hoa theo giới tính"),categoryCards,heading("Thông tin bổ sung"),paragraph("Nội dung tiếp theo.")]);
+  const before=structuredClone(original),view=knowledgePresentation(original);
+  assert.equal(view.removedNavigation.length,2);
+  assert.deepEqual(view.body.content.map(node=>node.type),["paragraph","libraryCards","heading","paragraph"]);
+  assert.equal(view.body.content[1].attrs.items[0].href,productCards.attrs.items[0].href);
+  assert.equal(view.body.content[1].attrs.items[0].description,"Mô tả giữ nguyên.");
+  assert.equal(view.body.content.at(-1).content[0].text,"Nội dung tiếp theo.");
+  assert.deepEqual(original,before);
+});
+
+test("a heading without category navigation and ordinary shopping links remain part of the article",()=>{
+  const linked=paragraph("Nước hoa nam");linked.content[0].marks=[{type:"link",attrs:{href:"/collection?category=N%C6%B0%E1%BB%9Bc+hoa+nam",target:"_blank",rel:"noopener noreferrer nofollow"}}];
+  const view=knowledgePresentation(term("Hoa Hồng","Rose","note",[heading("Khám phá nước hoa theo giới tính"),linked,paragraph("Giới thiệu nguyên liệu.")]));
+  assert.equal(view.removedNavigation.length,0);
+  assert.equal(view.body.content.length,3);
+  assert.equal(view.body.content[1].content[0].marks[0].attrs.href,linked.content[0].marks[0].attrs.href);
+  for(const kind of ["group","accord","note"]){
+    const result=knowledgePresentation(term("Tên","Name",kind,[paragraph("Nội dung."),categoryCards]));
+    assert.equal(result.removedNavigation.length,1);assert.equal(result.body.content.length,1);
+  }
 });

@@ -1,0 +1,100 @@
+{
+  "at": "2026-11-02T07:56:43.463Z",
+  "passed": true,
+  "frontend": "https://velours-jet.vercel.app",
+  "deployment": "dpl_FeNGQb5yLG7E6S6kgVR9mLDoHghm",
+  "deploymentUrl": "https://velours-c1wq5h8ln-ixi4.vercel.app",
+  "affectedNavigationSections": 31,
+  "auditedArticles": 1049,
+  "viewportWidths": [
+    1440,
+    390,
+    320
+  ],
+  "browserViews": 39,
+  "productionBuild": "passed",
+  "frontendLint": "passed",
+  "presentationUnitTests": {
+    "passed": 8,
+    "failed": 0
+  },
+  "browser": {
+    "passed": true,
+    "checks": [
+      "Gender-navigation headings and cards removed from all 31 affected articles; source-reference link absent on group/accord/note pages; 1049 stored articles audited to preserve all remaining content, hero images and product recommendations; 39 browser views at 1440/390/320px preserve wide page bounds and 5/2-column product grids without overflow; stored articles and provenance unchanged, zero database writes"
+    ],
+    "errors": [],
+    "actualDatabaseReads": true,
+    "mockedAuthentication": true,
+    "paginationFixtures": false,
+    "popularFixtures": false,
+    "editorFixtures": false,
+    "editorFixtureSaves": 0,
+    "operationsFixtures": false,
+    "operationsFixtureActions": 0,
+    "typography": false,
+    "dashboardDesign": false,
+    "databaseWrites": 0
+  },
+  "productionBrowser": {
+    "at": "2026-11-02T07:56:24.365Z",
+    "passed": true,
+    "authentication": "Fresh signed-out browser; real public API responses",
+    "checks": [
+      {
+        "url": "https://velours-jet.vercel.app/knowledge/group/cam-chanh",
+        "removedElements": 0,
+        "hasRemovedHeading": false,
+        "paragraphs": 25,
+        "products": 15,
+        "columns": 5,
+        "overflow": false
+      },
+      {
+        "url": "https://velours-jet.vercel.app/knowledge/accord/mat-ong",
+        "removedElements": 0,
+        "hasRemovedHeading": false,
+        "paragraphs": 14,
+        "products": 15,
+        "columns": 5,
+        "overflow": false
+      },
+      {
+        "url": "https://velours-jet.vercel.app/knowledge/note/hoa-mau-don",
+        "removedElements": 0,
+        "hasRemovedHeading": false,
+        "paragraphs": 2,
+        "products": 15,
+        "columns": 5,
+        "overflow": false
+      }
+    ]
+  },
+  "liveChecks": [
+    {
+      "path": "/knowledge/group/cam-chanh",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/knowledge/accord/mat-ong",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/knowledge/note/hoa-mau-don",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/knowledge-Dh6rmvYL.css",
+      "status": 200,
+      "matchesBuild": true
+    },
+    {
+      "path": "/assets/Knowledge-B_TgMlvg.js",
+      "status": 200,
+      "matchesBuild": true
+    }
+  ]
+}

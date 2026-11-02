@@ -16,8 +16,6 @@ export default function ArticleLibraryCards({ node }) {
   const ids = [...new Set(node.attrs.items.map(productId).filter(Boolean))].sort().join(",");
   const categories = node.attrs.items.every(isCategory);
   const groups = node.attrs.items.every(item => item.href.startsWith("/knowledge/group/"));
-  // Cap rows at four cards and balance five products into three plus two.
-  const productColumns = Math.ceil(node.attrs.items.length / Math.ceil(node.attrs.items.length / 4));
   useEffect(() => {
     if (!ids) return;
     let active = true, requested = false;
@@ -44,7 +42,7 @@ export default function ArticleLibraryCards({ node }) {
     return () => { active = false; observer.disconnect(); };
   }, [ids, publicCatalog]);
   const products = new Map((loaded?.ids === ids ? loaded.products : []).map(product => [product._id, product]));
-  return <div ref={container} style={ids ? { "--article-product-columns": productColumns } : undefined} className={`article-library-cards columns-${node.attrs.columns} article-library-cards--${categories ? "categories" : ids ? "products" : "terms"}${groups ? " article-library-cards--groups" : ""}`}>
+  return <div ref={container} className={`article-library-cards columns-${node.attrs.columns} article-library-cards--${categories ? "categories" : ids ? "products" : "terms"}${groups ? " article-library-cards--groups" : ""}`}>
     {node.attrs.items.map((item, index) => {
       const id = productId(item), product = products.get(id);
       if(categories)return <div className="article-library-card" key={item.href}><Link className="article-library-category" to={item.href} onClick={()=>setSearchQuery("")}>
