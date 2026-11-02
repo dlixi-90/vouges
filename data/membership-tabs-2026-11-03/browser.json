@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "checks": [
+    "Two top-level member/voucher tabs at 1440/1024/768/390/320px: correct default/selected/hidden states and accessible labels, keyboard ArrowRight/Home, only active panel occupies space, full-width layouts, preserved loyalty subtab and birthday draft, voucher count/empty state/copy; compact luxury tier palettes and policy, all six loyalty subtabs, dialog/focus, redemption retry/idempotency, campaign validation, point/notification updates and error states remain valid; gift costs private; financial actions in memory only"
+  ],
+  "errors": [],
+  "actualDatabaseReads": true,
+  "mockedAuthentication": true,
+  "builtArtifact": true,
+  "paginationFixtures": false,
+  "popularFixtures": false,
+  "editorFixtures": false,
+  "editorFixtureSaves": 0,
+  "operationsFixtures": false,
+  "operationsFixtureActions": 0,
+  "typography": false,
+  "dashboardDesign": false,
+  "databaseWrites": 0
+}

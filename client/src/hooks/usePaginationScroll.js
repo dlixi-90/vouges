@@ -2,16 +2,25 @@ import { useCallback, useLayoutEffect, useRef } from "react";
 
 // Wait for the selected page's rows, rather than scrolling to a loading stub.
 // The hook lives with the list so it survives a temporarily hidden pager.
-export default function usePaginationScroll({ page, onPageChange, ready = true }) {
+export default function usePaginationScroll({ page, onPageChange, ready = true, resetKey }) {
   const listRef = useRef(null);
   const requestedPage = useRef(null);
+  const focusList = useRef(true);
+  const previousResetKey = useRef(resetKey);
   const changePage = useCallback((nextPage) => {
     if (nextPage === page) return;
     requestedPage.current = nextPage;
+    focusList.current = true;
     onPageChange(nextPage);
   }, [onPageChange, page]);
 
   useLayoutEffect(() => {
+    // A new filter result also starts at the list, even if the page stays at 1.
+    if (previousResetKey.current !== resetKey) {
+      previousResetKey.current = resetKey;
+      requestedPage.current = page;
+      focusList.current = false;
+    }
     if (!ready || requestedPage.current !== page) return;
     let frame;
     const paint = window.requestAnimationFrame(() => { frame = window.requestAnimationFrame(() => {
@@ -19,7 +28,8 @@ export default function usePaginationScroll({ page, onPageChange, ready = true }
       requestedPage.current = null;
       const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const list = listRef.current;
-      list.focus({ preventScroll: true });
+      // Filters keep focus on their controls so typing a price/search can continue.
+      if (focusList.current) list.focus({ preventScroll: true });
       const margin = Number.parseFloat(window.getComputedStyle(list).scrollMarginTop) || 24;
       let container = list.parentElement;
       while (container && container !== document.body) {
@@ -35,7 +45,7 @@ export default function usePaginationScroll({ page, onPageChange, ready = true }
       scroller.scrollTo({ top: Math.max(0, top), behavior: reducedMotion ? "instant" : "smooth" });
     }); });
     return () => { window.cancelAnimationFrame(paint); window.cancelAnimationFrame(frame); };
-  }, [page, ready]);
+  }, [page, ready, resetKey]);
 
   return { listRef, changePage };
 }

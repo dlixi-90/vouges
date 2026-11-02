@@ -69,6 +69,8 @@ const libraryQA=process.argv.includes("--library-management");
 const membershipDesignQA=process.argv.includes("--membership-design");
 const collectionFilterScrollQA=process.argv.includes("--collection-filter-scroll");
 const builtCollectionQA=collectionFilterScrollQA&&process.argv.includes("--built");
+const builtMembershipQA=membershipDesignQA&&process.argv.includes("--built");
+const builtArtifactQA=builtCollectionQA||builtMembershipQA;
 const loyaltyQA=process.argv.includes("--loyalty"),loyaltyFixtures=loyaltyQA||knowledgeWidthQA||membershipDesignQA?createLoyaltyFixtures():null;
 const libraryCover=libraryQA?`/images/library/${fs.readdirSync(path.join(root,'client/public/images/library')).find(file=>file.endsWith('.webp'))}`:'';
 let libraryFixtures;
@@ -84,10 +86,19 @@ const user={id:'qa-owner',firstName:'Quản trị',lastName:'Velours',fullName:'
 const getToken=async()=> 'qa-browser-only';const openSignIn=()=>{};
 export const useAuth=()=>({userId:user.id,isLoaded:true,isSignedIn:true,getToken});
 export const useUser=()=>({user,isLoaded:true,isSignedIn:true});
-export const useClerk=()=>({openSignIn});
+export const useClerk=()=>({openSignIn,openUserProfile:()=>{window.__profileOpened=true}});
 export const ClerkProvider=({children})=>children;
 export const UserButton=()=>React.createElement('span',null,'QA');
 UserButton.MenuItems=({children})=>children;UserButton.Action=()=>null;UserButton.Link=()=>null;`;
+let builtClerkMock;
+if(builtMembershipQA){
+  const assets=path.join(root,'client/dist/assets'),files=fs.readdirSync(assets);
+  const clerk=files.find(file=>/^clerk-.*\.js$/u.test(file)),react=files.find(file=>/^react-runtime-.*\.js$/u.test(file));
+  const source=fs.readFileSync(path.join(assets,clerk),'utf8');
+  // Fail explicitly if a Clerk dependency update changes the compiled export contract.
+  assert.ok(source.includes('export{un as a,Jr as i,ia as n,fn as o,Pr as r,la as t}'),'Update the browser-only Clerk mock aliases for the new build');
+  builtClerkMock={name:clerk,body:fakeClerk.replace("import React from '/node_modules/.vite/deps/react.js';",`import {i as createReact} from '/assets/${react}';const React=createReact();`)+"\nconst viVN={};export{useClerk as a,useAuth as i,ClerkProvider as n,useUser as o,UserButton as r,viVN as t};"};
+}
 
 const call=async(handler,req)=>{
   const res={statusCode:200,status(code){this.statusCode=code;return this;},set(){},json(body){this.body=body;return this;}};
@@ -216,9 +227,9 @@ try{
   if(operationsQA)operationsFixtures=createOperationsFixtures(sample);
   if(libraryQA)libraryFixtures=createLibraryFixtures(libraryCover);
   if(editorQA)editorProduct={...JSON.parse(JSON.stringify(sample)),fragrance:{...sample.fragrance,accords:[],assessmentsVisible:false}};
-  vite=spawn(process.execPath,[path.join(root,"client/node_modules/vite/bin/vite.js"),...(builtCollectionQA?['preview','--outDir',path.join(root,'.deploy-media-frontend/.vercel/output/static')]:[]),"--host","127.0.0.1","--port",String(frontendPort),"--strictPort"],{cwd:path.join(root,"client"),windowsHide:true,stdio:"ignore"});
+  vite=spawn(process.execPath,[path.join(root,"client/node_modules/vite/bin/vite.js"),...(builtArtifactQA?['preview','--outDir',path.join(root,'.deploy-media-frontend/.vercel/output/static')]:[]),"--host","127.0.0.1","--port",String(frontendPort),"--strictPort"],{cwd:path.join(root,"client"),windowsHide:true,stdio:"ignore"});
   for(let i=0;i<100;i++){try{if((await fetch(frontend)).ok)break;}catch{}await pause(150);}
-  if(!builtCollectionQA&&(accordOpeningQA||noteCoverQA||knowledgeOpeningQA||membershipDesignQA||collectionFilterScrollQA)){
+  if(!builtArtifactQA&&(accordOpeningQA||noteCoverQA||knowledgeOpeningQA||membershipDesignQA||collectionFilterScrollQA)){
     console.log(JSON.stringify({phase:'knowledge-module-warmup'}));
     // Finish Vite's initial transforms before starting the browser/CDP deadline.
     await Promise.all(['/src/main.jsx','/src/index.css','/src/App.jsx',...(collectionFilterScrollQA?['/src/pages/Collection.jsx','/src/components/CollectionFilterDrawer.jsx']:membershipDesignQA?['/src/pages/Membership.jsx','/src/components/LoyaltyMemberPanel.jsx']:['/src/pages/Knowledge.jsx','/src/components/ProductArticle.jsx'])].map(async route=>{
@@ -235,7 +246,8 @@ try{
       const {requestId,request}=data.params;
       try{
         let result,mime;
-        if(request.url.includes("@clerk_react")){result={statusCode:200,body:fakeClerk};mime="text/javascript";}
+        if(builtClerkMock&&request.url.endsWith('/'+builtClerkMock.name)){result={statusCode:200,body:builtClerkMock.body};mime="text/javascript";}
+        else if(request.url.includes("@clerk_react")){result={statusCode:200,body:fakeClerk};mime="text/javascript";}
         else{
           const operation=api(request);inFlightReads.add(operation);
           try{result=await operation;}finally{inFlightReads.delete(operation);}
@@ -254,12 +266,12 @@ try{
   if(typographyQA||editorQA||libraryQA)await send('DOM.enable');
   if(typographyQA)await send('CSS.enable');
   await send("Emulation.setDeviceMetricsOverride",{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
-  await send("Fetch.enable",{patterns:[{urlPattern:"*localhost:3000/*"},{urlPattern:"*@clerk_react*"},...(builtCollectionQA?[{urlPattern:'*vouges-backend.vercel.app/*'}]:[])]});
+  await send("Fetch.enable",{patterns:[{urlPattern:"*localhost:3000/*"},{urlPattern:"*@clerk_react*"},...(builtArtifactQA?[{urlPattern:'*vouges-backend.vercel.app/*'}]:[]),...(builtClerkMock?[{urlPattern:'*/'+builtClerkMock.name}]:[])]});
   if(collectionFilterScrollQA){
     const ready="document.querySelector('.inessa-collection-grid')?.getAttribute('aria-busy')==='false'";
     const settled=async()=>{await wait(ready);await pause(250);};
     const scrollDown=async()=>{await evaluate('window.scrollTo({top:1200,left:0,behavior:"instant"})');await pause(80);assert.ok(await evaluate('window.scrollY>600'),'Start below the top of the page');return evaluate('window.scrollY');};
-    const top=async()=>{await settled();await wait('window.scrollY<1');assert.equal(await evaluate("document.querySelector('.inessa-collection-pagination [aria-current=page]')?.textContent||'1'"),'1','Filters reset pagination');await noOverflow();};
+    const top=async()=>{await settled();await wait("(()=>{const grid=document.querySelector('.inessa-collection-grid'),margin=parseFloat(getComputedStyle(grid).scrollMarginTop),target=window.scrollY+grid.getBoundingClientRect().top-margin,max=document.documentElement.scrollHeight-innerHeight;return window.scrollY>0&&Math.abs(window.scrollY-Math.max(0,Math.min(target,max)))<3})()");assert.equal(await evaluate("document.querySelector('.inessa-collection-pagination [aria-current=page]')?.textContent||'1'"),'1','Filters reset pagination');await noOverflow();};
     const choose=async(field,index=0)=>evaluate(`(()=>{const group=document.querySelectorAll('.inessa-filter-facet')[${field}],box=group.querySelectorAll('input[type=checkbox]')[${index}];if(!box)throw Error('Missing filter choice');group.open=true;box.focus({preventScroll:true});box.click();return box.checked;})()`);
     for(const width of [1440,1024,768,390,320]){
       console.log(JSON.stringify({phase:'collection-filter-scroll',width}));
@@ -277,7 +289,7 @@ try{
             await evaluate("document.querySelector('.inessa-filter-reset').click()");await top();
           }
           for(const label of ['Giá tối thiểu (VNĐ)','Giá tối đa (VNĐ)','Mức giá tối thiểu','Mức giá tối đa']){
-            await scrollDown();const selector=`input[aria-label="${label}"]`,value=label.includes('tối thiểu')?'100000':'5000000';await input(selector,value);await top();
+            await scrollDown();const selector=`input[aria-label="${label}"]`,value=label.includes('tối thiểu')?'100000':'5000000';await evaluate(`document.querySelector(${JSON.stringify(selector)}).focus({preventScroll:true})`);await input(selector,value);await top();assert.equal(await evaluate(`document.activeElement===document.querySelector(${JSON.stringify(selector)})`),true,'Price controls retain focus');
             await evaluate("document.querySelector('.inessa-filter-reset').click()");await top();
           }
           const before=await scrollDown();await input('input[aria-label="Tìm thương hiệu"]','Dior');await pause(350);assert.ok(Math.abs(await evaluate('window.scrollY')-before)<1,'Searching filter options does not reset page scroll');await input('input[aria-label="Tìm thương hiệu"]','');
@@ -286,7 +298,7 @@ try{
           await scrollDown();await evaluate("document.querySelector('.inessa-filter-reset').click()");await top();
           await evaluate("document.querySelector('.inessa-collection-page-arrows [aria-label=\"Trang sau\"]').click()");await wait(ready+"&&document.querySelector('.inessa-collection-pagination [aria-current=page]')?.textContent==='2'");await wait("Math.abs(document.querySelector('.inessa-collection-grid').getBoundingClientRect().top-100)<3");
           await scrollDown();await choose(0);await top();await evaluate("document.querySelector('.inessa-filter-reset').click()");await top();
-          await evaluate("document.querySelector('.inessa-collection-search-toggle').click()");await scrollDown();await input('input[aria-label="Tìm kiếm sản phẩm"]','zzzz-no-such-perfume-qa');await top();assert.ok(await evaluate("Boolean(document.querySelector('.inessa-collection-empty'))"),'Empty results still scroll to top');await evaluate("document.querySelector('.inessa-collection-reset').click()");await top();
+          await evaluate("document.querySelector('.inessa-collection-search-toggle').click()");await scrollDown();await input('input[aria-label="Tìm kiếm sản phẩm"]','zzzz-no-such-perfume-qa');await top();assert.equal(await evaluate("document.activeElement===document.querySelector('input[aria-label=\"Tìm kiếm sản phẩm\"]')"),true,'Search retains focus');assert.ok(await evaluate("Boolean(document.querySelector('.inessa-collection-empty'))"),'Empty results still scroll to list');await evaluate("document.querySelector('.inessa-collection-reset').click()");await top();
           await scrollDown();await evaluate("(()=>{const select=document.querySelector('select[aria-label=\"Sắp xếp sản phẩm\"]');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(select,'low');select.dispatchEvent(new Event('change',{bubbles:true}));})()");await top();
         }
         await screenshot('collection-filter-scroll-'+width);
@@ -307,7 +319,7 @@ try{
         const unchanged=await scrollDown();await evaluate("document.querySelector('.inessa-collection-filter-trigger').click()");await wait("document.querySelector('#collection-filter-drawer[open]')");await evaluate("document.querySelector('button[aria-label=\"Đóng bộ lọc\"]').click()");await pause(350);assert.ok(Math.abs(await evaluate('window.scrollY')-unchanged)<1,'Closing unchanged mobile filters keeps the reading position');
       }
     }
-    checks.push('Filter scroll regression at 1440/1024/768/390/320px: all 11 checkbox facets, selecting/deselecting, price inputs/ranges, clear filters, rapid choices, empty search and sorting return to window top after results settle; works from page 1 and page 2; pager still scrolls to list; mobile multi-select remains open and scrolls only on view results/close/Escape; unchanged drawer and option search/refresh preserve reading position; real catalog reads and zero database writes');
+    checks.push('Filter scroll regression at 1440/1024/768/390/320px: all 11 checkbox facets, selecting/deselecting, price inputs/ranges, clear filters, rapid choices, empty search and sorting use the same CSS list scroll offset as pagination after results settle; preserve input focus for continued editing; window stays below the page banner; works from page 1 and page 2; pager retains its list focus and scroll; mobile multi-select remains open and scrolls only on view results/close/Escape; unchanged drawer and option search/refresh preserve reading position; real catalog reads and zero database writes');
   }else if(libraryPresentationQA){
     const terms=await FragranceTerm.find({kind:{$in:["group","accord","note"]}}).select("kind key name slug description descriptionContent contentImport").lean();
     const entries=terms.filter(term=>reviseLibraryPresentation(term).sections||term.descriptionContent?.content?.some(node=>node.type==="libraryCards"&&node.attrs.items.every(item=>item.href.startsWith("/collection?category="))));
@@ -623,6 +635,7 @@ try{
     }
     checks.push("All three knowledge detail pages match both account pages at 1920px/1440px/390px/320px; headings and articles fill the shared content bounds; no horizontal overflow; related-product columns preserved; zero database writes");
   }else if(membershipDesignQA){
+    const memberTab=async id=>{await evaluate(`document.getElementById('membership-tab-${id}').click()`);await wait(`!document.getElementById('membership-panel-${id}').hidden`);};
     const base=loyaltyFixtures.respond({url:frontend+'/api/loyalty/me',method:'GET'}).body;
     const reward=base.rewards[0],expiresAt=new Date(Date.now()+86400000*60).toISOString();
     const scenario={rewards:[reward,{...reward,_id:'reward-two',name:'Bộ khám phá hương thơm',image:'/images/categories/women.webp',points:200},{...reward,_id:'reward-three',name:'Quà tặng dành riêng cho thành viên',points:300}],vouchers:[{_id:'voucher-one',code:'VELOURS10',type:'percent',value:10,minSubtotal:1000000,maxDiscount:200000,expiresAt},{_id:'voucher-two',code:'BIRTHDAY150',kind:'birthday',type:'fixed',value:150000,minSubtotal:1000000,expiresAt}]};
@@ -632,13 +645,21 @@ try{
       await send('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width<500});
       await goto('/membership',"document.querySelectorAll('.loyalty-reward').length===3&&document.querySelectorAll('.net-member-voucher').length===2");
       await noOverflow();
+      assert.equal(await evaluate("document.querySelectorAll('.membership-tabs [role=tab]').length"),2);
+      assert.equal(await evaluate("document.getElementById('membership-tab-member').getAttribute('aria-selected')==='true'&&document.getElementById('membership-panel-vouchers').hidden&&document.querySelector('.membership-wallet').getClientRects().length===0"),true,'Default member tab hides the voucher wallet');
+      assert.equal(await evaluate("[...document.querySelectorAll('.membership-tabs [role=tab]')].every(tab=>document.getElementById(tab.getAttribute('aria-controls')).getAttribute('aria-labelledby')===tab.id)"),true,'Tabs and panels have matching accessible labels');
+      await evaluate("document.getElementById('membership-tab-member').focus()");
+      await send('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});
+      await wait("!document.getElementById('membership-panel-vouchers').hidden");
+      assert.equal(await evaluate("document.activeElement.id==='membership-tab-vouchers'&&document.getElementById('membership-panel-member').hidden&&document.querySelector('.membership-profile').getClientRects().length===0"),true,'Keyboard switches to vouchers and hides member content');await noOverflow();
+      await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Home',code:'Home',windowsVirtualKeyCode:36});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Home',code:'Home',windowsVirtualKeyCode:36});await wait("!document.getElementById('membership-panel-member').hidden");
       assert.equal(await evaluate("!document.querySelector('.membership-intro,.membership-shortcuts')&&!document.querySelector('.loyalty-status').innerText.includes('Velours Membership')&&!document.querySelector('.loyalty-points').innerText.includes('Tích lũy từ những lần mua sắm')"),true,'All red-marked content is removed');
       const layout=await evaluate("(()=>{const rect=s=>{const r=document.querySelector(s).getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}};return {page:rect('.net-membership .store-page-container'),profile:rect('.membership-profile'),tier:rect('.loyalty-status'),points:rect('.loyalty-points'),workspace:rect('.loyalty-workspace'),wallet:rect('.membership-wallet'),tabs:document.querySelectorAll('.loyalty-tabs button').length,background:getComputedStyle(document.querySelector('.loyalty-status')).backgroundColor}})()");
       assert.equal(layout.tabs,6);
       if(width>1100)assert.ok(layout.profile.height<=100,'Compact profile strip');
       await screenshot('membership-overview-'+width);
       if(width>800)assert.ok(layout.tier.height<=310,`Compact membership overview: ${JSON.stringify(layout)}`);
-      for(const name of ['profile','workspace','wallet'])assert.ok(Math.abs(layout[name].left-layout.profile.left)<1&&Math.abs(layout[name].right-layout.profile.right)<1,'Full-width account sections align');
+      for(const name of ['profile','workspace'])assert.ok(Math.abs(layout[name].left-layout.profile.left)<1&&Math.abs(layout[name].right-layout.profile.right)<1,'Full-width account sections align');
       if(width>800)assert.ok(Math.abs(layout.tier.top-layout.points.top)<1&&Math.abs(layout.tier.height-layout.points.height)<1,'Rank and points align');
       else assert.ok(layout.points.top>layout.tier.bottom,'Mobile overview stacks');
       assert.equal(await evaluate("document.querySelector('#loyalty-current-tier').textContent"),'Prestige');
@@ -658,11 +679,17 @@ try{
       assert.equal(await evaluate("document.activeElement===document.querySelector('.loyalty-reward button')"),true,'Escape restores reward-button focus');
       for(const tab of ['Đặc quyền','Quà đã đổi','Lịch sử điểm','Lịch sử hạng']){await clickText(tab);await pause(120);await noOverflow();}
       await evaluate("document.querySelector('.loyalty-tabs button:last-child').click()");await noOverflow();
+      await evaluate("void(window.__membershipLoyaltyNode=document.querySelector('.loyalty-member'))");
+      await memberTab('vouchers');await noOverflow();
+      assert.equal(await evaluate("document.querySelector('.membership-tab-count').textContent"),'2');
+      const wallet=await evaluate("(()=>{const r=document.querySelector('.membership-wallet').getBoundingClientRect();return {left:r.left,right:r.right}})()");assert.ok(Math.abs(wallet.left-layout.profile.left)<1&&Math.abs(wallet.right-layout.profile.right)<1,'Voucher tab uses full page width');
       await evaluate("document.querySelector('.membership-wallet').scrollIntoView({block:'start',behavior:'instant'})");await screenshot('membership-vouchers-'+width);
       assert.equal(await evaluate("[...document.querySelectorAll('.net-member-voucher-value p')].every(p=>{const range=document.createRange();range.selectNodeContents(p);const r=range.getBoundingClientRect(),box=p.parentElement.getBoundingClientRect();return r.left>=box.left&&r.right<=box.right&&r.height<=parseFloat(getComputedStyle(p).lineHeight)+1})"),true,'Voucher amounts remain readable on one line');
+      await memberTab('member');assert.equal(await evaluate("window.__membershipLoyaltyNode===document.querySelector('.loyalty-member')&&document.querySelector('.loyalty-tabs [aria-current]').textContent.startsWith('Thông báo')"),true,'Switching top-level tabs preserves loyalty state');await memberTab('vouchers');
     }
     await evaluate("Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{window.__copiedVoucher=text}}})");
     await evaluate("document.querySelector('.net-member-copy').click()");await wait("window.__copiedVoucher==='VELOURS10'");
+    await memberTab('member');
     await clickText('Đổi quà');await evaluate("document.querySelector('.loyalty-reward button').click()");await wait("document.querySelector('.loyalty-dialog[open]')");
     loyaltyFixtures.failNext('/api/loyalty/redeem');await evaluate("document.querySelector('.loyalty-dialog form').requestSubmit()");await wait("document.querySelector('.loyalty-dialog [role=alert]')");
     await evaluate("document.querySelector('.loyalty-dialog form').requestSubmit();document.querySelector('.loyalty-dialog form').requestSubmit()");await wait("!document.querySelector('.loyalty-dialog')");
@@ -676,6 +703,7 @@ try{
     await evaluate("document.querySelector('.loyalty-tabs button:last-child').click()");await clickText('Đánh dấu đã đọc');await wait("!document.querySelector('.loyalty-unread')");
     loyaltyFixtures.setMemberScenario({rewards:[],campaigns:[],profile:{birthday:''}});await goto('/membership',"document.querySelector('#birthday')&&document.querySelector('.loyalty-empty')");await noOverflow();
     assert.equal(await evaluate("document.querySelector('#birthday').required"),true);await screenshot('membership-empty-mobile');
+    await input('#birthday','1995-06-15');await memberTab('vouchers');assert.equal(await evaluate("document.querySelector('.membership-tab-count').textContent"),'0');assert.ok(await evaluate("document.querySelector('.membership-wallet-empty').innerText.includes('Chưa có mã')"));await noOverflow();await screenshot('membership-vouchers-empty');await memberTab('member');assert.equal(await evaluate("document.querySelector('#birthday').value"),'1995-06-15','Birthday draft survives tab changes');
     await clickText('Đặc quyền');assert.ok(await evaluate("document.querySelector('.loyalty-empty').textContent.includes('Chưa có chiến dịch')"));
     loyaltyFixtures.setMemberScenario({membership:{points:{available:0,debt:50}}});await goto('/membership',"document.querySelector('.loyalty-points [role=status]')");assert.equal(await evaluate("document.querySelector('.loyalty-reward button').disabled"),true);await noOverflow();
     loyaltyFixtures.setMemberScenario({membership:{tier:base.membership.tiers.at(-1),nextTier:null,programEnabled:false,canRedeem:false},profile:{username:'Thành viên có tên rất dài để kiểm tra bố cục trên điện thoại',email:'long.account.email.address.for.layout.check@example.invalid'}});
@@ -700,7 +728,7 @@ try{
     }
     assert.equal(new Set(tierColors).size,4);
     loyaltyFixtures.setMemberScenario({});loyaltyFixtures.failNext('/api/loyalty/me');await goto('/membership',"document.querySelector('.loyalty-panel[role=alert]')");await clickText('Thử lại');await wait("document.querySelector('.loyalty-overview')");await noOverflow();
-    checks.push('Compact luxury membership at 1440/1024/768/390/320px: red-marked content removed, profile <=100px desktop, tier/points <=310px desktop, aligned sections, responsive 4/3/2/1 reward columns and vouchers; four distinct tier palettes on desktop/mobile and policy comparison with >=4.5 text contrast; all six tabs, copy code, native dialog/Escape/focus, redemption error/retry/idempotency, campaign order validation, point/notification updates, empty/birthday/debt/paused/highest-tier/long-text/error states; gift costs private; all financial actions in memory only');
+    checks.push('Two top-level member/voucher tabs at 1440/1024/768/390/320px: correct default/selected/hidden states and accessible labels, keyboard ArrowRight/Home, only active panel occupies space, full-width layouts, preserved loyalty subtab and birthday draft, voucher count/empty state/copy; compact luxury tier palettes and policy, all six loyalty subtabs, dialog/focus, redemption retry/idempotency, campaign validation, point/notification updates and error states remain valid; gift costs private; financial actions in memory only');
   }else if(loyaltyQA){
     await goto('/membership',"document.querySelector('.loyalty-member')");
     await noOverflow();await screenshot('loyalty-member-desktop');
@@ -1401,7 +1429,7 @@ try{
   }
   }
   assert.deepEqual(writes,[]);assert.deepEqual(errors,[]);
-  fs.writeFileSync(path.join(artifacts,"result.json"),JSON.stringify({passed:true,checks,errors,actualDatabaseReads:true,mockedAuthentication:!builtCollectionQA,builtArtifact:builtCollectionQA,paginationFixtures:paginationQA,popularFixtures:popularQA,editorFixtures:editorQA,editorFixtureSaves:editorPatches.length,operationsFixtures:operationsQA,operationsFixtureActions:operationsFixtures?.requests.length||0,typography:typographyQA,dashboardDesign:dashboardQA,databaseWrites:0},null,2));
+  fs.writeFileSync(path.join(artifacts,"result.json"),JSON.stringify({passed:true,checks,errors,actualDatabaseReads:true,mockedAuthentication:!builtCollectionQA,builtArtifact:builtArtifactQA,paginationFixtures:paginationQA,popularFixtures:popularQA,editorFixtures:editorQA,editorFixtureSaves:editorPatches.length,operationsFixtures:operationsQA,operationsFixtureActions:operationsFixtures?.requests.length||0,typography:typographyQA,dashboardDesign:dashboardQA,databaseWrites:0},null,2));
   console.log(JSON.stringify({passed:true,checks,screenshots:artifacts,databaseWrites:0,...(libraryFixtures?{libraryFixtureActions:libraryFixtures.requests.length}:{})}));
 }finally{
   try{if(ws?.readyState===1)await send("Browser.close");}catch{}ws?.close();chrome?.kill();vite?.kill();

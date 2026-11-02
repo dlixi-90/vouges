@@ -5,6 +5,7 @@ import {
   ArrowUpRight,
   CalendarDays,
   Copy,
+  Crown,
   Gift,
   LoaderCircle,
   Mail,
@@ -27,6 +28,10 @@ import "../membership.css";
 
 const focusStyles =
   "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary";
+const membershipTabs = [
+  { id: "member", label: "Thành viên", Icon: Crown },
+  { id: "vouchers", label: "Mã giảm giá", Icon: Ticket },
+];
 
 export default function Membership() {
   const { openUserProfile } = useClerk();
@@ -43,6 +48,7 @@ export default function Membership() {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const [activeTab, setActiveTab] = useState("member");
   useEffect(() => {
     if (!userId) return undefined;
     let active = true;
@@ -153,7 +159,32 @@ export default function Membership() {
         ) : !current ? (
           <PageSkeleton compact label="Đang tải ưu đãi của bạn…" />
         ) : (
-          <div className="store-member-layout">
+          <div className="membership-content min-w-0">
+            <div className="membership-tabs" role="tablist" aria-label="Thành viên và mã giảm giá">
+              {membershipTabs.map(({ id, label, Icon }, index) => (
+                <button key={id} id={`membership-tab-${id}`} type="button" role="tab"
+                  aria-selected={activeTab === id} aria-controls={`membership-panel-${id}`}
+                  tabIndex={activeTab === id ? 0 : -1} onClick={() => setActiveTab(id)}
+                  onKeyDown={event => {
+                    let next;
+                    if (event.key === "ArrowRight") next = (index + 1) % membershipTabs.length;
+                    else if (event.key === "ArrowLeft") next = (index + membershipTabs.length - 1) % membershipTabs.length;
+                    else if (event.key === "Home") next = 0;
+                    else if (event.key === "End") next = membershipTabs.length - 1;
+                    else return;
+                    event.preventDefault();
+                    const nextId = membershipTabs[next].id;
+                    setActiveTab(nextId);
+                    document.getElementById(`membership-tab-${nextId}`)?.focus();
+                  }}>
+                  <Icon size={16} strokeWidth={1.5} aria-hidden="true" />{label}
+                  {id === "vouchers" && <span className="membership-tab-count">{vouchers.length}</span>}
+                </button>
+              ))}
+            </div>
+            <div id="membership-panel-member" role="tabpanel" aria-labelledby="membership-tab-member"
+              className="membership-tab-panel" hidden={activeTab !== "member"} tabIndex={0}>
+            <div className="store-member-layout">
             <div className="min-w-0">
               <section
                 aria-labelledby="member-profile-title"
@@ -282,9 +313,11 @@ export default function Membership() {
               </section>
             </div>
 
-            <div className="membership-content min-w-0">
               <LoyaltyMemberPanel key={`${userId}:${current.profile.birthday}`} onChange={() => setAttempt(value => value + 1)} />
-
+            </div>
+            </div>
+            <div id="membership-panel-vouchers" role="tabpanel" aria-labelledby="membership-tab-vouchers"
+              className="membership-tab-panel" hidden={activeTab !== "vouchers"} tabIndex={0}>
               <section
                 aria-labelledby="member-wallet-title"
                 className="net-member-panel membership-wallet overflow-hidden"

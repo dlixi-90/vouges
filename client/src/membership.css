@@ -1,6 +1,14 @@
 #loyalty-overview,#member-wallet-title { scroll-margin-top: 24px; }
 .net-membership .store-member-layout { grid-template-columns: minmax(0, 1fr); gap: 20px; }
 .net-membership .membership-content { display: grid; gap: 20px; }
+.membership-tabs { display: flex; gap: 28px; min-width: 0; border-bottom: 1px solid #e9e5df; }
+.membership-tabs [role="tab"] { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 10px 2px 14px; border-bottom: 2px solid transparent; color: #777; font-size: 13px; cursor: pointer; }
+.membership-tabs [role="tab"][aria-selected="true"] { border-color: #76603e; color: #493b29; font-weight: 500; }
+.membership-tabs [role="tab"]:hover { color: #493b29; }
+.membership-tabs [role="tab"]:focus-visible,.membership-tab-panel:focus-visible { outline: 2px solid #827565; outline-offset: 4px; }
+.membership-tab-count { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding-inline: 5px; border-radius: 12px; background: #f3efe8; color: #76603e; font-size: 10px; }
+.membership-tab-panel { min-width: 0; }
+.membership-tab-panel[hidden] { display: none; }
 .net-theme .net-membership .membership-profile { display: grid; grid-template-columns: minmax(240px, .9fr) minmax(0, 2fr); border-color: #e9e5df; background: #fcfbf9; }
 .net-membership .membership-profile .net-member-profile-cover { display: flex; align-items: center; padding: 16px 20px; border: 0; background: transparent; }
 .net-membership .membership-profile .net-member-profile-cover > .membership-identity { margin: 0; }
@@ -34,6 +42,8 @@
   .net-membership .membership-vouchers { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 700px) {
+  .membership-tabs { gap: 20px; }
+  .membership-tabs [role="tab"] { gap: 6px; font-size: 12px; }
   .net-theme .net-membership .membership-profile { grid-template-columns: minmax(0, 1fr); }
   .net-membership .membership-profile .net-member-profile-cover { padding: 14px 16px; }
   .net-membership .membership-profile .net-member-details { padding: 0 16px 14px; }
