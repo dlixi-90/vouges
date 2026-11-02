@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "checks": [
+    "Filter scroll regression at 1440/1024/768/390/320px: all 11 checkbox facets, selecting/deselecting, price inputs/ranges, clear filters, rapid choices, empty search and sorting return to window top after results settle; works from page 1 and page 2; pager still scrolls to list; mobile multi-select remains open and scrolls only on view results/close/Escape; unchanged drawer and option search/refresh preserve reading position; real catalog reads and zero database writes"
+  ],
+  "errors": [],
+  "actualDatabaseReads": true,
+  "mockedAuthentication": false,
+  "builtArtifact": true,
+  "paginationFixtures": false,
+  "popularFixtures": false,
+  "editorFixtures": false,
+  "editorFixtureSaves": 0,
+  "operationsFixtures": false,
+  "operationsFixtureActions": 0,
+  "typography": false,
+  "dashboardDesign": false,
+  "databaseWrites": 0
+}

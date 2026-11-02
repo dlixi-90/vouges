@@ -116,13 +116,6 @@ export default function Membership() {
             <ArrowUpRight size={17} aria-hidden="true" />
           </Link>
         </StorePageHeading>
-        <p className="membership-intro">Không gian dành riêng cho bạn — theo dõi hạng thành viên, khám phá quà tặng và tận hưởng ưu đãi từ Velours.</p>
-        {current && !accountLoading && !error && <nav className="membership-shortcuts" aria-label="Các mục thành viên">
-          <a href="#loyalty-overview">Hạng & điểm thưởng <ArrowRight size={14} aria-hidden="true" /></a>
-          <a href="#loyalty-workspace">Quà tặng & đặc quyền <ArrowRight size={14} aria-hidden="true" /></a>
-          <a href="#member-wallet-title">Mã giảm giá <span>{vouchers.length}</span><ArrowRight size={14} aria-hidden="true" /></a>
-        </nav>}
-
         {accountLoading ? <PageSkeleton compact label="Đang tải tài khoản…" /> : !user ? (
           <section className="net-member-panel flex flex-col items-center px-6 py-16 text-center">
             <span className="net-member-empty-icon mb-5 flex h-16 w-16 items-center justify-center rounded-2xl">
@@ -166,26 +159,8 @@ export default function Membership() {
                 aria-labelledby="member-profile-title"
                 className="net-member-panel membership-profile overflow-hidden"
               >
-                <div className="net-member-profile-cover p-6">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="net-member-brand text-[10px] font-semibold uppercase tracking-[0.2em]">
-                      Velours
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => openUserProfile()}
-                      aria-label="Quản lý tài khoản"
-                      title="Quản lý tài khoản"
-                      className={`net-member-settings -m-2 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full transition ${focusStyles}`}
-                    >
-                      <Settings
-                        size={20}
-                        strokeWidth={1.5}
-                        aria-hidden="true"
-                      />
-                    </button>
-                  </div>
-                  <div className="mt-6 flex items-center gap-4">
+                <div className="net-member-profile-cover">
+                  <div className="membership-identity">
                     <div className="net-member-avatar flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border">
                       {user.imageUrl ? (
                         <img
@@ -206,10 +181,16 @@ export default function Membership() {
                       >
                         {displayName}
                       </h2>
-                      <p className="net-member-muted mt-1 text-xs">
-                        Thành viên Velours
-                      </p>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => openUserProfile()}
+                      aria-label="Quản lý tài khoản"
+                      title="Quản lý tài khoản"
+                      className={`net-member-settings ${focusStyles}`}
+                    >
+                      <Settings size={17} strokeWidth={1.5} aria-hidden="true" />
+                    </button>
                   </div>
                 </div>
                 <dl className="net-member-details space-y-5 p-6">
@@ -324,7 +305,7 @@ export default function Membership() {
                   </span>
                 </div>
                 {vouchers.length === 0 ? (
-                  <div className="flex flex-col items-center px-6 py-12 text-center sm:py-14">
+                  <div className="membership-wallet-empty">
                     <span className="net-member-empty-icon mb-5 flex h-16 w-16 items-center justify-center rounded-2xl">
                       <Ticket size={32} strokeWidth={1.3} aria-hidden="true" />
                     </span>

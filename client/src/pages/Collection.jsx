@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useLayoutEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
@@ -48,6 +48,23 @@ const Collection = () => {
     page: currentPage, limit: itemsPerPage, ...criteria, sort: selectedSort,
   }, { enabled: !criteriaPending });
   const productsLoading = pageLoading || criteriaPending;
+  const scrollCriteria = JSON.stringify({ criteriaKey, selectedSort });
+  const previousScrollCriteria = useRef(scrollCriteria);
+  const filterScrollPending = useRef(false);
+  useLayoutEffect(() => {
+    if (previousScrollCriteria.current !== scrollCriteria) {
+      previousScrollCriteria.current = scrollCriteria;
+      filterScrollPending.current = true;
+    }
+    // Keep the mobile drawer usable for multiple choices; scroll after it closes
+    // and the final filtered results are ready, including when already on page 1.
+    if (!filterScrollPending.current || isFilterOpen || productsLoading) return;
+    const frame = window.requestAnimationFrame(() => {
+      filterScrollPending.current = false;
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [scrollCriteria, isFilterOpen, productsLoading]);
   const prefetchKey = JSON.stringify({ ...criteria, limit: itemsPerPage, sort: selectedSort, page: (collection?.page || 1) + 1 });
   useEffect(() => {
     if (productsLoading || !collection || collection.page >= collection.totalPages) return;
