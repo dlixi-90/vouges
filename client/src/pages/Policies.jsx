@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ArrowUpRight, CreditCard, LifeBuoy, LockKeyhole, ShieldCheck } from "lucide-react";
+import { CreditCard, LifeBuoy, LockKeyhole } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import StorePageHeading from "../components/StorePageHeading";
 import "./policies.css";
@@ -12,7 +12,6 @@ const sections = [
 
 export default function Policies() {
   const { hash, key } = useLocation();
-  const activeId = sections.some(section => hash === `#${section.id}`) ? hash.slice(1) : "don-hang";
   useEffect(() => {
     const previousTitle = document.title;
     document.title = "Chính sách | Velours";
@@ -30,22 +29,7 @@ export default function Policies() {
   }, [hash, key]);
 
   return <div className="policies-page max-padd-container store-page-container">
-    <StorePageHeading title="Chính sách">
-      <Link className="policies-contact" to="/contact">Liên hệ hỗ trợ <ArrowUpRight size={15} aria-hidden="true" /></Link>
-    </StorePageHeading>
-    <div className="policies-intro">
-      <span className="policies-intro-icon"><ShieldCheck size={22} strokeWidth={1.5} aria-hidden="true" /></span>
-      <p>Thông tin về đặt hàng, thanh toán và hỗ trợ tại Velours.</p>
-    </div>
-    <div className="policies-layout">
-      <aside className="policies-sidebar">
-        <p id="policies-nav-title">Trong trang này</p>
-        <nav aria-labelledby="policies-nav-title">
-          {sections.map((section, index) => <Link key={section.id} to={`/policies#${section.id}`} aria-current={activeId === section.id ? "location" : undefined}>
-            <span aria-hidden="true">0{index + 1}</span><span>{section.title}</span>
-          </Link>)}
-        </nav>
-      </aside>
+    <StorePageHeading title="Chính sách" />
       <div className="policies-content">
         {sections.map(({ id, title, Icon }) => <section key={id} id={id} tabIndex={-1} aria-labelledby={`${id}-title`} className="policies-section">
           <header><span className="policies-section-icon"><Icon size={21} strokeWidth={1.5} aria-hidden="true" /></span><h2 id={`${id}-title`}>{title}</h2></header>
@@ -56,6 +40,5 @@ export default function Policies() {
           </div>
         </section>)}
       </div>
-    </div>
   </div>;
 }

@@ -1,41 +1,18 @@
 .policies-page { min-height: 65vh; padding-bottom: 56px; }
 html:has(.policies-page),body:has(.policies-page) { overflow-x: clip; }
 .net-theme.net-storefront:has(.policies-page) { overflow: clip; }
-.policies-contact { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 8px 14px; border: 1px solid #e9e5df; border-radius: 24px; color: #655b4e; font-size: 11px; }
-.policies-contact:hover { border-color: #b8a586; color: #493b29; }
-.policies-intro { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; padding: 18px 22px; border: 1px solid #e9e2d7; border-radius: 14px; background: #f8f5ef; }
-.policies-intro-icon { display: grid; place-items: center; flex: none; color: #806742; }
-.policies-intro p { margin: 0; color: #6d6253; font-size: 13px; line-height: 1.8; }
-.policies-layout { display: grid; grid-template-columns: 240px minmax(0,1fr); align-items: start; gap: 28px; }
-.policies-sidebar { position: sticky; top: 24px; min-width: 0; padding: 18px 12px 12px; border: 1px solid #e9e5df; border-radius: 16px; background: #fff; }
-.policies-sidebar > p { margin: 0 10px 12px; color: #8a8174; font-size: 10px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
-.policies-sidebar nav { display: grid; gap: 6px; }
-.policies-sidebar a { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 12px 10px; border: 1px solid transparent; border-radius: 10px; color: #6c6c6c; font-size: 12px; line-height: 1.6; }
-.policies-sidebar a > span:first-child { flex: none; color: #a59a88; font-size: 10px; font-variant-numeric: tabular-nums; }
-.policies-sidebar a[aria-current] { border-color: #e9dfcf; background: #f7f3ec; color: #5d472b; font-weight: 500; }
-.policies-sidebar a:hover { background: #faf8f4; color: #493b29; }
 .policies-content { display: grid; gap: 18px; min-width: 0; }
 .policies-section { min-width: 0; padding: 26px 28px; border: 1px solid #e9e5df; border-radius: 16px; background: #fff; scroll-margin-top: 24px; }
 .policies-section > header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
 .policies-section-icon { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border: 1px solid #eae3d8; border-radius: 12px; background: #faf8f4; color: #806742; }
 .net-theme .policies-section h2 { margin: 0; font-family: var(--inessa-serif); font-size: clamp(21px,2vw,25px); font-weight: 400; line-height: 1.4; letter-spacing: -.02em; }
-.policies-section-copy { max-width: 74ch; padding-left: 54px; color: #646464; font-size: 14px; line-height: 1.9; overflow-wrap: anywhere; }
+.policies-section-copy { padding-left: 54px; color: #646464; font-size: 14px; line-height: 1.9; overflow-wrap: anywhere; }
 .policies-section-copy p { margin: 0 0 12px; }
 .policies-section-copy p:last-child { margin-bottom: 0; }
 .policies-section-copy a { color: #5d472b; text-decoration: underline; text-decoration-color: #c9b899; text-underline-offset: 4px; }
 .policies-page :is(a,section):focus-visible { outline: 2px solid #9a8260; outline-offset: 4px; }
-@media (max-width: 900px) {
-  .policies-layout { grid-template-columns: minmax(0,1fr); gap: 20px; }
-  .policies-sidebar { position: static; padding: 14px 12px 12px; }
-  .policies-sidebar nav { grid-template-columns: repeat(3,minmax(0,1fr)); }
-  .policies-sidebar a { align-items: flex-start; height: 100%; }
-}
 @media (max-width: 600px) {
   .policies-page { padding-bottom: 36px; }
-  .policies-intro { gap: 12px; margin-bottom: 20px; padding: 14px 16px; }
-  .policies-intro p { font-size: 12px; }
-  .policies-sidebar nav { gap: 6px; }
-  .policies-sidebar a { flex-direction: column; gap: 5px; padding: 10px 8px; font-size: 11px; }
   .policies-content { gap: 14px; }
   .policies-section { padding: 20px 18px; }
   .policies-section > header { gap: 12px; margin-bottom: 14px; }

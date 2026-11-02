@@ -273,35 +273,32 @@ try{
   if(policiesDesignQA){
     const ids=['don-hang','ho-tro','thong-tin'];
     const assertAnchor=async id=>{
-      await wait(`location.hash==='#${id}'&&document.activeElement.id==='${id}'&&document.querySelector('.policies-sidebar [aria-current=location]')?.getAttribute('href')==='/policies#${id}'`);
+      await wait(`location.hash==='#${id}'&&document.activeElement.id==='${id}'`);
       await wait(`(()=>{const section=document.getElementById('${id}'),margin=parseFloat(getComputedStyle(section).scrollMarginTop),target=scrollY+section.getBoundingClientRect().top-margin,max=document.documentElement.scrollHeight-innerHeight;return Math.abs(scrollY-Math.max(0,Math.min(target,max)))<3})()`);
       await noOverflow();
     };
     for(const width of [1440,1024,768,390,320]){
       console.log(JSON.stringify({phase:'policies-design',width}));
       await send('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width<500});
-      await goto('/policies',"document.querySelectorAll('.policies-section').length===3&&document.querySelectorAll('.policies-sidebar a').length===3");
+      await goto('/policies',"document.querySelectorAll('.policies-section').length===3");
       await wait("document.title==='Chính sách | Velours'&&scrollY<1");await noOverflow();
       assert.equal(await evaluate("document.querySelectorAll('h1').length"),1);
       assert.deepEqual(await evaluate("[...document.querySelectorAll('.policies-section')].map(section=>section.id)"),ids,'Original footer anchor IDs remain valid');
       assert.equal(await evaluate("document.querySelectorAll('.policies-section-copy p').length"),4,'All four existing policy paragraphs remain');
       assert.deepEqual(await evaluate("[...document.querySelectorAll('.policies-section-copy a')].map(link=>link.getAttribute('href'))"),['/my-orders','/contact']);
       assert.equal(await evaluate("[...document.querySelectorAll('.policies-section')].every(section=>!!document.getElementById(section.getAttribute('aria-labelledby')))"),true);
-      const layout=await evaluate("(()=>{const box=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,width:r.width}};return {sidebar:box('.policies-sidebar'),content:box('.policies-content'),page:box('.policies-page'),columns:getComputedStyle(document.querySelector('.policies-sidebar nav')).gridTemplateColumns.split(' ').length}})()");
+      assert.equal(await evaluate("document.querySelectorAll('.policies-contact,.policies-intro,.policies-sidebar,.policies-layout,.policies-page .store-page-heading-actions').length"),0,'All three red-marked areas and the sidebar layout are removed');
+      assert.equal(await evaluate("(()=>{const page=document.querySelector('.policies-page'),box=page.getBoundingClientRect(),style=getComputedStyle(page),left=box.left+parseFloat(style.paddingLeft),right=box.right-parseFloat(style.paddingRight);return [...document.querySelectorAll('.policies-content,.policies-section')].every(section=>{const r=section.getBoundingClientRect();return Math.abs(r.left-left)<1&&Math.abs(r.right-right)<1})})()"),true,'Policy sections occupy the entire page content width');
       assert.equal(await evaluate("getComputedStyle(document.querySelector('.policies-page')).maxWidth"),'1500px');
-      assert.ok(width>900?layout.content.left>layout.sidebar.right:layout.content.top>layout.sidebar.top,'Policy layout adapts to the screen');
-      assert.equal(layout.columns,width>900?1:3);
       await screenshot('policies-overview-'+width);
-      for(const id of ids){await evaluate(`document.querySelector('.policies-sidebar a[href="/policies#${id}"]').click()`);await assertAnchor(id);}
-      if(width>900)assert.equal(await evaluate(`(()=>{const top=document.querySelector('.policies-sidebar').getBoundingClientRect().top;return Math.abs(top-Math.max(24,${layout.sidebar.top}-scrollY))<2})()`),true,'Desktop contents stays visible while reading');
-      await evaluate("document.querySelector('.policies-sidebar a').focus({preventScroll:true})");
-      await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});await assertAnchor('don-hang');
-      await send('Page.navigate',{url:frontend+'/policies#ho-tro'});await send('Page.reload',{ignoreCache:true});await wait("!window.__oldQaDocument&&document.querySelector('#ho-tro')");await assertAnchor('ho-tro');
+      await evaluate("document.querySelector('footer a[href=\"/policies#ho-tro\"]').focus({preventScroll:true})");
+      await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});await assertAnchor('ho-tro');
+      await evaluate('window.__oldQaDocument=true');await send('Page.navigate',{url:frontend+'/policies#ho-tro'});await send('Page.reload',{ignoreCache:true});await wait("!window.__oldQaDocument&&document.querySelector('#ho-tro')");await assertAnchor('ho-tro');
       await evaluate("document.querySelector('footer a[href=\"/policies#thong-tin\"]').click()");await assertAnchor('thong-tin');
       await evaluate('history.back()');await assertAnchor('ho-tro');
       await screenshot('policies-support-'+width);
     }
-    checks.push('Policies at 1440/1024/768/390/320px: wide shared page bounds, desktop sidebar and three-column mobile contents, no horizontal overflow, one page heading, all three existing sections/four paragraphs and order/contact links preserved; every contents link, keyboard Enter, direct support URL, footer privacy link and browser Back reach the correct visible section with focus and active navigation; zero database writes');
+    checks.push('Policies at 1440/1024/768/390/320px: red-marked contact button, introduction strip and contents sidebar removed; policy cards fill the full shared page width without an empty sidebar column; no horizontal overflow; all three sections/four original paragraphs and order/contact links preserved; footer keyboard Enter, direct support URL, privacy link and browser Back still reach the correct section with focus; zero database writes');
   }else if(collectionFilterScrollQA){
     const ready="document.querySelector('.inessa-collection-grid')?.getAttribute('aria-busy')==='false'";
     const settled=async()=>{await wait(ready);await pause(250);};
