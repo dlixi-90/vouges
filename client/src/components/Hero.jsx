@@ -18,13 +18,13 @@ const Hero = () => {
       <div className="max-padd-container inessa-hero-inner">
         <div className="inessa-hero-copy">
           <p className="inessa-eyebrow">Vẻ đẹp mang dấu ấn riêng</p>
-          <h2 id="hero-title">
+          <h1 id="hero-title">
             Đánh thức
             <br />
             vẻ đẹp
             <br />
             <span>của bạn.</span>
-          </h2>
+          </h1>
           <Link
             to="/collection"
             className="inessa-button"
