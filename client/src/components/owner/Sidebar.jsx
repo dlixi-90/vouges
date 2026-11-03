@@ -24,7 +24,7 @@ const navigation = [
     { path: "/owner/library", label: "Thư viện hương", icon: Library },
   ] },
   { label: "Vận hành", items: [
-    { path: "/owner/customers", label: "Khách hàng", icon: Users },
+    { path: "/owner/users", label: "Người dùng", icon: Users },
     { path: "/owner/vouchers", label: "Mã giảm giá", icon: Ticket },
     { path: "/owner/loyalty", label: "Thành viên & đặc quyền", icon: Users },
     { path: "/owner/messages", label: "Tin nhắn & hỗ trợ", icon: MessagesSquare },

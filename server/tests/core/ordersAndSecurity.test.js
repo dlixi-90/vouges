@@ -60,7 +60,7 @@ test("authUser promotes every email configured in ADMIN_EMAILS", async () => {
   const previousAdminEmails = process.env.ADMIN_EMAILS;
   const previousAdminEmail = process.env.ADMIN_EMAIL;
   const originalFindById = User.findById;
-  const originalFindByIdAndUpdate = User.findByIdAndUpdate;
+  const originalFindByIdAndUpdate = User.findOneAndUpdate;
   const promotedEmails = [];
   let currentEmail;
 
@@ -69,9 +69,9 @@ test("authUser promotes every email configured in ADMIN_EMAILS", async () => {
   delete process.env.ADMIN_EMAIL;
 
   User.findById = async () => ({ email: currentEmail, role: "user" });
-  User.findByIdAndUpdate = async (_userId, update) => {
+  User.findOneAndUpdate = async (_filter, update) => {
     promotedEmails.push(currentEmail);
-    return { email: currentEmail, role: update.role };
+    return { email: currentEmail, role: update.$set.role };
   };
 
   try {
@@ -99,7 +99,7 @@ test("authUser promotes every email configured in ADMIN_EMAILS", async () => {
     ]);
   } finally {
     User.findById = originalFindById;
-    User.findByIdAndUpdate = originalFindByIdAndUpdate;
+    User.findOneAndUpdate = originalFindByIdAndUpdate;
 
     if (previousAdminEmails === undefined) {
       delete process.env.ADMIN_EMAILS;
@@ -119,7 +119,7 @@ test("authUser still accepts the legacy ADMIN_EMAIL variable", async () => {
   const previousAdminEmails = process.env.ADMIN_EMAILS;
   const previousAdminEmail = process.env.ADMIN_EMAIL;
   const originalFindById = User.findById;
-  const originalFindByIdAndUpdate = User.findByIdAndUpdate;
+  const originalFindByIdAndUpdate = User.findOneAndUpdate;
   let updatedRole;
 
   delete process.env.ADMIN_EMAILS;
@@ -128,9 +128,9 @@ test("authUser still accepts the legacy ADMIN_EMAIL variable", async () => {
     email: "legacy.admin@example.com",
     role: "user",
   });
-  User.findByIdAndUpdate = async (_userId, update) => {
-    updatedRole = update.role;
-    return { email: "legacy.admin@example.com", role: update.role };
+  User.findOneAndUpdate = async (_filter, update) => {
+    updatedRole = update.$set.role;
+    return { email: "legacy.admin@example.com", role: update.$set.role };
   };
 
   try {
@@ -143,7 +143,7 @@ test("authUser still accepts the legacy ADMIN_EMAIL variable", async () => {
     assert.equal(updatedRole, "owner");
   } finally {
     User.findById = originalFindById;
-    User.findByIdAndUpdate = originalFindByIdAndUpdate;
+    User.findOneAndUpdate = originalFindByIdAndUpdate;
 
     if (previousAdminEmails === undefined) {
       delete process.env.ADMIN_EMAILS;

@@ -16,6 +16,12 @@ const userSchema = new mongoose.Schema({
         completedAt: {type:Date, required:true},
     }, {_id:false}), default:undefined},
     role: {type:String, enum: ["user", "owner"], default: "user"},
+    adminAccess: {type: new mongoose.Schema({
+        enabled: {type:Boolean, default:false},
+        version: {type:Number, default:0, min:0, validate:Number.isSafeInteger},
+        changedBy: {type:String},
+        changedAt: {type:Date},
+    }, {_id:false}), default:undefined},
     cartData: {type:Object, default:{}},
     cartAddedAt: {type:Object, default:{}},
     defaultAddressId: {type: mongoose.Schema.Types.ObjectId, ref: "Address", default: null},

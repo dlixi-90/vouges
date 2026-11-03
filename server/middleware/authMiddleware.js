@@ -2,18 +2,7 @@ import User from "../models/User.js";
 import { customerIdentity } from "../services/customerIdentity.js";
 import { mapClerkProfile } from "../utils/clerkProfile.js";
 import { customerProfile } from "../utils/customerProfile.js";
-
-const getAdminEmails = () => {
-  const configuredEmails =
-    process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || "";
-
-  return new Set(
-    configuredEmails
-      .split(",")
-      .map((email) => email.trim().toLowerCase())
-      .filter(Boolean),
-  );
-};
+import { isRootAdmin, userAccess } from "../services/userAccess.js";
 
 export const authUser = async (req, res, next) => {
   try {
@@ -40,21 +29,21 @@ export const authUser = async (req, res, next) => {
         {upsert:true,new:true,runValidators:true,setDefaultsOnInsert:true});
     }
 
-    // Auto promote to owner if the email is in the configured admin list.
-    // ADMIN_EMAIL is kept as a fallback for existing deployments.
-    const adminEmails = getAdminEmails();
-    const userEmail = user.email?.trim().toLowerCase();
-    const newRole = userEmail && adminEmails.has(userEmail) ? "owner" : "user";
+    // Environment roots remain protected; website grants survive subsequent requests.
+    const newRole = userAccess(user).role;
 
     if (user.role !== newRole) {
-      // return the updated doc immediately
-      user = await User.findByIdAndUpdate(
-        userId,
-        { role: newRole },
-        { new: true },
-      );
+      const version = user.adminAccess?.version || 0;
+      const versionMatch = version === 0 ? {$or:[{"adminAccess.version":0},{"adminAccess.version":{$exists:false}}]} : {"adminAccess.version":version};
+      // A cached role never overwrites a grant/revocation committed since our read.
+      user = await User.findOneAndUpdate({_id:userId,email:user.email,role:user.role,...versionMatch},
+        {$set:{role:newRole}}, {new:true}) || await User.findById(userId);
     }
+    if (!user) return res.status(401).json({success:false,message:"Tài khoản không còn tồn tại."});
 
+    // Recompute after a cache write: a concurrent revocation must not authorize
+    // using the stale role value that was just read before that write.
+    user.role = userAccess(user).role;
     req.user = user;
     next();
   } catch (error) {
@@ -78,6 +67,11 @@ export const requireOwner = (req, res, next) => {
 };
 
 export default authUser;
+
+export const requireRootOwner = (req, res, next) => {
+  if (!isRootAdmin(req.user)) return res.status(403).json({success:false,message:"Chỉ quản trị gốc được quản lý phân quyền."});
+  return next();
+};
 
 export const requireCustomerProfile = (req, res, next) => {
   if (customerProfile(req.user).needsCompletion) return res.status(403).json({

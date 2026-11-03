@@ -187,6 +187,32 @@ export const AppContextProvider = ({ children }) => {
     },
   }));
   const getUser = useCallback(() => profileLoader.load(authUserId, getToken), [profileLoader, authUserId, getToken]);
+  useEffect(() => {
+    if (!isLoaded || !authUserId) return;
+    let request, lastCheck = 0;
+    const refreshAccess = (force = false) => {
+      if (document.visibilityState === "hidden" || request || (!force && Date.now() - lastCheck < 15000)) return;
+      const controller = new AbortController(); request = controller; lastCheck = Date.now();
+      void (async () => {
+        try {
+          const token = await getToken(); controller.signal.throwIfAborted();
+          const {data} = await axios.get("/api/users/access", {headers:{Authorization:`Bearer ${token}`},signal:controller.signal,timeout:15000});
+          if (data.success && !controller.signal.aborted) setProfileResult(current => current.userId === authUserId
+            ? {...current,role:data.role === "owner"} : current);
+        } catch (error) {
+          if (!controller.signal.aborted && error.response?.status === 401) setProfileResult(current => current.userId === authUserId
+            ? {...current,role:false} : current);
+        } finally { if (request === controller) request = null; }
+      })();
+    };
+    const focus = () => refreshAccess();
+    const interceptor = axios.interceptors.response.use(response => response, error => {
+      if (error.response?.status === 403 && error.config?.url !== "/api/users/access") refreshAccess(true);
+      return Promise.reject(error);
+    });
+    window.addEventListener("focus", focus); document.addEventListener("visibilitychange", focus);
+    return () => { request?.abort(); axios.interceptors.response.eject(interceptor);window.removeEventListener("focus",focus);document.removeEventListener("visibilitychange",focus); };
+  }, [isLoaded,authUserId,getToken]);
   const applyCustomerProfile = useCallback((userId,profile) => {
     setProfileResult(current => current.userId === userId ? {...current,profile} : current);
   }, []);

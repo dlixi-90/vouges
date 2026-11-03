@@ -28,6 +28,7 @@ import {sanitizeFragranceRows} from "../services/fragranceEditing.js";
 import {createOperationsFixtures} from "./qa/operationsFixtures.mjs";
 import {createLibraryFixtures} from "./qa/libraryFixtures.mjs";
 import {createLoyaltyFixtures} from "./qa/loyaltyFixtures.mjs";
+import {createUserAccessFixtures} from "./qa/userAccessFixtures.mjs";
 import accordPalette from "../../client/src/data/accordColors.json" with { type: "json" };
 import {getAccordColors} from "../../client/src/utils/accordColors.js";
 import {sanitizeArticle,articleToPlainText,LIBRARY_ARTICLE_LIMITS} from "../../client/src/utils/productArticle.js";
@@ -68,12 +69,14 @@ const fullLibraryQA=process.argv.includes("--library-fulltext");
 const libraryQA=process.argv.includes("--library-management");
 const membershipDesignQA=process.argv.includes("--membership-design");
 const policiesDesignQA=process.argv.includes("--policies-design");
+const usersQA=process.argv.includes("--user-access"),userAccessFixtures=usersQA?createUserAccessFixtures():null;
 const collectionFilterScrollQA=process.argv.includes("--collection-filter-scroll");
 const builtCollectionQA=collectionFilterScrollQA&&process.argv.includes("--built");
 const builtMembershipQA=membershipDesignQA&&process.argv.includes("--built");
 const builtKnowledgeQA=(accordOpeningQA||knowledgeOpeningQA||noteCoverQA)&&process.argv.includes("--built");
 const builtPoliciesQA=policiesDesignQA&&process.argv.includes("--built");
-const builtArtifactQA=builtCollectionQA||builtMembershipQA||builtKnowledgeQA||builtPoliciesQA;
+const builtUsersQA=usersQA&&process.argv.includes("--built");
+const builtArtifactQA=builtCollectionQA||builtMembershipQA||builtKnowledgeQA||builtPoliciesQA||builtUsersQA;
 const loyaltyQA=process.argv.includes("--loyalty"),loyaltyFixtures=loyaltyQA||knowledgeWidthQA||membershipDesignQA?createLoyaltyFixtures():null;
 const libraryCover=libraryQA?`/images/library/${fs.readdirSync(path.join(root,'client/public/images/library')).find(file=>file.endsWith('.webp'))}`:'';
 let libraryFixtures;
@@ -94,7 +97,7 @@ export const ClerkProvider=({children})=>children;
 export const UserButton=()=>React.createElement('span',null,'QA');
 UserButton.MenuItems=({children})=>children;UserButton.Action=()=>null;UserButton.Link=()=>null;`;
 let builtClerkMock;
-if(builtMembershipQA){
+if(builtMembershipQA||builtUsersQA){
   const assets=path.join(root,'client/dist/assets'),files=fs.readdirSync(assets);
   const clerk=files.find(file=>/^clerk-.*\.js$/u.test(file)),react=files.find(file=>/^react-runtime-.*\.js$/u.test(file));
   const source=fs.readFileSync(path.join(assets,clerk),'utf8');
@@ -117,6 +120,7 @@ const call=async(handler,req)=>{
 const api=async request=>{
   const url=new URL(request.url),pathname=url.pathname;const req={query:Object.fromEntries(url.searchParams),params:{}};
   if(request.method==="OPTIONS")return {statusCode:204,body:null};
+  if(userAccessFixtures){const fixture=userAccessFixtures.respond(request);if(fixture)return fixture;}
   if(knowledgeWidthQA&&url.pathname==="/api/orders/mine")return {statusCode:200,body:{success:true,orders:[],total:0,page:1,totalPages:1}};
   if(loyaltyFixtures){const fixture=loyaltyFixtures.respond(request);if(fixture)return fixture;}
   if(operationsActive){const fixture=operationsFixtures.respond(request);if(fixture)return fixture;}
@@ -137,6 +141,7 @@ const api=async request=>{
   if(editorQA&&request.method==="POST"&&pathname==="/api/catalog/media")return {statusCode:200,body:{success:true,images:editorUploadImages}};
   if(request.method!=="GET"){writes.push({method:request.method,path:pathname,body:request.postData});return {statusCode:405,body:{success:false,message:"Browser QA is read-only"}};}
   if(pathname==="/api/users")return {statusCode:200,body:{success:true,role:"owner",cartData:{},cartAddedAt:{}}};
+  if(pathname==="/api/users/access")return {statusCode:200,body:{success:true,role:"owner",isRootAdmin:false}};
   if(pathname==="/api/catalog/summary")return call(catalogSummary,req);
   if(pathname==="/api/catalog/overview")return call(catalogOverview,req);
   if(pathname==="/api/catalog/products")return call(catalogProducts,req);
@@ -270,7 +275,40 @@ try{
   if(typographyQA)await send('CSS.enable');
   await send("Emulation.setDeviceMetricsOverride",{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   await send("Fetch.enable",{patterns:[{urlPattern:"*localhost:3000/*"},{urlPattern:"*@clerk_react*"},...(builtArtifactQA?[{urlPattern:'*vouges-backend.vercel.app/*'}]:[]),...(builtClerkMock?[{urlPattern:'*/'+builtClerkMock.name}]:[])]});
-  if(policiesDesignQA){
+  if(usersQA){
+    const row="[...document.querySelectorAll('.customer-table tbody tr')].find(row=>row.textContent.includes('new.customer@example.com'))";
+    const select=async(selector,value)=>evaluate(`(()=>{const el=document.querySelector(${JSON.stringify(selector)});Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(el,${JSON.stringify(value)});el.dispatchEvent(new Event('change',{bubbles:true}));})()`);
+    const settled=async()=>wait("document.querySelector('.customer-table')?.getAttribute('aria-busy')==='false'");
+    const openRole=async()=>{await evaluate(`(()=>{const row=${row},button=[...row.querySelectorAll('button')].find(b=>b.textContent==='Phân quyền');button.focus();button.click();})()`);await wait("document.querySelector('#user-role-reason')");};
+    for(const width of [1440,1024,768,390,320]){
+      await send('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width<500});
+      await goto('/owner/users',"document.querySelector('.customer-table tbody tr')");await settled();await noOverflow();
+      assert.equal(await evaluate("document.querySelector('h1').textContent"),'Người dùng');
+      assert.equal(await evaluate("[...document.querySelectorAll('.customer-table tbody tr')].find(r=>r.textContent.includes('root.qa@example.com')).querySelectorAll('button').length"),0);
+      await screenshot('users-overview-'+width);await openRole();await noOverflow();
+      assert.equal(await evaluate("document.querySelector('.user-role-form button[type=submit]').disabled"),true);
+      await input('#user-role-reason','Kiểm thử bố cục phân quyền');await screenshot('users-role-'+width);
+      await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await wait("!document.querySelector('dialog')");
+      assert.equal(await evaluate("document.activeElement?.textContent"),'Phân quyền','Dialog restores opener focus');
+    }
+    await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+    await goto('/owner/customers',"location.pathname==='/owner/users'&&document.querySelector('.customer-table tbody tr')");await settled();
+    await evaluate("document.querySelector('[aria-label=\"Trang 2\"]').click()");await wait("!document.body.textContent.includes('new.customer@example.com')&&document.querySelector('.customer-table')?.getAttribute('aria-busy')==='false'");
+    await select('[aria-label="Lọc vai trò"]','owner');await settled();assert.equal(await evaluate("document.querySelectorAll('.customer-table tbody tr').length"),2);
+    await input('[aria-label="Tìm người dùng"]','new.customer');await settled();await wait("document.querySelectorAll('.customer-table tbody tr').length===0");
+    await select('[aria-label="Lọc vai trò"]','all');await wait(`${row}`);await settled();
+    await openRole();await input('#user-role-reason','Bổ nhiệm Admin kiểm thử');userAccessFixtures.state.failNext=true;
+    await evaluate("document.querySelector('.user-role-form').requestSubmit()");await wait("document.querySelector('.user-role-form [role=alert]')");assert.equal(await evaluate("document.querySelector('#user-role-reason').value"),'Bổ nhiệm Admin kiểm thử');
+    await evaluate("document.querySelector('.user-role-form').requestSubmit();document.querySelector('.user-role-form').requestSubmit()");await wait("!document.querySelector('dialog')");await settled();
+    assert.equal(userAccessFixtures.requests.length,2,'Failed attempt plus one guarded retry');assert.equal(userAccessFixtures.requests[0].body.requestId,userAccessFixtures.requests[1].body.requestId,'Retry keeps idempotency key');
+    assert.equal(await evaluate(`(${row}).querySelector('.perfume-badge').textContent`),'Admin');
+    await openRole();await input('#user-role-reason','Thu hồi Admin kiểm thử');userAccessFixtures.state.conflictNext=true;await evaluate("document.querySelector('.user-role-form').requestSubmit()");await wait("document.querySelector('[role=alert]')?.textContent.includes('vừa thay đổi')");
+    await evaluate("[...document.querySelectorAll('.user-role-form button')].find(b=>b.textContent==='Hủy').click()");await openRole();await input('#user-role-reason','Thu hồi Admin kiểm thử');await evaluate("document.querySelector('.user-role-form').requestSubmit()");await wait("!document.querySelector('dialog')");await settled();assert.equal(await evaluate(`(${row}).querySelector('.perfume-badge').textContent`),'Khách hàng');
+    await clickText('Nhật ký phân quyền');await wait("document.querySelectorAll('.user-audit-list article').length===2");assert.equal(await evaluate("document.querySelector('.user-audit-list').textContent.includes('Bổ nhiệm Admin kiểm thử')"),true);await screenshot('users-access-audit');await evaluate("document.querySelector('dialog [aria-label=\"Đóng cửa sổ\"]').click()");
+    userAccessFixtures.state.isRoot=false;await clickText('Làm mới');await settled();assert.equal(await evaluate("[...document.querySelectorAll('button')].some(b=>b.textContent==='Phân quyền'||b.textContent==='Nhật ký phân quyền')"),false,'Delegated admins do not see root actions');
+    userAccessFixtures.state.currentRole='user';await evaluate("window.dispatchEvent(new Event('focus'))");await wait("location.pathname==='/'");
+    checks.push('Users at 1440/1024/768/390/320px: shared Admin layout, root protection, role filters, search, pagination, old URL redirect, required reason, confirmation, duplicate submit guard, stable retry key, stale version error, grant/revoke, audit, Escape/focus restore and revoked active-session redirect; all writes isolated in browser memory');
+  }else if(policiesDesignQA){
     const ids=['don-hang','ho-tro','thong-tin'];
     const assertAnchor=async id=>{
       await wait(`location.hash==='#${id}'&&document.activeElement.id==='${id}'`);
