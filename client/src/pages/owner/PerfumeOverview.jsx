@@ -1,8 +1,7 @@
 import { LoadingStatus } from "../../components/LoadingState";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { ArrowUpRight, Banknote, CalendarDays, ChevronRight, Layers3, Library, Package, ShoppingBag, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
-import { CatalogPage, CatalogState, RefreshButton, useCatalog, Badge, issueLabels } from "../../components/owner/CatalogUI";
+import { CatalogPage, CatalogState, RefreshButton, useCatalog, Badge, issueLabels, OwnerLink } from "../../components/owner/CatalogUI";
 import ProductImage from "../../components/ProductImage";
 import { formatVnd } from "../../utils/money";
 import { ownerOverviewPath } from "../../utils/ownerPrefetch";
@@ -15,10 +14,10 @@ const priceFrom = product => {
 };
 
 function MetricCard({ label, value, detail, to, icon: Icon, primary }) {
-  return <Link to={to} className={`admin-metric-card${primary ? " is-primary" : ""}`}>
+  return <OwnerLink to={to} className={`admin-metric-card${primary ? " is-primary" : ""}`}>
     <div className="admin-metric-top"><span className="admin-metric-icon"><Icon size={18} strokeWidth={1.7} /></span><span>{label}</span><ArrowUpRight size={15} className="admin-metric-arrow" /></div>
     <strong>{value}</strong><p>{detail}</p>
-  </Link>;
+  </OwnerLink>;
 }
 
 function CatalogDistribution({ metrics }) {
@@ -56,7 +55,7 @@ export default function PerfumeOverview() {
   const libraries = Object.fromEntries((data?.libraries || []).map(item => [item._id, item]));
   const refresh = query.reload;
 
-  return <CatalogPage title="Tổng quan dashboard" actions={<><RefreshButton onClick={refresh} disabled={query.loading} /><Link to="/owner/list-product" className="perfume-button primary"><Package size={15} />Quản lý sản phẩm</Link></>}>
+  return <CatalogPage title="Tổng quan dashboard" actions={<><RefreshButton onClick={refresh} disabled={query.loading} /><OwnerLink to="/owner/list-product" className="perfume-button primary"><Package size={15} />Quản lý sản phẩm</OwnerLink></>}>
     <CatalogState {...query} />
     <div className="admin-metric-grid">
       <MetricCard primary label="Tổng doanh thu" value={data ? formatVnd(data.orders.revenue) : "—"} detail="Từ các đơn đã xác nhận thanh toán" to="/owner/orders" icon={Banknote} />
@@ -68,28 +67,28 @@ export default function PerfumeOverview() {
     <div className="admin-overview-grid">
       <section className="admin-dashboard-panel admin-revenue-panel">
         <header className="admin-panel-heading"><div><h2>Doanh thu & giá trị đơn hàng</h2><p>Đơn vị: VND · Theo thời điểm tạo đơn</p></div><label className="admin-period-control"><CalendarDays size={15} /><select aria-label="Khoảng thời gian biểu đồ" value={months} onChange={event => setMonths(Number(event.target.value))}><option value={3}>3 tháng</option><option value={6}>6 tháng</option><option value={12}>1 năm</option></select></label></header>
-        {!query.loading && !query.error && <div className="admin-revenue-chart"><Suspense fallback={<LoadingStatus label="Đang tải biểu đồ…" />}><RevenueChart data={monthlyData} currency="₫" /></Suspense>{!hasSales && <div className="admin-chart-empty"><Banknote size={23} strokeWidth={1.4} /><strong>Chưa có giao dịch trong kỳ</strong><span>Biểu đồ sẽ cập nhật khi phát sinh đơn hàng.</span></div>}</div>}
+        {data && !query.error && <div className="admin-revenue-chart"><Suspense fallback={<LoadingStatus label="Đang tải biểu đồ…" />}><RevenueChart data={monthlyData} currency="₫" /></Suspense>{!hasSales && <div className="admin-chart-empty"><Banknote size={23} strokeWidth={1.4} /><strong>Chưa có giao dịch trong kỳ</strong><span>Biểu đồ sẽ cập nhật khi phát sinh đơn hàng.</span></div>}</div>}
       </section>
       <section className="admin-dashboard-panel">
-        <header className="admin-panel-heading"><div><h2>Trạng thái danh mục</h2><p>Phân bổ catalog hiện tại</p></div><Link to="/owner/list-product" aria-label="Xem trạng thái hàng" className="admin-panel-arrow"><ArrowUpRight size={16} /></Link></header>
+        <header className="admin-panel-heading"><div><h2>Trạng thái danh mục</h2><p>Phân bổ catalog hiện tại</p></div><OwnerLink to="/owner/list-product" aria-label="Xem trạng thái hàng" className="admin-panel-arrow"><ArrowUpRight size={16} /></OwnerLink></header>
         <CatalogDistribution metrics={metrics} />
       </section>
 
       <section className="admin-dashboard-panel admin-products-panel">
-        <header className="admin-panel-heading"><div><h2>{ranking ? "Sản phẩm bán chạy" : "Sản phẩm mới cập nhật"}</h2><p>{ranking ? "Theo số lượng đã thanh toán" : "Những hồ sơ mới nhất trong catalog"}</p></div><Link to="/owner/list-product" className="admin-view-all">Xem tất cả <ChevronRight size={13} /></Link></header>
-        <div className="perfume-table-scroll"><table className="admin-overview-table"><thead><tr><th>Sản phẩm</th><th>{ranking ? "Đã bán" : "Phân loại"}</th><th>Giá từ</th><th>Trạng thái</th></tr></thead><tbody>{products.map(product => <tr key={product._id}><td><Link className="admin-table-product" to={`/owner/edit-product/${product._id}`}><span className="admin-product-image">{product.images?.[0] ? <ProductImage src={product.images[0]} alt="" imageWidth={100} /> : <Package size={21} />}</span><span><strong>{product.title}</strong><small>{product.brand || product.category}</small></span></Link></td><td>{ranking ? count(product.soldQuantity) : `${product.sizes?.length || 0} dung tích`}</td><td className="admin-price-cell">{priceFrom(product)}</td><td><Badge>{product.inStock ? "Còn hàng" : "Hết hàng"}</Badge></td></tr>)}</tbody></table></div>
+        <header className="admin-panel-heading"><div><h2>{ranking ? "Sản phẩm bán chạy" : "Sản phẩm mới cập nhật"}</h2><p>{ranking ? "Theo số lượng đã thanh toán" : "Những hồ sơ mới nhất trong catalog"}</p></div><OwnerLink to="/owner/list-product" className="admin-view-all">Xem tất cả <ChevronRight size={13} /></OwnerLink></header>
+        <div className="perfume-table-scroll"><table className="admin-overview-table"><thead><tr><th>Sản phẩm</th><th>{ranking ? "Đã bán" : "Phân loại"}</th><th>Giá từ</th><th>Trạng thái</th></tr></thead><tbody>{products.map(product => <tr key={product._id}><td><OwnerLink className="admin-table-product" to={`/owner/edit-product/${product._id}`}><span className="admin-product-image">{product.images?.[0] ? <ProductImage src={product.images[0]} alt="" imageWidth={100} /> : <Package size={21} />}</span><span><strong>{product.title}</strong><small>{product.brand || product.category}</small></span></OwnerLink></td><td>{ranking ? count(product.soldQuantity) : `${product.sizes?.length || 0} dung tích`}</td><td className="admin-price-cell">{priceFrom(product)}</td><td><Badge>{product.inStock ? "Còn hàng" : "Hết hàng"}</Badge></td></tr>)}</tbody></table></div>
         {!query.loading && !query.error && !products.length && <p className="perfume-empty">Chưa có sản phẩm trong catalog.</p>}
       </section>
       <section className="admin-dashboard-panel admin-attention-panel">
-        <header className="admin-panel-heading"><div><h2>Hồ sơ cần hoàn thiện</h2><p>{count(metrics.issues)} sản phẩm cần kiểm tra</p></div><Link to="/owner/list-product?quality=issues" className="admin-view-all">Xem tất cả</Link></header>
-        <div className="admin-attention-list">{(data?.attentionProducts || []).map(product => <Link key={product._id} to={`/owner/edit-product/${product._id}`}><span className="admin-product-image">{product.images?.[0] ? <ProductImage src={product.images[0]} alt="" imageWidth={100} /> : <Package size={20} />}</span><span><strong>{product.title}</strong><small>{issueLabels[product.qualityIssues?.[0]] || "Cần kiểm tra thông tin"}</small></span><Badge>{product.qualityIssues?.length || 0} mục</Badge></Link>)}</div>
+        <header className="admin-panel-heading"><div><h2>Hồ sơ cần hoàn thiện</h2><p>{count(metrics.issues)} sản phẩm cần kiểm tra</p></div><OwnerLink to="/owner/list-product?quality=issues" className="admin-view-all">Xem tất cả</OwnerLink></header>
+        <div className="admin-attention-list">{(data?.attentionProducts || []).map(product => <OwnerLink key={product._id} to={`/owner/edit-product/${product._id}`}><span className="admin-product-image">{product.images?.[0] ? <ProductImage src={product.images[0]} alt="" imageWidth={100} /> : <Package size={20} />}</span><span><strong>{product.title}</strong><small>{issueLabels[product.qualityIssues?.[0]] || "Cần kiểm tra thông tin"}</small></span><Badge>{product.qualityIssues?.length || 0} mục</Badge></OwnerLink>)}</div>
         {!query.loading && !query.error && !data?.attentionProducts?.length && <p className="perfume-empty">Các hồ sơ đã có đủ trường thông tin cơ bản.</p>}
-        <Link to="/owner/list-product?quality=issues" className="admin-attention-footer"><Sparkles size={15} />Hoàn thiện trải nghiệm sản phẩm<ArrowUpRight size={14} /></Link>
+        <OwnerLink to="/owner/list-product?quality=issues" className="admin-attention-footer"><Sparkles size={15} />Hoàn thiện trải nghiệm sản phẩm<ArrowUpRight size={14} /></OwnerLink>
       </section>
     </div>
 
     <section className="admin-catalog-footer" aria-label="Thư viện mùi hương">
-      <div className="admin-library-links"><div className="admin-footer-title"><Library size={17} /><strong>Thư viện mùi hương</strong></div><div>{[{ kind: "brand", label: "Thương hiệu" }, { kind: "group", label: "Nhóm hương" }, { kind: "accord", label: "Kiểu mùi" }, { kind: "note", label: "Note hương" }].map(({ kind, label }) => <Link key={kind} to={kind === "brand" ? "/owner/brands" : `/owner/library?kind=${kind}`}><span>{label}</span><strong>{count(libraries[kind]?.count)}</strong><ArrowUpRight size={14} /></Link>)}</div></div>
+      <div className="admin-library-links"><div className="admin-footer-title"><Library size={17} /><strong>Thư viện mùi hương</strong></div><div>{[{ kind: "brand", label: "Thương hiệu" }, { kind: "group", label: "Nhóm hương" }, { kind: "accord", label: "Kiểu mùi" }, { kind: "note", label: "Note hương" }].map(({ kind, label }) => <OwnerLink key={kind} to={kind === "brand" ? "/owner/brands" : `/owner/library?kind=${kind}`}><span>{label}</span><strong>{count(libraries[kind]?.count)}</strong><ArrowUpRight size={14} /></OwnerLink>)}</div></div>
     </section>
   </CatalogPage>;
 }

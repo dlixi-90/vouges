@@ -21,14 +21,33 @@ export const readOwnerDashboard = async ({ axios, getToken, page = 1, signal }) 
 export const prefetchOwnerRoute = (path, context) => {
   if (context.isOwner !== true || !context.authenticatedUserId) return Promise.resolve([]);
   prefetchRoute(path);
+  const [pathname, rawSearch = ""] = path.split("?", 2);
+  const routeSearch = new URLSearchParams(rawSearch);
   const tasks = [];
-  if (path === "/owner") tasks.push(context.storeResources.loadCatalog(ownerOverviewPath));
-  if (path === "/owner/orders") tasks.push(context.dashboardCache.load(ownerDashboardKey(context.authenticatedUserId),
-    signal => readOwnerDashboard({ ...context, signal })));
-  if (path === "/owner/vouchers") tasks.push(context.storeResources.loadCatalog("/", "/api/vouchers"));
-  if (path === "/owner/loyalty") tasks.push(context.storeResources.loadCatalog("/admin", "/api/loyalty"));
-  if (path === "/owner/messages") tasks.push(context.storeResources.loadSupportInbox(defaultInboxPath));
-  if (["/owner/users", "/owner/customers"].includes(path)) tasks.push(context.storeResources.loadCatalog("/manage?q=&role=all&page=1&pageSize=25", "/api/users"));
-  if (["/owner", "/owner/orders"].includes(path)) tasks.push(import("../components/owner/RevenueChart"));
+  if (pathname === "/owner") tasks.push(context.storeResources.loadCatalog(ownerOverviewPath));
+  if (pathname === "/owner/orders") {
+    tasks.push(context.dashboardCache.load(ownerDashboardKey(context.authenticatedUserId),
+      signal => readOwnerDashboard({ ...context, signal })));
+    tasks.push(context.fetchPopularProducts());
+  }
+  if (pathname === "/owner/list-product") {
+    const filters = { q: routeSearch.get("q") || "", brand: "", concentration: "", category: "",
+      stock: routeSearch.get("stock") || "", quality: routeSearch.get("quality") === "issues" ? "issues" : "" };
+    const query = new URLSearchParams({ page: "1", pageSize: "25", ...Object.fromEntries(Object.entries(filters).filter(([, value]) => value !== "")) });
+    tasks.push(context.storeResources.loadCatalog(`/products?${query}`));
+  }
+  if (pathname === "/owner/brands" || pathname === "/owner/library") {
+    const kind = pathname === "/owner/brands" ? "brand" : routeSearch.get("kind") || "group";
+    const query = new URLSearchParams({ kind, q: "", status: "", page: "1", pageSize: "25" });
+    tasks.push(context.storeResources.loadCatalog(`/terms?${query}`));
+  }
+  if (["/owner/add-product", "/owner/add-category"].includes(pathname)) tasks.push(context.fetchCategories());
+  if (pathname === "/owner/vouchers") tasks.push(context.storeResources.loadCatalog("/", "/api/vouchers"));
+  if (pathname === "/owner/loyalty") tasks.push(context.storeResources.loadCatalog("/admin", "/api/loyalty"));
+  if (pathname === "/owner/messages") tasks.push(context.storeResources.loadSupportInbox(defaultInboxPath));
+  if (["/owner/users", "/owner/customers"].includes(pathname)) tasks.push(context.storeResources.loadCatalog("/manage?q=&role=all&page=1&pageSize=25", "/api/users"));
+  const productMatch = pathname.match(/^\/owner\/edit-product\/([a-f\d]{24})$/i);
+  if (productMatch) tasks.push(context.storeResources.loadCatalog(`/products/${productMatch[1]}`));
+  if (["/owner", "/owner/orders"].includes(pathname)) tasks.push(import("../components/owner/RevenueChart"));
   return Promise.allSettled(tasks);
 };

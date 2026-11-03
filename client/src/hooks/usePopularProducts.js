@@ -15,7 +15,7 @@ export const usePopularProducts = () => {
       if (document.visibilityState === "visible") fetchPopularProducts();
     };
     const initialRefresh = window.setTimeout(refresh, 0);
-    const interval = window.setInterval(refresh, 30000);
+    const interval = window.setInterval(refresh, 120000);
     window.addEventListener("focus", refresh);
     document.addEventListener("visibilitychange", refresh);
     return () => {

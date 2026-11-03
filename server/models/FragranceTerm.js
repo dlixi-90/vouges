@@ -14,6 +14,7 @@ const schema = new mongoose.Schema({
   productCount: { type: Number, default: 0 },
 }, { timestamps: true });
 schema.index({ kind: 1, key: 1 }, { unique: true });
+schema.index({ kind: 1, name: 1, _id: 1 });
 schema.index({ kind: 1, nameKey: 1 }, { unique: true, partialFilterExpression: { nameKey: { $type: "string" } } });
 schema.index({ kind: 1, slug: 1 }, { unique: true, partialFilterExpression: { slug: { $type: "string" } } });
 export default mongoose.model("FragranceTerm", schema);

@@ -14,8 +14,12 @@ export const prefetchRoute = path => {
     "/owner/users": () => import("../pages/owner/Users"),
     "/owner/customers": () => import("../pages/owner/Users"),
     "/owner/list-product": () => import("../pages/owner/PerfumeProducts"),
+    "/owner/add-product": () => import("../pages/owner/AddProduct"),
+    "/owner/add-category": () => import("../pages/owner/AddCategory"),
     "/owner/brands": () => import("../pages/owner/FragranceLibrary"),
     "/owner/library": () => import("../pages/owner/FragranceLibrary"),
   };
-  void loaders[url]?.().catch(() => {});
+  const loader = loaders[url] || (url.startsWith("/owner/edit-product/")
+    ? () => import("../pages/owner/PerfumeEditor") : null);
+  void loader?.().catch(() => {});
 };

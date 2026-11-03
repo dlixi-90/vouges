@@ -88,7 +88,7 @@ const QrPaymentStatus = ({ initialOrder, onExpired, onCancelled }) => {
               removePurchasedItems(currentCart, initialOrder.items),
             );
             hasSyncedCartRef.current = true;
-            fetchPopularProducts();
+            fetchPopularProducts({ force: true });
           }
 
           if (!hasShownSuccess) {

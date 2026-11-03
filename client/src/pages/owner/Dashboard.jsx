@@ -11,7 +11,7 @@ import { usePopularProducts } from "../../hooks/usePopularProducts";
 import ProductImage from "../../components/ProductImage";
 import Pagination from "../../components/Pagination";
 import usePaginationScroll from "../../hooks/usePaginationScroll";
-import { Badge, CatalogPage, RefreshButton } from "../../components/owner/CatalogUI";
+import { Badge, CatalogPage, RefreshButton, OwnerLink } from "../../components/owner/CatalogUI";
 import { OperationsEmptyState, OperationsMetric, OperationsPanel } from "../../components/owner/OperationsUI";
 import { ownerDashboardKey, readOwnerDashboard } from "../../utils/ownerPrefetch";
 
@@ -98,7 +98,7 @@ const Dashboard = () => {
         toast.success(data.message);
         // Keep the confirmed order visible while updating revenue and sales.
         void getDashboardData({ background: true, force: true });
-        void fetchPopularProducts();
+        void fetchPopularProducts({ force: true });
       } else {
         toast.error(data.message);
       }
@@ -129,7 +129,7 @@ const Dashboard = () => {
 
   const orders = dashboardData.orders || [];
 
-  return <CatalogPage className="admin-operations-page admin-orders-page" title="Đơn hàng & doanh thu" actions={<RefreshButton disabled={isLoading} onClick={() => { void getDashboardData({ force: true }); void fetchPopularProducts(); }} />}>
+  return <CatalogPage className="admin-operations-page admin-orders-page" title="Đơn hàng & doanh thu" actions={<RefreshButton disabled={isLoading} onClick={() => { void getDashboardData({ force: true }); void fetchPopularProducts({ force: true }); }} />}>
     {loadError && <div role="alert" className="perfume-alert">{loadError}<button type="button" onClick={() => void getDashboardData({ force: true })}>Thử lại</button></div>}
     <div className="admin-metric-grid admin-two-metrics">
       <OperationsMetric primary icon={Banknote} label="Doanh thu đã thanh toán" value={dashboardData.totalRevenue === null ? "—" : formatVnd(dashboardData.totalRevenue, currency)} detail="Tổng tiền từ các đơn đã thanh toán" />
@@ -142,7 +142,7 @@ const Dashboard = () => {
       <OperationsPanel title="Sản phẩm bán chạy" description="Xếp hạng theo số lượng đã thanh toán">
         {popularProductsError && <p role="alert" className="perfume-alert">{popularProductsError}<button type="button" onClick={fetchPopularProducts}>Thử lại</button></p>}
         {popularProductsLoading && <LoadingStatus label="Đang tải sản phẩm bán chạy…" />}
-        <div className="admin-sales-ranking">{popularProducts.slice(0, 4).map((product, index) => <Link key={product._id} to={`/owner/edit-product/${product._id}`}><span className="admin-ranking-number">{index + 1}</span><span className="admin-product-image">{product.images?.[0] ? <ProductImage src={product.images[0]} imageWidth={100} alt="" /> : <Package size={18} />}</span><span><strong>{product.title}</strong><small>{product.category}</small></span><Badge>{product.soldQuantity} đã bán</Badge></Link>)}</div>
+        <div className="admin-sales-ranking">{popularProducts.slice(0, 4).map((product, index) => <OwnerLink key={product._id} to={`/owner/edit-product/${product._id}`}><span className="admin-ranking-number">{index + 1}</span><span className="admin-product-image">{product.images?.[0] ? <ProductImage src={product.images[0]} imageWidth={100} alt="" /> : <Package size={18} />}</span><span><strong>{product.title}</strong><small>{product.category}</small></span><Badge>{product.soldQuantity} đã bán</Badge></OwnerLink>)}</div>
         {!popularProductsLoading && !popularProductsError && !popularProducts.length && <OperationsEmptyState icon={Package} title="Chưa có sản phẩm nào được bán" description="Danh sách sẽ xuất hiện sau khi có đơn được thanh toán." />}
       </OperationsPanel>
     </div>

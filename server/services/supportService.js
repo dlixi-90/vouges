@@ -57,24 +57,32 @@ export const conversationSnapshot = async (conversation) => {
 export const supportSnapshot = async (id, user) => conversationSnapshot(await findConversation(id, user));
 export const sendSupportMessage = async (id, user, body) => {
   const { content, clientMessageId } = normalizeSupportMessage(body);
+  if (!mongoose.isObjectIdOrHexString(id)) throw new SupportError("Hội thoại không hợp lệ.");
   const session = await mongoose.startSession();
   let result;
   try {
     await session.withTransaction(async () => {
-      const conversation = await findConversation(id, user, session);
       const duplicate = await Message.findOne({ conversationId: id, senderId: user._id, clientMessageId }).session(session).lean();
       if (duplicate) {
         if (duplicate.content !== content) throw new SupportError("Mã tin nhắn đã được dùng cho nội dung khác.", 409);
+        const conversation = await findConversation(id, user, session);
         result = { conversation: conversationView(conversation), message: messageView(duplicate) };
         return;
       }
       const staff = isStaff(user);
-      const updated = await Conversation.findOneAndUpdate({ _id: id }, {
-        $inc: { sequence: 1, [staff ? "unreadCustomer" : "unreadStaff"]: 1 },
-        $set: { lastMessage: content.slice(0, 160), lastMessageAt: new Date(),
-          status: staff ? "active" : conversation.status === "resolved" ? "waiting" : conversation.status,
-          [staff ? "unreadStaff" : "unreadCustomer"]: 0 },
-      }, { new: true, session }).lean();
+      // Update the conversation with its ownership condition in the same write.
+      // This replaces a separate permission read inside the transaction.
+      const updated = await Conversation.findOneAndUpdate({ _id: id, ...(!staff ? { userId: user._id } : {}) }, [{ $set: {
+        sequence: { $add: [{ $ifNull: ["$sequence", 0] }, 1] },
+        unreadCustomer: staff ? { $add: [{ $ifNull: ["$unreadCustomer", 0] }, 1] } : { $literal: 0 },
+        unreadStaff: staff ? { $literal: 0 } : { $add: [{ $ifNull: ["$unreadStaff", 0] }, 1] },
+        lastMessage: { $literal: content.slice(0, 160) },
+        lastMessageAt: { $literal: new Date() },
+        status: staff ? { $literal: "active" } : { $cond: [
+          { $eq: ["$status", "resolved"] }, { $literal: "waiting" }, { $ifNull: ["$status", { $literal: "waiting" }] },
+        ] },
+      } }], { new: true, session, updatePipeline: true }).lean();
+      if (!updated) throw new SupportError("Không tìm thấy hội thoại.", 404);
       const [message] = await Message.create([{ conversationId: id, sequence: updated.sequence,
         senderId: user._id, role: staff ? "staff" : "customer", authorName: user.username || (staff ? "Nhân viên CSKH" : "Khách hàng"),
         content, clientMessageId }], { session });

@@ -75,6 +75,7 @@ orderSchema.index({
 
 // The public best-sellers aggregation starts with these two order predicates.
 orderSchema.index({ isPaid: 1, status: 1 });
+orderSchema.index({ paymentMethod: 1, status: 1, isPaid: 1 });
 orderSchema.index({ createdAt: -1, _id: -1 });
 orderSchema.index({ userId: 1, status: 1, "items.product": 1 });
 orderSchema.index({ userId: 1, status: 1, isPaid: 1, completedAt: 1 });

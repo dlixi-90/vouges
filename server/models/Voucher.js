@@ -22,4 +22,5 @@ const voucherSchema = new mongoose.Schema({
 voucherSchema.index({ userId: 1, birthdayYear: 1 }, {
   unique: true, partialFilterExpression: { kind: "birthday" },
 });
+voucherSchema.index({ kind: 1, deletedAt: 1, createdAt: -1, _id: -1 });
 export default mongoose.model("Voucher", voucherSchema);

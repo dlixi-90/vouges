@@ -225,8 +225,8 @@ export const listProduct = async (req, res) => {
 
 export const listPopularProducts = async (_req, res) => {
   try {
-    const products = await catalogSnapshot("popular-products", 30000, getPopularProducts);
-    res.set("Cache-Control", "public, max-age=10, s-maxage=30, stale-while-revalidate=60");
+    const products = await catalogSnapshot("popular-products", 120000, getPopularProducts);
+    res.set("Cache-Control", "public, max-age=30, s-maxage=120, stale-while-revalidate=300");
     return res.json({ success: true, products });
   } catch (error) {
     console.error(error);
@@ -262,7 +262,8 @@ export const singleProduct = async (req, res) => {
       });
     }
 
-    res.set("Cache-Control", "public, max-age=5, s-maxage=10, stale-while-revalidate=30");
+    // Cart and checkout revalidate the live price and stock before purchase.
+    res.set("Cache-Control", "public, max-age=10, s-maxage=60, stale-while-revalidate=120");
     return res.json({ success: true, product });
   } catch (error) {
     console.log(error.message);

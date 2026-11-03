@@ -36,7 +36,7 @@ export const catalogAction = (handler) => async (req,res) => {
   }
 };
 
-const readCatalogSummary = async () => {
+const readCatalogSummary = async ({ includeOrders = true } = {}) => {
   const [metrics, libraries, orders] = await Promise.all([
     Product.aggregate([{ $match:{isDeleted:{$ne:true}} },{$facet:{
       total:[{$count:"count"}], published:[{$match:{isPublished:true}},{$count:"count"}], available:[{$match:{inStock:true,isPublished:true}},{$count:"count"}],
@@ -44,7 +44,9 @@ const readCatalogSummary = async () => {
       sources:[{$match:{inventoryMode:"source"}},{$count:"count"}],
     }}]),
     FragranceTerm.aggregate([{$group:{_id:"$kind",count:{$sum:1},incomplete:{$sum:{$cond:[{$eq:["$contentStatus","linked"]},1,0]}}}}]),
-    Order.aggregate([{$match:placedOrderFilter()},{$group:{_id:null,count:{$sum:1},revenue:{$sum:{$cond:["$isPaid","$amount",0]}}}}]),
+    includeOrders
+      ? Order.aggregate([{$match:placedOrderFilter()},{$group:{_id:null,count:{$sum:1},revenue:{$sum:{$cond:["$isPaid","$amount",0]}}}}])
+      : Promise.resolve([]),
   ]);
   return {success:true,metrics:Object.fromEntries(Object.entries(metrics[0]||{}).map(([key,value])=>[key,value[0]?.count||0])),libraries,orders:orders[0]||{count:0,revenue:0},currency:"VND"};
 };
@@ -60,11 +62,12 @@ export const catalogOverview = catalogAction(async (req,res) => {
   try{new Intl.DateTimeFormat("en-US",{timeZone:timezone});}catch{fail("Múi giờ không hợp lệ");}
   const fields="title brand category images price sizes inStock qualityIssues";
   const [summary,recentProducts,attentionProducts,sales,popularProducts]=await Promise.all([
-    readCatalogSummary(),
+    readCatalogSummary({includeOrders:false}),
     Product.find({isDeleted:{$ne:true}}).select(fields).sort({createdAt:-1,_id:-1}).limit(5).lean(),
     Product.find({isDeleted:{$ne:true},"qualityIssues.0":{$exists:true}}).select(fields).sort({title:1,_id:1}).limit(4).lean(),
-    getDashboardData({timezone,includeOrders:false}), getPopularProducts(),
+    getDashboardData({timezone,includeOrders:false}), catalogSnapshot("popular-products",120000,getPopularProducts),
   ]);
+  summary.orders={count:sales.totalOrders,revenue:sales.totalRevenue};
   const cards=products=>products.map(product=>({...product,images:product.images?.slice(0,1)||[]}));
   res.set("Cache-Control","private, no-store");
   res.json({...summary,recentProducts:cards(recentProducts),attentionProducts:cards(attentionProducts),popularProducts:cards(popularProducts).slice(0,5),sales:{monthlyData:sales.monthlyData}});
@@ -164,8 +167,9 @@ export const libraryTerms = catalogAction(async(req,res)=>{
   if(req.query.status&&!['linked','complete'].includes(req.query.status))fail("Tình trạng nội dung không hợp lệ");
   const filter={kind};if(req.query.q){const q=pattern(req.query.q);filter.$or=[{name:q},{key:q}];}if(req.query.status)filter.contentStatus=req.query.status;
   const [terms,total]=await Promise.all([FragranceTerm.find(filter).sort({name:1,_id:1}).skip((page-1)*pageSize).limit(pageSize).lean(),FragranceTerm.countDocuments(filter)]);
+  const countedTerms=await catalogSnapshot(`library-counts:${terms.map(term=>term._id).join(":")}`,300000,()=>liveLibraryCounts(terms));
   res.set("Cache-Control","private, no-store");
-  res.json({success:true,terms:await liveLibraryCounts(terms),total,page,pageSize,totalPages:Math.max(1,Math.ceil(total/pageSize))});
+  res.json({success:true,terms:countedTerms,total,page,pageSize,totalPages:Math.max(1,Math.ceil(total/pageSize))});
 });
 
 const libraryMutation=handler=>catalogAction(async(req,res)=>{

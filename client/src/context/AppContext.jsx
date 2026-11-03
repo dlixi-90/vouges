@@ -86,6 +86,9 @@ export const AppContextProvider = ({ children }) => {
   const popularSavedAt = useRef(0);
   const productsRequestRef = useRef(null);
   const [categories, setCategories] = useState([]);
+  const categoriesRef = useRef([]);
+  const categoriesSavedAtRef = useRef(0);
+  const categoriesRequestRef = useRef(null);
   // Preserve File objects as well as text while navigating between admin forms.
   const [productDrafts, setProductDrafts] = useState({});
   const saveProductDraft = useCallback((key, draft) => {
@@ -245,12 +248,15 @@ export const AppContextProvider = ({ children }) => {
     return productsRequestRef.current;
   }, [publicCatalog, registerProducts]);
 
-  const fetchPopularProducts = useCallback(() => {
+  const fetchPopularProducts = useCallback((options = {}) => {
     if (popularRequestRef.current) return popularRequestRef.current;
-    if (Date.now() - popularSavedAt.current < 30000) return Promise.resolve();
+    const force = options?.force === true;
+    if (!force && Date.now() - popularSavedAt.current < 120000) return Promise.resolve();
     popularRequestRef.current = (async () => {
       try {
-        const { data } = await axios.get("/api/products/popular", { timeout: 15000 });
+        const { data } = await axios.get("/api/products/popular", {
+          ...(force ? { params: { refresh: Date.now() } } : {}), timeout: 15000,
+        });
         if (!data.success) {
           throw new Error(data.message || "Không thể tải sản phẩm bán chạy");
         }
@@ -269,31 +275,50 @@ export const AppContextProvider = ({ children }) => {
     return popularRequestRef.current;
   }, []);
 
-  const fetchCategories = useCallback(async () => {
+  const fetchCategories = useCallback(async (options = {}) => {
+    if (categoriesRequestRef.current) return categoriesRequestRef.current;
+    if (!options?.force && categoriesSavedAtRef.current && Date.now() - categoriesSavedAtRef.current < 30000) {
+      setCategoriesLoading(false);
+      setCategoriesError("");
+      return categoriesRef.current;
+    }
     setCategoriesLoading(true);
     setCategoriesError("");
-    try {
-      const { data } = await axios.get("/api/categories", { timeout: 15000 });
-      if (!data.success) throw new Error(data.message || "Không thể tải danh mục");
-      setCategories(data.categories);
-    } catch (error) {
-      setCategoriesError(getRequestErrorMessage(error, "Không thể tải danh mục"));
-    } finally {
-      setCategoriesLoading(false);
-    }
+    const request = (async () => {
+      try {
+        const { data } = await axios.get("/api/categories", { timeout: 15000 });
+        if (!data.success) throw new Error(data.message || "Không thể tải danh mục");
+        categoriesRef.current = data.categories;
+        categoriesSavedAtRef.current = Date.now();
+        setCategories(data.categories);
+        return data.categories;
+      } catch (error) {
+        setCategoriesError(getRequestErrorMessage(error, "Không thể tải danh mục"));
+        return null;
+      } finally {
+        setCategoriesLoading(false);
+        categoriesRequestRef.current = null;
+      }
+    })();
+    categoriesRequestRef.current = request;
+    return request;
   }, []);
 
   const replaceCategory = (category) => {
-    setCategories((current) => {
-      const exists = current.some((item) => item._id === category._id);
-      return exists
-        ? current.map((item) => item._id === category._id ? category : item)
-        : [category, ...current];
-    });
+    const exists = categoriesRef.current.some((item) => item._id === category._id);
+    const next = exists
+      ? categoriesRef.current.map((item) => item._id === category._id ? category : item)
+      : [category, ...categoriesRef.current];
+    categoriesRef.current = next;
+    categoriesSavedAtRef.current = Date.now();
+    setCategories(next);
   };
 
   const removeCategory = (categoryId) => {
-    setCategories((current) => current.filter((category) => category._id !== categoryId));
+    const next = categoriesRef.current.filter((category) => category._id !== categoryId);
+    categoriesRef.current = next;
+    categoriesSavedAtRef.current = Date.now();
+    setCategories(next);
   };
 
   // Replace only the product returned by an update API.

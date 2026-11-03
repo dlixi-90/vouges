@@ -1014,6 +1014,8 @@ export const updateStatus = async (req, res) => {
       });
     }
 
+    invalidateStorefrontCatalog();
+
     if (status === "Delivery" && updatedOrder.userId) {
       try { await loyaltyHooks.reconcile(updatedOrder.userId); }
       catch (error) { console.error("Loyalty award pending reconciliation", String(updatedOrder._id), error.message); }

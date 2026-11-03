@@ -36,7 +36,7 @@ export const catalogSnapshot = (key, maxAge, read) => {
 };
 export const needsFragranceProfiles = filters => profileKeys.some(key => filters?.[key]?.length);
 export const getStorefrontCatalog = async (includeProfiles = false) => {
-  const cards = catalogSnapshot("cards", 10000, async () => {
+  const cards = catalogSnapshot("cards", 60000, async () => {
     const projection = { ...Object.fromEntries(fields.split(" ").map(field => [field, 1])), images: { $slice: 1 } };
     const products = await Product.find(visible).select(projection).sort({ createdAt: -1, _id: -1 }).lean();
     return products.map(product => ({ ...product, _id: String(product._id), images: product.images?.slice(0, 1) || [], _filters: productFilterValues(product) }));

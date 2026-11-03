@@ -13,9 +13,9 @@ export const normalizeBrowseParams = (params = {}) => {
   return Object.fromEntries(Object.entries(values).filter(([field, value]) => value !== undefined && !(value === "" && ["q", "brand"].includes(field))));
 };
 
-export const createPublicCatalog = ({ axios, cache = createResourceCache({ maxAge: 15000, maxEntries: 60 }) }) => {
+export const createPublicCatalog = ({ axios, cache = createResourceCache({ maxAge: 60000, maxEntries: 60 }) }) => {
   const metadata = createResourceCache({ maxAge: 300000, maxEntries: 4 });
-  const filterMetadata = createResourceCache({ maxAge: 15000, maxEntries: 1 });
+  const filterMetadata = createResourceCache({ maxAge: 300000, maxEntries: 1 });
   const library = createResourceCache({ maxAge: 30000, maxEntries: 24 });
   const read = async (url, params, signal) => {
     const { data } = await axios.get(url, { params, signal, timeout: 15000 });

@@ -16,7 +16,7 @@ const productSchema = new mongoose.Schema(
     category: { type: String, required: true },
     type: { type: String, required: true },
     popular: { type: Boolean, default: false },
-    isDeleted: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false, index: true },
     deletedAt: { type: Date, default: null },
     inStock: { type: Boolean, default: true },
     inventoryMode: { type: String, enum: ["tracked", "source"], default: "tracked" },
@@ -36,6 +36,9 @@ const productSchema = new mongoose.Schema(
 productSchema.index({ "source.provider": 1, "source.id": 1 }, { unique: true, partialFilterExpression: { "source.provider": { $type: "string" }, "source.id": { $type: "number" } } });
 // Supports the stable newest-first sort used by public catalog pages.
 productSchema.index({ createdAt: -1, _id: -1 });
+// Owner catalog pages sort alphabetically and stop after one page; this avoids
+// sorting every product before returning the first 25-100 rows.
+productSchema.index({ title: 1, _id: 1 });
 
 const Product = mongoose.model("Product", productSchema);
 

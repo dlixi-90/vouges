@@ -33,7 +33,15 @@ export const myLedger=handler(async req=>{const page=pageOf(req),filter={userId:
 export const redeemReward=handler(async req=>({redemption:await redeem(req.user._id,req.body)}));
 export const claimPrivilege=handler(async req=>({claim:await claimCampaign(req.user._id,req.body)}));
 export const readNotification=handler(async req=>{await LoyaltyNotification.updateOne({_id:req.params.id,userId:req.user._id,readAt:null},{$set:{readAt:new Date()}});return {};});
-export const adminOverview=handler(async()=>({policy:await getPolicy(),rewards:await LoyaltyReward.find().sort({createdAt:-1}).limit(200).lean(),campaigns:await LoyaltyCampaign.find().sort({createdAt:-1}).limit(200).lean(),reviews:await LoyaltyClaim.find({status:"ReviewRequired"}).sort({createdAt:1}).limit(100).lean()}));
+export const adminOverview=handler(async()=>{
+  const [policy,rewards,campaigns,reviews]=await Promise.all([
+    getPolicy(),
+    LoyaltyReward.find().sort({createdAt:-1}).limit(200).lean(),
+    LoyaltyCampaign.find().sort({createdAt:-1}).limit(200).lean(),
+    LoyaltyClaim.find({status:"ReviewRequired"}).sort({createdAt:1}).limit(100).lean(),
+  ]);
+  return {policy,rewards,campaigns,reviews};
+});
 export const adminPolicy=handler(async req=>({policy:await savePolicy(req.body,req.user._id)}));
 export const adminReward=handler(async req=>({reward:await saveReward(req.params.id,req.body,req.user._id)}));
 export const adminCampaign=handler(async req=>({campaign:await saveCampaign(req.params.id,req.body,req.user._id)}));

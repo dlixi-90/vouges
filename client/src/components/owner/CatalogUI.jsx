@@ -1,9 +1,11 @@
-import {useMemo} from "react";
+import {useEffect,useMemo,useRef} from "react";
 import {RefreshCw} from "lucide-react";
+import {Link} from "react-router-dom";
 import Pagination from "../Pagination";
 import {useAppContext} from "../../context/AppContext";
 import useCachedResource from "../../hooks/useCachedResource";
 import {LoadingStatus} from "../LoadingState";
+import {prefetchOwnerRoute} from "../../utils/ownerPrefetch";
 
 // Preserve the existing shared dashboard hook/component import API.
 // eslint-disable-next-line react-refresh/only-export-components
@@ -19,8 +21,18 @@ export function useCatalog(path,apiRoot="/api/catalog"){
 export function CatalogPage({title,actions,children,className=""}){
   return <section className={`perfume-workspace ${className}`}><header className="perfume-page-heading"><h1>{title}</h1><div className="perfume-heading-actions">{actions}</div></header>{children}</section>;
 }
-export function CatalogState({loading,error,reload}){
-  return <div className="resource-loading-state">{error?<div role="alert" className="perfume-alert">{error}<button type="button" onClick={reload}>Thử lại</button></div>:<LoadingStatus active={loading} label="Đang tải dữ liệu…" />}</div>;
+export function OwnerLink({to,onPointerEnter,onPointerLeave,onFocus,...props}){
+  const context=useAppContext(),timer=useRef(null);
+  const cancel=()=>{window.clearTimeout(timer.current);timer.current=null;};
+  const warm=()=>{if(typeof to==="string")void prefetchOwnerRoute(to,context);};
+  useEffect(()=>()=>window.clearTimeout(timer.current),[]);
+  return <Link {...props} to={to}
+    onPointerEnter={event=>{onPointerEnter?.(event);cancel();timer.current=window.setTimeout(warm,120);}}
+    onPointerLeave={event=>{onPointerLeave?.(event);cancel();}}
+    onFocus={event=>{onFocus?.(event);cancel();warm();}} />;
+}
+export function CatalogState({loading,error,reload,data}){
+  return <div className="resource-loading-state">{error?<div role="alert" className="perfume-alert">{error}<button type="button" onClick={reload}>Thử lại</button></div>:<LoadingStatus active={loading && data == null} label="Đang tải dữ liệu…" />}</div>;
 }
 export function RefreshButton({onClick,disabled}){return <button type="button" className="perfume-button" disabled={disabled} onClick={onClick}><RefreshCw size={15}/>Làm mới</button>;}
 export function Badge({children,tone="neutral"}){return <span className={`perfume-badge tone-${tone}`}>{children}</span>;}

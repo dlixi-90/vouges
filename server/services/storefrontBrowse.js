@@ -24,7 +24,7 @@ const maxAvailablePrice = { $reduce: { input: availableSizesExpression, initialV
 
 // Global filters rarely change; keep the aggregate reusable between page/search
 // requests instead of rescanning inventory on each short-lived page cache.
-const metadata = () => catalogSnapshot("browse-metadata", 60000, async () => {
+const metadata = () => catalogSnapshot("browse-metadata", 300000, async () => {
   const [result = {}] = await Product.aggregate([{ $match: visible }, { $facet: {
     types: [{ $group: { _id: { brand: "$brand", category: "$category", type: "$type" } } }],
     categories: [{ $group: { _id: "$category" } }],
@@ -52,7 +52,7 @@ const basicFacetFilters = facets => {
 };
 
 export const readStorefrontBrowse = async options => {
-  return catalogSnapshot(`browse-page:${JSON.stringify(options)}`, 10000, async () => {
+  return catalogSnapshot(`browse-page:${JSON.stringify(options)}`, 60000, async () => {
     if (!canPageBrowseDirectly(options)) return browseCatalog(await getStorefrontCatalog(needsFragranceProfiles(options.facets)), options);
     const metaRequest = metadata();
     const availableTypesFor = meta => [...new Set(meta.types.filter(row => (!options.brand || filterKey(row.brand) === options.brand)
@@ -86,7 +86,7 @@ export const readStorefrontBrowse = async options => {
   });
 };
 
-export const readStorefrontRelated = id => catalogSnapshot(`related-page:${id}`, 10000, async () => {
+export const readStorefrontRelated = id => catalogSnapshot(`related-page:${id}`, 60000, async () => {
   const product = await Product.findOne({ ...visible, _id: id }).select("category type").lean();
   if (!product) return { success: true, products: [], isFallback: false };
   const projectionWithImage = { ...projection, images: { $slice: 1 } };
