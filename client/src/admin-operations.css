@@ -87,6 +87,34 @@
 .admin-voucher-list .perfume-table th,.admin-voucher-list .perfume-table td { padding-inline:20px; }
 .admin-voucher-table { min-width:860px; }
 .admin-voucher-code { font-family:ui-monospace,monospace; font-size:12px; color:#333; }
+.admin-voucher-target { display:grid; gap:12px; padding:16px; border:1px solid #e6e8e3; border-radius:12px; background:#fcfcfa; }
+.admin-voucher-target > label { display:flex; align-items:flex-start; gap:9px; color:#292c29; font-size:12px; font-weight:500; line-height:1.6; cursor:pointer; }
+.admin-voucher-target > label input { width:15px; height:15px; flex-shrink:0; margin-top:2px; accent-color:#292c29; }
+.admin-voucher-target > p { margin:0; color:#81857f; font-size:11px; line-height:1.7; }
+.admin-voucher-customer-search { display:flex; align-items:center; gap:8px; }
+.admin-voucher-customer-search input { width:100%; min-width:0; min-height:40px; padding:9px 12px; border:1px solid #dedfd9; border-radius:8px; background:#fff; color:#292c29; font-size:12px; outline:none; transition:border-color .15s,box-shadow .15s; }
+.admin-voucher-customer-search input:focus { border-color:#8d968b; box-shadow:0 0 0 3px #8d968b1a; }
+.admin-voucher-customer-search .perfume-button { min-height:40px; }
+.admin-voucher-customer-results { display:grid; gap:4px; max-height:176px; margin:0; overflow-y:auto; padding:6px; border:1px solid #e8e9e4; border-radius:10px; background:#fff; }
+.admin-voucher-customer-result { display:flex; width:100%; min-width:0; align-items:center; justify-content:space-between; gap:12px; border:1px solid transparent; border-radius:8px; padding:9px 10px; background:transparent; color:#30332f; text-align:left; cursor:pointer; transition:border-color .15s,background .15s; }
+.admin-voucher-customer-result:hover:not(:disabled) { border-color:#e8e5dc; background:#faf9f5; }
+.admin-voucher-customer-result.is-selected { border-color:#dce6db; background:#f2f6f1; color:#344638; cursor:default; opacity:1; }
+.admin-voucher-customer-result:disabled:not(.is-selected) { opacity:.45; cursor:not-allowed; }
+.admin-voucher-customer-details { display:grid; min-width:0; gap:3px; }
+.admin-voucher-customer-details strong { overflow:hidden; color:inherit; font-size:12px; font-weight:500; text-overflow:ellipsis; white-space:nowrap; }
+.admin-voucher-customer-details small { overflow:hidden; color:#858982; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+.admin-voucher-customer-action { display:inline-flex; flex-shrink:0; align-items:center; gap:4px; color:#81857f; font-size:10px; }
+.admin-voucher-customer-result.is-selected .admin-voucher-customer-action { color:#46664b; font-weight:500; }
+.admin-voucher-selection-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; color:#444943; font-size:10px; }
+.admin-voucher-selection-heading button { padding:3px 0; color:#777d75; font-size:10px; text-decoration:underline; text-underline-offset:3px; }
+.admin-voucher-selection-heading button:hover { color:#30352f; }
+.admin-voucher-selected-list { display:grid; gap:6px; max-height:150px; margin:0; overflow-y:auto; padding:0; }
+.admin-voucher-selected-list > li { display:flex; min-width:0; align-items:center; justify-content:space-between; gap:10px; padding:9px 10px; border:1px solid #e7e9e4; border-radius:9px; background:#fff; }
+.admin-voucher-selected-list > li > span { display:grid; min-width:0; gap:3px; }
+.admin-voucher-selected-list strong { overflow:hidden; color:#3b403a; font-size:11px; font-weight:500; text-overflow:ellipsis; white-space:nowrap; }
+.admin-voucher-selected-list small { overflow:hidden; color:#858982; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+.admin-voucher-selected-list button { display:grid; width:26px; height:26px; flex-shrink:0; place-items:center; border-radius:7px; color:#858982; transition:background .15s,color .15s; }
+.admin-voucher-selected-list button:hover { background:#f4f4f1; color:#343833; }
 .admin-operation-nowrap { white-space:nowrap; }
 .admin-voucher-status { display:flex; align-items:center; gap:10px; }
 .admin-toggle-switch { display:inline-flex; position:relative; align-items:center; flex-shrink:0; cursor:pointer; }

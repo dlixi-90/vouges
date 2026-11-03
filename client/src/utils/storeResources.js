@@ -1,6 +1,7 @@
 import { createResourceCache } from "./resourceCache.js";
 
 export const createStoreResources = ({ cache = createResourceCache(), axios, userId, getToken }) => {
+  const catalogCache = createResourceCache({ maxAge: 60000, maxEntries: 80 });
   const memberKey = `membership:${userId}`;
   const reviewKey = (productId, page = 1) => `reviews:${productId}:${page}`;
   const ownKey = (productId) => `own-review:${userId}:${productId}`;
@@ -14,7 +15,7 @@ export const createStoreResources = ({ cache = createResourceCache(), axios, use
     return data;
   };
   return {
-    clear: () => cache.clear(),
+    clear: () => { cache.clear(); catalogCache.clear(); },
     peekOrders: (page = 1) => cache.peek(ordersKey(page)),
     invalidateOrders: () => cache.invalidate(`customer-orders:${userId}:`),
     loadOrders(page = 1, options) {
@@ -27,10 +28,10 @@ export const createStoreResources = ({ cache = createResourceCache(), axios, use
       if (!userId) return Promise.resolve(null);
       return cache.load(addressesKey, signal => read("/api/addresses",signal,true), options);
     },
-    peekCatalog: (path, root = "/api/catalog") => cache.peek(`catalog:${root}${path}`),
-    setCatalog: (path, root, data) => cache.set(`catalog:${root}${path}`, data),
-    invalidateCatalog: () => cache.invalidate("catalog:"),
-    loadCatalog: (path, root = "/api/catalog", options) => cache.load(`catalog:${root}${path}`,
+    peekCatalog: (path, root = "/api/catalog") => catalogCache.peek(`catalog:${root}${path}`),
+    setCatalog: (path, root, data) => catalogCache.set(`catalog:${root}${path}`, data),
+    invalidateCatalog: () => catalogCache.invalidate("catalog:"),
+    loadCatalog: (path, root = "/api/catalog", options) => catalogCache.load(`catalog:${root}${path}`,
       signal => read(`${root}${path}`, signal, true), options),
     peekSupportInbox: path => cache.peek(`support-inbox:${path}`),
     setSupportInbox: (path, data) => cache.set(`support-inbox:${path}`, data),

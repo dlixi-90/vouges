@@ -14,4 +14,5 @@ const schema = new mongoose.Schema({
 }, { timestamps: true });
 schema.index({ status: 1, lastMessageAt: -1, _id: -1 });
 schema.index({ lastMessageAt: -1, _id: -1 });
+schema.index({ lastMessageAt: -1, _id: -1, unreadStaff: 1 }, { partialFilterExpression: { unreadStaff: { $gt: 0 } } });
 export default mongoose.model("SupportConversation", schema);

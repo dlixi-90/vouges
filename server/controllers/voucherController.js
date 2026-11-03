@@ -35,7 +35,17 @@ export const listMyVouchers = async (req, res, next) => {
 export const listVouchers = async (_req, res, next) => {
   try {
     res.set("Cache-Control", "private, no-store");
-    res.json({ success: true, vouchers: await Voucher.find({ kind: "general", deletedAt: null }).sort({ createdAt: -1 }).limit(100).lean() });
+    const vouchers=await Voucher.aggregate([
+      { $match: { kind: "general", deletedAt: null } },
+      { $sort: { createdAt: -1, _id: -1 } },
+      { $limit: 100 },
+      { $project: {
+        code: 1, type: 1, value: 1, maxDiscount: 1, minSubtotal: 1, startsAt: 1, expiresAt: 1,
+        maxUses: 1, usedCount: 1, active: 1, createdAt: 1,
+        allowedUserCount: { $size: { $cond: [{ $isArray: "$allowedUserIds" }, "$allowedUserIds", []] } },
+      } },
+    ]);
+    res.json({ success: true, vouchers });
   } catch (error) { next(error); }
 };
 

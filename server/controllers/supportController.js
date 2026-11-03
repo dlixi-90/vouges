@@ -67,19 +67,23 @@ const inboxQuery = (req) => {
     filter.$or = [{ customerName: expression }, { customerEmail: expression }];
   }
   const page = Math.max(1, Math.min(1000, Math.floor(Number(req.query.page) || 1)));
-  return { filter, page };
+  return { filter, page, cacheKey: JSON.stringify([status, search, page]) };
 };
-const readInbox = async ({ filter, page }) => {
-  const [items, total, unread] = await Promise.all([
-    Conversation.find(filter).select("-context -userId").sort({ lastMessageAt: -1, _id: -1 }).skip((page - 1) * 30).limit(30).lean(),
+const inboxReads = new Map();
+const readInbox = ({ filter, page, cacheKey }) => {
+  const existing=inboxReads.get(cacheKey);
+  if(existing)return existing;
+  const pending=Promise.all([
+    Conversation.find(filter).select("customerName customerEmail status sequence unreadStaff unreadCustomer lastMessage lastMessageAt createdAt updatedAt").sort({ lastMessageAt: -1, _id: -1 }).skip((page - 1) * 30).limit(30).lean(),
     Conversation.countDocuments(filter), Conversation.countDocuments({ unreadStaff: { $gt: 0 } }),
-  ]);
-  return { conversations: items.map((item) => conversationView(item, false)), total, unread, page };
+  ]).then(([items,total,unread])=>({conversations:items.map(item=>conversationView(item,false)),total,unread,page}));
+  inboxReads.set(cacheKey,pending);
+  return pending.finally(()=>{if(inboxReads.get(cacheKey)===pending)inboxReads.delete(cacheKey);});
 };
 export const getSupportInbox = action(async (req, res) => res.json({ success: true, ...await readInbox(inboxQuery(req)) }));
 export const streamSupportInbox = action(async (req, res) => {
   const query = inboxQuery(req);
-  await streamSnapshots(req, res, () => readInbox(query), { intervalMs: 2000 });
+  await streamSnapshots(req, res, () => readInbox(query), { intervalMs: 3000 });
 });
 export const streamSupportConversation = action(async (req, res) => {
   let initial = await findConversation(req.params.id, req.user);
@@ -92,5 +96,5 @@ export const streamSupportConversation = action(async (req, res) => {
     const snapshot = await conversationSnapshot(conversation);
     version = next;
     return snapshot;
-  });
+  }, { intervalMs: 3000 });
 });

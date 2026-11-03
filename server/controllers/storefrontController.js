@@ -1,6 +1,6 @@
 import { isObjectIdOrHexString } from "mongoose";
 import Product from "../models/Product.js";
-import { catalogSnapshot, getStorefrontCatalog, parseBrowseQuery } from "../services/storefrontCatalog.js";
+import { catalogSnapshot, getStorefrontFilterCatalog, parseBrowseQuery } from "../services/storefrontCatalog.js";
 import { collectStorefrontFilters } from "../services/perfumeFilters.js";
 import { readStorefrontBrowse, readStorefrontRelated } from "../services/storefrontBrowse.js";
 
@@ -24,7 +24,10 @@ export const browseProducts = action(async (req, res) => {
   res.json(result);
 });
 export const productFilters = action(async (_req, res) => {
-  const result = await catalogSnapshot("filter-options", 300000, async () => ({ success: true, options: collectStorefrontFilters(await getStorefrontCatalog(true)) }));
+  const result = await catalogSnapshot("filter-options", 300000, async () => ({
+    success: true,
+    options: collectStorefrontFilters(await getStorefrontFilterCatalog()),
+  }));
   res.set("Cache-Control", PUBLIC_FILTER_CACHE);
   res.json(result);
 });

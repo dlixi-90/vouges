@@ -34,7 +34,8 @@ export const listCategories = async (_req, res) => {
   try {
     const categories = await Category.find({ storefrontVisible: { $ne: false } })
       .select("name types._id types.name")
-      .sort({ createdAt: -1, _id: -1 });
+      .sort({ createdAt: -1, _id: -1 })
+      .lean();
     return res.json({ success: true, categories });
   } catch (error) {
     console.error(error);

@@ -1,5 +1,5 @@
 import { LoadingStatus } from "./LoadingState";
-import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { memo, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ChevronDown, RefreshCw, Search, X } from "lucide-react";
 import { PERFUME_FILTERS } from "../data/perfumeFilters";
 import { useAppContext } from "../context/AppContext";
@@ -7,6 +7,7 @@ import useCachedResource from "../hooks/useCachedResource";
 import { filterOptionSearchKey, sortFilterOptions } from "../utils/filterOptions";
 
 const compactQuery = "(max-width: 1023px)";
+const EMPTY_OPTIONS = [];
 const subscribeToLayout = callback => {
   const media = window.matchMedia(compactQuery);
   media.addEventListener("change", callback);
@@ -14,13 +15,14 @@ const subscribeToLayout = callback => {
 };
 const getCompactLayout = () => window.matchMedia(compactQuery).matches;
 
-function FilterGroup({ field, options = [], selected = [], onChange, sidebar, loading }) {
+const FilterGroup = memo(function FilterGroup({ field, options = EMPTY_OPTIONS, selected = [], onChange, sidebar, loading }) {
   const id = useId();
   const [query, setQuery] = useState("");
   const initialLimit = sidebar ? 6 : 40;
   const [limit, setLimit] = useState(initialLimit);
-  const all = sortFilterOptions(field.id, [...selected, ...options]);
-  const matching = all.filter(value => filterOptionSearchKey(value).includes(filterOptionSearchKey(query)));
+  const all = useMemo(() => sortFilterOptions(field.id, [...selected, ...options]), [field.id, options, selected]);
+  const queryKey = useMemo(() => filterOptionSearchKey(query), [query]);
+  const matching = useMemo(() => queryKey ? all.filter(value => filterOptionSearchKey(value).includes(queryKey)) : all, [all, queryKey]);
   return <details className="inessa-filter-facet" open={field.id === "gender" || (sidebar && ["brands", "sizes"].includes(field.id)) || selected.length > 0 || undefined}>
     <summary><span>{field.label}{selected.length > 0 && <small>{selected.length}</small>}</span><ChevronDown size={16} aria-hidden="true" /></summary>
     <div className="inessa-filter-facet-body">
@@ -35,7 +37,7 @@ function FilterGroup({ field, options = [], selected = [], onChange, sidebar, lo
       </div>
     </div>
   </details>;
-}
+});
 
 export default function CollectionFilterDrawer({
   open = false,

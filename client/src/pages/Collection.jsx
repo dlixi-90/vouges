@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useLayoutEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
@@ -84,11 +84,11 @@ const Collection = () => {
     if (routeBrand || searchParams.get("category")) navigate("/collection", { replace: true });
   };
 
-  const toggleFilter = (field, value) => {
+  const toggleFilter = useCallback((field, value) => {
     setFilters(current => ({ ...current, [field]: current[field].includes(value)
       ? current[field].filter(item => item !== value) : [...current[field], value] }));
     setCurrentPage(1);
-  };
+  }, []);
 
   const total = collection?.total || 0;
   const totalPages = collection?.totalPages || 1;

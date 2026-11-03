@@ -45,12 +45,25 @@ export const adminOverview=handler(async()=>{
 export const adminPolicy=handler(async req=>({policy:await savePolicy(req.body,req.user._id)}));
 export const adminReward=handler(async req=>({reward:await saveReward(req.params.id,req.body,req.user._id)}));
 export const adminCampaign=handler(async req=>({campaign:await saveCampaign(req.params.id,req.body,req.user._id)}));
+const mapLimit=async(items,limit,operation)=>{
+  const results=new Array(items.length);let cursor=0;
+  await Promise.all(Array.from({length:Math.min(limit,items.length)},async()=>{
+    while(cursor<items.length){const index=cursor++;results[index]=await operation(items[index]);}
+  }));
+  return results;
+};
 export const adminMembers=handler(async req=>{
   const page=pageOf(req),q=typeof req.query.q==="string"?req.query.q.trim():"";if(q.length>120)throw new LoyaltyError("Từ khóa quá dài.");const filter={role:{$ne:"owner"}};
   if(q){const regex={$regex:q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),$options:"i"};filter.$or=["_id","username","customerProfile.fullName","phone","email"].map(field=>({[field]:regex}));}
-  const users=await User.find(filter).select("username customerProfile.fullName phone email birthday").sort({_id:1}).skip((page-1)*20).limit(20).lean(),members=[];
-  for(const user of users){const membership=await reconcileUser(user._id);members.push({_id:user._id,name:user.customerProfile?.fullName||user.username,phone:user.phone,email:user.email,membership});}
-  return {members,page,total:await User.countDocuments(filter)};
+  const [users,total]=await Promise.all([
+    User.find(filter).select("username customerProfile.fullName phone email birthday").sort({_id:1}).skip((page-1)*20).limit(20).lean(),
+    User.countDocuments(filter),
+  ]);
+  const members=await mapLimit(users,4,async user=>({
+    _id:user._id,name:user.customerProfile?.fullName||user.username,phone:user.phone,email:user.email,
+    membership:await reconcileUser(user._id),
+  }));
+  return {members,page,total};
 });
 export const adminMember=handler(async req=>({membership:await reconcileUser(req.params.id),ledger:await LoyaltyLedger.find({userId:req.params.id}).sort({at:-1}).limit(100).lean(),history:await LoyaltyTierHistory.find({userId:req.params.id}).sort({at:-1}).limit(100).lean()}));
 export const adminPoints=handler(async req=>({membership:await adjustPoints(req.params.id,req.user._id,req.body)}));
