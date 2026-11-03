@@ -18,13 +18,14 @@ export class AccessError extends Error {
 export const validUserId = value => typeof value === "string" && /^[a-zA-Z0-9_-]{1,150}$/.test(value);
 
 export const validateRoleChange = value => {
+  const reason = value?.reason ?? "";
   if (!value || !["owner", "user"].includes(value.role)
     || !Number.isSafeInteger(value.version) || value.version < 0
-    || typeof value.reason !== "string" || value.reason.trim().length < 5 || value.reason.trim().length > 500
+    || typeof reason !== "string" || reason.trim().length > 500
     || typeof value.requestId !== "string" || !/^[a-zA-Z0-9_-]{12,100}$/.test(value.requestId)) {
-    throw new AccessError("Chọn vai trò hợp lệ và nhập lý do từ 5 đến 500 ký tự. Vui lòng tải lại nếu yêu cầu đã cũ.");
+    throw new AccessError("Chọn vai trò hợp lệ. Lý do không bắt buộc, tối đa 500 ký tự. Vui lòng tải lại nếu yêu cầu đã cũ.");
   }
-  return { role: value.role, version: value.version, reason: value.reason.trim(), requestId: value.requestId };
+  return { role: value.role, version: value.version, reason: reason.trim(), requestId: value.requestId };
 };
 
 // Every privilege change and its audit commit together; retries keep the same request key.

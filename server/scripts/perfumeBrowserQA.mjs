@@ -290,13 +290,24 @@ try{
       assert.equal(await evaluate("[...document.querySelectorAll('button')].some(b=>b.textContent==='Nhật ký phân quyền')"),false,'Removed audit button stays absent');
       assert.equal(await evaluate("[...document.querySelectorAll('.customer-table tbody tr')].every(r=>r.querySelectorAll('button').length<=1)"),true,'One edit action per account');
       assert.equal(await evaluate("document.querySelector('.perfume-admin-nav a[href=\"/owner/loyalty\"] svg').outerHTML!==document.querySelector('.perfume-admin-nav a[href=\"/owner/users\"] svg').outerHTML"),true,'Membership uses its own icon');
-      assert.equal(await evaluate("[...document.querySelectorAll('.customer-table tbody tr')].find(r=>r.textContent.includes('root.qa@example.com')).querySelectorAll('button').length"),0);
+      for(const email of ['root.qa@example.com','other.root.qa@example.com']){
+        const rootRow=`[...document.querySelectorAll('.customer-table tbody tr')].find(r=>r.children[1].textContent===${JSON.stringify(email)})`;
+        assert.equal(await evaluate(`(${rootRow}).querySelectorAll('button').length`),1,'Both root profiles are editable');
+        await evaluate(`(${rootRow}).querySelector('button').click()`);await wait("document.querySelector('.user-profile-form')");await noOverflow();
+        assert.equal(await evaluate("document.getElementById('user-editor-tab-role')===null"),true,'Protected root role has no editor');
+        assert.equal(await evaluate("document.querySelectorAll('.user-profile-form input').length"),3);
+        await screenshot('users-root-'+(email.startsWith('other')?'two-':'one-')+width);
+        await evaluate("document.querySelector('dialog [aria-label=\"Đóng cửa sổ\"]').click()");
+      }
       assert.equal(await evaluate(`(${row}).children[2].textContent`),'Chưa cập nhật','Phone has an independent column');
       await screenshot('users-overview-'+width);await openEditor();await input('.user-profile-form input[name="fullName"]','Tên đang chỉnh sửa');await screenshot('users-edit-profile-'+width);
       await evaluate("document.getElementById('user-editor-tab-profile').focus()");await send('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});await wait("document.getElementById('user-editor-tab-role').getAttribute('aria-selected')==='true'");await noOverflow();
       assert.equal(await evaluate("document.querySelector('.user-role-form button[type=submit]').disabled"),true);
       assert.equal(await evaluate("document.querySelector('#user-role').value"),'user','Role opens on the current value');
-      await select('#user-role','owner');await input('#user-role-reason','Kiểm thử bố cục phân quyền');await screenshot('users-role-'+width);
+      await select('#user-role','owner');
+      assert.equal(await evaluate("document.querySelector('.user-role-form button[type=submit]').disabled"),false,'An empty reason does not block a role change');
+      assert.equal(await evaluate("document.querySelector('#user-role-reason').required"),false);assert.equal(await evaluate("document.querySelector('#user-role-reason').hasAttribute('minlength')"),false);
+      await input('#user-role-reason','Kiểm thử bố cục phân quyền');await screenshot('users-role-'+width);
       await evaluate("document.getElementById('user-editor-tab-profile').click()");assert.equal(await evaluate("document.querySelector('.user-profile-form input[name=fullName]').value"),'Tên đang chỉnh sửa','Profile draft survives permission tab switch');await evaluate("document.getElementById('user-editor-tab-role').click()");assert.equal(await evaluate("document.querySelector('#user-role-reason').value"),'Kiểm thử bố cục phân quyền','Permission draft survives tab switch');
       await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await wait("!document.querySelector('dialog')");
       assert.equal(await evaluate("document.activeElement?.textContent"),'Chỉnh sửa','Dialog restores opener focus');
@@ -304,20 +315,34 @@ try{
     await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
     await goto('/owner/customers',"location.pathname==='/owner/users'&&document.querySelector('.customer-table tbody tr')");await settled();
     await evaluate("document.querySelector('[aria-label=\"Trang 2\"]').click()");await wait("!document.body.textContent.includes('new.customer@example.com')&&document.querySelector('.customer-table')?.getAttribute('aria-busy')==='false'");
-    await select('[aria-label="Lọc vai trò"]','owner');await settled();assert.equal(await evaluate("document.querySelectorAll('.customer-table tbody tr').length"),2);
+    await select('[aria-label="Lọc vai trò"]','owner');await settled();assert.equal(await evaluate("document.querySelectorAll('.customer-table tbody tr').length"),3);
     await input('[aria-label="Tìm người dùng"]','new.customer');await settled();await wait("document.querySelectorAll('.customer-table tbody tr').length===0");
     await select('[aria-label="Lọc vai trò"]','all');await wait(`${row}`);await settled();
-    await openRole();await select('#user-role','owner');await input('#user-role-reason','Bổ nhiệm Admin kiểm thử');userAccessFixtures.state.failNext=true;
-    await evaluate("document.querySelector('.user-role-form').requestSubmit()");await wait("document.querySelector('.user-role-form [role=alert]')");assert.equal(await evaluate("document.querySelector('#user-role-reason').value"),'Bổ nhiệm Admin kiểm thử');
+    await openRole();await select('#user-role','owner');userAccessFixtures.state.failNext=true;
+    await evaluate("document.querySelector('.user-role-form').requestSubmit()");await wait("document.querySelector('.user-role-form [role=alert]')");assert.equal(await evaluate("document.querySelector('#user-role-reason').value"),'');
     await evaluate("document.querySelector('.user-role-form').requestSubmit();document.querySelector('.user-role-form').requestSubmit()");await wait("!document.querySelector('dialog')");await settled();
     assert.equal(userAccessFixtures.requests.length,2,'Failed attempt plus one guarded retry');assert.equal(userAccessFixtures.requests[0].body.requestId,userAccessFixtures.requests[1].body.requestId,'Retry keeps idempotency key');
+    assert.equal(userAccessFixtures.requests[1].body.reason,'','Grant accepts a blank reason');assert.equal(userAccessFixtures.entries[0].reason,'');
     assert.equal(await evaluate(`(${row}).querySelector('.perfume-badge').textContent`),'Admin');
     await openRole();await select('#user-role','user');await input('#user-role-reason','Thu hồi Admin kiểm thử');userAccessFixtures.state.conflictNext=true;await evaluate("document.querySelector('.user-role-form').requestSubmit()");await wait("document.querySelector('[role=alert]')?.textContent.includes('vừa thay đổi')");
-    await evaluate("[...document.querySelectorAll('.user-role-form button')].find(b=>b.textContent==='Hủy').click()");await openRole();await select('#user-role','user');await input('#user-role-reason','Thu hồi Admin kiểm thử');await evaluate("document.querySelector('.user-role-form').requestSubmit()");await wait("!document.querySelector('dialog')");await settled();assert.equal(await evaluate(`(${row}).querySelector('.perfume-badge').textContent`),'Khách hàng');
+    await evaluate("[...document.querySelectorAll('.user-role-form button')].find(b=>b.textContent==='Hủy').click()");await openRole();await select('#user-role','user');await evaluate("document.querySelector('.user-role-form').requestSubmit()");await wait("!document.querySelector('dialog')");await settled();assert.equal(await evaluate(`(${row}).querySelector('.perfume-badge').textContent`),'Khách hàng');assert.equal(userAccessFixtures.entries[0].reason,'','Revoke accepts a blank reason');
     assert.equal(userAccessFixtures.entries.length,2,'Audit still records grants and revocations without exposing an audit panel');
     await openEditor();await evaluate("document.querySelector('.user-profile-form').requestSubmit()");await wait("document.querySelector('.user-profile-form [role=alert]')");assert.equal(userAccessFixtures.profileRequests.length,0,'Incomplete profile cannot be saved accidentally');
     await input('.user-profile-form input[name="fullName"]','Khách cập nhật QA');await input('.user-profile-form input[name="phone"]','0912345678');await input('.user-profile-form input[name="birthday"]','2000-01-01');await evaluate("document.querySelector('.user-profile-form').requestSubmit();document.querySelector('.user-profile-form').requestSubmit()");await wait("!document.querySelector('dialog')");await settled();assert.equal(userAccessFixtures.profileRequests.length,1,'Combined edit still saves the profile once');assert.equal(await evaluate(`(${row}).children[0].textContent`),'Khách cập nhật QA');assert.equal(await evaluate(`(${row}).children[2].textContent.includes('912')`),true);
-    userAccessFixtures.state.isRoot=false;await clickText('Làm mới');await settled();await openEditor();assert.equal(await evaluate("document.getElementById('user-editor-tab-role')===null"),true,'Delegated admins only edit profile information');await evaluate("document.querySelector('dialog [aria-label=\"Đóng cửa sổ\"]').click()");
+    for(const [index,email] of ['root.qa@example.com','other.root.qa@example.com'].entries()){
+      const updatedName=index===0?'Quản trị gốc cập nhật một':'Quản trị gốc cập nhật hai';
+      await input('[aria-label="Tìm người dùng"]',email);await settled();
+      const rootRow=`[...document.querySelectorAll('.customer-table tbody tr')].find(r=>r.children[1].textContent===${JSON.stringify(email)})`;
+      await wait(rootRow);await evaluate(`(${rootRow}).querySelector('button').click()`);await wait("document.querySelector('.user-profile-form')");
+      assert.equal(await evaluate("document.getElementById('user-editor-tab-role')===null"),true);
+      await input('.user-profile-form input[name="fullName"]',updatedName);await input('.user-profile-form input[name="phone"]','0987654321');await input('.user-profile-form input[name="birthday"]','1999-12-24');
+      await evaluate("document.querySelector('.user-profile-form').requestSubmit()");await wait("!document.querySelector('dialog')");await settled();
+      assert.equal(await evaluate(`(${rootRow}).children[0].textContent`),updatedName);assert.equal(await evaluate(`(${rootRow}).children[2].textContent`),'(+84) 987 654 321');assert.equal(await evaluate(`(${rootRow}).children[3].textContent`),'24/12/1999');assert.equal(await evaluate(`(${rootRow}).querySelector('.perfume-badge').textContent`),'Quản trị gốc');
+    }
+    assert.equal(userAccessFixtures.profileRequests.length,3,'Both protected roots save profile fields only');assert.equal(userAccessFixtures.requests.length,4,'Root profile edits never call role mutation');
+    userAccessFixtures.state.isRoot=false;await input('[aria-label="Tìm người dùng"]','root.qa');await settled();
+    assert.equal(await evaluate("[...document.querySelectorAll('.customer-table tbody tr')].every(r=>r.querySelectorAll('button').length===0)"),true,'Delegated admins cannot edit either protected root');
+    await input('[aria-label="Tìm người dùng"]','new.customer');await settled();await openEditor();assert.equal(await evaluate("document.getElementById('user-editor-tab-role')===null"),true,'Delegated admins only edit profile information');await evaluate("document.querySelector('dialog [aria-label=\"Đóng cửa sổ\"]').click()");
     userAccessFixtures.state.currentRole='user';await evaluate("window.dispatchEvent(new Event('focus'))");await wait("location.pathname==='/'");
     checks.push('Users at 1440/1024/768/390/320px: account IDs, audit button and order/payment columns removed; independent phone column; distinct membership Crown; one Edit action with profile/permission tabs, keyboard and draft preservation; incomplete new accounts can receive Admin without invalid profile save; profile validation/save, filters, pagination, root protection, grant/revoke, reason, retries, idempotency, stale version, retained backend audit, Escape/focus restore and revoked-session redirect; all mutations in memory');
   }else if(policiesDesignQA){

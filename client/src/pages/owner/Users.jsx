@@ -33,7 +33,7 @@ export default function Users(){
             <td className="customer-nowrap">{customer.phone || "Chưa cập nhật"}</td>
             <td className="customer-nowrap">{birthdayLabel(customer.birthday)}</td><td><Badge tone={customer.role==="owner"?"warning":"neutral"}>{customer.isRootAdmin?"Quản trị gốc":customer.role==="owner"?"Admin":"Khách hàng"}</Badge></td>
             <td><Badge>{customer.completedAt?"Đã hoàn thiện":"Chưa hoàn thiện"}</Badge></td>
-            <td><div className="user-row-actions">{(customer.canEditProfile||customer.canChangeRole)&&<button type="button" className="perfume-button" aria-label={`Chỉnh sửa người dùng ${customer.fullName}`} onClick={()=>setEditing(customer)}><Pencil size={14} aria-hidden="true"/>Chỉnh sửa</button>}{customer.isRootAdmin&&<span className="user-protected"><LockKeyhole size={14} aria-hidden="true"/>Được bảo vệ</span>}</div></td>
+            <td><div className="user-row-actions">{(customer.canEditProfile||customer.canChangeRole)&&<button type="button" className="perfume-button" aria-label={`Chỉnh sửa người dùng ${customer.fullName}`} onClick={()=>setEditing(customer)}><Pencil size={14} aria-hidden="true"/>Chỉnh sửa</button>}{customer.isRootAdmin&&<span className="user-protected" title="Vai trò quản trị gốc không thể thay đổi trên website"><LockKeyhole size={14} aria-hidden="true"/>Khóa vai trò</span>}</div></td>
           </tr>)}</tbody>
         </table>
         {!query.loading&&!rows.length&&!query.error&&<p className="perfume-empty">{q||role!=="all"?"Không tìm thấy người dùng phù hợp.":"Chưa có người dùng."}</p>}
@@ -81,7 +81,7 @@ function RoleForm({account,busy,setBusy,onClose,onSaved}){
   useEffect(()=>()=>request.current?.abort(),[]);
   const save=async event=>{
     event.preventDefault();if(submitting.current)return;
-    if(reason.trim().length<5||reason.trim().length>500){setError("Nhập lý do từ 5 đến 500 ký tự.");return;}
+    if(reason.trim().length>500){setError("Lý do tối đa 500 ký tự.");return;}
     const fingerprint=JSON.stringify([role,reason.trim(),account.accessVersion]);
     if(key.current?.fingerprint!==fingerprint)key.current={fingerprint,id:crypto.randomUUID()};
     submitting.current=true;setBusy(true);setError("");const controller=new AbortController();request.current=controller;
@@ -96,10 +96,10 @@ function RoleForm({account,busy,setBusy,onClose,onSaved}){
   return <form onSubmit={save} className="user-role-form">
     <label htmlFor="user-role">Vai trò</label><select id="user-role" value={role} onChange={event=>setRole(event.target.value)} disabled={busy}><option value="user">Khách hàng</option><option value="owner" disabled={!account.email&&account.role!=="owner"}>Admin</option></select>
     <p className="user-role-explanation">{role==="owner"?"Admin được quản lý sản phẩm, đơn hàng, khách hàng, ưu đãi và hỗ trợ. Chỉ quản trị gốc được quản lý phân quyền.":"Khách hàng sử dụng các chức năng mua sắm và không được truy cập API quản trị. Thay đổi vai trò vẫn giữ nguyên đơn hàng, điểm và lịch sử."}</p>
-    <label htmlFor="user-role-reason">Lý do thay đổi <span aria-hidden="true">*</span></label><textarea id="user-role-reason" rows={3} minLength={5} maxLength={500} required value={reason} onChange={event=>setReason(event.target.value)} disabled={busy} placeholder="Ghi rõ lý do cấp hoặc thu hồi quyền…"/>
+    <label htmlFor="user-role-reason">Lý do thay đổi (không bắt buộc)</label><textarea id="user-role-reason" rows={3} maxLength={500} value={reason} onChange={event=>setReason(event.target.value)} disabled={busy} placeholder="Có thể thêm ghi chú cho thay đổi này…"/>
     <p className="user-role-note">Mọi thay đổi được lưu cùng người thực hiện và thời điểm.</p>
     {error&&<p role="alert" className="customer-field-error">{error}</p>}
-    <footer><button type="button" className="btn-outline" disabled={busy} onClick={onClose}>Hủy</button><button type="submit" className="btn-dark" disabled={busy||role===account.role||reason.trim().length<5}>{busy?"Đang cập nhật…":role==="owner"?"Xác nhận cấp Admin":"Xác nhận thu hồi"}</button></footer>
+    <footer><button type="button" className="btn-outline" disabled={busy} onClick={onClose}>Hủy</button><button type="submit" className="btn-dark" disabled={busy||role===account.role}>{busy?"Đang cập nhật…":role==="owner"?"Xác nhận cấp Admin":"Xác nhận thu hồi"}</button></footer>
   </form>;
 }
 

@@ -2,6 +2,7 @@
 export const createUserAccessFixtures = () => {
   const rows = [
     {_id:"qa-owner",fullName:"Quản trị gốc QA",email:"root.qa@example.com",role:"owner",isRootAdmin:true},
+    {_id:"qa-owner-two",fullName:"Quản trị gốc thứ hai QA",email:"other.root.qa@example.com",role:"owner",isRootAdmin:true},
     {_id:"qa-delegate",fullName:"Quản trị được cấp QA",email:"admin.qa@example.com",role:"owner",isRootAdmin:false},
     {_id:"qa-new-customer",fullName:"Khách mới QA",email:"new.customer@example.com",role:"user",isRootAdmin:false},
     ...Array.from({length:27},(_,i)=>({_id:`qa-account-${i}`,fullName:`Khách kiểm thử ${i+1}`,email:`customer${i+1}@example.com`,role:"user",isRootAdmin:false})),
@@ -14,7 +15,7 @@ export const createUserAccessFixtures = () => {
     if(p==="/api/users/manage"&&request.method==="GET"){
       const q=(url.searchParams.get("q")||"").toLowerCase(),role=url.searchParams.get("role")||"all",page=Number(url.searchParams.get("page")||1),pageSize=Number(url.searchParams.get("pageSize")||25);
       const filtered=rows.filter(row=>(role==="all"||row.role===role)&&[row.fullName,row.email,row.phone].some(v=>v.toLowerCase().includes(q)));
-      return ok({users:filtered.slice((page-1)*pageSize,page*pageSize).map(row=>({...row,canEditProfile:row.role==="user",canChangeRole:state.isRoot&&!row.isRootAdmin})),total:filtered.length,page,pageSize,totalPages:Math.max(1,Math.ceil(filtered.length/pageSize)),canManageRoles:state.isRoot});
+      return ok({users:filtered.slice((page-1)*pageSize,page*pageSize).map(row=>({...row,canEditProfile:state.isRoot||row.role==="user",canChangeRole:state.isRoot&&!row.isRootAdmin})),total:filtered.length,page,pageSize,totalPages:Math.max(1,Math.ceil(filtered.length/pageSize)),canManageRoles:state.isRoot});
     }
     if(p==="/api/users/access-audit"){
       if(!state.isRoot)return failure(403,"Chỉ quản trị gốc được quản lý phân quyền.");
@@ -32,7 +33,9 @@ export const createUserAccessFixtures = () => {
       target.role=body.role;target.accessVersion++;const result={user:{...target}};keys.set(body.requestId,result);return ok(result);
     }
     if(request.method==="PATCH"&&p.startsWith("/api/users/customers/")){
-      const target=rows.find(row=>row._id===p.split("/")[4]);profileRequests.push({path:p,body:JSON.parse(request.postData)});Object.assign(target,JSON.parse(request.postData),{completedAt:new Date().toISOString()});return ok({customer:target});
+      const target=rows.find(row=>row._id===p.split("/")[4]);
+      if(!target||(!state.isRoot&&target.role==="owner"))return failure(404,"Không tìm thấy khách hàng.");
+      const body=JSON.parse(request.postData);profileRequests.push({path:p,body});Object.assign(target,{fullName:body.fullName,phone:body.phone,birthday:body.birthday,completedAt:new Date().toISOString()});return ok({customer:target});
     }
     return null;
   }};

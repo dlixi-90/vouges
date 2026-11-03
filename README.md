@@ -128,7 +128,7 @@ Quà và dịch vụ chỉ khả dụng khi đáp ứng điều kiện và tồn
 | 🗂️ **Catalog** | Danh mục, thương hiệu và thư viện hương |
 | 📋 **Đơn hàng** | Tra cứu, xem chi tiết và cập nhật tiến độ |
 | 👥 **Người dùng** | Xem khách hàng/Admin, tìm kiếm, lọc vai trò và sửa hồ sơ khách |
-| 🛡️ **Phân quyền** | Quản trị gốc cấp/thu hồi Admin, bắt buộc lý do và lưu nhật ký |
+| 🛡️ **Phân quyền** | Quản trị gốc cấp/thu hồi Admin, lý do không bắt buộc và luôn lưu nhật ký |
 | 🎟️ **Voucher** | Mã cố định/phần trăm, thời hạn, điều kiện và lượt sử dụng |
 | 🎁 **Loyalty & VIP** | Chính sách hạng, quà, chiến dịch, yêu cầu đổi và điều chỉnh có audit |
 | 📨 **Hộp thư** | Phản hồi khách và quản lý trạng thái hội thoại |
@@ -191,7 +191,7 @@ AI không được tuyên bố giỏ đã thay đổi chỉ dựa trên một đ
 ```mermaid
 flowchart LR
     A[Quản trị gốc] --> B[Trang Người dùng]
-    B --> C[Chọn vai trò và nhập lý do]
+    B --> C[Chọn vai trò, ghi chú tùy chọn]
     C --> D[Kiểm tra quyền gốc, tài khoản và phiên bản]
     D --> E[Transaction cập nhật quyền và audit]
     E --> F[API tiếp theo dùng quyền mới]
@@ -199,6 +199,8 @@ flowchart LR
 ```
 
 Email trong `ADMIN_EMAILS` là quản trị gốc được bảo vệ. Admin được cấp trên website lưu quyền trong MongoDB và chỉ quản lý nghiệp vụ, không được tự cấp thêm Admin. Giao diện kiểm tra lại quyền khi quay lại tab hoặc gặp lỗi quyền truy cập.
+
+Quản trị gốc có thể sửa họ tên, số điện thoại và ngày sinh của mọi tài khoản, bao gồm cả hai tài khoản quản trị gốc, tại **Người dùng → Chỉnh sửa → Thông tin**. Email đăng nhập không sửa tại đây; vai trò quản trị gốc vẫn khóa. Admin được cấp chỉ được sửa hồ sơ khách hàng.
 
 ---
 
@@ -291,7 +293,7 @@ Database mới cần dữ liệu được phục hồi hợp lệ hoặc thêm q
 
 1. Cấu hình email quản trị gốc trong `ADMIN_EMAILS` phía backend.
 2. Đăng nhập bằng tài khoản Clerk tương ứng và vào `/owner`.
-3. Với tài khoản khác đã đăng ký, mở **Người dùng → Chỉnh sửa → Phân quyền** để cấp/thu hồi Admin, nhập lý do và xác nhận. Thông tin hồ sơ và quyền được quản lý trong cùng cửa sổ chỉnh sửa; nhật ký tiếp tục lưu ở backend.
+3. Với tài khoản khác đã đăng ký, mở **Người dùng → Chỉnh sửa → Phân quyền** để cấp/thu hồi Admin, có thể nhập lý do tối đa 500 ký tự rồi xác nhận. Lý do không bắt buộc. Thông tin hồ sơ và quyền được quản lý trong cùng cửa sổ chỉnh sửa; nhật ký tiếp tục lưu ở backend.
 
 Chi tiết khởi tạo danh mục và loyalty nằm trong Chương IV của [báo cáo dự án](BAO_CAO_DU_AN_VELOURS.md).
 

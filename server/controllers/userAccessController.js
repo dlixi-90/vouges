@@ -48,7 +48,7 @@ export const listUsers = handle(async req => {
       const access = userAccess(user);
       return { _id: user._id, ...customerProfile(user), ...access, createdAt: user.createdAt,
         canChangeRole: canManageRoles && !access.isRootAdmin && user._id !== req.user._id,
-        canEditProfile: access.role === "user" };
+        canEditProfile: canManageRoles || access.role === "user" };
     }) };
 });
 export const setUserRole = handle(req => changeUserRole(req.user._id, req.params.id, req.body));

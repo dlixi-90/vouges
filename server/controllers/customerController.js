@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import Order from "../models/Order.js";
 import { customerProfile, validateCustomerProfile } from "../utils/customerProfile.js";
 import { placedOrderFilter } from "../utils/orderReporting.js";
+import { isRootAdmin, rootAdminEmails } from "../services/userAccess.js";
 
 const profileUpdate = value => ({
   customerProfile: {fullName:value.fullName,phone:value.phone,completedAt:new Date()},
@@ -72,7 +73,14 @@ export const updateCustomer = async (req, res, next) => {
     if (!/^[a-zA-Z0-9_-]{1,150}$/.test(req.params.id)) return res.status(400).json({success:false,message:"Mã khách hàng không hợp lệ."});
     const {errors,value} = validateCustomerProfile(req.body);
     if (Object.keys(errors).length) return invalidProfile(res,errors);
-    const user = await User.findOneAndUpdate({_id:req.params.id,role:{$ne:"owner"}},{$set:profileUpdate(value)},{new:true,runValidators:true});
+    const filter = {_id:req.params.id};
+    if (!isRootAdmin(req.user)) {
+      // Check authoritative access as well as the role cache in the atomic write.
+      filter.role = {$ne:"owner"};
+      filter["adminAccess.enabled"] = {$ne:true};
+      filter.email = {$nin:[...rootAdminEmails()].map(email=>new RegExp(`^\\s*${escapeRegex(email)}\\s*$`,"i"))};
+    }
+    const user = await User.findOneAndUpdate(filter,{$set:profileUpdate(value)},{new:true,runValidators:true});
     if (!user) return res.status(404).json({success:false,message:"Không tìm thấy khách hàng."});
     return res.json({success:true,customer:{_id:user._id,...customerProfile(user)}});
   } catch (error) { next(error); }

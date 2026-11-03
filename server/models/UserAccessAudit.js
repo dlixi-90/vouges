@@ -10,7 +10,7 @@ const schema = new mongoose.Schema({
   toRole: { type: String, enum: ["user", "owner"], required: true },
   fromVersion: { type: Number, required: true, min: 0, validate: Number.isSafeInteger },
   toVersion: { type: Number, required: true, min: 1, validate: Number.isSafeInteger },
-  reason: { type: String, required: true, minlength: 5, maxlength: 500 },
+  reason: { type: String, default: "", maxlength: 500 },
   at: { type: Date, required: true },
 }, { versionKey: false });
 schema.index({ at: -1, _id: -1 });

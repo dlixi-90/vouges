@@ -994,7 +994,7 @@ Các đường dẫn dưới đây ghép với API origin. Bảng chọn các AP
 | `GET /api/users/customers` | Owner | Danh sách khách |
 | `GET /api/users/manage` | Owner | Danh sách người dùng gồm khách và Admin, tìm kiếm/lọc vai trò |
 | `GET /api/users/access` | Đăng nhập | Kiểm tra quyền hiện tại, không tải lại giỏ |
-| `PATCH /api/users/manage/:id/role` | Quản trị gốc | Cấp/thu hồi Admin, bắt buộc lý do, phiên bản và request ID |
+| `PATCH /api/users/manage/:id/role` | Quản trị gốc | Cấp/thu hồi Admin; lý do tùy chọn, tối đa 500 ký tự; bắt buộc phiên bản và request ID |
 | `GET /api/users/access-audit` | Quản trị gốc | Nhật ký thay đổi quyền có phân trang/lọc tài khoản |
 | `POST /api/vouchers` | Owner | Tạo mã giảm giá |
 | `PUT /api/loyalty/admin/policy` | Owner | Lưu chính sách |
@@ -1455,9 +1455,9 @@ Thao tác thực hiện từ màn hình danh sách/chi tiết quản trị; khô
 
 **Đường dẫn:** `/owner/users`; component `Users.jsx`. Đường dẫn cũ `/owner/customers` chuyển hướng về trang mới.
 
-Trang liệt kê cả khách hàng, Admin được cấp và quản trị gốc; hỗ trợ tìm tên/email/điện thoại, lọc vai trò, phân trang và chỉnh sửa hồ sơ khách hàng. Bảng tách email và số điện thoại thành hai cột, không hiển thị mã tài khoản, số đơn hoặc tổng đã thanh toán. Hồ sơ dùng danh tính Clerk làm nền tảng; trang không thay mật khẩu đăng nhập.
+Trang liệt kê cả khách hàng, Admin được cấp và quản trị gốc; hỗ trợ tìm tên/email/điện thoại, lọc vai trò và phân trang. Quản trị gốc được sửa họ tên, số điện thoại và ngày sinh của mọi tài khoản, bao gồm cả hai quản trị gốc; Admin được cấp chỉ được sửa hồ sơ khách hàng. Bảng tách email và số điện thoại thành hai cột, không hiển thị mã tài khoản, số đơn hoặc tổng đã thanh toán. Hồ sơ dùng danh tính Clerk làm nền tảng; trang không thay email hoặc mật khẩu đăng nhập.
 
-Quản trị gốc mở **Chỉnh sửa → Phân quyền**, chọn Admin hoặc Khách hàng, nhập lý do từ 5–500 ký tự và xác nhận. Mục Thông tin và Phân quyền ở chung cửa sổ, lưu riêng để tài khoản chưa hoàn thiện hồ sơ vẫn được cấp quyền hợp lệ. API đọc lại danh tính người thực hiện và tài khoản đích trong transaction, kiểm tra phiên bản rồi ghi thay đổi cùng `UserAccessAudit`. Gửi lặp request ID trả lại kết quả thay vì cấp quyền thêm lần nữa; dữ liệu cũ bị từ chối với lỗi xung đột. Không được tự hạ quyền hoặc thay đổi bất kỳ tài khoản quản trị gốc nào trên website. Admin được cấp chỉ quản lý nghiệp vụ, không có quyền cấp thêm Admin hoặc đọc nhật ký phân quyền.
+Quản trị gốc mở **Chỉnh sửa → Phân quyền**, chọn Admin hoặc Khách hàng rồi xác nhận; lý do thay đổi không bắt buộc, tối đa 500 ký tự khi nhập. Mục Thông tin và Phân quyền ở chung cửa sổ, lưu riêng để tài khoản chưa hoàn thiện hồ sơ vẫn được cấp quyền hợp lệ. API đọc lại danh tính người thực hiện và tài khoản đích trong transaction, kiểm tra phiên bản rồi ghi thay đổi cùng `UserAccessAudit`, kể cả khi lý do để trống. Gửi lặp request ID trả lại kết quả thay vì cấp quyền thêm lần nữa; dữ liệu cũ bị từ chối với lỗi xung đột. Không được tự hạ quyền hoặc thay đổi vai trò của bất kỳ quản trị gốc nào trên website; các tài khoản này chỉ có mục chỉnh sửa thông tin. Admin được cấp chỉ quản lý nghiệp vụ, không có quyền cấp thêm Admin hoặc đọc nhật ký phân quyền.
 
 Nút và khung nhật ký phân quyền không còn hiển thị trên trang Người dùng; backend vẫn lưu người thực hiện, tài khoản đích, vai trò trước/sau, lý do và thời điểm. Thu hồi quyền không xóa đơn, hồ sơ, điểm hoặc lịch sử của tài khoản; các API quản trị tiếp theo bị từ chối. Giao diện kiểm tra lại quyền khi quay lại tab hoặc nhận lỗi 403, không ghi đè giỏ trong bước kiểm tra này.
 

@@ -81,6 +81,27 @@ test("revocation denies the next authenticated management request and does not c
   assert.equal(state.audits.size,2);assert.equal(state.users.get(customer._id).adminAccess.enabled,false);assert.deepEqual(state.users.get(customer._id).cartData,customer.cartData);
 });
 
+test("optional role reasons normalize blanks and accept short notes with the audit schema",async()=>{
+  const {reason:ignored,...withoutReason}=value;
+  for(const input of [withoutReason,{...value,reason:undefined},{...value,reason:null},{...value,reason:""},{...value,reason:"  "}])assert.equal(validateRoleChange(input).reason,"");
+  assert.equal(validateRoleChange({...value,reason:" OK "}).reason,"OK");
+  for(const reason of [undefined,"","OK","x".repeat(500)]){
+    const audit=new UserAccessAudit({_id:"qa-audit",actorId:root._id,actorEmail:root.email,targetId:customer._id,fromRole:"user",toRole:"owner",fromVersion:0,toVersion:1,at:new Date(),reason});
+    await audit.validate();assert.equal(audit.reason,reason??"");
+  }
+  await assert.rejects(new UserAccessAudit({reason:"x".repeat(501)}).validate(),error=>Boolean(error.errors.reason));
+});
+
+test("grant and revoke without a reason still commit audit once and preserve retry semantics",async t=>{
+  const state=memory(t);const {reason:ignored,...input}=value;
+  await changeUserRole(root._id,customer._id,input);
+  const replay=await changeUserRole(root._id,customer._id,{...input,reason:"  "});assert.equal(replay.replayed,true);assert.equal(state.writes,1);assert.equal(state.audits.size,1);
+  await changeUserRole(root._id,customer._id,{...input,role:"user",version:1,requestId:"request-revoke-empty"});
+  assert.equal(state.users.get(customer._id).adminAccess.enabled,false);assert.equal(state.audits.size,2);
+  for(const audit of state.audits.values()){assert.equal(audit.reason,"");await new UserAccessAudit(audit).validate();}
+  await assert.rejects(changeUserRole(root._id,customer._id,{...input,reason:"New note"}),error=>error.statusCode===409);
+});
+
 test("roots including another configured root and the current actor cannot be demoted",async t=>{
   const state=memory(t,[root,customer,{_id:"user_other_root",email:"other-root@example.com",role:"user"}]);
   for(const id of [root._id,"user_other_root"])await assert.rejects(changeUserRole(root._id,id,{...value,role:"user"}),error=>error.statusCode===403);
@@ -116,7 +137,7 @@ test("audit failure rolls back the role change instead of leaving an unaudited a
 
 test("invalid payload, absent verified email and unknown account cannot grant privilege",async t=>{
   const state=memory(t,[root,{...customer,email:""}]);
-  for(const input of [null,{}, {...value,role:"superadmin"},{...value,version:-1},{...value,version:0.5},{...value,reason:" "},{...value,reason:"x".repeat(501)},{...value,requestId:"bad"}])assert.throws(()=>validateRoleChange(input));
+  for(const input of [null,{}, {...value,role:"superadmin"},{...value,version:-1},{...value,version:0.5},...[42,true,{},[],"x".repeat(501)].map(reason=>({...value,reason})),{...value,requestId:"bad"}])assert.throws(()=>validateRoleChange(input));
   await assert.rejects(changeUserRole(root._id,customer._id,value),error=>error.statusCode===400);
   await assert.rejects(changeUserRole(root._id,"user_missing",value),error=>error.statusCode===404);
   await assert.rejects(changeUserRole(root._id,"$invalid/id",value),error=>error.statusCode===400);assert.equal(state.writes,0);
@@ -139,7 +160,9 @@ test("user directory includes root, delegated admins and customers while hiding 
   assert.equal(res.body.users[0].isRootAdmin,true);assert.equal(res.body.users[0].canChangeRole,false);assert.equal(res.body.users[1].role,"owner");assert.equal(res.body.users[1].accessVersion,3);
   assert.equal(res.body.users[2].canChangeRole,true);assert.equal(res.body.users[2].cartData,undefined);assert.equal(res.body.users[1].adminAccess,undefined);assert.doesNotMatch(calls.select,/cartData/);
   assert.equal(res.body.users[2].orderCount,undefined);assert.equal(res.body.users[2].paidTotal,undefined);
+  assert.ok(res.body.users.every(row=>row.canEditProfile),"Roots can edit all profile information, including protected roots");
   const delegate=response();await listUsers({user:rows[1],query:{}},delegate,error=>{throw error;});assert.equal(delegate.body.canManageRoles,false);assert.ok(delegate.body.users.every(row=>!row.canChangeRole));
+  assert.deepEqual(delegate.body.users.map(row=>row.canEditProfile),[false,false,true]);
 });
 
 test("role filtering and escaped searches are combined without losing either permission condition",async t=>{

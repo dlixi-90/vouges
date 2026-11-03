@@ -171,15 +171,44 @@ test("invalid customer pagination and search fail before database reads",async t
   }
 });
 
-test("owner edits validate all required fields, cannot change identity/email/role, and never update owner records",async t=>{
+test("delegated admin profile edits validate fields and atomically exclude privileged accounts",async t=>{
   t.mock.method(User,"findOneAndUpdate",async(filter,update)=>{
-    assert.deepEqual(filter,{_id:pending._id,role:{$ne:"owner"}});
+    assert.equal(filter._id,pending._id);assert.deepEqual(filter.role,{$ne:"owner"});
+    assert.deepEqual(filter["adminAccess.enabled"],{$ne:true});assert.ok(Array.isArray(filter.email.$nin));
     assert.equal(update.$set.email,undefined);assert.equal(update.$set.role,undefined);assert.equal(update.$set.cartData,undefined);
     return {...pending,...update.$set};
   });
   const res=response();await updateCustomer({params:{id:pending._id},body:{...draft,email:"changed@example.com",role:"owner",cartData:{}}},res,fail);
   assert.equal(res.body.customer.fullName,draft.fullName);assert.equal(res.body.customer.email,pending.email);
   const invalid=response();await updateCustomer({params:{id:pending._id},body:{...draft,birthday:"2020-01-01"}},invalid,fail);assert.equal(invalid.code,400);
+});
+
+test("both roots can edit their own and each other's profile without changing identity or access",async t=>{
+  const previous=process.env.ADMIN_EMAILS;process.env.ADMIN_EMAILS="root@example.com,other-root@example.com";
+  t.after(()=>{if(previous===undefined)delete process.env.ADMIN_EMAILS;else process.env.ADMIN_EMAILS=previous;});
+  const roots=[{...pending,_id:"user_root",email:"ROOT@example.com",role:"owner"},{...pending,_id:"user_other_root",email:"other-root@example.com",role:"user"}];
+  t.mock.method(User,"findOneAndUpdate",async(filter,update,options)=>{
+    assert.deepEqual(Object.keys(filter),["_id"]);assert.equal(options.runValidators,true);
+    assert.deepEqual(Object.keys(update.$set).sort(),["birthday","birthdayMonthDay","customerProfile"]);
+    return {...roots.find(user=>user._id===filter._id),...update.$set};
+  });
+  for(const actor of roots)for(const target of roots){
+    const res=response();await updateCustomer({user:actor,params:{id:target._id},body:{...draft,_id:"changed",email:"changed@example.com",role:"user",adminAccess:{enabled:false},profileOnboardingRequired:false}},res,fail);
+    assert.equal(res.code,200);assert.equal(res.body.customer._id,target._id);assert.equal(res.body.customer.email,target.email);assert.equal(res.body.customer.fullName,draft.fullName);assert.equal(res.body.customer.birthday,draft.birthday);assert.ok(res.body.customer.phone.includes("912"));
+  }
+});
+
+test("delegated admins cannot edit roots or granted admins even with a stale user role cache",async t=>{
+  const previous=process.env.ADMIN_EMAILS;process.env.ADMIN_EMAILS="root+shop@example.com,other-root@example.com";
+  t.after(()=>{if(previous===undefined)delete process.env.ADMIN_EMAILS;else process.env.ADMIN_EMAILS=previous;});
+  const targets=[{...pending,email:" ROOT+SHOP@EXAMPLE.COM "},{...pending,email:"other-root@example.com"},{...pending,adminAccess:{enabled:true}},{...pending,role:"owner"}];
+  t.mock.method(User,"findOneAndUpdate",async(filter)=>{
+    assert.deepEqual(filter.role,{$ne:"owner"});assert.deepEqual(filter["adminAccess.enabled"],{$ne:true});
+    assert.equal(filter.email.$nin.some(regex=>regex.test("rootttshop@example.com")),false,"Root email regex is escaped");
+    for(const target of targets)assert.ok(target.role==="owner"||target.adminAccess?.enabled===true||filter.email.$nin.some(regex=>regex.test(target.email)),"Every protected target is excluded by the write filter");
+    return null;
+  });
+  const res=response();await updateCustomer({user:{...pending,role:"owner",adminAccess:{enabled:true}},params:{id:pending._id},body:draft},res,fail);assert.equal(res.code,404);
 });
 
 test("missing customers and malformed IDs are rejected without creating accounts",async t=>{
