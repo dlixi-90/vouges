@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import AIToolAudit from "../../models/AIToolAudit.js";
+import { parseBudgetAmount } from "./budgetAmount.js";
 
 const DEFAULT_RETENTION_DAYS = 30;
 const MAX_RETENTION_DAYS = 365;
@@ -10,6 +11,7 @@ const SAFE_ARGUMENT_FIELDS = {
     "type",
     "minPrice",
     "maxPrice",
+    "priceCurrency",
     "sort",
     "limit",
   ],
@@ -60,8 +62,10 @@ export const sanitizeToolArguments = (toolName, argumentsValue) => {
 
   for (const field of allowedFields) {
     if (source[field] === undefined) continue;
-
-    safeArguments[field] = normalizeAuditValue(source[field]);
+    if(toolName==="searchProducts"&&["minPrice","maxPrice"].includes(field)&&source[field]!==null){
+      try{const budget=parseBudgetAmount(source[field],source.priceCurrency);safeArguments[field]=budget.amount;safeArguments[`${field}Currency`]=budget.currency;}
+      catch{safeArguments[field]="[invalid-budget]";}
+    }else safeArguments[field] = normalizeAuditValue(source[field]);
   }
 
   if (toolName === "searchProducts" && source.query !== undefined) {

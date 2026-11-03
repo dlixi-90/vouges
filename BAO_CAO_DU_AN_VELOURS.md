@@ -937,6 +937,8 @@ stateDiagram-v2
 
 Chatbot nhận câu hỏi đã giới hạn độ dài, lịch sử đã chuẩn hóa và danh tính từ API. Mô hình trả lời trực tiếp hoặc đề nghị một công cụ trong danh sách cho phép: tìm sản phẩm, đọc chi tiết, so sánh, đọc đơn/giỏ của chính khách và chuẩn bị thao tác giỏ. Tham số được kiểm tra, kết quả được lọc trước khi gửi lại mô hình và có audit.
 
+Ngân sách nhận số có dấu phân cách, chữ và cách viết rút gọn như `1tr5`, “một triệu rưỡi”, “one hundred US dollars”; mô hình có thể đọc ngôn ngữ khác và truyền lượng tiền gốc cùng mã ISO vào `searchProducts`. Backend quy đổi ngoại tệ qua tỷ giá tham khảo [Frankfurter](https://frankfurter.dev/), có cache sáu giờ và từ chối dữ liệu quá bảy ngày. Bộ lọc dùng VND nguyên đồng; cận dưới làm tròn lên và cận trên làm tròn xuống. Hệ thống thêm nguồn/ngày tỷ giá vào câu trả lời; không thay đổi tiền tệ thanh toán. Loại tiền mơ hồ hoặc không lấy được tỷ giá phải được làm rõ, không tự ước tính. Nhật ký lưu lượng tiền và đơn vị đã chuẩn hóa thay vì chuỗi ngân sách không hợp lệ.
+
 `prepareAddToCart` và các công cụ chuẩn bị sửa giỏ chỉ tạo đề xuất. Khách phải xác nhận trên giao diện; API giỏ kiểm tra lại sản phẩm, dung tích, số lượng và tồn lúc thực hiện. Không cho mô hình tự tạo đơn, xác nhận thanh toán hoặc tự nâng quyền quản trị.
 
 Giới hạn cài đặt đáng chú ý: tin nhắn tối đa 2.000 ký tự; tối đa 12 mục lịch sử và tổng giới hạn lịch sử; tối đa 3 bước agent và 4 lần gọi công cụ trong một lượt. Rate limit mặc định 5 yêu cầu/phút và 20/ngày, có biến môi trường điều chỉnh. Khi không kiểm tra được giới hạn, API từ chối thay vì bỏ qua kiểm soát.

@@ -186,6 +186,8 @@ flowchart TD
 
 AI không được tuyên bố giỏ đã thay đổi chỉ dựa trên một đề xuất.
 
+Ngân sách hỗ trợ số có dấu phân cách, chữ và dạng rút gọn như `1tr5`, “một triệu rưỡi”, “one hundred US dollars”. Với ngoại tệ, backend lấy tỷ giá tham khảo từ [Frankfurter](https://frankfurter.dev/), quy đổi sang VND rồi lọc sản phẩm; câu trả lời hiển thị nguồn và ngày tỷ giá. Ký hiệu mơ hồ cần được làm rõ; khi không có tỷ giá đủ mới, AI không tự đoán. Giá bán và thanh toán vẫn bằng VND.
+
 ### Cấp và thu hồi quyền Admin
 
 ```mermaid

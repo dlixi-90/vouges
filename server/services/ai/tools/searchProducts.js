@@ -1,4 +1,6 @@
 import Product from "../../../models/Product.js";
+import { parseBudgetAmount } from "../budgetAmount.js";
+import { getVndExchangeRate, convertBudgetToVnd } from "../exchangeRates.js";
 import { scentNoteNames, scentPhases } from "../../../../client/src/utils/scentNotes.js";
 import {
   getAvailableProductOptions,
@@ -14,7 +16,7 @@ const ALLOWED_AVAILABILITY = ["all", "available", "out_of_stock"];
 const PERFUME_FILTERS = { brand: "brand", gender: "gender", concentration: "concentration", fragranceGroup: "fragrance.group", accord: "fragrance.accords.label", note: null };
 const NOTE_FIELDS = scentPhases.flatMap(([phase]) => [`fragrance.notes.${phase}.name`, `fragrance.components.notes.${phase}.name`]);
 const SEARCH_FIELDS = ["title", "description", "category", "type", "brand", "gender", "concentration", "fragrance.group", "fragrance.style", "fragrance.accords.label", ...NOTE_FIELDS];
-const ALLOWED_ARGUMENTS = new Set(["query", "category", "type", "minPrice", "maxPrice", "sort", "availability", "limit", ...Object.keys(PERFUME_FILTERS)]);
+const ALLOWED_ARGUMENTS = new Set(["query", "category", "type", "minPrice", "maxPrice", "priceCurrency", "sort", "availability", "limit", ...Object.keys(PERFUME_FILTERS)]);
 
 const escapeRegExp = (value) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -32,16 +34,15 @@ const readOptionalText = (value, field, maxLength) => {
   return normalizedValue;
 };
 
-const readOptionalPrice = (value, field) => {
+const readOptionalBudget = (value, field, currency) => {
   if (value === undefined || value === null) return null;
-
-  const normalizedValue = Number(value);
-
-  if (!Number.isSafeInteger(normalizedValue) || normalizedValue < 0) {
-    throw new Error(`${field} phải là số VND nguyên không âm`);
-  }
-
-  return normalizedValue;
+  try { return parseBudgetAmount(value,currency); }
+  catch(error) { throw new Error(`${field}: ${error.message}`); }
+};
+const resolveBudget = async (budget,bound) => {
+  if(!budget)return null;
+  const rate=await getVndExchangeRate(budget.currency);
+  return {...budget,...rate,vnd:convertBudgetToVnd(budget.amount,rate.rate,bound)};
 };
 
 const getRelevanceScore = (product, normalizedQuery) => {
@@ -98,17 +99,20 @@ export const searchProductsToolDefinition = {
         accord: { type: "string", maxLength: 100, description: "Một kiểu mùi chính như Cam Chanh, Gỗ, Ngọt." },
         note: { type: "string", maxLength: 100, description: "Một note trong hương đầu/giữa/cuối, ví dụ Cam Bergamot hoặc Vani." },
         minPrice: {
-          type: "number",
+          type: ["number", "string"],
           minimum: 0,
+          maxLength: 160,
           description:
-            "Giá tối thiểu theo đơn vị tiền tệ đầy đủ, ví dụ 150000 nghĩa là 150.000 VND.",
+            "Ngân sách tối thiểu: số hoặc chuỗi gốc như 1tr5, một triệu rưỡi, one hundred US dollars. Với số ngoại tệ, đặt priceCurrency đúng loại tiền; không tự quy đổi tỷ giá.",
         },
         maxPrice: {
-          type: "number",
+          type: ["number", "string"],
           minimum: 0,
+          maxLength: 160,
           description:
-            "Giá tối đa theo đơn vị tiền tệ đầy đủ, ví dụ 500000 nghĩa là 500.000 VND.",
+            "Ngân sách tối đa: số hoặc chuỗi gốc như 1tr5, một triệu rưỡi, one hundred US dollars. Với số ngoại tệ, đặt priceCurrency đúng loại tiền; không tự quy đổi tỷ giá.",
         },
+        priceCurrency: {type:"string",pattern:"^[A-Z]{3}$",description:"Mã tiền gốc cho minPrice/maxPrice, ví dụ USD, EUR, JPY, KRW; mặc định VND khi không có đơn vị. Tool tự lấy tỷ giá. Chuỗi ghi rõ đơn vị phải nhất quán với mã này."},
         sort: {
           type: "string",
           enum: ALLOWED_SORTS,
@@ -146,8 +150,10 @@ export const searchProducts = async (argumentsValue = {}) => {
   const category = readOptionalText(argumentsValue.category, "category", 100);
   const type = readOptionalText(argumentsValue.type, "type", 80);
   const perfumeFilters = Object.fromEntries(Object.keys(PERFUME_FILTERS).map(key => [key, readOptionalText(argumentsValue[key], key, 100)]));
-  const minPrice = readOptionalPrice(argumentsValue.minPrice, "minPrice");
-  const maxPrice = readOptionalPrice(argumentsValue.maxPrice, "maxPrice");
+  const priceCurrency = readOptionalText(argumentsValue.priceCurrency,"priceCurrency",3).toUpperCase() || undefined;
+  if(priceCurrency && !/^[A-Z]{3}$/u.test(priceCurrency))throw new Error("priceCurrency phải là mã tiền ba chữ.");
+  const minimum = readOptionalBudget(argumentsValue.minPrice, "minPrice",priceCurrency);
+  const maximum = readOptionalBudget(argumentsValue.maxPrice, "maxPrice",priceCurrency);
   const sort = argumentsValue.sort || "relevant";
   const availability = argumentsValue.availability || "all";
   const limit = argumentsValue.limit ?? DEFAULT_RESULT_LIMIT;
@@ -164,6 +170,10 @@ export const searchProducts = async (argumentsValue = {}) => {
     throw new Error(`limit phải từ 1 đến ${MAX_RESULT_LIMIT}`);
   }
 
+  if (minimum && maximum && minimum.currency===maximum.currency && minimum.amount>maximum.amount)throw new Error("minPrice không được lớn hơn maxPrice");
+  const [minBudget,maxBudget]=await Promise.all([resolveBudget(minimum,"min"),resolveBudget(maximum,"max")]);
+  const minPrice=minBudget?.vnd??null,maxPrice=maxBudget?.vnd??null;
+  const foreignBudget=[minBudget,maxBudget].some(budget=>budget&&budget.currency!=="VND");
   if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
     throw new Error("minPrice không được lớn hơn maxPrice");
   }
@@ -271,6 +281,7 @@ export const searchProducts = async (argumentsValue = {}) => {
       ...Object.fromEntries(Object.entries(perfumeFilters).map(([key, value]) => [key, value || null])),
       minPrice,
       maxPrice,
+      ...(foreignBudget?{budgetConversions:{min:minBudget,max:maxBudget}}:{}),
       sort,
       availability,
     },

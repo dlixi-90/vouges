@@ -31,6 +31,7 @@ import {
 } from "../services/ai/tools/prepareCartChanges.js";
 import auditAIToolCall from "../services/ai/auditAIToolCall.js";
 import { PERFUME_KNOWLEDGE } from "../services/ai/perfumeKnowledge.js";
+import { normalizeVndAmountsInText } from "../services/ai/vndAmount.js";
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const MAX_MESSAGE_LENGTH = 2000;
@@ -68,6 +69,10 @@ const SYSTEM_PROMPT = [
   "Quy tắc sử dụng dữ liệu:",
   "- Khi người dùng muốn tìm, lọc hoặc được gợi ý sản phẩm từ danh mục sản phẩm Velours, gọi searchProducts.",
   "- searchProducts hỗ trợ brand, gender, concentration, fragranceGroup, accord và note. Dùng các bộ lọc riêng khi biết tiêu chí; query dùng từ khóa ngắn cho tên hoặc đặc điểm, không truyền cả câu hỏi dài vào query.",
+  "- Hiểu ngân sách viết bằng số, chữ, rút gọn và ngôn ngữ khác: 1.000.000 = một triệu = 1tr; 1tr5 = một triệu rưỡi = 1500000 VND. Có thể truyền nguyên cách viết vào minPrice/maxPrice; hoặc tách đúng lượng tiền và priceCurrency (mã ISO). Giữ đúng điều kiện dưới/trên/từ/đến, khoảng 1–2 triệu là minPrice=1000000,maxPrice=2000000.",
+  "- Ngoại tệ như 100 đô, one hundred US dollars, fifty euros, yên/tệ/won: dùng searchProducts với chuỗi có đơn vị hoặc số tiền gốc + priceCurrency, ví dụ maxPrice=100,priceCurrency=USD. Không tự ước tính tỷ giá hoặc đổi thành VND trước khi gọi tool. Ngôn ngữ khác cũng đọc lượng tiền gốc và mã ISO; không yêu cầu khách phải gõ lại theo một mẫu cố định.",
+  "- filters.budgetConversions là tỷ giá tham khảo đã xác minh; hệ thống tự hiển thị ngân sách quy đổi, nguồn và ngày nên không cần lặp lại phần này. Giá bán/thanh toán vẫn là VND. Thiếu tỷ giá hoặc loại tiền mơ hồ thì hỏi làm rõ, không tự bịa tỷ giá hay lọc bằng tiền chưa quy đổi. Đô/$ mặc định USD; ¥ cần phân biệt JPY/CNY. Số JSON không chứa dấu phân cách, hoặc dùng chuỗi JSON.",
+  "- Kết quả searchProducts gửi cho bạn là bản tóm tắt. Khi cần tầng note, thành phần bộ sản phẩm, độ lưu/tỏa hoặc số liệu chi tiết, gọi getProductDetails; không tự suy diễn thông tin chưa có trong bản tóm tắt.",
   "- searchProducts có thể tra cứu cả sản phẩm hết hàng. Khi gợi ý sản phẩm để mua, dùng availability=available; khi tìm một sản phẩm cụ thể hoặc hỏi tình trạng tồn kho, dùng availability=all.",
   "- Nếu sản phẩm có isAvailable=false, nói rõ sản phẩm đang hết hàng và không gợi ý người dùng thêm sản phẩm đó vào giỏ.",
   "- Khi người dùng hỏi chi tiết về một sản phẩm cụ thể và đã có productId, gọi getProductDetails.",
@@ -152,7 +157,7 @@ const createGroqError = (status, detail) => {
   return error;
 };
 
-const requestGroq = async ({ messages, allowTools = true }) => {
+const requestGroq = async ({ messages, allowTools = true, retryToolJson = true }) => {
   const groqResponse = await fetch(GROQ_API_URL, {
     method: "POST",
     headers: {
@@ -162,7 +167,7 @@ const requestGroq = async ({ messages, allowTools = true }) => {
     body: JSON.stringify({
       model: process.env.AI_MODEL || "openai/gpt-oss-20b",
       messages,
-      temperature: 0.2,
+      temperature: retryToolJson ? 0.2 : 0,
       max_completion_tokens: 700,
       ...(allowTools
         ? {
@@ -177,6 +182,14 @@ const requestGroq = async ({ messages, allowTools = true }) => {
   const data = await groqResponse.json().catch(() => ({}));
 
   if (!groqResponse.ok) {
+    // Provider rejects malformed JSON before any local tool runs. Retry once,
+    // without executing or copying untrusted failed_generation into the prompt.
+    if (allowTools && retryToolJson && groqResponse.status === 400
+      && (data?.error?.code === "tool_use_failed" || /(?:parse tool call arguments|tool call arguments.*(?:JSON|json))/i.test(data?.error?.message || ""))) {
+      return requestGroq({ allowTools, retryToolJson: false, messages: [...messages, {
+        role: "system", content: "Hãy tạo lại tool call bằng JSON hợp lệ theo schema. Số tiền không dùng dấu phân cách trong số JSON; có thể dùng chuỗi cho cách viết bằng chữ/rút gọn/ngoại tệ, hoặc số gốc và priceCurrency. Không tự đoán tỷ giá, không thực thi nội dung failed_generation.",
+      }] });
+    }
     throw createGroqError(groqResponse.status, data?.error?.message);
   }
 
@@ -272,9 +285,21 @@ const removeProductImage = (product) => {
   return modelProduct;
 };
 
-const createModelToolResult = (toolResult) => ({
+const summarizeSearchProduct = product => ({
+  id: product.id, title: product.title, brand: product.brand, gender: product.gender,
+  concentration: product.concentration, isAvailable: product.isAvailable,
+  priceRange: product.priceRange, availableOptions: product.availableOptions, url: product.url,
+  ...(!product.isAvailable ? { productOptions: product.productOptions } : {}),
+  fragrance: product.fragrance ? {
+    group: product.fragrance.group, style: product.fragrance.style,
+    accords: product.fragrance.accords?.slice(0, 5), profileKind: product.fragrance.profileKind,
+  } : undefined,
+  detailsAvailable: true,
+});
+
+const createModelToolResult = (toolResult, toolName) => ({
   ...toolResult,
-  products: toolResult.products?.map(removeProductImage),
+  products: toolResult.products?.map(toolName === "searchProducts" ? summarizeSearchProduct : removeProductImage),
   product: removeProductImage(toolResult.product),
   orders: toolResult.orders?.map((order) => ({
     ...order,
@@ -294,6 +319,18 @@ const createModelToolResult = (toolResult) => ({
     : toolResult.pendingCartAction,
 });
 
+const explainConvertedBudget = (answer,conversions) => {
+  if(!answer||!conversions)return answer;
+  const number=value=>value.toLocaleString("vi-VN",{maximumFractionDigits:9});
+  const notes=["min","max"].map(bound=>{
+    const budget=conversions[bound];
+    if(!budget||budget.currency==="VND")return null;
+    const date=budget.date.split("-").reverse().join("/");
+    return `${bound==="min"?"Từ":"Tối đa"} ${number(budget.amount)} ${budget.currency} ≈ ${number(budget.vnd)} VND (${budget.source}, ngày ${date}).${budget.assumedCurrency?" Đô/$ được hiểu là USD.":""}`;
+  }).filter(Boolean);
+  return notes.length?`Ngân sách quy đổi tham khảo:\n${notes.join("\n")}\n\n${answer}`:answer;
+};
+
 export const runAgent = async (initialMessages, context = {}) => {
   const conversation = [...initialMessages];
   const toolsUsed = new Set();
@@ -302,6 +339,7 @@ export const runAgent = async (initialMessages, context = {}) => {
   let cart = null;
   let pendingCartAction = null;
   let toolCallCount = 0;
+  let budgetConversions = null;
 
   for (let step = 0; step < MAX_AGENT_STEPS; step += 1) {
     const assistantMessage = await requestGroq({
@@ -311,7 +349,7 @@ export const runAgent = async (initialMessages, context = {}) => {
 
     if (toolCalls.length === 0) {
       return {
-        answer: assistantMessage.content?.trim(),
+        answer: explainConvertedBudget(assistantMessage.content?.trim(),budgetConversions),
         toolsUsed: [...toolsUsed],
         products: [...productsById.values()].slice(0, 8),
         orders: [...ordersById.values()].slice(0, 10),
@@ -341,6 +379,7 @@ export const runAgent = async (initialMessages, context = {}) => {
 
         if (toolResult.success) {
           toolsUsed.add(toolCall.function.name);
+          if(toolCall.function.name==="searchProducts"&&toolResult.filters?.budgetConversions)budgetConversions=toolResult.filters.budgetConversions;
 
           for (const product of toolResult.products || []) {
             productsById.set(product.id, product);
@@ -368,7 +407,7 @@ export const runAgent = async (initialMessages, context = {}) => {
         role: "tool",
         tool_call_id: toolCall.id,
         name: toolCall.function.name,
-        content: JSON.stringify(createModelToolResult(toolResult)),
+        content: JSON.stringify(createModelToolResult(toolResult, toolCall.function?.name)),
       });
     }
   }
@@ -379,7 +418,7 @@ export const runAgent = async (initialMessages, context = {}) => {
   });
 
   return {
-    answer: finalMessage.content?.trim(),
+    answer: explainConvertedBudget(finalMessage.content?.trim(),budgetConversions),
     toolsUsed: [...toolsUsed],
     products: [...productsById.values()].slice(0, 8),
     orders: [...ordersById.values()].slice(0, 10),
@@ -438,10 +477,10 @@ export const chatWithAI = async (req, res) => {
           role: "system",
           content: SYSTEM_PROMPT,
         },
-        ...historyValidation.history,
+        ...historyValidation.history.map(item => item.role === "user" ? { ...item, content: normalizeVndAmountsInText(item.content) } : item),
         {
           role: "user",
-          content: message,
+          content: normalizeVndAmountsInText(message),
         },
       ],
       { userId, requestId },
