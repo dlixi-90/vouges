@@ -1,8 +1,6 @@
 import User from "../models/User.js";
-import Order from "../models/Order.js";
 import UserAccessAudit from "../models/UserAccessAudit.js";
 import { customerProfile } from "../utils/customerProfile.js";
-import { placedOrderFilter } from "../utils/orderReporting.js";
 import { AccessError, changeUserRole, isRootAdmin, rootAdminEmails, userAccess, validUserId } from "../services/userAccess.js";
 
 const handle = operation => async (req, res, next) => {
@@ -44,18 +42,13 @@ export const listUsers = handle(async req => {
       .sort({ createdAt: -1, _id: -1 }).skip((page - 1) * pageSize).limit(pageSize).lean(),
     User.countDocuments(filter),
   ]);
-  const totals = users.length ? await Order.aggregate([
-    { $match: { userId: { $in: users.map(user => user._id) }, ...placedOrderFilter() } },
-    { $group: { _id: "$userId", orderCount: { $sum: 1 }, paidTotal: { $sum: { $cond: ["$isPaid", "$amount", 0] } } } },
-  ]) : [];
-  const byUser = new Map(totals.map(row => [row._id, row]));
   const canManageRoles = isRootAdmin(req.user);
   return { page, pageSize, total, totalPages: Math.max(1, Math.ceil(total / pageSize)), canManageRoles,
     users: users.map(user => {
       const access = userAccess(user);
       return { _id: user._id, ...customerProfile(user), ...access, createdAt: user.createdAt,
         canChangeRole: canManageRoles && !access.isRootAdmin && user._id !== req.user._id,
-        canEditProfile: access.role === "user", orderCount: byUser.get(user._id)?.orderCount || 0, paidTotal: byUser.get(user._id)?.paidTotal || 0 };
+        canEditProfile: access.role === "user" };
     }) };
 });
 export const setUserRole = handle(req => changeUserRole(req.user._id, req.params.id, req.body));

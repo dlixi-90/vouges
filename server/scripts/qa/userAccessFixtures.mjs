@@ -5,10 +5,10 @@ export const createUserAccessFixtures = () => {
     {_id:"qa-delegate",fullName:"Quản trị được cấp QA",email:"admin.qa@example.com",role:"owner",isRootAdmin:false},
     {_id:"qa-new-customer",fullName:"Khách mới QA",email:"new.customer@example.com",role:"user",isRootAdmin:false},
     ...Array.from({length:27},(_,i)=>({_id:`qa-account-${i}`,fullName:`Khách kiểm thử ${i+1}`,email:`customer${i+1}@example.com`,role:"user",isRootAdmin:false})),
-  ].map(row=>({...row,phone:"0912345678",birthday:"2000-01-01",completedAt:"2026-01-01",orderCount:0,paidTotal:0,accessVersion:0}));
-  const state={isRoot:true,currentRole:"owner",failNext:false,conflictNext:false},requests=[],entries=[],keys=new Map();
+  ].map(row=>({...row,phone:row._id==="qa-new-customer"?"":"0912345678",birthday:row._id==="qa-new-customer"?"":"2000-01-01",completedAt:row._id==="qa-new-customer"?null:"2026-01-01",accessVersion:0}));
+  const state={isRoot:true,currentRole:"owner",failNext:false,conflictNext:false},requests=[],profileRequests=[],entries=[],keys=new Map();
   const ok=body=>({statusCode:200,body:{success:true,...body}}),failure=(statusCode,message)=>({statusCode,body:{success:false,message}});
-  return {state,requests,entries,respond(request){
+  return {state,requests,profileRequests,entries,respond(request){
     const url=new URL(request.url),p=url.pathname;
     if(p==="/api/users/access")return ok({role:state.currentRole,isRootAdmin:state.isRoot});
     if(p==="/api/users/manage"&&request.method==="GET"){
@@ -32,7 +32,7 @@ export const createUserAccessFixtures = () => {
       target.role=body.role;target.accessVersion++;const result={user:{...target}};keys.set(body.requestId,result);return ok(result);
     }
     if(request.method==="PATCH"&&p.startsWith("/api/users/customers/")){
-      const target=rows.find(row=>row._id===p.split("/")[4]);Object.assign(target,JSON.parse(request.postData));return ok({customer:target});
+      const target=rows.find(row=>row._id===p.split("/")[4]);profileRequests.push({path:p,body:JSON.parse(request.postData)});Object.assign(target,JSON.parse(request.postData),{completedAt:new Date().toISOString()});return ok({customer:target});
     }
     return null;
   }};

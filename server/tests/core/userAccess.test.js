@@ -131,13 +131,14 @@ test("authorization recalculates effective access after a racing cache write ret
 function pageMock(t,rows){
   const calls={};const query={};for(const n of ["select","sort","skip","limit"])query[n]=v=>{calls[n]=v;return query;};query.lean=async()=>rows;
   t.mock.method(User,"find",filter=>{calls.filter=filter;return query;});t.mock.method(User,"countDocuments",async()=>rows.length);
-  t.mock.method(Order,"aggregate",async()=>[]);return calls;
+  t.mock.method(Order,"aggregate",()=>assert.fail("The user directory no longer loads order totals"));return calls;
 }
 test("user directory includes root, delegated admins and customers while hiding raw access data and private cart",async t=>{
   const rows=[root,{...customer,_id:"user_delegate",adminAccess:{enabled:true,version:3}},customer];const calls=pageMock(t,rows);
   const res=response();await listUsers({user:root,query:{}},res,error=>{throw error;});assert.equal(res.body.canManageRoles,true);assert.equal(res.body.users.length,3);
   assert.equal(res.body.users[0].isRootAdmin,true);assert.equal(res.body.users[0].canChangeRole,false);assert.equal(res.body.users[1].role,"owner");assert.equal(res.body.users[1].accessVersion,3);
   assert.equal(res.body.users[2].canChangeRole,true);assert.equal(res.body.users[2].cartData,undefined);assert.equal(res.body.users[1].adminAccess,undefined);assert.doesNotMatch(calls.select,/cartData/);
+  assert.equal(res.body.users[2].orderCount,undefined);assert.equal(res.body.users[2].paidTotal,undefined);
   const delegate=response();await listUsers({user:rows[1],query:{}},delegate,error=>{throw error;});assert.equal(delegate.body.canManageRoles,false);assert.ok(delegate.body.users.every(row=>!row.canChangeRole));
 });
 
