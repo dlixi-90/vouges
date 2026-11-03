@@ -40,4 +40,6 @@ Frontend: trong `client/`, chạy `npm run build:artifact -- --backend=https://v
 Kiểm tra bằng `vercel curl <deployment-url>/ --yes --scope ixi4` trước khi promote.
 Dùng `--archive=tgz` để giảm số lượt upload file trên Vercel Free.
 
-Dữ liệu vận hành nằm trong `server/data/`; dữ liệu nguồn và kiểm thử nằm trong `data/`.
+Dữ liệu vận hành nằm trong `server/data/`. Thư mục `data/` giữ các đầu vào kiểm thử, cấu hình đối chiếu, xác nhận quyền đăng lại nội dung và checkpoint xử lý/chuyển ảnh còn cần dùng. Các báo cáo giao diện, cache nhập liệu và backup của những đợt chỉnh sửa đã hoàn tất đã được dọn.
+
+`tools/deploy/` dùng để đóng gói backend; `tools/media/` phục vụ xử lý ảnh. Các module và bài kiểm thử trong `tools/apaniche/` vẫn được `npm run test:tools`, `npm run test:library` và công cụ kiểm tra giao diện sử dụng; các script thu thập/nhập dữ liệu một lần đã được loại bỏ.
