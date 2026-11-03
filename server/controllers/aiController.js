@@ -35,9 +35,11 @@ import { normalizeVndAmountsInText } from "../services/ai/vndAmount.js";
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const MAX_MESSAGE_LENGTH = 2000;
-const MAX_HISTORY_MESSAGES = 12;
+// Keep only the last three exchanges in the provider context. The UI still
+// retains the full conversation; this bound reduces repeated input tokens.
+const MAX_HISTORY_MESSAGES = 6;
 const MAX_HISTORY_ITEM_LENGTH = 4000;
-const MAX_HISTORY_TOTAL_LENGTH = 16000;
+const MAX_HISTORY_TOTAL_LENGTH = 8000;
 const MAX_AGENT_STEPS = 3;
 const MAX_TOOL_CALLS = 4;
 const ALLOWED_HISTORY_ROLES = new Set(["user", "assistant"]);
@@ -115,7 +117,10 @@ const validateHistory = (history) => {
   const normalizedHistory = [];
   let totalLength = 0;
 
-  for (const item of history.slice(-MAX_HISTORY_MESSAGES)) {
+  // Select newest messages first so older context is dropped when the budget
+  // is full, instead of rejecting a new user turn because earlier replies
+  // were long.
+  for (const item of history.slice(-MAX_HISTORY_MESSAGES).reverse()) {
     if (
       !item ||
       !ALLOWED_HISTORY_ROLES.has(item.role) ||
@@ -132,11 +137,8 @@ const validateHistory = (history) => {
       return { error: "Một tin nhắn trong lịch sử quá dài" };
     }
 
+    if (totalLength + content.length > MAX_HISTORY_TOTAL_LENGTH) continue;
     totalLength += content.length;
-
-    if (totalLength > MAX_HISTORY_TOTAL_LENGTH) {
-      return { error: "Lịch sử hội thoại quá dài" };
-    }
 
     normalizedHistory.push({
       role: item.role,
@@ -144,7 +146,7 @@ const validateHistory = (history) => {
     });
   }
 
-  return { history: normalizedHistory };
+  return { history: normalizedHistory.reverse() };
 };
 
 const createGroqError = (status, detail) => {
@@ -157,7 +159,24 @@ const createGroqError = (status, detail) => {
   return error;
 };
 
-const requestGroq = async ({ messages, allowTools = true, retryToolJson = true }) => {
+const getGroqFallbackModels = () => {
+  const configuredModels = process.env.AI_FALLBACK_MODELS
+    ?.split(",")
+    .map((model) => model.trim())
+    .filter(Boolean);
+
+  return [...new Set(configuredModels?.length
+    ? configuredModels
+    : ["openai/gpt-oss-120b", "qwen/qwen3.8-27b"])];
+};
+
+const requestGroq = async ({
+  messages,
+  allowTools = true,
+  retryToolJson = true,
+  model = process.env.AI_MODEL || "openai/gpt-oss-20b",
+  fallbackModels = getGroqFallbackModels().filter((candidate) => candidate !== model),
+}) => {
   const groqResponse = await fetch(GROQ_API_URL, {
     method: "POST",
     headers: {
@@ -165,10 +184,10 @@ const requestGroq = async ({ messages, allowTools = true, retryToolJson = true }
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: process.env.AI_MODEL || "openai/gpt-oss-20b",
+      model,
       messages,
       temperature: retryToolJson ? 0.2 : 0,
-      max_completion_tokens: 700,
+      max_completion_tokens: 500,
       ...(allowTools
         ? {
             tools: AI_TOOLS,
@@ -182,11 +201,25 @@ const requestGroq = async ({ messages, allowTools = true, retryToolJson = true }
   const data = await groqResponse.json().catch(() => ({}));
 
   if (!groqResponse.ok) {
+    // Groq free-tier limits are per model. Try configured free-tier models
+    // before surfacing a quota error; if the organization-wide limit is hit,
+    // these attempts will also fail and the normal 429 response is preserved.
+    if (groqResponse.status === 429 && fallbackModels.length > 0) {
+      const [nextModel, ...remainingModels] = fallbackModels;
+      return requestGroq({
+        messages,
+        allowTools,
+        retryToolJson,
+        model: nextModel,
+        fallbackModels: remainingModels,
+      });
+    }
+
     // Provider rejects malformed JSON before any local tool runs. Retry once,
     // without executing or copying untrusted failed_generation into the prompt.
     if (allowTools && retryToolJson && groqResponse.status === 400
       && (data?.error?.code === "tool_use_failed" || /(?:parse tool call arguments|tool call arguments.*(?:JSON|json))/i.test(data?.error?.message || ""))) {
-      return requestGroq({ allowTools, retryToolJson: false, messages: [...messages, {
+      return requestGroq({ allowTools, retryToolJson: false, model, fallbackModels, messages: [...messages, {
         role: "system", content: "Hãy tạo lại tool call bằng JSON hợp lệ theo schema. Số tiền không dùng dấu phân cách trong số JSON; có thể dùng chuỗi cho cách viết bằng chữ/rút gọn/ngoại tệ, hoặc số gốc và priceCurrency. Không tự đoán tỷ giá, không thực thi nội dung failed_generation.",
       }] });
     }

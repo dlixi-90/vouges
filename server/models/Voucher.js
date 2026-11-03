@@ -4,6 +4,9 @@ const voucherSchema = new mongoose.Schema({
   code: { type: String, required: true, unique: true },
   kind: { type: String, enum: ["general", "birthday", "loyalty"], default: "general" },
   userId: { type: String, ref: "User", default: null },
+  // Empty means a general voucher. Specific campaigns store immutable account IDs,
+  // so changing an email or phone number does not transfer eligibility.
+  allowedUserIds: { type: [String], default: [] },
   birthdayYear: { type: Number },
   type: { type: String, enum: ["percent", "fixed"], required: true },
   value: { type: Number, required: true, min: 0 },

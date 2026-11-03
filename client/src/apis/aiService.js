@@ -5,7 +5,9 @@ const aiClient = axios.create({
 });
 
 export const AI_MESSAGE_MAX_LENGTH = 2000;
-export const AI_HISTORY_MAX_MESSAGES = 12;
+// The server uses the same three-exchange context window to avoid resending
+// the entire transcript to the model on every message.
+export const AI_HISTORY_MAX_MESSAGES = 6;
 
 const normalizeHistory = (history) => {
   if (!Array.isArray(history)) return [];

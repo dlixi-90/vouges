@@ -4,6 +4,8 @@ import { catalogSnapshot, getStorefrontCatalog, parseBrowseQuery } from "../serv
 import { collectStorefrontFilters } from "../services/perfumeFilters.js";
 import { readStorefrontBrowse, readStorefrontRelated } from "../services/storefrontBrowse.js";
 
+const PUBLIC_CATALOG_CACHE = "public, max-age=5, s-maxage=10, stale-while-revalidate=30";
+const PUBLIC_FILTER_CACHE = "public, max-age=15, s-maxage=30, stale-while-revalidate=60";
 const action = handler => async (req, res) => {
   try {
     res.set("Cache-Control", "no-store");
@@ -15,14 +17,20 @@ const action = handler => async (req, res) => {
 };
 export const browseProducts = action(async (req, res) => {
   const options = parseBrowseQuery(req.query);
-  res.json(await readStorefrontBrowse(options));
+  const result = await readStorefrontBrowse(options);
+  res.set("Cache-Control", PUBLIC_CATALOG_CACHE);
+  res.json(result);
 });
 export const productFilters = action(async (_req, res) => {
-  res.json(await catalogSnapshot("filter-options", 10000, async () => ({ success: true, options: collectStorefrontFilters(await getStorefrontCatalog(true)) })));
+  const result = await catalogSnapshot("filter-options", 60000, async () => ({ success: true, options: collectStorefrontFilters(await getStorefrontCatalog(true)) }));
+  res.set("Cache-Control", PUBLIC_FILTER_CACHE);
+  res.json(result);
 });
 export const relatedProducts = action(async (req, res) => {
   if (!isObjectIdOrHexString(req.query.productId)) throw Object.assign(new Error("Mã sản phẩm không hợp lệ"), { statusCode: 400 });
-  res.json(await readStorefrontRelated(req.query.productId));
+  const result = await readStorefrontRelated(req.query.productId);
+  res.set("Cache-Control", PUBLIC_CATALOG_CACHE);
+  res.json(result);
 });
 export const batchProducts = action(async (req, res) => {
   const ids = typeof req.query.ids === "string" ? [...new Set(req.query.ids.split(","))] : [];

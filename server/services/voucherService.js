@@ -39,7 +39,9 @@ export const validateVoucher = async (code, userId, subtotal, session, now = new
     throw new VoucherError("mã giảm giá không hợp lệ.");
   const query = Voucher.findOne({ code: code.trim().toUpperCase(), active: true, deletedAt: null });
   const voucher = await (session ? query.session(session) : query);
-  if (!voucher || (voucher.userId && voucher.userId !== userId))
+  if (!voucher || (voucher.userId && voucher.userId !== userId)
+    || (Array.isArray(voucher.allowedUserIds) && voucher.allowedUserIds.length
+      && !voucher.allowedUserIds.includes(userId)))
     throw new VoucherError("Mã giảm giá không tồn tại hoặc không dành cho tài khoản này.");
   if (now < voucher.startsAt || now >= voucher.expiresAt)
     throw new VoucherError("Mã giảm giá chưa có hiệu lực hoặc đã hết hạn.");

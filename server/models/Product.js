@@ -34,6 +34,8 @@ const productSchema = new mongoose.Schema(
   { timestamps: true },
 );
 productSchema.index({ "source.provider": 1, "source.id": 1 }, { unique: true, partialFilterExpression: { "source.provider": { $type: "string" }, "source.id": { $type: "number" } } });
+// Supports the stable newest-first sort used by public catalog pages.
+productSchema.index({ createdAt: -1, _id: -1 });
 
 const Product = mongoose.model("Product", productSchema);
 

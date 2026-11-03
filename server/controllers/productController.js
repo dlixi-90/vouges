@@ -9,7 +9,7 @@ import { unlink } from "node:fs/promises";
 import { getPopularProducts } from "../services/popularProducts.js";
 import { planProductImages, productImageFiles, resolveSizeImages } from "../utils/productImages.js";
 import { sanitizeArticle, articleToPlainText } from "../../client/src/utils/productArticle.js";
-import { invalidateStorefrontCatalog } from "../services/storefrontCatalog.js";
+import { catalogSnapshot, invalidateStorefrontCatalog } from "../services/storefrontCatalog.js";
 import { sanitizeNewProductFragrance } from "../services/fragranceEditing.js";
 import {
   getSizeQuantity,
@@ -225,8 +225,8 @@ export const listProduct = async (req, res) => {
 
 export const listPopularProducts = async (_req, res) => {
   try {
-    const products = await getPopularProducts();
-    res.set("Cache-Control", "no-store");
+    const products = await catalogSnapshot("popular-products", 30000, getPopularProducts);
+    res.set("Cache-Control", "public, max-age=10, s-maxage=30, stale-while-revalidate=60");
     return res.json({ success: true, products });
   } catch (error) {
     console.error(error);
@@ -262,6 +262,7 @@ export const singleProduct = async (req, res) => {
       });
     }
 
+    res.set("Cache-Control", "public, max-age=5, s-maxage=10, stale-while-revalidate=30");
     return res.json({ success: true, product });
   } catch (error) {
     console.log(error.message);

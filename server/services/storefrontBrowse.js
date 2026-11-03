@@ -22,7 +22,9 @@ const maxAvailablePrice = { $reduce: { input: availableSizesExpression, initialV
   $max: ["$$value", { $let: { vars: { size: "$$this" }, in: { $convert: { input: sizeValue("price"), to: "double", onError: 0, onNull: 0 } } } }],
 } } };
 
-const metadata = () => catalogSnapshot("browse-metadata", 10000, async () => {
+// Global filters rarely change; keep the aggregate reusable between page/search
+// requests instead of rescanning inventory on each short-lived page cache.
+const metadata = () => catalogSnapshot("browse-metadata", 60000, async () => {
   const [result = {}] = await Product.aggregate([{ $match: visible }, { $facet: {
     types: [{ $group: { _id: { brand: "$brand", category: "$category", type: "$type" } } }],
     categories: [{ $group: { _id: "$category" } }],

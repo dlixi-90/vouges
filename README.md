@@ -270,7 +270,7 @@ Thiết lập `server/.env` với các nhóm biến:
 | Quản trị gốc | `ADMIN_EMAILS` — email phân cách dấu phẩy; hỗ trợ `ADMIN_EMAIL` cũ |
 | Cloudinary | `CLDN_NAME`, `CLDN_API_KEY`, `CLDN_API_SECRET` |
 | SePay | `SEPAY_BANK_CODE`, `SEPAY_ACCOUNT_NUMBER`, `SEPAY_ACCOUNT_NAME`, `SEPAY_WEBHOOK_API_KEY` |
-| AI | `GROQ_API_KEY`, `AI_MODEL`, `AI_RATE_LIMIT_PER_MINUTE`, `AI_RATE_LIMIT_PER_DAY` |
+| AI | `GROQ_API_KEY`, `AI_MODEL`, `AI_FALLBACK_MODELS`, `AI_RATE_LIMIT_PER_MINUTE`, `AI_RATE_LIMIT_PER_DAY` |
 | SMTP | `SMTP_USER`, `SMTP_PASS`, `SMTP_SENDER_EMAIL` |
 | Tác vụ định kỳ | `CRON_SECRET` |
 
@@ -284,7 +284,7 @@ Thiết lập `server/.env` với các nhóm biến:
 | **Clerk** | Frontend/backend cùng ứng dụng; webhook `/api/clerk` và signing secret phù hợp |
 | **Cloudinary** | Cloud name, API key và secret của tài khoản dùng cho dự án |
 | **SePay** | Tài khoản nhận tiền và webhook `/api/orders/sepay-webhook` với API key đúng |
-| **Groq** | API key và model được hỗ trợ; model lấy từ `AI_MODEL` |
+| **Groq** | API key và model được hỗ trợ; model chính lấy từ `AI_MODEL`. Khi Groq trả 429, chatbot thử các model trong `AI_FALLBACK_MODELS` (phân cách bằng dấu phẩy); mặc định là `openai/gpt-oss-120b,qwen/qwen3.8-27b`. Fallback chỉ giúp nếu model khác còn quota; giới hạn toàn tổ chức vẫn cần chờ reset. |
 | **SMTP** | Thông tin đăng nhập relay, địa chỉ gửi được phép sử dụng |
 
 Webhook từ dịch vụ ngoài cần URL HTTPS truy cập được; localhost riêng không tự nhận webhook từ Internet.

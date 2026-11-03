@@ -16,6 +16,11 @@ export const listMyVouchers = async (req, res, next) => {
     const vouchers = await Voucher.find({ active: true, deletedAt: null,
       _id: { $nin: uses.map((use) => use.voucherId) },
       $or: [{ userId: req.user._id }, { userId: null }],
+      $and: [{ $or: [
+        { allowedUserIds: { $exists: false } },
+        { allowedUserIds: { $size: 0 } },
+        { allowedUserIds: req.user._id },
+      ] }],
       startsAt: { $lte: now }, expiresAt: { $gt: now },
       $expr: { $lt: ["$usedCount", "$maxUses"] },
     }).select("code kind type value maxDiscount minSubtotal expiresAt").sort({ expiresAt: 1 }).limit(100).lean();
@@ -34,9 +39,33 @@ export const listVouchers = async (_req, res, next) => {
   } catch (error) { next(error); }
 };
 
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+export const searchVoucherCustomers = async (req, res, next) => {
+  res.set("Cache-Control", "private, no-store");
+  const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
+  if (q.length < 3 || q.length > 120 || (req.query.q != null && typeof req.query.q !== "string"))
+    return res.status(400).json({ success: false, message: "Nhập ít nhất 3 ký tự email hoặc số điện thoại." });
+  try {
+    const digitVariants = new Set([q.replace(/\D/g, "")]);
+    for (const digits of [...digitVariants]) {
+      if (digits.startsWith("0")) digitVariants.add(digits.slice(1));
+      if (digits.startsWith("84")) digitVariants.add(digits.slice(2));
+    }
+    const phonePatterns = [...digitVariants]
+      .filter((digits) => digits.length >= 3)
+      .map((digits) => new RegExp(digits.split("").map(escapeRegex).join("[\\s()+.-]*")));
+    const users = await User.find({ role: { $ne: "owner" }, $or: [
+      { email: { $regex: escapeRegex(q), $options: "i" } },
+      ...phonePatterns.map((pattern) => ({ phone: pattern })),
+    ] }).select("username email phone").sort({ username: 1, _id: 1 }).limit(10).lean();
+    return res.json({ success: true, customers: users.map(({ _id, username, email, phone }) => ({ _id, name: username, email, phone })) });
+  } catch (error) { next(error); }
+};
+
 export const createVoucher = async (req, res, next) => {
   try {
     const { code, type, value, minSubtotal = 0, maxDiscount = null, maxUses, startsAt, expiresAt } = req.body;
+    const allowedUserIds = req.body.allowedUserIds ?? [];
     const start = new Date(startsAt);
     const end = new Date(expiresAt);
     if (typeof code !== "string" || !/^[A-Z0-9-]{3,40}$/i.test(code.trim()) || code.toUpperCase().startsWith("BDAY-")
@@ -46,10 +75,19 @@ export const createVoucher = async (req, res, next) => {
       || (maxDiscount !== null && (!Number.isSafeInteger(maxDiscount) || maxDiscount <= 0))
       || (type === "fixed" && !Number.isSafeInteger(value))
       || !Number.isSafeInteger(maxUses) || maxUses < 1
+      || !Array.isArray(allowedUserIds) || allowedUserIds.length > 100
+      || allowedUserIds.some((id) => typeof id !== "string" || !/^[a-zA-Z0-9_-]{1,150}$/.test(id))
+      || new Set(allowedUserIds).size !== allowedUserIds.length
       || !Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end <= start || end <= new Date())
       return res.status(400).json({ success: false, message: "Thông tin mã giảm giá không hợp lệ." });
+    if (allowedUserIds.length) {
+      const eligibleUsers = await User.find({ _id: { $in: allowedUserIds }, role: { $ne: "owner" } })
+        .select("_id").lean();
+      if (eligibleUsers.length !== allowedUserIds.length)
+        return res.status(400).json({ success: false, message: "Danh sách khách hàng có tài khoản không hợp lệ." });
+    }
     const voucher = await Voucher.create({ code: code.trim().toUpperCase(), type, value,
-      minSubtotal, maxDiscount, maxUses, startsAt: start, expiresAt: end });
+      minSubtotal, maxDiscount, maxUses, startsAt: start, expiresAt: end, allowedUserIds });
     res.status(201).json({ success: true, voucher });
   } catch (error) {
     if (error.code === 11000) return res.status(409).json({ success: false, message: "mã giảm giá đã tồn tại." });
