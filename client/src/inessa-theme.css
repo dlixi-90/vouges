@@ -42,7 +42,7 @@
 .inessa-rule { display: block; width: 48px; height: 1px; margin: 26px auto; background: currentColor; }
 
 /* Balanced navigation keeps the brand centred independently of menu widths. */
-.net-header { position: relative; padding-block: 15px; border-bottom: 1px solid #eee; }
+.net-header { position: static; padding-block: 15px; border-bottom: 1px solid #eee; }
 .net-header > .inessa-header-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; min-height: 66px; max-width: none; padding-inline: clamp(20px, 2.2vw, 40px); gap: 24px; }
 .inessa-navigation-left { grid-column: 1; grid-row: 1; display: flex; align-items: center; min-width: 0; }
 .inessa-brand { grid-column: 2; grid-row: 1; justify-self: center; flex-shrink: 0; }
