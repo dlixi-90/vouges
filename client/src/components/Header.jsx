@@ -69,7 +69,7 @@ const Header = () => {
   }, [hasOpenedAIChat, isAIChatOpen]);
   return (
     <>
-      <header className="net-header z-50 bg-white py-3">
+      <header className="net-header absolute top-0 left-0 right-0 z-50 bg-white py-3">
         <div className="max-padd-container inessa-header-grid">
           <div className="inessa-navigation-left">
             <button type="button" onClick={toggleMenu} aria-label={menuOpened ? "Đóng menu" : "Mở menu"}

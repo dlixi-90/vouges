@@ -36,7 +36,7 @@ const App = () => {
   const { isCartOpen } = useAppContext();
   const isOwnerPath = location.pathname.includes("owner");
   return (
-    <main className={`net-theme ${isOwnerPath ? "net-admin overflow-hidden" : "net-storefront overflow-x-clip"} text-tertiary`}>
+    <main className={`net-theme ${isOwnerPath ? "net-admin" : "net-storefront"} overflow-hidden text-tertiary`}>
       {!isOwnerPath && <Header />}
       {isCartOpen && <Suspense fallback={null}><CartDrawer /></Suspense>}
       <Toaster position="bottom-right" />
