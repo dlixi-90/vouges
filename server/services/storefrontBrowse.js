@@ -52,7 +52,7 @@ const basicFacetFilters = facets => {
 };
 
 export const readStorefrontBrowse = async options => {
-  return catalogSnapshot(`browse-page:v2:${JSON.stringify(options)}`, 60000, async () => {
+  return catalogSnapshot(`browse-page:${JSON.stringify(options)}`, 60000, async () => {
     if (!canPageBrowseDirectly(options)) return browseCatalog(await getStorefrontCatalog(needsFragranceProfiles(options.facets)), options);
     const metaRequest = metadata();
     const availableTypesFor = meta => [...new Set(meta.types.filter(row => (!options.brand || filterKey(row.brand) === options.brand)

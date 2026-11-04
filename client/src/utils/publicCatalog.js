@@ -30,9 +30,9 @@ export const createPublicCatalog = ({ axios, cache = createResourceCache({ maxAg
       const { slug, name, ...query } = params;
       return read(`/api/library/${encodeURIComponent(kind)}${slug ? `/${encodeURIComponent(slug)}` : name ? "/entry" : ""}`, { ...query, ...(name ? { name } : {}) }, signal);
     }, options),
-    browseKey: params => `browse:v2:${key(normalizeBrowseParams(params))}`,
-    peekBrowse: params => cache.peek(`browse:v2:${key(normalizeBrowseParams(params))}`),
-    browse: (params = {}, options) => cache.load(`browse:v2:${key(normalizeBrowseParams(params))}`, signal => read("/api/products/browse", { ...normalizeBrowseParams(params), catalogRevision: 2 }, signal), options),
+    browseKey: params => `browse:${key(normalizeBrowseParams(params))}`,
+    peekBrowse: params => cache.peek(`browse:${key(normalizeBrowseParams(params))}`),
+    browse: (params = {}, options) => cache.load(`browse:${key(normalizeBrowseParams(params))}`, signal => read("/api/products/browse", normalizeBrowseParams(params), signal), options),
     peekDetail: id => cache.peek(`detail:${id}`),
     detail: (id, options) => cache.load(`detail:${id}`, signal => read("/api/products/single", { productId: id }, signal), options),
     related: id => cache.load(`related:${id}`, signal => read("/api/products/related", { productId: id }, signal)),
