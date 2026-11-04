@@ -39,7 +39,7 @@ const Collection = () => {
   const criteriaKey = JSON.stringify({ q: searchQuery, facets: JSON.stringify(filters), minPrice, ...(maxPrice !== null ? { maxPrice } : {}) });
   const [settledCriteria, setSettledCriteria] = useState(criteriaKey);
   useEffect(() => {
-    const timer = window.setTimeout(() => setSettledCriteria(criteriaKey), 180);
+    const timer = window.setTimeout(() => setSettledCriteria(criteriaKey), 100);
     return () => window.clearTimeout(timer);
   }, [criteriaKey]);
   const criteria = JSON.parse(settledCriteria);
