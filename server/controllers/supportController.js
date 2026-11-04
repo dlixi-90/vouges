@@ -73,9 +73,13 @@ const inboxReads = new Map();
 const readInbox = ({ filter, page, cacheKey }) => {
   const existing=inboxReads.get(cacheKey);
   if(existing)return existing;
+  const totalQuery=Conversation.countDocuments(filter);
+  // An empty exact count otherwise scans conversation documents, including
+  // their potentially large AI context. The built-in _id index is always present.
+  if(!Object.keys(filter).length)totalQuery.hint({_id:1});
   const pending=Promise.all([
     Conversation.find(filter).select("customerName customerEmail status sequence unreadStaff unreadCustomer lastMessage lastMessageAt createdAt updatedAt").sort({ lastMessageAt: -1, _id: -1 }).skip((page - 1) * 30).limit(30).lean(),
-    Conversation.countDocuments(filter), Conversation.countDocuments({ unreadStaff: { $gt: 0 } }),
+    totalQuery, Conversation.countDocuments({ unreadStaff: { $gt: 0 } }),
   ]).then(([items,total,unread])=>({conversations:items.map(item=>conversationView(item,false)),total,unread,page}));
   inboxReads.set(cacheKey,pending);
   return pending.finally(()=>{if(inboxReads.get(cacheKey)===pending)inboxReads.delete(cacheKey);});

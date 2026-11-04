@@ -104,11 +104,28 @@ function CampaignForm({campaign,tiers,rewards,formId,onSave}){
 }
 
 function Members({tiers,busy,mutate,error}){
-  const [q,setQ]=useState(""),[page,setPage]=useState(1),[selected,setSelected]=useState(null),query=useLoyaltyResource(`/admin/members?${new URLSearchParams({q,page})}`);
+  const {axios,getToken}=useAppContext();
+  const [q,setQ]=useState(""),[page,setPage]=useState(1),[selected,setSelected]=useState(null),[synced,setSynced]=useState({}),[syncFailed,setSyncFailed]=useState({}),query=useLoyaltyResource(`/admin/members?${new URLSearchParams({q,page})}`);
+  const pendingIds=(query.data?.members||[]).filter(member=>member.syncPending&&!synced[member._id]).map(member=>member._id),pendingKey=pendingIds.join(",");
+  useEffect(()=>{
+    if(!pendingKey)return undefined;
+    let active=true;
+    void (async()=>{
+      try{
+        const {data}=await axios.post("/api/loyalty/admin/members/sync",{userIds:pendingKey.split(",")},{headers:{Authorization:`Bearer ${await getToken()}`}});
+        if(!data.success)throw Error(data.message||"Không thể đồng bộ thành viên.");
+        if(!active)return;
+        setSynced(previous=>({...previous,...Object.fromEntries(data.members.map(member=>[member._id,member.membership]))}));
+        query.reload();
+      }catch{if(active)setSyncFailed(previous=>({...previous,...Object.fromEntries(pendingKey.split(",").map(id=>[id,true]))}));}
+    })();
+    return()=>{active=false;};
+  },[pendingKey,axios,getToken,query.reload]);
+  const members=(query.data?.members||[]).map(member=>({...member,membership:synced[member._id]||member.membership,syncPending:member.syncPending&&!synced[member._id],syncFailed:Boolean(syncFailed[member._id])}));
   return <OperationsPanel title="Thành viên" description="Tra cứu hạng, doanh số và điểm; quản lý các điều chỉnh có nhật ký." actions={<Badge>{query.data?.total??"—"} thành viên</Badge>}>
     <div className="admin-operation-toolbar"><label className="perfume-search"><Search size={16} aria-hidden="true"/><input type="search" aria-label="Tìm thành viên" placeholder="Tên, điện thoại, mã tài khoản…" value={q} onChange={event=>{setQ(event.target.value);setPage(1);}}/></label></div>
     <CatalogState {...query}/>{!selected&&<FormError error={error}/>}
-    {query.data?.members.length?<div className="perfume-table-scroll"><table className="perfume-table"><caption className="sr-only">Hạng thành viên, doanh số và điểm thưởng của khách hàng</caption><thead><tr>{["Khách hàng","Hạng","Doanh số 12 tháng","Điểm","Hết hạn hạng","Thao tác"].map(label=><th scope="col" key={label}>{label}</th>)}</tr></thead><tbody>{query.data.members.map(member=><tr key={member._id}><td><strong>{member.name}</strong><small>{member.phone}</small><small className="loyalty-admin-id">{member._id}</small></td><td><Badge>{member.membership.tier.name}</Badge></td><td className="admin-operation-nowrap">{formatVnd(member.membership.salesVnd)}</td><td className="admin-operation-nowrap">{member.membership.points.available.toLocaleString("vi-VN")}{member.membership.points.debt?<small>Nợ {member.membership.points.debt.toLocaleString("vi-VN")} điểm</small>:null}</td><td className="admin-operation-nowrap">{date(member.membership.expiresAt)}</td><td><button type="button" className="perfume-button" disabled={busy} onClick={()=>setSelected(member)}>Quản lý</button></td></tr>)}</tbody></table></div>:!query.loading&&!query.error&&<OperationsEmptyState icon={Users} title={q?"Không tìm thấy thành viên phù hợp":"Chưa có thành viên"} description={q?"Thử tìm bằng tên, số điện thoại hoặc mã tài khoản khác.":"Khách hàng mới sẽ xuất hiện sau khi tạo tài khoản."}/>}
+    {members.length?<div className="perfume-table-scroll"><table className="perfume-table"><caption className="sr-only">Hạng thành viên, doanh số và điểm thưởng của khách hàng</caption><thead><tr>{["Khách hàng","Hạng","Doanh số 12 tháng","Điểm","Hết hạn hạng","Thao tác"].map(label=><th scope="col" key={label}>{label}</th>)}</tr></thead><tbody>{members.map(member=><tr key={member._id}><td><strong>{member.name}</strong><small>{member.phone}</small><small className="loyalty-admin-id">{member._id}</small></td><td>{member.syncPending?<Badge tone="amber">{member.syncFailed?"Chưa đồng bộ":"Đang đồng bộ"}</Badge>:<Badge>{member.membership.tier.name}</Badge>}</td><td className="admin-operation-nowrap">{member.syncPending?"—":formatVnd(member.membership.salesVnd)}</td><td className="admin-operation-nowrap">{member.syncPending?"—":<>{member.membership.points.available.toLocaleString("vi-VN")}{member.membership.points.debt?<small>Nợ {member.membership.points.debt.toLocaleString("vi-VN")} điểm</small>:null}</>}</td><td className="admin-operation-nowrap">{member.syncPending?"—":date(member.membership.expiresAt)}</td><td><button type="button" className="perfume-button" disabled={busy} onClick={()=>setSelected(member)}>Quản lý</button></td></tr>)}</tbody></table></div>:!query.loading&&!query.error&&<OperationsEmptyState icon={Users} title={q?"Không tìm thấy thành viên phù hợp":"Chưa có thành viên"} description={q?"Thử tìm bằng tên, số điện thoại hoặc mã tài khoản khác.":"Khách hàng mới sẽ xuất hiện sau khi tạo tài khoản."}/>}
     <ListPager page={page} total={query.data?.total} pageSize={20} onPage={setPage}/>
     {selected&&<MemberTools key={selected._id} member={selected} tiers={tiers} busy={busy} error={error} onClose={()=>setSelected(null)} onSave={async(path,body)=>{if(await mutate("post",`/members/${encodeURIComponent(selected._id)}${path}`,body)){query.reload();setSelected(null);}}}/>}
   </OperationsPanel>;
@@ -116,7 +133,9 @@ function Members({tiers,busy,mutate,error}){
 function MemberTools({member,tiers,busy,onSave,onClose,error}){
   const formId=useId();
   const query=useLoyaltyResource(`/admin/members/${encodeURIComponent(member._id)}`),[mode,setMode]=useState("points"),[points,setPoints]=useState(0),[action,setAction]=useState("extend"),[months,setMonths]=useState(12),[tierId,setTierId]=useState(member.membership.tier.id),[reason,setReason]=useState(""),[requestId]=useState(()=>crypto.randomUUID());
-  return <OperationsDrawer title={member.name} description={`${member.membership.tier.name} · ${member.membership.points.available.toLocaleString("vi-VN")} điểm khả dụng`} busy={busy} onClose={onClose} footer={mode==="history"?<button type="button" className="perfume-button" onClick={onClose}>Đóng</button>:<FormActions busy={busy} onCancel={onClose} formId={formId}/>}>
+  useEffect(()=>{if(query.data?.membership?.tier?.id)setTierId(query.data.membership.tier.id);},[query.data]);
+  const current=query.data?.membership||member.membership;
+  return <OperationsDrawer title={member.name} description={`${current.tier.name} · ${current.points.available.toLocaleString("vi-VN")} điểm khả dụng`} busy={busy} onClose={onClose} footer={mode==="history"?<button type="button" className="perfume-button" onClick={onClose}>Đóng</button>:<FormActions busy={busy} onCancel={onClose} formId={formId}/>}>
     <nav className="loyalty-admin-tabs" aria-label="Thao tác với thành viên">{[["points","Điều chỉnh điểm"],["tier","Gia hạn / điều chỉnh hạng"],["history","Lịch sử"]].map(([id,label])=><button key={id} type="button" disabled={busy} aria-current={mode===id?"page":undefined} onClick={()=>setMode(id)}>{label}</button>)}</nav>
     <CatalogState {...query}/><FormError error={error}/>
     {mode==="history"?<div className="loyalty-admin-history"><h3>Lịch sử điểm</h3>{query.data?.ledger.length?query.data.ledger.map(row=><article className="loyalty-admin-history-entry" key={row._id}><strong>{row.delta>0?"+":""}{row.delta.toLocaleString("vi-VN")} điểm</strong><p>{row.reason||row.source}</p><small>{date(row.at)} · {row.kind}</small></article>):!query.loading&&<p>Chưa có giao dịch điểm.</p>}<h3>Lịch sử hạng</h3>{query.data?.history.length?query.data.history.map(row=><article className="loyalty-admin-history-entry" key={row._id}><strong>{row.from||"—"} → {row.to}</strong><p>{row.reason}</p><small>{date(row.at)} · {row.kind}</small></article>):!query.loading&&<p>Chưa có thay đổi hạng.</p>}</div>:<form id={formId} className="loyalty-admin-form" onSubmit={event=>{event.preventDefault();void onSave(mode==="points"?"/points":"/tier",mode==="points"?{points,reason,requestId}:{action,months,tierId,reason,requestId});}}>

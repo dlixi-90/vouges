@@ -44,14 +44,14 @@ export const findConversation = async (id, user, session) => {
 };
 export const readMessages = async (conversationId, before) => {
   const messages = await Message.find({ conversationId, ...(before ? { sequence: { $lt: before } } : {}) })
-    .sort({ sequence: -1 }).limit(50).lean();
+    .select("sequence role authorName content clientMessageId createdAt").sort({ sequence: -1 }).limit(50).lean();
   return messages.reverse().map(messageView);
 };
 export const conversationSnapshot = async (conversation) => {
   // Bound the message read to the metadata revision so a concurrent send is
   // picked up with its matching unread counts on the next stream update.
   const messages = await Message.find({ conversationId: conversation._id, sequence: { $lte: conversation.sequence } })
-    .sort({ sequence: -1 }).limit(50).lean();
+    .select("sequence role authorName content clientMessageId createdAt").sort({ sequence: -1 }).limit(50).lean();
   return { conversation: conversationView(conversation), messages: messages.reverse().map(messageView) };
 };
 export const supportSnapshot = async (id, user) => conversationSnapshot(await findConversation(id, user));

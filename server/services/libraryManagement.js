@@ -1,6 +1,6 @@
 import Product from '../models/Product.js';
 import {sanitizeArticle,articleToPlainText,isArticleUrl,LIBRARY_ARTICLE_LIMITS} from '../../client/src/utils/productArticle.js';
-import {normalizeLibraryName,libraryNameKey,activeLibraryProducts,libraryProductRelation,renamedLibraryFields} from './libraryRelations.js';
+import {normalizeLibraryName,libraryNameKey,libraryNamePattern,activeLibraryProducts,libraryProductRelation,renamedLibraryFields} from './libraryRelations.js';
 export const rejectLibrary=(message,statusCode=400)=>{throw Object.assign(new Error(message),{statusCode});};
 export const validLibraryKind=kind=>['brand','group','accord','note'].includes(kind);
 export function readLibraryInput(body,kind,current){
@@ -32,10 +32,13 @@ export async function renameLibraryProducts(term,name,session){
 }
 export async function liveLibraryCounts(terms){
  if(!terms.length)return [];
+ const brandsOnly=terms.every(term=>term.kind==='brand');
  const [result]=await Product.aggregate([
   {$match:{isDeleted:{$ne:true},$or:terms.map(libraryProductRelation)}},
-  {$project:{brand:1,fragrance:1}},
-  {$facet:Object.fromEntries(terms.map((term,index)=>[`term${index}`,[{$match:libraryProductRelation(term)},{$count:'count'}]]))},
+  brandsOnly?{$group:{_id:'$brand',count:{$sum:1}}}:{$project:{brand:1,fragrance:1}},
+  {$facet:Object.fromEntries(terms.map((term,index)=>[`term${index}`,brandsOnly?[
+   {$match:{_id:libraryNamePattern(term.name)}},{$group:{_id:null,count:{$sum:'$count'}}},{$project:{_id:0,count:1}},
+  ]:[{$match:libraryProductRelation(term)},{$count:'count'}]]))},
  ]);
  return terms.map((term,index)=>({...term,productCount:result?.[`term${index}`]?.[0]?.count||0}));
 }

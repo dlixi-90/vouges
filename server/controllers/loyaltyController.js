@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import User from "../models/User.js";
 import Order from "../models/Order.js";
 import {LoyaltyAccount,LoyaltyReward,LoyaltyRedemption,LoyaltyCampaign,LoyaltyClaim,LoyaltyLedger,LoyaltyTierHistory,LoyaltyNotification,LoyaltyAudit,LoyaltyJob} from "../models/Loyalty.js";
-import {getPolicy,savePolicy,withMember,memberSummary,adjustPoints,adjustTier,recordRefund,notify,reconcileUser} from "../services/loyalty/engine.js";
+import {getPolicy,savePolicy,withMember,memberSummary,memberListSummaries,adjustPoints,adjustTier,recordRefund,notify,reconcileUser} from "../services/loyalty/engine.js";
 import {saveReward,saveCampaign,redeem,updateRedemption,claimCampaign,campaignEligibility,publicReward,publicRedemption,campaignOrderOptions} from "../services/loyalty/rewards.js";
 import {birthdayWindow} from "../utils/membership.js";
 import {integer,LoyaltyError,eligibleAmount,text} from "../services/loyalty/policy.js";
@@ -28,7 +28,7 @@ export const myLoyalty=handler(req=>withMember(req.user._id,req.user._id,async c
   const history=await LoyaltyTierHistory.find({userId:context.userId}).sort({at:-1}).limit(30).session(context.session).lean();
   const claims=memberClaims.slice(0,30);
   return {membership:summary,rewards:rewards.map(publicReward),campaigns:offers,redemptions:redemptions.map(publicRedemption),notifications,tierHistory:history,claims};
-}));
+},{includeOrderHistory:true}));
 export const myLedger=handler(async req=>{const page=pageOf(req),filter={userId:req.user._id};return {page,entries:await LoyaltyLedger.find(filter).sort({at:-1,_id:-1}).skip((page-1)*30).limit(30).lean(),total:await LoyaltyLedger.countDocuments(filter)};});
 export const redeemReward=handler(async req=>({redemption:await redeem(req.user._id,req.body)}));
 export const claimPrivilege=handler(async req=>({claim:await claimCampaign(req.user._id,req.body)}));
@@ -56,14 +56,17 @@ export const adminMembers=handler(async req=>{
   const page=pageOf(req),q=typeof req.query.q==="string"?req.query.q.trim():"";if(q.length>120)throw new LoyaltyError("Từ khóa quá dài.");const filter={role:{$ne:"owner"}};
   if(q){const regex={$regex:q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),$options:"i"};filter.$or=["_id","username","customerProfile.fullName","phone","email"].map(field=>({[field]:regex}));}
   const [users,total]=await Promise.all([
-    User.find(filter).select("username customerProfile.fullName phone email birthday").sort({_id:1}).skip((page-1)*20).limit(20).lean(),
+    User.find(filter).select("username customerProfile.fullName phone email createdAt").sort({_id:1}).skip((page-1)*20).limit(20).lean(),
     User.countDocuments(filter),
   ]);
-  const members=await mapLimit(users,4,async user=>({
-    _id:user._id,name:user.customerProfile?.fullName||user.username,phone:user.phone,email:user.email,
-    membership:await reconcileUser(user._id),
-  }));
+  const members=await memberListSummaries(users);
   return {members,page,total};
+});
+export const adminSyncMembers=handler(async req=>{
+  const requested=req.body?.userIds;if(!Array.isArray(requested)||!requested.length||requested.length>20||requested.some(id=>typeof id!=="string"||id.length>150))throw new LoyaltyError("Danh sách thành viên cần đồng bộ không hợp lệ.");
+  const userIds=[...new Set(requested)],users=await User.find({_id:{$in:userIds},role:{$ne:"owner"}}).select("_id").lean();
+  const members=await mapLimit(users,6,async user=>({_id:user._id,membership:await reconcileUser(user._id)}));
+  return {members};
 });
 export const adminMember=handler(async req=>({membership:await reconcileUser(req.params.id),ledger:await LoyaltyLedger.find({userId:req.params.id}).sort({at:-1}).limit(100).lean(),history:await LoyaltyTierHistory.find({userId:req.params.id}).sort({at:-1}).limit(100).lean()}));
 export const adminPoints=handler(async req=>({membership:await adjustPoints(req.params.id,req.user._id,req.body)}));

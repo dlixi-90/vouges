@@ -16,6 +16,7 @@ router.put("/admin/rewards/:id",controller.adminReward);
 router.post("/admin/campaigns",controller.adminCampaign);
 router.put("/admin/campaigns/:id",controller.adminCampaign);
 router.get("/admin/members",controller.adminMembers);
+router.post("/admin/members/sync",controller.adminSyncMembers);
 router.get("/admin/members/:id",controller.adminMember);
 router.post("/admin/members/:id/points",controller.adminPoints);
 router.post("/admin/members/:id/tier",controller.adminTier);

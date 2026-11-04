@@ -49,7 +49,8 @@ const setTier=async(context,tier,at,kind,reason,actorId="system",expiry=addMonth
 export const salesAt=async(context,at)=>{
   const start=addMonths(at,-12);
   const total=context.credits.filter(row=>new Date(row.recognizedAt)>start&&new Date(row.recognizedAt)<=at).reduce((sum,row)=>{
-    const refunded=(row.initialRefundedVnd||0)+context.refunds.filter(event=>event.data.orderId===String(row._id)&&new Date(event.at)<=at).reduce((amount,event)=>amount+event.data.refundVnd,0);
+    const refunds=context.refundsByOrder.get(String(row._id))||[];
+    const refunded=context.useCurrentRefundSnapshot&&Number.isSafeInteger(row.refundedVnd)?row.refundedVnd:(row.initialRefundedVnd||0)+refunds.filter(event=>new Date(event.at)<=at).reduce((amount,event)=>amount+event.data.refundVnd,0);
     return sum+Math.max(0,row.grossVnd-refunded);
   },0);
   return integer(total,"Doanh số tích lũy");
@@ -97,18 +98,30 @@ const recognize=async(context,order)=>{
   await append(context,{...event,at:recognizedAt,data:{...event.data,orderId:id,tierId:tier.id,rate,eligibleVnd:amount-refunded,dateSource}},keyFor("order",id));
   await review(context,recognizedAt);
 };
-export const withMember=async(userId,actorId,operation,{references=[],now=new Date(),deferReview=false}={})=>transaction(async session=>{
+export const withMember=async(userId,actorId,operation,{references=[],now=new Date(),deferReview=false,includeOrderHistory=false}={})=>transaction(async session=>{
   const user=await User.findById(userId).session(session).lean();if(!user)throw new LoyaltyError("Không tìm thấy khách hàng.",404);
   const policy=await getPolicy(session);
-  const orders=policy.enabled?await Order.find({userId,status:"Delivery",isPaid:true}).session(session).lean():[];
+  const storedAccount=await LoyaltyAccount.findById(userId).session(session).lean(),needsBackfill=policy.enabled&&!storedAccount?.backfillComplete;
+  const orders=policy.enabled?await Order.find({userId,status:"Delivery",isPaid:true,...(needsBackfill||includeOrderHistory?{}:{loyaltyPending:true})}).select("status isPaid subtotal shipping amount discount completedAt updatedAt loyaltyRefundedVnd").session(session).lean():[];
   orders.sort((a,b)=>new Date(a.completedAt||a.updatedAt)-new Date(b.completedAt||b.updatedAt)||String(a._id).localeCompare(String(b._id)));
-  const startsAt=orders.length?new Date(Math.min(now.getTime(),new Date(orders[0].completedAt||orders[0].updatedAt).getTime())):new Date(Math.min(now.getTime(),Math.max(new Date(user.createdAt||now).getTime(),new Date(policy.activatedAt||now).getTime())));
+  const startsAt=needsBackfill&&orders.length?new Date(Math.min(now.getTime(),new Date(orders[0].completedAt||orders[0].updatedAt).getTime())):storedAccount?.achievedAt||new Date(Math.min(now.getTime(),Math.max(new Date(user.createdAt||now).getTime(),new Date(policy.activatedAt||now).getTime())));
   const account=await LoyaltyAccount.findOneAndUpdate({_id:userId},{$setOnInsert:{tierId:policy.tiers[0].id,achievedAt:startsAt,expiresAt:addMonths(startsAt)},$inc:{version:1}},{session,upsert:true,returnDocument:'after',setDefaultsOnInsert:true}).lean();
-  const claims=await LoyaltyClaim.find({userId,orderId:{$ne:null},status:"Granted"}).select("_id").session(session).lean();
-  const refs=[...references,...orders.map(order=>`order:${order._id}`),...claims.map(claim=>`campaign:${claim._id}`)];
-  const lots=await LoyaltyLot.find({userId,$or:[{remaining:{$gt:0}},{_id:{$in:refs}}]}).session(session).lean();
-  const credits=await LoyaltyOrder.find({userId}).session(session).lean(),refunds=await LoyaltyLedger.find({userId,kind:"refund"}).select("at data.orderId data.refundVnd").session(session).lean();
-  const context={user,userId,actorId,policy,account,lots,session,now,orders,salesVnd:0,credits,refunds,initialLots:new Map(lots.map(lot=>[lot._id,JSON.stringify(lot)]))};
+  const reviewExpired=policy.enabled&&new Date(account.expiresAt)<=now,fullHistory=needsBackfill||reviewExpired||includeOrderHistory;
+  const referencedOrderIds=[...new Set(references.filter(id=>id.startsWith("order:")).map(id=>id.slice(6)))];
+  const claims=referencedOrderIds.length?await LoyaltyClaim.find({userId,orderId:{$in:referencedOrderIds},status:"Granted"}).select("_id").session(session).lean():[];
+  const refs=[...references,...claims.map(claim=>`campaign:${claim._id}`)];
+  const lotFilter={userId,...(refs.length?{$or:[{remaining:{$gt:0}},{_id:{$in:refs}}]}:{remaining:{$gt:0}})};
+  const lots=await LoyaltyLot.find(lotFilter).session(session).lean();
+  const creditStarts=[addMonths(now,-12)];if(account.tierReviewedAt)creditStarts.push(new Date(account.tierReviewedAt));if(orders.length)creditStarts.push(addMonths(new Date(orders[0].completedAt||orders[0].updatedAt),-12));
+  const creditStart=new Date(Math.min(...creditStarts.map(value=>value.getTime())));
+  const orderIds=orders.map(order=>String(order._id));
+  const creditFilter=fullHistory?{userId}: {userId,$or:[{recognizedAt:{$gt:creditStart,$lte:now}},...(orderIds.length?[{_id:{$in:orderIds}}]:[])]};
+  const credits=await LoyaltyOrder.find(creditFilter).select("userId recognizedAt grossVnd initialRefundedVnd refundedVnd awarded reversed rate lotId").session(session).lean();
+  const missingRefundIds=fullHistory?[]:credits.filter(row=>!Number.isSafeInteger(row.refundedVnd)).map(row=>String(row._id));
+  const refundFilter=fullHistory?{userId,kind:"refund"}:{userId,kind:"refund","data.orderId":{$in:missingRefundIds}};
+  const refunds=fullHistory||missingRefundIds.length?await LoyaltyLedger.find(refundFilter).select("at data.orderId data.refundVnd").session(session).lean():[];
+  const refundsByOrder=new Map();for(const event of refunds){const orderId=event.data?.orderId;if(!orderId)continue;const entries=refundsByOrder.get(String(orderId))||[];entries.push(event);refundsByOrder.set(String(orderId),entries);}
+  const context={user,userId,actorId,policy,account,lots,session,now,orders,salesVnd:0,credits,refunds,refundsByOrder,useCurrentRefundSnapshot:!fullHistory,initialLots:new Map(lots.map(lot=>[lot._id,JSON.stringify(lot)]))};
   if(policy.enabled){for(const order of orders)await recognize(context,order);if(!deferReview)await review(context,now);}
   for(const event of expireLots(account,lots,now))await append(context,event);
   account.backfillComplete=policy.enabled;
@@ -120,6 +133,35 @@ export const memberSummary=async context=>{
   const {account,policy,now}=context,salesVnd=await salesAt(context,now),index=policy.tiers.findIndex(tier=>tier.id===account.tierId),next=policy.tiers[index+1]||null;
   const catalog=policy.tiers[index].benefits.find(benefit=>benefit.code==="rewards");
   return {userId:context.userId,programEnabled:policy.enabled,canRedeem:policy.enabled&&Boolean(catalog?.enabled)&&catalog.availability==="available",tier:policy.tiers[index],tiers:policy.tiers,achievedAt:account.achievedAt,expiresAt:account.expiresAt,salesVnd,nextTier:next?{id:next.id,name:next.name,thresholdVnd:next.thresholdVnd,remainingVnd:Math.max(0,next.thresholdVnd-salesVnd)}:null,points:walletSummary(account,context.lots,now),policyVersion:policy.version};
+};
+export const memberListSummaries=async users=>{
+  if(!users.length)return [];
+  const now=new Date(),policy=await getPolicy(),userIds=users.map(user=>String(user._id));
+  const [accounts,pendingIds]=await Promise.all([
+    LoyaltyAccount.find({_id:{$in:userIds}}).lean(),
+    policy.enabled?Order.distinct("userId",{userId:{$in:userIds},status:"Delivery",isPaid:true,loyaltyPending:true}):[],
+  ]);
+  const accountByUser=new Map(accounts.map(account=>[String(account._id),account])),pendingUsers=new Set(pendingIds.map(String)),syncUsers=new Set();
+  for(const userId of userIds){const account=accountByUser.get(userId);if(!account||policy.enabled&&(!account.backfillComplete||pendingUsers.has(userId)||new Date(account.expiresAt)<=now))syncUsers.add(userId);}
+  const cleanIds=userIds.filter(userId=>!syncUsers.has(userId)),salesByUser=new Map(),lotsByUser=new Map();
+  if(cleanIds.length){
+    const [lots,credits]=await Promise.all([
+      LoyaltyLot.find({userId:{$in:cleanIds},remaining:{$gt:0}}).select("userId remaining expiresAt").lean(),
+      LoyaltyOrder.find({userId:{$in:cleanIds},recognizedAt:{$gt:addMonths(now,-12),$lte:now}}).select("userId recognizedAt grossVnd initialRefundedVnd refundedVnd").lean(),
+    ]);
+    for(const lot of lots){const entries=lotsByUser.get(lot.userId)||[];entries.push(lot);lotsByUser.set(lot.userId,entries);}
+    const missingRefundIds=credits.filter(row=>!Number.isSafeInteger(row.refundedVnd)).map(row=>String(row._id));
+    const refunds=missingRefundIds.length?await LoyaltyLedger.find({userId:{$in:cleanIds},kind:"refund","data.orderId":{$in:missingRefundIds}}).select("data.orderId data.refundVnd").lean():[];
+    const refundByOrder=new Map();for(const event of refunds){const orderId=String(event.data?.orderId||"");refundByOrder.set(orderId,(refundByOrder.get(orderId)||0)+(event.data?.refundVnd||0));}
+    for(const credit of credits){const refunded=Number.isSafeInteger(credit.refundedVnd)?credit.refundedVnd:(credit.initialRefundedVnd||0)+(refundByOrder.get(String(credit._id))||0);salesByUser.set(credit.userId,(salesByUser.get(credit.userId)||0)+Math.max(0,credit.grossVnd-refunded));}
+  }
+  return users.map(user=>{
+    const userId=String(user._id),account=accountByUser.get(userId),firstTier=policy.tiers[0],startsAt=account?.achievedAt||new Date(Math.min(now.getTime(),Math.max(new Date(user.createdAt||now).getTime(),new Date(policy.activatedAt||now).getTime()))),tier=policy.tiers.find(row=>row.id===account?.tierId)||firstTier,index=policy.tiers.findIndex(row=>row.id===tier.id),salesVnd=salesByUser.get(userId)||0,next=policy.tiers[index+1]||null,catalog=tier.benefits.find(benefit=>benefit.code==="rewards"),lots=lotsByUser.get(userId)||[],debt=account?.debt||0;
+    if(!syncUsers.has(userId)&&policy.enabled&&!account?.tierReviewedAt&&policy.tiers.findIndex(row=>row.id===tierFor(policy.tiers,salesVnd).id)>index)syncUsers.add(userId);
+    const available=debt?0:lots.filter(lot=>new Date(lot.expiresAt)>now).reduce((sum,lot)=>sum+lot.remaining,0);
+    const expiringSoon=lots.filter(lot=>new Date(lot.expiresAt)>now&&new Date(lot.expiresAt)<=new Date(now.getTime()+30*86400000)).reduce((sum,lot)=>sum+lot.remaining,0);
+    return {_id:userId,name:user.customerProfile?.fullName||user.username,phone:user.phone,email:user.email,syncPending:syncUsers.has(userId),membership:{userId,programEnabled:policy.enabled,canRedeem:policy.enabled&&Boolean(catalog?.enabled)&&catalog.availability==="available",tier,tiers:policy.tiers,achievedAt:startsAt,expiresAt:account?.expiresAt||addMonths(startsAt),salesVnd,nextTier:next?{id:next.id,name:next.name,thresholdVnd:next.thresholdVnd,remainingVnd:Math.max(0,next.thresholdVnd-salesVnd)}:null,points:{available,debt,earned:account?.earned||0,used:account?.used||0,expired:account?.expired||0,expiringSoon},policyVersion:policy.version}};
+  });
 };
 export const reconcileUser=(userId)=>withMember(userId,"system",memberSummary);
 export const loyaltyHooks={reconcile:reconcileUser};
@@ -158,7 +200,8 @@ export const recordRefund=async(orderId,actorId,value)=>{
     const event=reverseOrderPoints(context.account,lot,points,{lots:context.lots,now:context.now});credit.refundedVnd=total;credit.reversed+=points;await credit.save({session:context.session});
     const write=await Order.updateOne({_id:orderId,loyaltyRefundedVnd:total-amount},{$set:{loyaltyRefundedVnd:total}},{session:context.session});if(write.matchedCount!==1)throw new LoyaltyError("Thông tin hoàn trả đã thay đổi.",409);
     await append(context,{...event,reason,data:{...event.data,orderId,refundVnd:amount,totalRefundedVnd:total}},id);
-    context.refunds.push({at:context.now,data:{orderId,refundVnd:amount}});
+    const refundEvent={at:context.now,data:{orderId,refundVnd:amount}},refundEvents=context.refundsByOrder.get(String(orderId))||[];refundEvents.push(refundEvent);context.refundsByOrder.set(String(orderId),refundEvents);context.refunds.push(refundEvent);
+    const listedCredit=context.credits.find(row=>String(row._id)===String(orderId));if(listedCredit)listedCredit.refundedVnd=total;
     const claims=await LoyaltyClaim.find({userId:context.userId,orderId,status:"Granted"}).session(context.session);
     for(const claim of claims){
       if(credit.grossVnd-total>=(claim.benefit.qualifyingMinVnd||0))continue;

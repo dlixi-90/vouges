@@ -39,15 +39,23 @@ export const useSupportFeed = (path, enabled, conversationFeed = false, initialD
     if (!enabled || !userId || !path) return undefined;
     let active = true;
     let controller;
+    let bootstrapController;
     let reconnect;
     let failures = 0;
     let generation = 0;
     let liveSnapshots = 0;
-    // A normal JSON response works even when a proxy buffers SSE frames. Never
-    // let this older bootstrap replace a snapshot already received live.
+    // Use a normal JSON snapshot as the first paint if an intermediary buffers
+    // the SSE frame. Never let the bootstrap replace a newer live snapshot.
+    const snapshotPath = inboxPath || (conversationFeed ? path.replace(/\/events(?=\?|$)/, "/messages") : null);
     if (inboxPath) void storeResources.loadSupportInbox(inboxPath).then(snapshot => {
       if (active && liveSnapshots === 0) update(snapshot);
     }).catch(() => {}); // The live connection retains its existing retry/error UI.
+    else if (snapshotPath) {
+      bootstrapController = new AbortController();
+      void api.request("get", snapshotPath, undefined, bootstrapController.signal).then(snapshot => {
+        if (active && liveSnapshots === 0) update(snapshot);
+      }).catch(() => {});
+    }
     const connect = async () => {
       if (!active || document.hidden) return;
       const epoch = ++generation;
@@ -103,6 +111,7 @@ export const useSupportFeed = (path, enabled, conversationFeed = false, initialD
       generation++;
       window.clearTimeout(reconnect);
       controller?.abort();
+      bootstrapController?.abort();
       document.removeEventListener("visibilitychange", visibility);
     };
   }, [api, path, enabled, userId, key, update, inboxPath, storeResources]);

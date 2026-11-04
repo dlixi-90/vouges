@@ -166,7 +166,9 @@ export const libraryTerms = catalogAction(async(req,res)=>{
   const {page,pageSize}=pagination(req.query);const kind=req.query.kind||"note";if(!["brand","group","accord","note"].includes(kind))fail("Thư viện không hợp lệ");
   if(req.query.status&&!['linked','complete'].includes(req.query.status))fail("Tình trạng nội dung không hợp lệ");
   const filter={kind};if(req.query.q){const q=pattern(req.query.q);filter.$or=[{name:q},{key:q}];}if(req.query.status)filter.contentStatus=req.query.status;
-  const [terms,total]=await Promise.all([FragranceTerm.find(filter).sort({name:1,_id:1}).skip((page-1)*pageSize).limit(pageSize).lean(),FragranceTerm.countDocuments(filter)]);
+  const termQuery=FragranceTerm.find(filter);
+  if(kind==="brand")termQuery.select("kind name image updatedAt");
+  const [terms,total]=await Promise.all([termQuery.sort({name:1,_id:1}).skip((page-1)*pageSize).limit(pageSize).lean(),FragranceTerm.countDocuments(filter)]);
   const countedTerms=await catalogSnapshot(`library-counts:${terms.map(term=>term._id).join(":")}`,300000,()=>liveLibraryCounts(terms));
   res.set("Cache-Control","private, no-store");
   res.json({success:true,terms:countedTerms,total,page,pageSize,totalPages:Math.max(1,Math.ceil(total/pageSize))});
