@@ -33,12 +33,21 @@ export async function renameLibraryProducts(term,name,session){
 export async function liveLibraryCounts(terms){
  if(!terms.length)return [];
  const brandsOnly=terms.every(term=>term.kind==='brand');
+ if(brandsOnly){
+  const brandCounts=await Product.aggregate([
+   {$match:{isDeleted:{$ne:true},brand:{$type:'string'}}},
+   {$group:{_id:'$brand',count:{$sum:1}}},
+  ]);
+  return terms.map(term=>{
+   const pattern=libraryNamePattern(term.name);
+   const productCount=brandCounts.reduce((total,row)=>total+(pattern.test(row._id)?row.count:0),0);
+   return {...term,productCount};
+  });
+ }
  const [result]=await Product.aggregate([
   {$match:{isDeleted:{$ne:true},$or:terms.map(libraryProductRelation)}},
-  brandsOnly?{$group:{_id:'$brand',count:{$sum:1}}}:{$project:{brand:1,fragrance:1}},
-  {$facet:Object.fromEntries(terms.map((term,index)=>[`term${index}`,brandsOnly?[
-   {$match:{_id:libraryNamePattern(term.name)}},{$group:{_id:null,count:{$sum:'$count'}}},{$project:{_id:0,count:1}},
-  ]:[{$match:libraryProductRelation(term)},{$count:'count'}]]))},
+  {$project:{brand:1,fragrance:1}},
+  {$facet:Object.fromEntries(terms.map((term,index)=>[`term${index}`,[{$match:libraryProductRelation(term)},{$count:'count'}]]))},
  ]);
  return terms.map((term,index)=>({...term,productCount:result?.[`term${index}`]?.[0]?.count||0}));
 }

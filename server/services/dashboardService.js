@@ -1,6 +1,19 @@
 import Order from "../models/Order.js";
 import { placedOrderFilter } from "../utils/orderReporting.js";
 
+export const getDashboardOrders = async ({ page = 1, pageSize = 10 } = {}) => {
+  const filter = placedOrderFilter();
+  const orders = await Order.find(filter)
+    .select("items amount address status paymentMethod isPaid paidAt createdAt")
+    .sort({ createdAt: -1, _id: -1 })
+    .skip((page - 1) * pageSize)
+    .limit(pageSize)
+    .populate({ path: "items.product", select: { title: 1, images: { $slice: 1 }, price: 1 } })
+    .populate({ path: "address", select: "firstName lastName street state city country zipcode zipCode phone" })
+    .lean();
+  return { orders, page, pageSize };
+};
+
 export const getDashboardData = async ({ page = 1, pageSize = 10, timezone = "UTC", includeOrders = true }) => {
   const filter = placedOrderFilter();
   const [orders, summaries] = await Promise.all([
@@ -9,7 +22,7 @@ export const getDashboardData = async ({ page = 1, pageSize = 10, timezone = "UT
       .sort({ createdAt: -1, _id: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
-      .populate({ path: "items.product", select: "title images price" })
+      .populate({ path: "items.product", select: { title: 1, images: { $slice: 1 }, price: 1 } })
       .populate({ path: "address", select: "firstName lastName street state city country zipcode zipCode phone" })
       .lean() : Promise.resolve([]),
     Order.aggregate([

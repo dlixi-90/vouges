@@ -3,17 +3,29 @@ import { prefetchRoute } from "./prefetchRoute.js";
 export const OWNER_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
 export const ownerOverviewPath = `/overview?timezone=${encodeURIComponent(OWNER_TIMEZONE)}`;
 export const ownerDashboardKey = (userId, page = 1) => `${userId}:${OWNER_TIMEZONE}:${page}`;
+export const ownerDashboardSummaryKey = userId => `${userId}:${OWNER_TIMEZONE}:sales`;
 export const defaultInboxPath = "/api/support/inbox?search=&status=all&page=1";
 
 export const readOwnerDashboard = async ({ axios, getToken, page = 1, signal }) => {
   const token = await getToken();
   signal.throwIfAborted();
-  const { data } = await axios.get("/api/orders/dashboard", {
-    params: { page, pageSize: 10, timezone: OWNER_TIMEZONE },
+  const { data } = await axios.get("/api/orders/dashboard/orders", {
+    params: { page, pageSize: 10 },
     headers: { Authorization: `Bearer ${token}` }, signal, timeout: 15000,
   });
   if (!data.success) throw new Error(data.message || "Không thể tải dữ liệu tổng quan");
   return data.dashboardData;
+};
+
+export const readOwnerDashboardSummary = async ({ axios, getToken, signal, force = false }) => {
+  const token = await getToken();
+  signal.throwIfAborted();
+  const { data } = await axios.get("/api/orders/dashboard/summary", {
+    params: { timezone: OWNER_TIMEZONE, ...(force ? { refresh: Date.now() } : {}) },
+    headers: { Authorization: `Bearer ${token}` }, signal, timeout: 15000,
+  });
+  if (!data.success) throw new Error(data.message || "Không thể tải doanh thu");
+  return data.summaryData;
 };
 
 // Sidebar calls this only on intent and after the owner profile is verified.
@@ -38,12 +50,12 @@ export const prefetchOwnerRoute = (path, context) => {
   }
   if (pathname === "/owner/brands" || pathname === "/owner/library") {
     const kind = pathname === "/owner/brands" ? "brand" : routeSearch.get("kind") || "group";
-    const query = new URLSearchParams({ kind, q: "", status: "", page: "1", pageSize: "25" });
+    const query = new URLSearchParams({ kind, q: "", status: "", page: "1", pageSize: "25", includeCounts: "false" });
     tasks.push(context.storeResources.loadCatalog(`/terms?${query}`));
   }
   if (["/owner/add-product", "/owner/add-category"].includes(pathname)) tasks.push(context.fetchCategories());
   if (pathname === "/owner/vouchers") tasks.push(context.storeResources.loadCatalog("/", "/api/vouchers"));
-  if (pathname === "/owner/loyalty") tasks.push(context.storeResources.loadCatalog("/admin", "/api/loyalty"));
+  if (pathname === "/owner/loyalty") tasks.push(context.storeResources.loadCatalog("/admin/summary", "/api/loyalty"));
   if (pathname === "/owner/messages") tasks.push(context.storeResources.loadSupportInbox(defaultInboxPath));
   if (["/owner/users", "/owner/customers"].includes(pathname)) tasks.push(context.storeResources.loadCatalog("/manage?q=&role=all&page=1&pageSize=25", "/api/users"));
   const productMatch = pathname.match(/^\/owner\/edit-product\/([a-f\d]{24})$/i);

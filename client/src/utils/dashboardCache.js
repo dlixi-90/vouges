@@ -16,7 +16,7 @@ export const createDashboardCache = ({ now = Date.now, maxAge = 30000 } = {}) =>
     updateOrder(order) {
       invalidate();
       for (const entry of entries.values()) {
-        if (entry.data) entry.data = {
+        if (entry.data && Array.isArray(entry.data.orders)) entry.data = {
           ...entry.data,
           orders: entry.data.orders.map((item) => item._id === order._id
             ? { ...item, status: order.status, isPaid: order.isPaid, paidAt: order.paidAt } : item),

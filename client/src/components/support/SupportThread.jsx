@@ -6,7 +6,7 @@ import { SUPPORT_MESSAGE_LIMIT, supportStatuses } from "../../utils/supportChat"
 
 export default function SupportThread({ conversationId, role = "customer", onConversationChange, initialSnapshot, className = "" }) {
   const api = useSupportApi();
-  const feed = useSupportFeed(`/api/support/conversations/${conversationId}/events`, Boolean(conversationId), true, initialSnapshot);
+  const feed = useSupportFeed(`/api/support/conversations/${conversationId}/events?limit=25`, Boolean(conversationId), true, initialSnapshot);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(null);
   const [error, setError] = useState("");

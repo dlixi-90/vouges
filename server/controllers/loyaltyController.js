@@ -42,6 +42,19 @@ export const adminOverview=handler(async()=>{
   ]);
   return {policy,rewards,campaigns,reviews};
 });
+export const adminSummary=handler(async()=>{
+  const [policy,rewardCount,activeRewardCount,campaignCount,activeCampaignCount]=await Promise.all([
+    getPolicy(),
+    LoyaltyReward.countDocuments(),
+    LoyaltyReward.countDocuments({active:true}),
+    LoyaltyCampaign.countDocuments(),
+    LoyaltyCampaign.countDocuments({active:true}),
+  ]);
+  return {policy,rewardCount,activeRewardCount,campaignCount,activeCampaignCount};
+});
+export const adminRewards=handler(async()=>({rewards:await LoyaltyReward.find().sort({createdAt:-1}).limit(200).lean()}));
+export const adminCampaigns=handler(async()=>({campaigns:await LoyaltyCampaign.find().sort({createdAt:-1}).limit(200).lean()}));
+export const adminReviewClaims=handler(async()=>({reviews:await LoyaltyClaim.find({status:"ReviewRequired"}).sort({createdAt:1}).limit(100).lean()}));
 export const adminPolicy=handler(async req=>({policy:await savePolicy(req.body,req.user._id)}));
 export const adminReward=handler(async req=>({reward:await saveReward(req.params.id,req.body,req.user._id)}));
 export const adminCampaign=handler(async req=>({campaign:await saveCampaign(req.params.id,req.body,req.user._id)}));

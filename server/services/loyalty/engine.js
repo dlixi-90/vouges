@@ -145,21 +145,29 @@ export const memberListSummaries=async users=>{
   for(const userId of userIds){const account=accountByUser.get(userId);if(!account||policy.enabled&&(!account.backfillComplete||pendingUsers.has(userId)||new Date(account.expiresAt)<=now))syncUsers.add(userId);}
   const cleanIds=userIds.filter(userId=>!syncUsers.has(userId)),salesByUser=new Map(),lotsByUser=new Map();
   if(cleanIds.length){
-    const [lots,credits]=await Promise.all([
-      LoyaltyLot.find({userId:{$in:cleanIds},remaining:{$gt:0}}).select("userId remaining expiresAt").lean(),
-      LoyaltyOrder.find({userId:{$in:cleanIds},recognizedAt:{$gt:addMonths(now,-12),$lte:now}}).select("userId recognizedAt grossVnd initialRefundedVnd refundedVnd").lean(),
+    const salesWindow={userId:{$in:cleanIds},recognizedAt:{$gt:addMonths(now,-12),$lte:now}},soon=new Date(now.getTime()+30*86400000);
+    const [lotSummaries,salesSummaries,legacyCredits]=await Promise.all([
+      LoyaltyLot.aggregate([
+        {$match:{userId:{$in:cleanIds},remaining:{$gt:0},expiresAt:{$gt:now}}},
+        {$group:{_id:"$userId",available:{$sum:"$remaining"},expiringSoon:{$sum:{$cond:[{$lte:["$expiresAt",soon]},"$remaining",0]}}}},
+      ]),
+      LoyaltyOrder.aggregate([
+        {$match:{...salesWindow,refundedVnd:{$type:"number"}}},
+        {$group:{_id:"$userId",salesVnd:{$sum:{$cond:[{$gt:["$grossVnd","$refundedVnd"]},{$subtract:["$grossVnd","$refundedVnd"]},0]}}}},
+      ]),
+      LoyaltyOrder.find({...salesWindow,$or:[{refundedVnd:{$exists:false}},{refundedVnd:null}]}).select("_id userId grossVnd initialRefundedVnd").lean(),
     ]);
-    for(const lot of lots){const entries=lotsByUser.get(lot.userId)||[];entries.push(lot);lotsByUser.set(lot.userId,entries);}
-    const missingRefundIds=credits.filter(row=>!Number.isSafeInteger(row.refundedVnd)).map(row=>String(row._id));
+    for(const summary of lotSummaries)lotsByUser.set(summary._id,summary);
+    for(const summary of salesSummaries)salesByUser.set(summary._id,summary.salesVnd);
+    const missingRefundIds=legacyCredits.map(row=>String(row._id));
     const refunds=missingRefundIds.length?await LoyaltyLedger.find({userId:{$in:cleanIds},kind:"refund","data.orderId":{$in:missingRefundIds}}).select("data.orderId data.refundVnd").lean():[];
     const refundByOrder=new Map();for(const event of refunds){const orderId=String(event.data?.orderId||"");refundByOrder.set(orderId,(refundByOrder.get(orderId)||0)+(event.data?.refundVnd||0));}
-    for(const credit of credits){const refunded=Number.isSafeInteger(credit.refundedVnd)?credit.refundedVnd:(credit.initialRefundedVnd||0)+(refundByOrder.get(String(credit._id))||0);salesByUser.set(credit.userId,(salesByUser.get(credit.userId)||0)+Math.max(0,credit.grossVnd-refunded));}
+    for(const credit of legacyCredits){const refunded=(credit.initialRefundedVnd||0)+(refundByOrder.get(String(credit._id))||0);salesByUser.set(credit.userId,(salesByUser.get(credit.userId)||0)+Math.max(0,credit.grossVnd-refunded));}
   }
   return users.map(user=>{
-    const userId=String(user._id),account=accountByUser.get(userId),firstTier=policy.tiers[0],startsAt=account?.achievedAt||new Date(Math.min(now.getTime(),Math.max(new Date(user.createdAt||now).getTime(),new Date(policy.activatedAt||now).getTime()))),tier=policy.tiers.find(row=>row.id===account?.tierId)||firstTier,index=policy.tiers.findIndex(row=>row.id===tier.id),salesVnd=salesByUser.get(userId)||0,next=policy.tiers[index+1]||null,catalog=tier.benefits.find(benefit=>benefit.code==="rewards"),lots=lotsByUser.get(userId)||[],debt=account?.debt||0;
+    const userId=String(user._id),account=accountByUser.get(userId),firstTier=policy.tiers[0],startsAt=account?.achievedAt||new Date(Math.min(now.getTime(),Math.max(new Date(user.createdAt||now).getTime(),new Date(policy.activatedAt||now).getTime()))),tier=policy.tiers.find(row=>row.id===account?.tierId)||firstTier,index=policy.tiers.findIndex(row=>row.id===tier.id),salesVnd=salesByUser.get(userId)||0,next=policy.tiers[index+1]||null,catalog=tier.benefits.find(benefit=>benefit.code==="rewards"),debt=account?.debt||0;
     if(!syncUsers.has(userId)&&policy.enabled&&!account?.tierReviewedAt&&policy.tiers.findIndex(row=>row.id===tierFor(policy.tiers,salesVnd).id)>index)syncUsers.add(userId);
-    const available=debt?0:lots.filter(lot=>new Date(lot.expiresAt)>now).reduce((sum,lot)=>sum+lot.remaining,0);
-    const expiringSoon=lots.filter(lot=>new Date(lot.expiresAt)>now&&new Date(lot.expiresAt)<=new Date(now.getTime()+30*86400000)).reduce((sum,lot)=>sum+lot.remaining,0);
+    const lotSummary=lotsByUser.get(userId),available=debt?0:lotSummary?.available||0,expiringSoon=lotSummary?.expiringSoon||0;
     return {_id:userId,name:user.customerProfile?.fullName||user.username,phone:user.phone,email:user.email,syncPending:syncUsers.has(userId),membership:{userId,programEnabled:policy.enabled,canRedeem:policy.enabled&&Boolean(catalog?.enabled)&&catalog.availability==="available",tier,tiers:policy.tiers,achievedAt:startsAt,expiresAt:account?.expiresAt||addMonths(startsAt),salesVnd,nextTier:next?{id:next.id,name:next.name,thresholdVnd:next.thresholdVnd,remainingVnd:Math.max(0,next.thresholdVnd-salesVnd)}:null,points:{available,debt,earned:account?.earned||0,used:account?.used||0,expired:account?.expired||0,expiringSoon},policyVersion:policy.version}};
   });
 };

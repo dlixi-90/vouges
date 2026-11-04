@@ -12,13 +12,15 @@ import {
   quoteOrder,
 } from "../controllers/orderController.js";
 import authUser, { requireOwner, requireCustomerProfile } from "../middleware/authMiddleware.js";
-import { dashboard, customerOrdersPage } from "../controllers/dashboardController.js";
+import { dashboard, dashboardOrders, dashboardSalesSummary, customerOrdersPage } from "../controllers/dashboardController.js";
 
 const orderRouter = express.Router();
 
 // For Admin
 orderRouter.post("/sepay-webhook", sepayWebhook);
 orderRouter.get("/", authUser, requireOwner, allOrders);
+orderRouter.get("/dashboard/orders", authUser, requireOwner, dashboardOrders);
+orderRouter.get("/dashboard/summary", authUser, requireOwner, dashboardSalesSummary);
 orderRouter.get("/dashboard", authUser, requireOwner, dashboard);
 orderRouter.get("/mine", authUser, customerOrdersPage);
 orderRouter.post("/status", authUser, requireOwner, updateStatus);

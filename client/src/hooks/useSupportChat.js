@@ -44,17 +44,22 @@ export const useSupportFeed = (path, enabled, conversationFeed = false, initialD
     let failures = 0;
     let generation = 0;
     let liveSnapshots = 0;
-    // Use a normal JSON snapshot as the first paint if an intermediary buffers
-    // the SSE frame. Never let the bootstrap replace a newer live snapshot.
+    let bootstrapPromise;
+    let bootstrapPending = false;
+    let bootstrapSnapshot = initialData || null;
+    // Load a conversation once over JSON before opening its live stream. Never
+    // let the bootstrap replace a newer live snapshot.
     const snapshotPath = inboxPath || (conversationFeed ? path.replace(/\/events(?=\?|$)/, "/messages") : null);
     if (inboxPath) void storeResources.loadSupportInbox(inboxPath).then(snapshot => {
       if (active && liveSnapshots === 0) update(snapshot);
     }).catch(() => {}); // The live connection retains its existing retry/error UI.
-    else if (snapshotPath) {
+    else if (snapshotPath && conversationFeed && !initialData) {
+      bootstrapPending = true;
       bootstrapController = new AbortController();
-      void api.request("get", snapshotPath, undefined, bootstrapController.signal).then(snapshot => {
+      bootstrapPromise = api.request("get", snapshotPath, undefined, bootstrapController.signal).then(snapshot => {
+        bootstrapSnapshot = snapshot;
         if (active && liveSnapshots === 0) update(snapshot);
-      }).catch(() => {});
+      }).catch(() => {}).finally(() => { bootstrapPending = false; });
     }
     const connect = async () => {
       if (!active || document.hidden) return;
@@ -68,13 +73,19 @@ export const useSupportFeed = (path, enabled, conversationFeed = false, initialD
         const token = await api.token();
         requestController.signal.throwIfAborted();
         if (!token) throw new Error("Phiên đăng nhập đã hết hạn.");
-        const response = await fetch(api.url(path), { signal: requestController.signal,
+        const conversation = conversationFeed && bootstrapSnapshot?.conversation;
+        const version = conversation?.updatedAt
+          ? [new Date(conversation.updatedAt).toISOString(), conversation.sequence, conversation.unreadStaff, conversation.unreadCustomer, conversation.status].join(":")
+          : "";
+        const streamPath = version ? `${path}${path.includes("?") ? "&" : "?"}since=${encodeURIComponent(version)}` : path;
+        const response = await fetch(api.url(streamPath), { signal: requestController.signal,
           headers: { Authorization: `Bearer ${token}`, Accept: "text/event-stream" }, cache: "no-store" });
         if (!response.ok || !response.body || !response.headers.get("content-type")?.includes("text/event-stream")) {
           const error = new Error(response.status === 401 ? "Vui lòng đăng nhập lại để tiếp tục trò chuyện." : "Không thể kết nối trò chuyện. Đang thử lại…");
           error.terminal = [401, 403, 404].includes(response.status);
           throw error;
         }
+        setConnection({ key, status: "live", error: "" });
         const parse = createSupportEventParser((snapshot) => {
           if (!current()) return;
           failures = 0;
@@ -102,10 +113,11 @@ export const useSupportFeed = (path, enabled, conversationFeed = false, initialD
       generation++;
       window.clearTimeout(reconnect);
       controller?.abort();
-      if (!document.hidden) reconnect = window.setTimeout(connect, 0);
+      if (!document.hidden && !bootstrapPending) reconnect = window.setTimeout(connect, 0);
     };
     document.addEventListener("visibilitychange", visibility);
-    void connect();
+    if (bootstrapPromise) void bootstrapPromise.then(() => { if (active && !document.hidden) void connect(); });
+    else void connect();
     return () => {
       active = false;
       generation++;
@@ -114,7 +126,7 @@ export const useSupportFeed = (path, enabled, conversationFeed = false, initialD
       bootstrapController?.abort();
       document.removeEventListener("visibilitychange", visibility);
     };
-  }, [api, path, enabled, userId, key, update, inboxPath, storeResources]);
+  }, [api, path, enabled, userId, key, update, inboxPath, storeResources, initialData]);
   return { data: result?.key === key ? result.data : cached, update,
     status: connection.key === key ? connection.status : "connecting", error: connection.key === key ? connection.error : "" };
 };

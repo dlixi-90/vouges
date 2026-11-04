@@ -6,7 +6,7 @@ import { AccordEditor, AssessmentEditor } from "./FragranceEditorFields";
 export default function NewProductFragrance({ fragrance, notesText, onChange, onNotes, disabled }) {
   const [tab, setTab] = useState("fragrance");
   const listId = useId();
-  const library = useCatalog(tab === "fragrance" ? "/terms?kind=accord&pageSize=100" : null);
+  const library = useCatalog(tab === "fragrance" ? "/terms?kind=accord&pageSize=100&includeCounts=false" : null);
 
   return <section className="perfume-panel lg:col-span-2">
     <nav className="perfume-tabs" aria-label="Hồ sơ nước hoa mới">

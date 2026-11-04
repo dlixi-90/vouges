@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema({
 }, {timestamps:true, minimize: false})
 
 userSchema.index({ createdAt: -1, _id: -1 });
+userSchema.index({ role: 1, _id: 1 });
 
 const User = mongoose.model("User", userSchema)
 

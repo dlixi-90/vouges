@@ -13,7 +13,7 @@ import Pagination from "../../components/Pagination";
 import usePaginationScroll from "../../hooks/usePaginationScroll";
 import { Badge, CatalogPage, RefreshButton, OwnerLink } from "../../components/owner/CatalogUI";
 import { OperationsEmptyState, OperationsMetric, OperationsPanel } from "../../components/owner/OperationsUI";
-import { ownerDashboardKey, readOwnerDashboard } from "../../utils/ownerPrefetch";
+import { ownerDashboardKey, ownerDashboardSummaryKey, readOwnerDashboard, readOwnerDashboardSummary } from "../../utils/ownerPrefetch";
 
 const RevenueChart = lazy(() => import("../../components/owner/RevenueChart"));
 
@@ -31,15 +31,22 @@ const Dashboard = () => {
   const [page, setPage] = useState(1);
   const [months, setMonths] = useState(6);
   const cacheKey = ownerDashboardKey(userId, page);
-  const [dashboardData, setDashboardData] = useState(() => dashboardCache.peek(cacheKey) || {
+  const summaryKey = ownerDashboardSummaryKey(userId);
+  const cachedOrders = dashboardCache.peek(cacheKey);
+  const cachedSummary = dashboardCache.peek(summaryKey);
+  const [dashboardData, setDashboardData] = useState(() => ({
     orders: [],
     totalOrders: null,
     totalRevenue: null,
     monthlyData: [],
     totalPages: 1,
-  });
-  const [isLoading, setIsLoading] = useState(() => !dashboardCache.peek(cacheKey));
+    ...cachedOrders,
+    ...cachedSummary,
+  }));
+  const [isLoading, setIsLoading] = useState(() => !cachedOrders);
+  const [summaryLoading, setSummaryLoading] = useState(() => !cachedSummary);
   const [loadError, setLoadError] = useState("");
+  const [summaryError, setSummaryError] = useState("");
   const requestIdRef = useRef(0);
   const [updatingOrderIds, setUpdatingOrderIds] = useState([]);
   const { listRef, changePage } = usePaginationScroll({ page, onPageChange: setPage, ready: !isLoading && dashboardData.page === page });
@@ -51,12 +58,12 @@ const Dashboard = () => {
   const getDashboardData = useCallback(async ({ background = false, force = false } = {}) => {
     const requestId = ++requestIdRef.current;
     const cached = dashboardCache.peek(cacheKey);
-    if (cached) setDashboardData(cached);
+    if (cached) setDashboardData(current => ({ ...current, ...cached }));
     if (!background) setIsLoading(!cached);
     setLoadError("");
     try {
       const data = await dashboardCache.load(cacheKey, requestDashboardData, { force });
-      if (requestId === requestIdRef.current) setDashboardData(data);
+      if (requestId === requestIdRef.current) setDashboardData(current => ({ ...current, ...data }));
     } catch (error) {
       if (requestId === requestIdRef.current && error.name !== "AbortError" && error.code !== "ERR_CANCELED") {
         setLoadError(error.response?.data?.message || error.message);
@@ -65,6 +72,23 @@ const Dashboard = () => {
       if (requestId === requestIdRef.current) setIsLoading(false);
     }
   }, [requestDashboardData, dashboardCache, cacheKey]);
+
+  const getDashboardSummary = useCallback(async ({ background = false, force = false } = {}) => {
+    const cached = dashboardCache.peek(summaryKey);
+    if (cached) setDashboardData(current => ({ ...current, ...cached }));
+    if (!background) setSummaryLoading(!cached);
+    setSummaryError("");
+    try {
+      const data = await dashboardCache.load(summaryKey, signal => readOwnerDashboardSummary({ axios, getToken, signal, force }), { force });
+      setDashboardData(current => ({ ...current, ...data, totalPages: Math.max(1, Math.ceil((data.totalOrders || 0) / (current.pageSize || 10))) }));
+    } catch (error) {
+      if (error.name !== "AbortError" && error.code !== "ERR_CANCELED") {
+        setSummaryError(error.response?.data?.message || error.message);
+      }
+    } finally {
+      setSummaryLoading(false);
+    }
+  }, [axios, getToken, dashboardCache, summaryKey]);
 
   const statusHandler = async (event, orderId) => {
     const status = event.target.value;
@@ -98,6 +122,7 @@ const Dashboard = () => {
         toast.success(data.message);
         // Keep the confirmed order visible while updating revenue and sales.
         void getDashboardData({ background: true, force: true });
+        void getDashboardSummary({ background: true, force: true });
         void fetchPopularProducts({ force: true });
       } else {
         toast.error(data.message);
@@ -105,7 +130,10 @@ const Dashboard = () => {
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || error.message);
-      if (error.response?.status === 409) await getDashboardData({ background: true, force: true });
+      if (error.response?.status === 409) {
+        await getDashboardData({ background: true, force: true });
+        void getDashboardSummary({ background: true, force: true });
+      }
     } finally {
       setUpdatingOrderIds((current) => current.filter((id) => id !== orderId));
     }
@@ -113,9 +141,15 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!userId) return undefined;
-    const timer = window.setTimeout(getDashboardData, 0);
+    const timer = window.setTimeout(() => {
+      void getDashboardData();
+      void getDashboardSummary();
+    }, 0);
     const refresh = () => {
-      if (document.visibilityState === "visible") void getDashboardData({ background: true });
+      if (document.visibilityState === "visible") {
+        void getDashboardData({ background: true });
+        void getDashboardSummary({ background: true });
+      }
     };
     const interval = window.setInterval(refresh, 30000);
     window.addEventListener("focus", refresh);
@@ -125,19 +159,20 @@ const Dashboard = () => {
       window.removeEventListener("focus", refresh);
       requestIdRef.current += 1;
     };
-  }, [getDashboardData, userId]);
+  }, [getDashboardData, getDashboardSummary, userId]);
 
   const orders = dashboardData.orders || [];
 
-  return <CatalogPage className="admin-operations-page admin-orders-page" title="Đơn hàng & doanh thu" actions={<RefreshButton disabled={isLoading} onClick={() => { void getDashboardData({ force: true }); void fetchPopularProducts({ force: true }); }} />}>
+  return <CatalogPage className="admin-operations-page admin-orders-page" title="Đơn hàng & doanh thu" actions={<RefreshButton disabled={isLoading && summaryLoading} onClick={() => { void getDashboardData({ force: true }); void getDashboardSummary({ force: true }); void fetchPopularProducts({ force: true }); }} />}>
     {loadError && <div role="alert" className="perfume-alert">{loadError}<button type="button" onClick={() => void getDashboardData({ force: true })}>Thử lại</button></div>}
+    {summaryError && <div role="alert" className="perfume-alert">{summaryError}<button type="button" onClick={() => void getDashboardSummary({ force: true })}>Thử lại thống kê</button></div>}
     <div className="admin-metric-grid admin-two-metrics">
       <OperationsMetric primary icon={Banknote} label="Doanh thu đã thanh toán" value={dashboardData.totalRevenue === null ? "—" : formatVnd(dashboardData.totalRevenue, currency)} detail="Tổng tiền từ các đơn đã thanh toán" />
       <OperationsMetric icon={ShoppingBag} label="Tổng đơn hàng" value={dashboardData.totalOrders == null ? "—" : dashboardData.totalOrders.toLocaleString("vi-VN")} detail="COD đã đặt · QR đã thanh toán" />
     </div>
     <div className="admin-overview-grid admin-orders-analytics">
       <OperationsPanel title="Doanh thu theo tháng" description="Giá trị đơn hàng và số tiền đã thanh toán · VND" actions={<label className="admin-period-control"><CalendarDays size={15} /><select aria-label="Khoảng thời gian doanh thu" value={months} onChange={event => setMonths(Number(event.target.value))}><option value={3}>3 tháng</option><option value={6}>6 tháng</option><option value={12}>1 năm</option></select></label>}>
-        <div className="admin-revenue-chart"><Suspense fallback={<LoadingStatus label="Đang tải biểu đồ…" />}><RevenueChart data={dashboardData.monthlyData.slice(-months)} currency={currency} /></Suspense>{!isLoading && !loadError && !dashboardData.monthlyData.slice(-months).some(month => month.total > 0 || month.successful > 0) && <div className="admin-chart-empty"><Banknote size={23} strokeWidth={1.4} /><strong>Chưa có giao dịch trong kỳ</strong><span>Biểu đồ cập nhật khi có đơn hàng.</span></div>}</div>
+        <div className="admin-revenue-chart">{summaryLoading && <LoadingStatus label="Đang tải thống kê doanh thu…" />}<Suspense fallback={<LoadingStatus label="Đang tải biểu đồ…" />}><RevenueChart data={dashboardData.monthlyData.slice(-months)} currency={currency} /></Suspense>{!summaryLoading && !summaryError && !dashboardData.monthlyData.slice(-months).some(month => month.total > 0 || month.successful > 0) && <div className="admin-chart-empty"><Banknote size={23} strokeWidth={1.4} /><strong>Chưa có giao dịch trong kỳ</strong><span>Biểu đồ cập nhật khi có đơn hàng.</span></div>}</div>
       </OperationsPanel>
       <OperationsPanel title="Sản phẩm bán chạy" description="Xếp hạng theo số lượng đã thanh toán">
         {popularProductsError && <p role="alert" className="perfume-alert">{popularProductsError}<button type="button" onClick={fetchPopularProducts}>Thử lại</button></p>}

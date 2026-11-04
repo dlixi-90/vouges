@@ -167,11 +167,27 @@ export const libraryTerms = catalogAction(async(req,res)=>{
   if(req.query.status&&!['linked','complete'].includes(req.query.status))fail("Tình trạng nội dung không hợp lệ");
   const filter={kind};if(req.query.q){const q=pattern(req.query.q);filter.$or=[{name:q},{key:q}];}if(req.query.status)filter.contentStatus=req.query.status;
   const termQuery=FragranceTerm.find(filter);
-  if(kind==="brand")termQuery.select("kind name image updatedAt");
+  if(req.query.includeCounts==="false")termQuery.select("kind name contentStatus sourceUrl updatedAt");else if(kind==="brand")termQuery.select("kind name image updatedAt");
   const [terms,total]=await Promise.all([termQuery.sort({name:1,_id:1}).skip((page-1)*pageSize).limit(pageSize).lean(),FragranceTerm.countDocuments(filter)]);
-  const countedTerms=await catalogSnapshot(`library-counts:${terms.map(term=>term._id).join(":")}`,300000,()=>liveLibraryCounts(terms));
+  const listedTerms=req.query.includeCounts==="false"?terms.map(term=>({...term,productCount:null})):await catalogSnapshot(`library-counts:${terms.map(term=>term._id).join(":")}`,300000,()=>liveLibraryCounts(terms));
   res.set("Cache-Control","private, no-store");
-  res.json({success:true,terms:countedTerms,total,page,pageSize,totalPages:Math.max(1,Math.ceil(total/pageSize))});
+  res.json({success:true,terms:listedTerms,total,page,pageSize,totalPages:Math.max(1,Math.ceil(total/pageSize))});
+});
+
+export const libraryTermCounts = catalogAction(async(req,res)=>{
+  const ids=typeof req.query.ids==="string"?[...new Set(req.query.ids.split(",").filter(Boolean))]:[];
+  if(ids.length>25||ids.some(id=>!isValidObjectId(id)))fail("Danh sách mục thư viện không hợp lệ");
+  if(!ids.length)return res.json({success:true,counts:[]});
+  const terms=await FragranceTerm.find({_id:{$in:ids}}).select("kind name sourceUrl").lean();
+  const cached=await catalogSnapshot(`library-counts:${[...ids].sort().join(":")}`,300000,()=>liveLibraryCounts(terms));
+  res.set("Cache-Control","private, no-store");
+  res.json({success:true,counts:cached.map(term=>({_id:String(term._id),productCount:term.productCount}))});
+});
+
+export const libraryTerm = catalogAction(async(req,res)=>{
+  if(!isValidObjectId(req.params.id))fail("Mã thư viện không hợp lệ");
+  const term=await FragranceTerm.findById(req.params.id).lean();if(!term)fail("Không tìm thấy mục thư viện",404);
+  res.set("Cache-Control","private, no-store");res.json({success:true,term});
 });
 
 const libraryMutation=handler=>catalogAction(async(req,res)=>{

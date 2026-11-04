@@ -10,6 +10,7 @@ const action = (handler) => async (req, res, next) => {
     next(error);
   }
 };
+const snapshotLimit = value => Math.min(50, Math.max(1, Math.floor(Number(value) || 50)));
 export const getMySupport = action(async (req, res) => {
   const conversation = await Conversation.findOne({ userId: req.user._id }).lean();
   res.json({ success: true, ...(conversation ? await conversationSnapshot(conversation) : { conversation: null, messages: [] }) });
@@ -37,7 +38,7 @@ export const getSupportMessages = action(async (req, res) => {
     if (!Number.isSafeInteger(before) || before < 1) throw new SupportError("Trang tin nhắn không hợp lệ.");
     return res.json({ success: true, conversation: conversationView(conversation), messages: await readMessages(conversation._id, before) });
   }
-  res.json({ success: true, ...await conversationSnapshot(conversation) });
+  res.json({ success: true, ...await conversationSnapshot(conversation, snapshotLimit(req.query.limit)) });
 });
 export const postSupportMessage = action(async (req, res) => {
   res.json({ success: true, ...await sendSupportMessage(req.params.id, req.user, req.body) });
@@ -91,13 +92,14 @@ export const streamSupportInbox = action(async (req, res) => {
 });
 export const streamSupportConversation = action(async (req, res) => {
   let initial = await findConversation(req.params.id, req.user);
-  let version;
+  let version = typeof req.query.since === "string" ? req.query.since : undefined;
+  const limit = snapshotLimit(req.query.limit);
   await streamSnapshots(req, res, async () => {
     const conversation = initial || await findConversation(req.params.id, req.user);
     initial = null;
     const next = `${conversation.updatedAt?.toISOString()}:${conversation.sequence}:${conversation.unreadStaff}:${conversation.unreadCustomer}:${conversation.status}`;
     if (version === next) return null;
-    const snapshot = await conversationSnapshot(conversation);
+    const snapshot = await conversationSnapshot(conversation, limit);
     version = next;
     return snapshot;
   }, { intervalMs: 3000 });

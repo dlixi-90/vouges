@@ -32,7 +32,7 @@ function PerfumeForm({ product, reload }) {
   const [newSize, setNewSize] = useState("");
   const unresolvedReview = (product.source?.profileCompletion?.unresolved || []).filter(item => product.qualityIssues?.includes(item.code));
   const [notesText, setNotesText] = useState(() => Object.fromEntries(["top", "middle", "base", "general"].map(phase => [phase, (product.fragrance?.notes?.[phase] || []).map(note => note.name).join("\n")])));
-  const accordLibrary = useCatalog(tab === "fragrance" ? "/terms?kind=accord&pageSize=100" : null);
+  const accordLibrary = useCatalog(tab === "fragrance" ? "/terms?kind=accord&pageSize=100&includeCounts=false" : null);
   const update = (field, value) => setDraft(current => ({ ...current, [field]: value }));
   const fragranceField = (field, value) => setDraft(current => ({ ...current, fragrance: { ...current.fragrance, [field]: value } }));
   const variantField = (field, size, value) => setDraft(current => ({ ...current, [field]: { ...current[field], [size]: value } }));

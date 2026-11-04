@@ -47,11 +47,12 @@ export const readMessages = async (conversationId, before) => {
     .select("sequence role authorName content clientMessageId createdAt").sort({ sequence: -1 }).limit(50).lean();
   return messages.reverse().map(messageView);
 };
-export const conversationSnapshot = async (conversation) => {
+export const conversationSnapshot = async (conversation, limit = 50) => {
+  const messageLimit = Math.min(50, Math.max(1, Math.floor(Number(limit) || 50)));
   // Bound the message read to the metadata revision so a concurrent send is
   // picked up with its matching unread counts on the next stream update.
   const messages = await Message.find({ conversationId: conversation._id, sequence: { $lte: conversation.sequence } })
-    .select("sequence role authorName content clientMessageId createdAt").sort({ sequence: -1 }).limit(50).lean();
+    .select("sequence role authorName content clientMessageId createdAt").sort({ sequence: -1 }).limit(messageLimit).lean();
   return { conversation: conversationView(conversation), messages: messages.reverse().map(messageView) };
 };
 export const supportSnapshot = async (id, user) => conversationSnapshot(await findConversation(id, user));
