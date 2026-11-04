@@ -1,5 +1,5 @@
 import Product from "../models/Product.js";
-import { browseCatalog, catalogSnapshot, getStorefrontFilterCatalog, toProductCard } from "./storefrontCatalog.js";
+import { browseCatalog, catalogSnapshot, getStorefrontCatalog, needsFragranceProfiles, toProductCard } from "./storefrontCatalog.js";
 import { filterKey } from "./perfumeFilters.js";
 
 const visible = { isPublished: { $ne: false }, isDeleted: { $ne: true } };
@@ -52,15 +52,8 @@ const basicFacetFilters = facets => {
 };
 
 export const readStorefrontBrowse = async options => {
-  return catalogSnapshot(`browse-page:${JSON.stringify(options)}`, 60000, async () => {
-    const hasActiveFilters = Boolean(options.q || options.brand || options.categories.length || options.types.length
-      || options.availability === "all" || Object.values(options.facets || {}).some(values => values.length));
-    // The filter drawer has already loaded this shared snapshot before shoppers
-    // can choose a facet. Reuse it instead of repeating a count + inventory
-    // aggregation against MongoDB for every checkbox change.
-    if (!canPageBrowseDirectly(options) || hasActiveFilters) {
-      return browseCatalog(await getStorefrontFilterCatalog(), options);
-    }
+  return catalogSnapshot(`browse-page:v2:${JSON.stringify(options)}`, 60000, async () => {
+    if (!canPageBrowseDirectly(options)) return browseCatalog(await getStorefrontCatalog(needsFragranceProfiles(options.facets)), options);
     const metaRequest = metadata();
     const availableTypesFor = meta => [...new Set(meta.types.filter(row => (!options.brand || filterKey(row.brand) === options.brand)
       && (!options.categories.length || options.categories.includes(row.category))).map(row => row.type).filter(Boolean))].sort();

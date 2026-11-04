@@ -6,7 +6,7 @@ import { productFilterValues, parsePerfumeFilters, matchesPerfumeFilters } from 
 
 const fields = "title price sizes stockBySize inStockBySize images category type brand gender origin concentration inStock inventoryMode isPublished popular createdAt";
 const profileFields = "fragrance.notes.top.name fragrance.notes.middle.name fragrance.notes.base.name fragrance.notes.general.name fragrance.components.notes fragrance.components.concentration fragrance.accords.label fragrance.style fragrance.longevity.label fragrance.longevity.displayedCount fragrance.sillage.label fragrance.sillage.displayedCount fragrance.suitability.label fragrance.suitability.displayedPercent";
-const filterFields = [..."title price sizes stockBySize inStockBySize images inStock inventoryMode category type brand gender origin concentration popular createdAt".split(" "), ...profileFields.split(" ")].join(" ");
+const filterFields = [..."price sizes stockBySize inStockBySize inStock inventoryMode category type brand gender origin concentration".split(" "), ...profileFields.split(" ")].join(" ");
 const profileKeys = ["longevity", "sillage", "suitability", "notes", "accords", "styles", "concentrations"];
 const visible = { isPublished: { $ne: false }, isDeleted: { $ne: true } };
 const entries = new Map();
@@ -33,11 +33,10 @@ export const catalogSnapshot = (key, maxAge, read) => {
   return entry.pending;
 };
 export const needsFragranceProfiles = filters => profileKeys.some(key => filters?.[key]?.length);
-// The shared projected snapshot powers both filter options and filtered cards,
-// avoiding a full catalog reload and repeated MongoDB work after each change.
+// The filter drawer needs only lightweight filter fields. Avoid loading both
+// the full card catalog and a separate aggregation of fragrance profiles.
 export const getStorefrontFilterCatalog = () => catalogSnapshot("filter-catalog", 300000, async () => {
-  const projection = { ...Object.fromEntries(filterFields.split(" ").map(field => [field, 1])), images: { $slice: 1 } };
-  const products = await Product.find(visible).select(projection).sort({ createdAt: -1, _id: -1 }).lean();
+  const products = await Product.find(visible).select(filterFields).lean();
   return products.map(product => ({ ...product, _filters: productFilterValues(product) }));
 });
 export const getStorefrontCatalog = async (includeProfiles = false) => {
