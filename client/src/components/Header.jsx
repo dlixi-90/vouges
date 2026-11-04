@@ -5,6 +5,7 @@ import { assets } from "../assets/data";
 import Navbar from "./Navbar";
 import QuickProductSearch from "./QuickProductSearch";
 import useBrandDirectory from "../hooks/useBrandDirectory";
+import { prefetchRoute } from "../utils/prefetchRoute";
 import { useClerk, UserButton } from "@clerk/react";
 import { useAppContext } from "../context/AppContext";
 import { Headset, Ticket, X } from "lucide-react";
@@ -68,7 +69,7 @@ const Header = () => {
   }, [hasOpenedAIChat, isAIChatOpen]);
   return (
     <>
-      <header className="net-header absolute top-0 left-0 right-0 z-50 bg-white py-3">
+      <header className="net-header z-50 bg-white py-3">
         <div className="max-padd-container inessa-header-grid">
           <div className="inessa-navigation-left">
             <button type="button" onClick={toggleMenu} aria-label={menuOpened ? "Đóng menu" : "Mở menu"}
@@ -79,7 +80,7 @@ const Header = () => {
           </div>
           {/* Logo */}
           <div className="inessa-brand flex">
-            <Link to={"/"} onClick={() => setMenuOpened(false)} aria-label="Velours — Trang chủ" className="flex items-end">
+            <Link to={"/"} onPointerEnter={() => prefetchRoute("/")} onFocus={() => prefetchRoute("/")} onClick={() => setMenuOpened(false)} aria-label="Velours — Trang chủ" className="flex items-end">
               <img
                 src={assets.logoImg}
                 alt="Biểu trưng Velours"

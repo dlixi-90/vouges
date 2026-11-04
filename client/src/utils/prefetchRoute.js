@@ -2,6 +2,7 @@
 export const prefetchRoute = path => {
   const url = path.split("?")[0];
   const loaders = {
+    "/": () => import("../pages/Home"),
     "/collection": () => import("../pages/Collection"),
     "/about": () => import("../pages/About"),
     "/contact": () => import("../pages/Contact"),

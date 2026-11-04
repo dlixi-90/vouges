@@ -3,10 +3,10 @@ import Hero from "../components/Hero";
 import DeferredSection from "../components/DeferredSection";
 import CustomerProfileGate from "../components/CustomerProfileGate";
 import { EditorialStories, EditorialCampaign, ShopCategories } from "../components/Editorial";
-import Testimonials from "../components/Testimonials";
 
 const NewArrivals = lazy(() => import("../components/NewArrivals"));
 const PopularProducts = lazy(() => import("../components/PopularProducts"));
+const Testimonials = lazy(() => import("../components/Testimonials"));
 
 const Home = () => {
   return (
@@ -18,7 +18,7 @@ const Home = () => {
       <EditorialCampaign />
       <DeferredSection minHeight={540}><NewArrivals /></DeferredSection>
       <ShopCategories />
-      <Testimonials />
+      <DeferredSection minHeight={520}><Testimonials /></DeferredSection>
     </>
   );
 };

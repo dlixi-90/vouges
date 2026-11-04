@@ -5,8 +5,8 @@ import Footer from "./components/Footer";
 import { Toaster } from "react-hot-toast";
 import { useAppContext } from "./context/AppContext";
 
-import Home from "./pages/Home";
 import { PageSkeleton, ProductDetailSkeleton } from "./components/LoadingState";
+const Home = lazy(() => import("./pages/Home"));
 const Collection = lazy(() => import("./pages/Collection"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const About = lazy(() => import("./pages/About"));
@@ -36,7 +36,7 @@ const App = () => {
   const { isCartOpen } = useAppContext();
   const isOwnerPath = location.pathname.includes("owner");
   return (
-    <main className={`net-theme ${isOwnerPath ? "net-admin" : "net-storefront"} overflow-hidden text-tertiary`}>
+    <main className={`net-theme ${isOwnerPath ? "net-admin overflow-hidden" : "net-storefront overflow-x-clip"} text-tertiary`}>
       {!isOwnerPath && <Header />}
       {isCartOpen && <Suspense fallback={null}><CartDrawer /></Suspense>}
       <Toaster position="bottom-right" />

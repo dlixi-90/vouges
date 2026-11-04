@@ -1,7 +1,7 @@
 import AIUsage from "../models/AIUsage.js";
 
-const DEFAULT_MINUTE_LIMIT = 5;
-const DEFAULT_DAY_LIMIT = 20;
+const DEFAULT_MINUTE_LIMIT = 8;
+const DEFAULT_DAY_LIMIT = 50;
 const MILLISECONDS_PER_MINUTE = 60 * 1000;
 const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 

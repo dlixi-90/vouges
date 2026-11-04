@@ -285,6 +285,7 @@ Thiết lập `server/.env` với các nhóm biến:
 | **Cloudinary** | Cloud name, API key và secret của tài khoản dùng cho dự án |
 | **SePay** | Tài khoản nhận tiền và webhook `/api/orders/sepay-webhook` với API key đúng |
 | **Groq** | API key và model được hỗ trợ; model chính lấy từ `AI_MODEL`. Khi Groq trả 429, chatbot thử các model trong `AI_FALLBACK_MODELS` (phân cách bằng dấu phẩy); mặc định là `openai/gpt-oss-120b,qwen/qwen3.8-27b`. Fallback chỉ giúp nếu model khác còn quota; giới hạn toàn tổ chức vẫn cần chờ reset. |
+| **Chatbot** | Câu hỏi thường gặp được trả lời tại server mà không gọi Groq. Lượt cần AI mặc định giới hạn 8 lần/phút và 50 lần/ngày mỗi tài khoản; điều chỉnh bằng `AI_RATE_LIMIT_PER_MINUTE` và `AI_RATE_LIMIT_PER_DAY`. Quota của Groq vẫn áp dụng riêng. |
 | **SMTP** | Thông tin đăng nhập relay, địa chỉ gửi được phép sử dụng |
 
 Webhook từ dịch vụ ngoài cần URL HTTPS truy cập được; localhost riêng không tự nhận webhook từ Internet.

@@ -5,7 +5,16 @@
     <link rel="icon" type="image/png" href="/src/assets/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://res.cloudinary.com" />
-    <link rel="preload" href="/images/inessa/bg-01.jpg" as="image" fetchpriority="high" />
+    <script>
+      if (window.location.pathname === "/") {
+        const heroImage = document.createElement("link");
+        heroImage.rel = "preload";
+        heroImage.as = "image";
+        heroImage.href = "/images/inessa/bg-01.jpg";
+        heroImage.fetchPriority = "high";
+        document.head.append(heroImage);
+      }
+    </script>
     <link rel="preload" href="/fonts/inter-normal-latin-2c295d99e2.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/inter-normal-vietnamese-935ab35593.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/lora-normal-latin-ddb8c66035.woff2" as="font" type="font/woff2" crossorigin />

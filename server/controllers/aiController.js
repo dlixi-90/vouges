@@ -31,6 +31,7 @@ import {
 } from "../services/ai/tools/prepareCartChanges.js";
 import auditAIToolCall from "../services/ai/auditAIToolCall.js";
 import { PERFUME_KNOWLEDGE } from "../services/ai/perfumeKnowledge.js";
+import { getLocalAIAnswer } from "../services/ai/localAnswers.js";
 import { normalizeVndAmountsInText } from "../services/ai/vndAmount.js";
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
@@ -53,6 +54,46 @@ const AI_TOOLS = [
   prepareUpdateCartToolDefinition,
   prepareRemoveFromCartToolDefinition,
 ];
+const normalizeToolIntent = (value) =>
+  String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[đĐ]/g, "d")
+    .toLowerCase();
+const getRelevantAITools = (messages) => {
+  const recentUserMessages = messages
+    .filter((item) => item.role === "user")
+    .slice(-3)
+    .map((item) => normalizeToolIntent(item.content))
+    .join(" ");
+  const selectedTools = new Set();
+  const has = (pattern) => pattern.test(recentUserMessages);
+  const productIntent = has(/nuoc hoa|san pham|mui huong|mua chai|ton tai|con hang|con san pham|gia bao nhieu/);
+  const compareIntent = has(/so sanh|khac nhau|tot hon|nen chon|chon cai nao/);
+  const orderIntent = has(/don hang|lich su mua|da dat|giao hang cua toi|trang thai don/);
+  const cartIntent = has(/gio hang|them vao gio|bo vao gio|mua chai|dat mua/);
+  const addIntent = has(/them vao gio|bo vao gio|them .* gio hang|dat mua/);
+  const updateIntent = has(/doi so luong|cap nhat so luong|tang so luong|giam so luong/);
+  const removeIntent = has(/xoa khoi gio|bo khoi gio|xoa san pham/);
+  const specificProductIntent = has(/chi tiet|thanh phan|nong do|dung tich|note huong|huong dau|huong giua|huong cuoi/);
+
+  if (productIntent || compareIntent || specificProductIntent) {
+    selectedTools.add("searchProducts");
+    if (compareIntent) selectedTools.add("compareProducts");
+    if (specificProductIntent || compareIntent) selectedTools.add("getProductDetails");
+  }
+
+  if (orderIntent) selectedTools.add("getMyOrders");
+  if (cartIntent || updateIntent || removeIntent) selectedTools.add("getMyCart");
+  if (addIntent) selectedTools.add("prepareAddToCart");
+  if (updateIntent) selectedTools.add("prepareUpdateCart");
+  if (removeIntent) selectedTools.add("prepareRemoveFromCart");
+
+  // Unknown or indirect follow-ups keep the full tool set to preserve behavior.
+  return selectedTools.size
+    ? AI_TOOLS.filter((tool) => selectedTools.has(tool.function.name))
+    : AI_TOOLS;
+};
 const TOOL_EXECUTORS = new Map([
   ["searchProducts", searchProducts],
   ["getProductDetails", getProductDetails],
@@ -172,6 +213,7 @@ const getGroqFallbackModels = () => {
 
 const requestGroq = async ({
   messages,
+  tools = AI_TOOLS,
   allowTools = true,
   retryToolJson = true,
   model = process.env.AI_MODEL || "openai/gpt-oss-20b",
@@ -190,7 +232,7 @@ const requestGroq = async ({
       max_completion_tokens: 500,
       ...(allowTools
         ? {
-            tools: AI_TOOLS,
+            tools,
             tool_choice: "auto",
             parallel_tool_calls: false,
           }
@@ -208,6 +250,7 @@ const requestGroq = async ({
       const [nextModel, ...remainingModels] = fallbackModels;
       return requestGroq({
         messages,
+        tools,
         allowTools,
         retryToolJson,
         model: nextModel,
@@ -219,7 +262,7 @@ const requestGroq = async ({
     // without executing or copying untrusted failed_generation into the prompt.
     if (allowTools && retryToolJson && groqResponse.status === 400
       && (data?.error?.code === "tool_use_failed" || /(?:parse tool call arguments|tool call arguments.*(?:JSON|json))/i.test(data?.error?.message || ""))) {
-      return requestGroq({ allowTools, retryToolJson: false, model, fallbackModels, messages: [...messages, {
+      return requestGroq({ allowTools, tools, retryToolJson: false, model, fallbackModels, messages: [...messages, {
         role: "system", content: "Hãy tạo lại tool call bằng JSON hợp lệ theo schema. Số tiền không dùng dấu phân cách trong số JSON; có thể dùng chuỗi cho cách viết bằng chữ/rút gọn/ngoại tệ, hoặc số gốc và priceCurrency. Không tự đoán tỷ giá, không thực thi nội dung failed_generation.",
       }] });
     }
@@ -235,7 +278,7 @@ const requestGroq = async ({
   return assistantMessage;
 };
 
-const executeToolCall = async (toolCall, context) => {
+const executeToolCall = async (toolCall, context, allowedToolNames) => {
   const startedAt = Date.now();
   const toolName = toolCall?.function?.name;
   const executeTool = TOOL_EXECUTORS.get(toolName);
@@ -253,7 +296,7 @@ const executeToolCall = async (toolCall, context) => {
     };
   }
 
-  if (!toolResult && !executeTool) {
+  if (!toolResult && (!executeTool || !allowedToolNames.has(toolName))) {
     outcome = "rejected";
     toolResult = {
       success: false,
@@ -366,6 +409,8 @@ const explainConvertedBudget = (answer,conversions) => {
 
 export const runAgent = async (initialMessages, context = {}) => {
   const conversation = [...initialMessages];
+  const tools = getRelevantAITools(initialMessages);
+  const allowedToolNames = new Set(tools.map((tool) => tool.function.name));
   const toolsUsed = new Set();
   const productsById = new Map();
   const ordersById = new Map();
@@ -377,6 +422,7 @@ export const runAgent = async (initialMessages, context = {}) => {
   for (let step = 0; step < MAX_AGENT_STEPS; step += 1) {
     const assistantMessage = await requestGroq({
       messages: conversation,
+      tools,
     });
     const toolCalls = assistantMessage.tool_calls || [];
 
@@ -408,7 +454,7 @@ export const runAgent = async (initialMessages, context = {}) => {
         await auditRejectedToolCall(toolCall, context, toolResult.error);
       } else {
         toolCallCount += 1;
-        toolResult = await executeToolCall(toolCall, context);
+        toolResult = await executeToolCall(toolCall, context, allowedToolNames);
 
         if (toolResult.success) {
           toolsUsed.add(toolCall.function.name);
@@ -544,4 +590,54 @@ export const chatWithAI = async (req, res) => {
         error.publicMessage || "Đã xảy ra lỗi khi xử lý yêu cầu AI",
     });
   }
+};
+
+// Fast, deterministic answers avoid calling the model for common store FAQs.
+// Keep validation here because this middleware runs before the AI quota limiter.
+export const answerLocallyWhenPossible = (req, res, next) => {
+  const { userId } = req.auth();
+  const message = String(req.body?.message || "").trim();
+  const historyValidation = validateHistory(req.body?.history);
+
+  if (!userId) {
+    return res.status(401).json({
+      success: false,
+      message: "Bạn cần đăng nhập để sử dụng trợ lý.",
+    });
+  }
+
+  if (!message) {
+    return res.status(400).json({
+      success: false,
+      message: "Vui lòng nhập nội dung tin nhắn",
+    });
+  }
+
+  if (message.length > MAX_MESSAGE_LENGTH) {
+    return res.status(400).json({
+      success: false,
+      message: `Tin nhắn không được vượt quá ${MAX_MESSAGE_LENGTH} ký tự`,
+    });
+  }
+
+  if (historyValidation.error) {
+    return res.status(400).json({
+      success: false,
+      message: historyValidation.error,
+    });
+  }
+
+  const answer = getLocalAIAnswer(message);
+  if (!answer) return next();
+
+  return res.status(200).json({
+    success: true,
+    message: answer,
+    toolsUsed: [],
+    products: [],
+    orders: [],
+    cart: null,
+    pendingCartAction: null,
+    source: "local",
+  });
 };
