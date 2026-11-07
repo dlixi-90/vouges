@@ -1,12 +1,12 @@
 import crypto from "node:crypto";
 import User from "../models/User.js";
 import Order from "../models/Order.js";
+import Voucher from "../models/Voucher.js";
 import {LoyaltyAccount,LoyaltyReward,LoyaltyRedemption,LoyaltyCampaign,LoyaltyClaim,LoyaltyLedger,LoyaltyTierHistory,LoyaltyNotification,LoyaltyAudit,LoyaltyJob} from "../models/Loyalty.js";
-import {getPolicy,savePolicy,withMember,memberSummary,memberListSummaries,adjustPoints,adjustTier,recordRefund,notify,reconcileUser} from "../services/loyalty/engine.js";
-import {saveReward,saveCampaign,redeem,updateRedemption,claimCampaign,campaignEligibility,publicReward,publicRedemption,campaignOrderOptions} from "../services/loyalty/rewards.js";
+import {getPolicy,savePolicy,withMember,memberSummary,memberListSummaries,adjustPoints,adjustTier,recordRefund,notify,reconcileUser,keyFor,transaction,audit} from "../services/loyalty/engine.js";
+import {saveReward,saveCampaign,redeem,updateRedemption,claimCampaign,publicReward,publicRedemption,campaignOrderOptions} from "../services/loyalty/rewards.js";
 import {birthdayWindow} from "../utils/membership.js";
 import {integer,LoyaltyError,eligibleAmount,text} from "../services/loyalty/policy.js";
-import {transaction,audit} from "../services/loyalty/engine.js";
 
 const handler=operation=>async(req,res,next)=>{
   res.set("Cache-Control","private, no-store");
@@ -18,17 +18,46 @@ export const myLoyalty=handler(req=>withMember(req.user._id,req.user._id,async c
   const rewards=await LoyaltyReward.find({active:true,tierIds:context.account.tierId,$and:[{$or:[{startsAt:null},{startsAt:{$lte:now}}]},{$or:[{endsAt:null},{endsAt:{$gt:now}}]}]}).sort({points:1,_id:1}).limit(200).session(context.session).lean();
   const campaigns=await LoyaltyCampaign.find({active:true,tierIds:context.account.tierId,startsAt:{$lte:now},endsAt:{$gt:now},$or:[{userIds:{$size:0}},{userIds:context.userId}]}).sort({endsAt:1}).limit(100).session(context.session).lean();
   const memberClaims=await LoyaltyClaim.find({userId:context.userId}).sort({createdAt:-1}).session(context.session).lean(),offers=[];
-  for(const campaign of campaigns){const eligibility=await campaignEligibility(context,campaign);if(eligibility){const claimed=await LoyaltyClaim.exists({_id:eligibility.key}).session(context.session);let available=campaign.benefit.type!=="event"||campaign.benefit.available===true;
-    if(campaign.benefit.type==="gift"){const gift=await LoyaltyReward.findById(campaign.benefit.rewardId).session(context.session).lean();available=Boolean(gift?.active&&gift.stock>0&&gift.tierIds.includes(context.account.tierId)&&(!gift.startsAt||gift.startsAt<=now)&&(!gift.endsAt||gift.endsAt>now));}
-    const eligibleOrders=campaignOrderOptions(context.orders,memberClaims,campaign,now);
-    if(campaign.minOrderVnd>0&&campaign.benefit.type!=="offer"&&!eligibleOrders.length)available=false;
-    if(claimed||campaign.usedCount<campaign.maxUses)offers.push({_id:campaign._id,name:campaign.name,description:campaign.description,type:campaign.type,benefit:campaign.benefit,endsAt:campaign.endsAt,minOrderVnd:campaign.minOrderVnd,stackable:campaign.stackable,claimed:Boolean(claimed),available,eligibleOrders});}}
+  const claimsById=new Map(memberClaims.map(claim=>[String(claim._id),claim]));
+  // Only read completed orders that can match an active order based campaign.
+  // The generic membership reconciliation intentionally works from pending orders;
+  // loading every historical order on each page view made this endpoint grow with
+  // the customer's entire order history.
+  const orderCampaigns=campaigns.filter(campaign=>campaign.minOrderVnd>0&&campaign.benefit.type!=="offer");
+  const campaignOrders=orderCampaigns.length?await Order.find({userId:context.userId,status:"Delivery",isPaid:true,
+    completedAt:{$gte:new Date(Math.min(...orderCampaigns.map(campaign=>new Date(campaign.startsAt).getTime()))),$lte:now}})
+    .select("completedAt subtotal shipping amount discount loyaltyRefundedVnd voucherId").session(context.session).lean():[];
+  const eligibleOrders=[...context.orders,...campaignOrders.filter(order=>!context.orders.some(current=>String(current._id)===String(order._id)))];
+  const birthdayCampaigns=campaigns.filter(campaign=>campaign.type==="birthday");
+  const birthday=birthdayCampaigns.length?birthdayWindow(context.user.birthday,now):null;
+  const birthdayVoucher=birthday?await Voucher.exists({userId:context.userId,kind:"birthday",birthdayYear:birthday.year}).session(context.session):null;
+  const upgradeCampaigns=campaigns.filter(campaign=>campaign.type==="upgrade");
+  const upgrades=upgradeCampaigns.length?await LoyaltyTierHistory.find({userId:context.userId,kind:"upgrade",to:context.account.tierId,
+    at:{$gte:new Date(Math.min(...upgradeCampaigns.map(campaign=>new Date(campaign.startsAt).getTime()))),$lte:now}})
+    .sort({at:-1}).session(context.session).lean():[];
+  const giftIds=[...new Set(campaigns.filter(campaign=>campaign.benefit.type==="gift").map(campaign=>String(campaign.benefit.rewardId)))];
+  const gifts=giftIds.length?await LoyaltyReward.find({_id:{$in:giftIds}}).session(context.session).lean():[];
+  const giftsById=new Map(gifts.map(gift=>[String(gift._id),gift]));
+  for(const campaign of campaigns){
+    if(!context.policy.enabled||!campaign.tierIds.includes(context.account.tierId)||(campaign.userIds.length&&!campaign.userIds.includes(context.userId)))continue;
+    let eligibility=null;
+    if(campaign.type==="birthday"){
+      if(birthday&&!birthdayVoucher)eligibility={key:keyFor("birthday",context.userId,birthday.year),year:birthday.year};
+    }else if(campaign.type==="upgrade"){
+      const upgrade=upgrades.find(row=>new Date(row.at)>=new Date(campaign.startsAt)&&new Date(row.at)<=new Date(campaign.endsAt));
+      if(upgrade)eligibility={key:keyFor("upgrade-campaign",context.userId,String(campaign._id),upgrade._id)};
+    }else eligibility={key:keyFor("campaign",context.userId,String(campaign._id))};
+    if(eligibility){const claim=claimsById.get(eligibility.key),claimed=Boolean(claim);let available=campaign.benefit.type!=="event"||campaign.benefit.available===true;
+    if(campaign.benefit.type==="gift"){const gift=giftsById.get(String(campaign.benefit.rewardId));available=Boolean(gift?.active&&gift.stock>0&&gift.tierIds.includes(context.account.tierId)&&(!gift.startsAt||gift.startsAt<=now)&&(!gift.endsAt||gift.endsAt>now));}
+    const orderOptions=campaignOrderOptions(eligibleOrders,memberClaims,campaign,now);
+    if(campaign.minOrderVnd>0&&campaign.benefit.type!=="offer"&&!orderOptions.length)available=false;
+    if(claimed||campaign.usedCount<campaign.maxUses)offers.push({_id:campaign._id,name:campaign.name,description:campaign.description,type:campaign.type,benefit:campaign.benefit,endsAt:campaign.endsAt,minOrderVnd:campaign.minOrderVnd,stackable:campaign.stackable,claimed:Boolean(claimed),available,eligibleOrders:orderOptions});}}
   const redemptions=await LoyaltyRedemption.find({userId:context.userId}).sort({createdAt:-1}).limit(30).session(context.session).lean();
   const notifications=await LoyaltyNotification.find({userId:context.userId}).sort({createdAt:-1}).limit(30).session(context.session).lean();
   const history=await LoyaltyTierHistory.find({userId:context.userId}).sort({at:-1}).limit(30).session(context.session).lean();
   const claims=memberClaims.slice(0,30);
   return {membership:summary,rewards:rewards.map(publicReward),campaigns:offers,redemptions:redemptions.map(publicRedemption),notifications,tierHistory:history,claims};
-},{includeOrderHistory:true}));
+}));
 export const myLedger=handler(async req=>{const page=pageOf(req),filter={userId:req.user._id};return {page,entries:await LoyaltyLedger.find(filter).sort({at:-1,_id:-1}).skip((page-1)*30).limit(30).lean(),total:await LoyaltyLedger.countDocuments(filter)};});
 export const redeemReward=handler(async req=>({redemption:await redeem(req.user._id,req.body)}));
 export const claimPrivilege=handler(async req=>({claim:await claimCampaign(req.user._id,req.body)}));

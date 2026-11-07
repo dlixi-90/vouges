@@ -46,6 +46,7 @@ const Header = () => {
     if (!user) return;
     void import("../pages/Membership").catch(() => {});
     void storeResources.loadMembership().catch(() => {});
+    void storeResources.loadCatalog("/me", "/api/loyalty").catch(() => {});
     void import("../pages/MyOrders").catch(() => {});
     void storeResources.loadOrders().catch(() => {});
   };

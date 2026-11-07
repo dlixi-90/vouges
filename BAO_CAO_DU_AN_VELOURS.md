@@ -24,14 +24,6 @@
 
 ---
 
-## Thông tin biên soạn
-
-Báo cáo được lập theo cấu trúc của [Template BTL PTHT TMĐT.pdf](<Template BTL PTHT TMĐT.pdf>), gồm bốn chương, kết luận, hướng phát triển, tài liệu tham khảo và phân công công việc. Số thứ tự mục hình thức thanh toán trong mẫu bị lặp; báo cáo chuẩn hóa thành mục 4.3.10.
-
-Nội dung kỹ thuật được đối chiếu với mã nguồn trong `client/`, `server/`, `tools/`, các tệp dữ liệu còn phục vụ kiểm thử và nhật ký kiểm tra tại thời điểm lập báo cáo. Những phần đã có giao diện nhưng chưa có xử lý nghiệp vụ được ghi rõ. Các sơ đồ thể hiện thiết kế rút ra từ triển khai; không được hiểu là ảnh chụp màn hình hoặc kết quả khảo sát người dùng thực địa.
-
-Các thông tin lớp, thành viên, mã sinh viên và phân công chưa được cung cấp nên được đánh dấu **[Cần bổ sung]**. Báo cáo không đưa khóa API, chuỗi kết nối cơ sở dữ liệu, mật khẩu, số tài khoản thanh toán thực tế hoặc thông tin cá nhân của khách hàng vào tài liệu.
-
 ## Mục lục
 
 1. [Chương I. Mô tả, khảo sát và xác định yêu cầu bài toán](#chuong-1)

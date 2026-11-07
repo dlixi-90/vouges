@@ -55,6 +55,10 @@ export default function Membership() {
   useEffect(() => {
     if (!userId) return undefined;
     let active = true;
+    // Start the loyalty summary beside the voucher request. The member panel is
+    // rendered after the profile/wallet payload arrives, so preloading avoids
+    // making those two API calls a serial wait.
+    void storeResources.loadCatalog("/me", "/api/loyalty").catch(() => {});
     storeResources
       .loadMembership({force:attempt>0})
       .then((result) => {
