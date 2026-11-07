@@ -468,10 +468,12 @@ test("missing, birthday and already deleted vouchers cannot be deleted or reacti
 });
 
 test("admin voucher list excludes deleted entries and keeps legacy entries with no deletion field", async (t) => {
-  t.mock.method(Voucher, "find", (filter) => {
+  t.mock.method(Voucher, "aggregate", async (pipeline) => {
     // MongoDB's null equality also matches older documents where the field is absent.
-    assert.deepEqual(filter, { kind: "general", deletedAt: null });
-    return { sort: () => ({ limit: () => ({ lean: async () => [coupon()] }) }) };
+    assert.deepEqual(pipeline[0], { $match: { kind: "general", deletedAt: null } });
+    assert.deepEqual(pipeline[1], { $sort: { createdAt: -1, _id: -1 } });
+    assert.deepEqual(pipeline[2], { $limit: 100 });
+    return [coupon()];
   });
   const res = response();
   await listVouchers({}, res, (error) => { throw error; });

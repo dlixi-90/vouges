@@ -8,7 +8,7 @@ import userRouter from "../../routes/userRoute.js";
 import orderRouter from "../../routes/orderRoute.js";
 import authUser, {requireOwner,requireCustomerProfile} from "../../middleware/authMiddleware.js";
 import clerkWebhooks from "../../controllers/ClerkWebhooks.js";
-import {completeCustomerProfile,listCustomers,updateCustomer} from "../../controllers/customerController.js";
+import {completeCustomerProfile,listCustomers,updateCustomer,updateContactPhone} from "../../controllers/customerController.js";
 import {getUserProfile,saveBirthday} from "../../controllers/userController.js";
 import {customerProfile,latestAdultBirthday,validateCustomerProfile} from "../../utils/customerProfile.js";
 import {placedOrderFilter} from "../../utils/orderReporting.js";
@@ -55,6 +55,7 @@ test("customer list/edit are owner-only; completion is account-authenticated and
   assert.deepEqual(route(userRouter,"/customers","get"),[authUser,requireOwner,listCustomers]);
   assert.deepEqual(route(userRouter,"/customers/:id","patch"),[authUser,requireOwner,updateCustomer]);
   assert.deepEqual(route(userRouter,"/profile","patch"),[authUser,completeCustomerProfile]);
+  assert.deepEqual(route(userRouter,"/profile/phone","patch"),[authUser,updateContactPhone]);
   for(const path of ["/cod","/qr"])assert.ok(route(orderRouter,path,"post").includes(requireCustomerProfile));
   const res=response();requireCustomerProfile({user:pending},res,()=>assert.fail("Incomplete accounts cannot place orders"));assert.equal(res.code,403);
   for(const user of [finished,{...pending,profileOnboardingRequired:false},{...pending,role:"owner"}]){
@@ -135,6 +136,23 @@ test("private profile returns saved contact after later identity sync without ex
   const res=response();await getUserProfile({user:{...finished,username:"Clerk changed",phone:"",cartData:{},cartAddedAt:{}}},res);
   assert.equal(res.body.profile.fullName,draft.fullName);assert.equal(res.body.profile.phone,"(+84) 912 345 678");assert.equal(res.body.profile.needsCompletion,false);
   assert.equal(res.body.profile.role,undefined);assert.equal(res.headers["Cache-Control"],"private, no-store");
+});
+
+test("customers can update only their own validated contact phone",async t=>{
+  const write=t.mock.method(User,"findOneAndUpdate",async(filter,update,options)=>{
+    assert.deepEqual(filter,{_id:pending._id});
+    assert.deepEqual(update,{$set:{contactPhone:"(+84) 987 654 321"}});
+    assert.equal(options.runValidators,true);
+    return {...finished,contactPhone:update.$set.contactPhone};
+  });
+  const saved=response();
+  await updateContactPhone({user:pending,body:{phone:"0987654321",_id:"other",role:"owner"}},saved,fail);
+  assert.equal(saved.body.success,true);assert.equal(saved.body.profile.phone,"(+84) 987 654 321");
+  assert.equal(saved.headers["Cache-Control"],"private, no-store");
+  const invalid=response();
+  await updateContactPhone({user:pending,body:{phone:"0112345678"}},invalid,fail);
+  assert.equal(invalid.code,400);assert.ok(invalid.body.errors.phone);assert.equal(write.mock.callCount(),1);
+  assert.equal(customerProfile({...finished,contactPhone:"(+84) 987 654 321"}).phone,"(+84) 987 654 321");
 });
 
 const mockCustomerPage=(t,users)=>{

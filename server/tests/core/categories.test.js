@@ -70,7 +70,9 @@ test("duplicate category names return a conflict", async (t) => {
 
 test("category list returns stored categories", async (t) => {
   const categories = [{ _id: categoryId, name: "Face Care" }];
-  t.mock.method(Category, "find", () => ({ select: () => ({ sort: async () => categories }) }));
+  t.mock.method(Category, "find", () => ({
+    select() { return this; }, sort() { return this; }, lean: async () => categories,
+  }));
   const res = response();
   await listCategories({}, res);
   assert.deepEqual(res.body, { success: true, categories });

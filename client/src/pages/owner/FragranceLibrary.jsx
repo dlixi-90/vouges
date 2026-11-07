@@ -52,9 +52,11 @@ function useLibraryDialog(){
 function LibraryEditor({term,onClose,onSaved}){
   const {axios,getToken}=useAppContext(),ref=useLibraryDialog(),submitting=useRef(false);
   const detailQuery=useCatalog(term._id?`/terms/${term._id}`:null);
-  const [draft,setDraft]=useState({name:term.name,description:term.description||"",descriptionContent:term.descriptionContent??null,image:term.image||"",contentStatus:term.contentStatus});
+  const [draftOverrides,setDraftOverrides]=useState({});
   const [busy,setBusy]=useState(false),[uploading,setUploading]=useState(false),[coverUploading,setCoverUploading]=useState(false),[error,setError]=useState("");
-  useEffect(()=>{const full=detailQuery.data?.term;if(full)setDraft({name:full.name||"",description:full.description||"",descriptionContent:full.descriptionContent??null,image:full.image||"",contentStatus:full.contentStatus||"linked"});},[detailQuery.data]);
+  const source=detailQuery.data?.term||term;
+  const draft={name:source.name||"",description:source.description||"",descriptionContent:source.descriptionContent??null,image:source.image||"",contentStatus:source.contentStatus||"linked",...draftOverrides};
+  const updateDraft=patch=>setDraftOverrides(current=>({...current,...patch}));
   const detailsLoading=Boolean(term._id&&detailQuery.loading),detailsError=Boolean(term._id&&detailQuery.error),locked=busy||uploading||coverUploading,formLocked=locked||detailsLoading||detailsError,creating=!term._id,label=libraryTitle(term.kind).toLocaleLowerCase("vi-VN");
   const save=async event=>{
     event.preventDefault();if(locked||detailsLoading||detailsError||submitting.current)return;
@@ -75,19 +77,19 @@ function LibraryEditor({term,onClose,onSaved}){
       const form=new FormData();form.append("images",file);
       const {data}=await axios.post("/api/catalog/media",form,{headers:{Authorization:`Bearer ${await getToken()}`},timeout:30000});
       if(!data.success||!data.images?.[0])throw new Error(data.message||"Không thể tải ảnh.");
-      setDraft(current=>({...current,image:data.images[0]}));
+      updateDraft({image:data.images[0]});
     }catch(err){setError(err.response?.data?.message||err.message);}finally{setCoverUploading(false);}
   };
   return <dialog ref={ref} className="perfume-library-dialog" aria-labelledby="library-editor-title" aria-busy={formLocked} onCancel={event=>{event.preventDefault();if(!locked)onClose();}}>
     <form onSubmit={save}>
       <header><div><p className="perfume-eyebrow">THƯ VIỆN VELOURS</p><h2 id="library-editor-title">{creating?"Thêm":"Chỉnh sửa"} {label}</h2></div><button type="button" className="perfume-icon-button" disabled={locked} onClick={onClose} aria-label="Đóng biên tập"><X size={20}/></button></header>
       {term._id&&<CatalogState {...detailQuery}/>} {error&&<p role="alert" className="perfume-alert">{error}</p>}
-      <label className="perfume-field"><span>Tên {label}</span><input autoFocus required maxLength={["note","accord"].includes(term.kind)?160:200} disabled={formLocked} value={draft.name} onChange={event=>setDraft(current=>({...current,name:event.target.value}))}/></label>
+      <label className="perfume-field"><span>Tên {label}</span><input autoFocus required maxLength={["note","accord"].includes(term.kind)?160:200} disabled={formLocked} value={draft.name} onChange={event=>updateDraft({name:event.target.value})}/></label>
       <section className="perfume-library-cover" aria-label="Ảnh đại diện">
-        {draft.image&&<img src={draft.image} alt="Ảnh đại diện" width="88" height="88"/>}<div><p>Ảnh đại diện</p><div className="perfume-library-actions"><label className={`perfume-button${formLocked?" is-disabled":""}`}><Upload size={15}/>{coverUploading?"Đang tải…":draft.image?"Thay ảnh":"Thêm ảnh"}<input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" aria-label="Tải ảnh đại diện" disabled={formLocked} onChange={event=>{void uploadCover(event.target.files[0]);event.target.value="";}}/></label>{draft.image&&<button type="button" className="perfume-icon-button perfume-library-delete" disabled={formLocked} onClick={()=>setDraft(current=>({...current,image:""}))} aria-label="Bỏ ảnh đại diện"><Trash2 size={16}/></button>}</div></div>
+        {draft.image&&<img src={draft.image} alt="Ảnh đại diện" width="88" height="88"/>}<div><p>Ảnh đại diện</p><div className="perfume-library-actions"><label className={`perfume-button${formLocked?" is-disabled":""}`}><Upload size={15}/>{coverUploading?"Đang tải…":draft.image?"Thay ảnh":"Thêm ảnh"}<input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" aria-label="Tải ảnh đại diện" disabled={formLocked} onChange={event=>{void uploadCover(event.target.files[0]);event.target.value="";}}/></label>{draft.image&&<button type="button" className="perfume-icon-button perfume-library-delete" disabled={formLocked} onClick={()=>updateDraft({image:""})} aria-label="Bỏ ảnh đại diện"><Trash2 size={16}/></button>}</div></div>
       </section>
-      {term.kind!=="brand"&&<><section className="perfume-library-introduction" aria-labelledby="library-introduction-title"><h3 id="library-introduction-title">Giới thiệu</h3><Suspense fallback={<LoadingStatus label="Đang tải trình soạn thảo…" />}><ProductArticleEditor library value={draft.descriptionContent} text={draft.description} disabled={formLocked} ariaLabel="Trình soạn thảo giới thiệu" onUploadingChange={setUploading} onChange={(descriptionContent,description)=>setDraft(current=>({...current,descriptionContent,description}))}/></Suspense></section>
-      <label className="perfume-field"><span>Tình trạng biên soạn</span><select disabled={formLocked} value={draft.contentStatus} onChange={event=>setDraft(current=>({...current,contentStatus:event.target.value}))}><option value="linked">Cần biên soạn</option><option value="complete">Đã hoàn thiện</option></select></label></>}
+      {term.kind!=="brand"&&<><section className="perfume-library-introduction" aria-labelledby="library-introduction-title"><h3 id="library-introduction-title">Giới thiệu</h3><Suspense fallback={<LoadingStatus label="Đang tải trình soạn thảo…" />}><ProductArticleEditor library value={draft.descriptionContent} text={draft.description} disabled={formLocked} ariaLabel="Trình soạn thảo giới thiệu" onUploadingChange={setUploading} onChange={(descriptionContent,description)=>updateDraft({descriptionContent,description})}/></Suspense></section>
+      <label className="perfume-field"><span>Tình trạng biên soạn</span><select disabled={formLocked} value={draft.contentStatus} onChange={event=>updateDraft({contentStatus:event.target.value})}><option value="linked">Cần biên soạn</option><option value="complete">Đã hoàn thiện</option></select></label></>}
       {term.kind!=="brand"&&term.sourceUrl&&<a href={term.sourceUrl} target="_blank" rel="noreferrer" className="perfume-inline-link">Đối chiếu nguồn <ExternalLink size={13}/></a>}
       <footer><button type="button" className="perfume-button" disabled={locked} onClick={onClose}>Hủy</button><button type="submit" className="perfume-button primary" disabled={formLocked}><Save size={15}/>{busy?"Đang lưu…":uploading||coverUploading?"Đang tải ảnh…":detailsLoading?"Đang tải…":creating?`Thêm ${label}`:"Lưu thay đổi"}</button></footer>
     </form>

@@ -66,9 +66,9 @@ export const searchVoucherCustomers = async (req, res, next) => {
       .map((digits) => new RegExp(digits.split("").map(escapeRegex).join("[\\s()+.-]*")));
     const users = await User.find({ role: { $ne: "owner" }, $or: [
       { email: { $regex: escapeRegex(q), $options: "i" } },
-      ...phonePatterns.map((pattern) => ({ phone: pattern })),
-    ] }).select("username email phone").sort({ username: 1, _id: 1 }).limit(10).lean();
-    return res.json({ success: true, customers: users.map(({ _id, username, email, phone }) => ({ _id, name: username, email, phone })) });
+      ...phonePatterns.flatMap((pattern) => [{ phone: pattern }, { contactPhone: pattern }]),
+    ] }).select("username email phone contactPhone").sort({ username: 1, _id: 1 }).limit(10).lean();
+    return res.json({ success: true, customers: users.map(({ _id, username, email, phone, contactPhone }) => ({ _id, name: username, email, phone: contactPhone || phone })) });
   } catch (error) { next(error); }
 };
 

@@ -49,6 +49,11 @@ test("customers cannot read, stream or send into someone else's conversation", a
   assert.equal(stream.headers["Content-Type"], undefined);
   const session = { withTransaction: async (callback) => callback(), endSession: async () => {} };
   t.mock.method(mongoose, "startSession", async () => session);
+  t.mock.method(Message, "findOne", () => query(null));
+  t.mock.method(Conversation, "findOneAndUpdate", (filter) => {
+    assert.deepEqual(filter, { _id: id, userId: "intruder" });
+    return query(null);
+  });
   const create = t.mock.method(Message, "create", () => assert.fail("Must not send"));
   await assert.rejects(sendSupportMessage(id, { _id: "intruder", role: "user" }, draft), { statusCode: 404 });
   assert.equal(create.mock.callCount(), 0);
@@ -79,10 +84,17 @@ test("retries reuse one message; transactions maintain ordering, reopen resolved
     return query(() => ({ ...current }));
   });
   t.mock.method(Message, "findOne", (filter) => query(() => messages.find((message) => message.senderId === filter.senderId && message.clientMessageId === filter.clientMessageId)));
-  const update = t.mock.method(Conversation, "findOneAndUpdate", (_filter, changes, options) => {
+  const update = t.mock.method(Conversation, "findOneAndUpdate", (filter, changes, options) => {
     assert.equal(options.session, session);
-    for (const [key, increment] of Object.entries(changes.$inc)) current[key] += increment;
-    current = { ...current, ...changes.$set };
+    assert.deepEqual(filter._id, id);
+    assert.equal(changes.length, 1);
+    const values = changes[0].$set;
+    const staffReply = !Object.hasOwn(filter, "userId");
+    current = { ...current, sequence: current.sequence + 1,
+      unreadCustomer: staffReply ? current.unreadCustomer + 1 : 0,
+      unreadStaff: staffReply ? 0 : current.unreadStaff + 1,
+      lastMessage: values.lastMessage.$literal,
+      status: staffReply ? "active" : current.status === "resolved" ? "waiting" : current.status };
     return query({ ...current });
   });
   const create = t.mock.method(Message, "create", async ([message], options) => {
@@ -144,7 +156,7 @@ test("snapshots paginate the newest 50 messages chronologically and omit sender 
   t.mock.method(Conversation, "findOne", () => query(conversation({ sequence: 70 })));
   t.mock.method(Message, "find", (filter) => {
     assert.deepEqual(filter.sequence, { $lte: 70 });
-    return { sort: (sort) => {
+    return { select() { return this; }, sort: (sort) => {
       assert.deepEqual(sort, { sequence: -1 });
       return { limit: (limit) => { assert.equal(limit, 50); return query([{ _id: "last", sequence: 70, senderId: "private" }, { _id: "previous", sequence: 69 }]); } };
     } };
@@ -166,7 +178,7 @@ test("starting support keys the conversation by the server account and persists 
     return query(current);
   });
   t.mock.method(Conversation, "findOne", () => query(current));
-  t.mock.method(Message, "find", () => ({ sort: () => ({ limit: () => query([]) }) }));
+  t.mock.method(Message, "find", () => ({ select() { return this; }, sort() { return this; }, limit() { return query([]); } }));
   const res = response();
   await startSupport({ user: customer, body: { userId: "someone_else", context: [{ role: "user", content: "Câu hỏi" }] } }, res, next);
   assert.equal(res.body.conversation._id, id);

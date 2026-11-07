@@ -127,7 +127,7 @@ test('live usage counts are one bounded aggregate, include components, and omit 
 });
 
 test('owner library list returns live counts and rejects injected state filters',async t=>{
- t.mock.method(FragranceTerm,'find',()=>chain([current('brand')]));t.mock.method(FragranceTerm,'countDocuments',async()=>1);t.mock.method(Product,'aggregate',async()=>[{term0:[{count:4}]}]);
+ t.mock.method(FragranceTerm,'find',()=>chain([current('brand')]));t.mock.method(FragranceTerm,'countDocuments',async()=>1);t.mock.method(Product,'aggregate',async()=>[{_id:'Old (A+B)',count:4}]);
  const res=response();await libraryTerms({query:{kind:'brand'}},res);assert.equal(res.body.terms[0].productCount,4);
  const bad=response();await libraryTerms({query:{kind:'brand',status:{$ne:''}}},bad);assert.equal(bad.statusCode,400);
 });

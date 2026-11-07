@@ -121,7 +121,7 @@ test("concurrent browse requests share one bounded snapshot; stock invalidation 
   await getStorefrontCatalog(); assert.equal(reads, 1);
   invalidateStorefrontCatalog();
   await getStorefrontCatalog(); assert.equal(reads, 2);
-  clock += 10001;
+  clock += 60001;
   await getStorefrontCatalog(); assert.equal(reads, 3);
   invalidateStorefrontCatalog();
 });
@@ -217,12 +217,11 @@ test("fragrance metadata is lazy and cached separately from the live card/stock 
     const query = { sort: () => query, lean: async () => [fixture()] };
     return query;
   } }));
-  t.mock.method(Product, "aggregate", async pipeline => { projections.push(pipeline[1].$project); return [fixture()]; });
   await getStorefrontCatalog();
   assert.equal(projections.length, 1); assert.doesNotMatch(Object.keys(projections[0]).join(" "), /fragrance/);
   assert.deepEqual(projections[0].images, { $slice: 1 });
   const rich = await getStorefrontCatalog(true);
-  assert.equal(projections.length, 2); assert.match(Object.keys(projections[1]).join(" "), /fragrance/);
+  assert.equal(projections.length, 2); assert.match(projections[1], /fragrance/);
   assert.deepEqual(rich[0]._filters.notes, ["Chanh vàng", "Hoa hồng", "Xạ hương"]);
   await getStorefrontCatalog(true); assert.equal(projections.length, 2);
   invalidateStorefrontCatalog();
@@ -230,13 +229,8 @@ test("fragrance metadata is lazy and cached separately from the live card/stock 
 
 test("projected fragrance metadata keeps ordinary concentrations and exposes each concentration in a mixed set", async t => {
   invalidateStorefrontCatalog();
-  const plain=fixture(1), mixed=fixture(2,{concentration:'EDT / EDP'});
+  const plain=fixture(1), mixed=fixture(2,{concentration:'EDT / EDP',fragrance:{components:[{concentration:'EDT'},{concentration:'EDP'}]}});
   t.mock.method(Product,'find',()=>({select(){return this;},sort(){return this;},lean:async()=>[plain,mixed]}));
-  // Match the real profile projection: top-level concentration is absent.
-  t.mock.method(Product,'aggregate',async()=>[
-    {_id:plain._id,fragrance:{notes:plain.fragrance.notes}},
-    {_id:mixed._id,fragrance:{components:[{concentration:'EDT',notes:{general:[{name:'Wood'}]}},{concentration:'EDP',notes:{general:[{name:'Rose'}]}}]}},
-  ]);
   const catalog=await getStorefrontCatalog(true);
   assert.deepEqual(catalog[0]._filters.concentrations,['EDP']);
   assert.deepEqual(catalog[1]._filters.concentrations,['EDT','EDP']);

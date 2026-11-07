@@ -37,7 +37,7 @@ export const validateCustomerProfile = (raw = {}, now = new Date()) => {
 export const customerProfile = user => ({
   fullName: user.customerProfile?.fullName || user.username || "",
   username: user.customerProfile?.fullName || user.username || "",
-  phone: user.customerProfile?.phone || user.phone || "",
+  phone: user.contactPhone || user.customerProfile?.phone || user.phone || "",
   email: user.email || "",
   birthday: user.birthday || "",
   completedAt: user.customerProfile?.completedAt || null,

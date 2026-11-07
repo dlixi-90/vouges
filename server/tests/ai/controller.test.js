@@ -81,7 +81,7 @@ test("chatWithAI chặn request không hợp lệ trước khi gọi Groq", asyn
   }
 });
 
-test("chatWithAI giới hạn history và gửi đầy đủ tool definitions", async () => {
+test("chatWithAI giới hạn history và chỉ gửi tool definitions liên quan", async () => {
   const originalApiKey = process.env.GROQ_API_KEY;
   const originalFetch = globalThis.fetch;
   let groqRequestBody;
@@ -109,8 +109,8 @@ test("chatWithAI giới hạn history và gửi đầy đủ tool definitions", 
 
     assert.equal(state.status, 200);
     assert.equal(state.payload.success, true);
-    assert.equal(groqRequestBody.messages.length, 14);
-    assert.equal(groqRequestBody.messages[1].content, "history-1");
+    assert.equal(groqRequestBody.messages.length, 8);
+    assert.equal(groqRequestBody.messages[1].content, "history-7");
     assert.equal(groqRequestBody.messages.at(-1).content, "So sánh sản phẩm");
     assert.equal(
       groqRequestBody.tools.some(
@@ -122,8 +122,11 @@ test("chatWithAI giới hạn history và gửi đầy đủ tool definitions", 
       groqRequestBody.tools.some(
         (tool) => tool.function.name === "prepareRemoveFromCart",
       ),
-      true,
+      false,
     );
+    assert.deepEqual(groqRequestBody.tools.map((tool) => tool.function.name), [
+      "searchProducts", "getProductDetails", "compareProducts",
+    ]);
   } finally {
     if (originalApiKey === undefined) delete process.env.GROQ_API_KEY;
     else process.env.GROQ_API_KEY = originalApiKey;

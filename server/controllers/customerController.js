@@ -3,6 +3,7 @@ import Order from "../models/Order.js";
 import { customerProfile, validateCustomerProfile } from "../utils/customerProfile.js";
 import { placedOrderFilter } from "../utils/orderReporting.js";
 import { isRootAdmin, rootAdminEmails } from "../services/userAccess.js";
+import { validateDeliveryPhone } from "../utils/deliveryPhone.js";
 
 const profileUpdate = value => ({
   customerProfile: {fullName:value.fullName,phone:value.phone,completedAt:new Date()},
@@ -11,6 +12,18 @@ const profileUpdate = value => ({
 const invalidProfile = (res, errors) => res.status(400).json({
   success:false,message:"Vui lòng kiểm tra lại thông tin khách hàng.",errors,
 });
+
+export const updateContactPhone = async (req, res, next) => {
+  res.set("Cache-Control", "private, no-store");
+  const phone = validateDeliveryPhone(typeof req.body?.phone === "string" ? req.body.phone : "");
+  if (!phone.valid) return invalidProfile(res,{phone:phone.error});
+  try {
+    const user = await User.findOneAndUpdate({_id:req.user._id},
+      {$set:{contactPhone:phone.normalized}}, {new:true,runValidators:true});
+    if (!user) return res.status(404).json({success:false,message:"Không tìm thấy tài khoản."});
+    return res.json({success:true,profile:customerProfile(user)});
+  } catch (error) { next(error); }
+};
 
 export const completeCustomerProfile = async (req, res, next) => {
   res.set("Cache-Control", "private, no-store");
@@ -42,16 +55,16 @@ export const listCustomers = async (req, res, next) => {
   const filter = {role:{$ne:"owner"}};
   if (q) {
     const literal = {$regex:escapeRegex(q),$options:"i"};
-    filter.$or = ["customerProfile.fullName","username","email","phone","customerProfile.phone"].map(field=>({[field]:literal}));
+    filter.$or = ["customerProfile.fullName","username","email","phone","contactPhone","customerProfile.phone"].map(field=>({[field]:literal}));
     const digits = q.replace(/\D/g,"").replace(/^(84|0)/,"");
     if (digits && /^[+()\d\s-]+$/.test(q)) {
       const phone = {$regex:digits.split("").join("[\\s()-]*")};
-      filter.$or.push({phone},{"customerProfile.phone":phone});
+      filter.$or.push({phone},{contactPhone:phone},{"customerProfile.phone":phone});
     }
   }
   try {
     const [users,total] = await Promise.all([
-      User.find(filter).select("username email phone birthday customerProfile profileOnboardingRequired createdAt updatedAt")
+      User.find(filter).select("username email phone contactPhone birthday customerProfile profileOnboardingRequired createdAt updatedAt")
         .sort({createdAt:-1,_id:-1}).skip((page-1)*pageSize).limit(pageSize).lean(),
       User.countDocuments(filter),
     ]);

@@ -18,6 +18,7 @@ const response = () => ({ statusCode: 200, headers: {}, set(key, value) { this.h
 const card = index => ({ _id: String(index).padStart(24, "0"), title: `Perfume ${index}`, price: { "100ml": 1000000 }, sizes: ["100ml"], images: ["https://example.com/avatar.webp", "https://example.com/gallery.webp"] });
 
 test("the overview endpoint requires a verified owner and returns only its bounded widgets, without catalog filter scans or order history", async t => {
+  invalidateStorefrontCatalog();
   assert.deepEqual(catalogRouter.stack.filter(layer => !layer.route).slice(0, 2).map(layer => layer.handle), [authUser, requireOwner]);
   assert.equal(catalogRouter.stack.find(layer => layer.route?.path === "/overview").route.stack[0].handle, catalogOverview);
   let reads = 0;
@@ -39,7 +40,7 @@ test("the overview endpoint requires a verified owner and returns only its bound
     return [{ count: 2, revenue: 10 }];
   });
   const res = response(); await catalogOverview({ query: { timezone: "Asia/Bangkok" } }, res);
-  assert.equal(res.body.success, true); assert.equal(reads, 7);
+  assert.equal(res.body.success, true); assert.equal(reads, 6);
   assert.deepEqual(lists.map(list => list.limit), [5, 4]);
   assert.ok(lists.every(list => !/fragrance|source|description/.test(list.fields)));
   assert.equal(res.body.recentProducts.length, 5); assert.equal(res.body.attentionProducts.length, 4);
@@ -120,7 +121,7 @@ const context = () => {
     return { data: { success: true, dashboardData: { orders: [], totalRevenue: 123 }, vouchers: [], conversations: [], total: 0, unread: 0 } };
   } };
   const getToken = async () => "session";
-  return { calls, axios, getToken, isOwner: true, authenticatedUserId: "owner", dashboardCache: createDashboardCache(), storeResources: createStoreResources({ axios, getToken, userId: "owner" }) };
+  return { calls, axios, getToken, fetchPopularProducts: async () => {}, isOwner: true, authenticatedUserId: "owner", dashboardCache: createDashboardCache(), storeResources: createStoreResources({ axios, getToken, userId: "owner" }) };
 };
 
 test("hover, keyboard focus and subsequent page mount share one authenticated request per owner route", async () => {

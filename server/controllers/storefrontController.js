@@ -7,7 +7,7 @@ import { readStorefrontBrowse, readStorefrontRelated } from "../services/storefr
 // Catalog cards are advisory; cart and checkout endpoints always re-read live stock and price.
 // Longer edge caching avoids repeating the same MongoDB browse aggregation for every visitor.
 const PUBLIC_CATALOG_CACHE = "public, max-age=10, s-maxage=60, stale-while-revalidate=120";
-const PUBLIC_FILTER_CACHE = "public, max-age=30, s-maxage=300, stale-while-revalidate=300";
+const PUBLIC_FILTER_CACHE = "public, max-age=15, s-maxage=15, stale-while-revalidate=30";
 const action = handler => async (req, res) => {
   try {
     res.set("Cache-Control", "no-store");
@@ -24,7 +24,7 @@ export const browseProducts = action(async (req, res) => {
   res.json(result);
 });
 export const productFilters = action(async (_req, res) => {
-  const result = await catalogSnapshot("filter-options", 300000, async () => ({
+  const result = await catalogSnapshot("filter-options", 15000, async () => ({
     success: true,
     options: collectStorefrontFilters(await getStorefrontFilterCatalog()),
   }));

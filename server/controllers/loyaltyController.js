@@ -67,9 +67,9 @@ const mapLimit=async(items,limit,operation)=>{
 };
 export const adminMembers=handler(async req=>{
   const page=pageOf(req),q=typeof req.query.q==="string"?req.query.q.trim():"";if(q.length>120)throw new LoyaltyError("Từ khóa quá dài.");const filter={role:{$ne:"owner"}};
-  if(q){const regex={$regex:q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),$options:"i"};filter.$or=["_id","username","customerProfile.fullName","phone","email"].map(field=>({[field]:regex}));}
+  if(q){const regex={$regex:q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),$options:"i"};filter.$or=["_id","username","customerProfile.fullName","phone","contactPhone","email"].map(field=>({[field]:regex}));}
   const [users,total]=await Promise.all([
-    User.find(filter).select("username customerProfile.fullName phone email createdAt").sort({_id:1}).skip((page-1)*20).limit(20).lean(),
+    User.find(filter).select("username customerProfile.fullName phone contactPhone email createdAt").sort({_id:1}).skip((page-1)*20).limit(20).lean(),
     User.countDocuments(filter),
   ]);
   const members=await memberListSummaries(users);

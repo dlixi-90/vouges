@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import Order from "../../models/Order.js";
 import { listPopularProducts } from "../../controllers/productController.js";
 import productRouter from "../../routes/productRoute.js";
+import { invalidateStorefrontCatalog } from "../../services/storefrontCatalog.js";
 
 const response = () => ({
   statusCode: 200,
@@ -19,18 +20,20 @@ test("visitors and admins use the same public popular products endpoint", () => 
   assert.equal(route.stack[0].handle, listPopularProducts);
 });
 
-test("popular products refreshes after sales change and prevents stale HTTP caching", async (t) => {
+test("popular products refreshes after a sale invalidates its bounded cache", async (t) => {
+  invalidateStorefrontCatalog();
   let ranking = [{ _id: "product_a", title: "A", soldQuantity: 2 }];
   t.mock.method(Order, "aggregate", async () => structuredClone(ranking));
   const first = response();
   await listPopularProducts({}, first);
-  assert.equal(first.headers["Cache-Control"], "no-store");
+  assert.equal(first.headers["Cache-Control"], "public, max-age=30, s-maxage=120, stale-while-revalidate=300");
   assert.equal(first.body.products[0]._id, "product_a");
 
   ranking = [
     { _id: "product_b", title: "B", soldQuantity: 5 },
     ...ranking,
   ];
+  invalidateStorefrontCatalog();
   const second = response();
   await listPopularProducts({}, second);
   assert.equal(second.body.products[0]._id, "product_b");
@@ -38,6 +41,7 @@ test("popular products refreshes after sales change and prevents stale HTTP cach
 });
 
 test("no sales is a successful empty result; database failures are not reported as no sales", async (t) => {
+  invalidateStorefrontCatalog();
   t.mock.method(Order, "aggregate", async () => []);
   const empty = response();
   await listPopularProducts({}, empty);
@@ -46,6 +50,7 @@ test("no sales is a successful empty result; database failures are not reported 
   t.mock.method(Order, "aggregate", async () => {
     throw new Error("private database connection details");
   });
+  invalidateStorefrontCatalog();
   t.mock.method(console, "error", () => {});
   const failure = response();
   await listPopularProducts({}, failure);

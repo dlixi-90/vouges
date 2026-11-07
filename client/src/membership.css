@@ -19,6 +19,11 @@
 .net-membership .membership-profile .net-member-details dt { font-size: 10px; }
 .net-membership .membership-profile .net-member-details dd { margin-top: 3px; font-size: 12px; line-height: 1.7; }
 .net-membership .membership-profile .net-member-icon { width: 15px; height: 15px; color: #827565; }
+.membership-phone-value { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+.membership-phone-value button,.membership-phone-form button { color:#59462b; font-size:11px; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+.membership-phone-form { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.membership-phone-form input { width:min(100%,220px); min-width:0; border:1px solid #d8d3ca; border-radius:6px; padding:7px 9px; font-size:12px; }
+.membership-phone-form button:disabled { cursor:wait; opacity:.55; }
 .net-membership .membership-profile .net-member-avatar { width: 40px; height: 40px; background: #e9dfce; color: #59462b; border: 1px solid #dbcfb9; }
 .net-membership .membership-profile .net-member-avatar span { color: inherit; font-size: 16px; }
 .net-membership .net-member-settings { display: grid; place-items: center; flex: none; width: 36px; height: 36px; margin-left: auto; border: 1px solid #e3ddd3; border-radius: 50%; color: #756954; cursor: pointer; }

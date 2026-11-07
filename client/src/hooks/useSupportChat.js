@@ -126,7 +126,7 @@ export const useSupportFeed = (path, enabled, conversationFeed = false, initialD
       bootstrapController?.abort();
       document.removeEventListener("visibilitychange", visibility);
     };
-  }, [api, path, enabled, userId, key, update, inboxPath, storeResources, initialData]);
+  }, [api, path, enabled, userId, key, update, inboxPath, storeResources, conversationFeed, initialData]);
   return { data: result?.key === key ? result.data : cached, update,
     status: connection.key === key ? connection.status : "connecting", error: connection.key === key ? connection.error : "" };
 };

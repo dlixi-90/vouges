@@ -28,17 +28,17 @@ export const listUsers = handle(async req => {
   const clauses = role === "all" ? [] : [role === "owner" ? ownerMatch : { $nor: [ownerMatch] }];
   if (q.trim()) {
     const literal = { $regex: escaped(q.trim()), $options: "i" };
-    const search = ["customerProfile.fullName", "username", "email", "phone", "customerProfile.phone"].map(field => ({ [field]: literal }));
+    const search = ["customerProfile.fullName", "username", "email", "phone", "contactPhone", "customerProfile.phone"].map(field => ({ [field]: literal }));
     const digits = q.replace(/\D/g, "").replace(/^(84|0)/, "");
     if (digits && /^[+()\d\s-]+$/.test(q.trim())) {
       const phone = { $regex: digits.split("").join("[\\s()-]*") };
-      search.push({ phone }, { "customerProfile.phone": phone });
+      search.push({ phone }, { contactPhone: phone }, { "customerProfile.phone": phone });
     }
     clauses.push({ $or: search });
   }
   const filter = clauses.length > 1 ? { $and: clauses } : clauses[0] || {};
   const [users, total] = await Promise.all([
-    User.find(filter).select("username email phone birthday customerProfile profileOnboardingRequired role adminAccess createdAt")
+    User.find(filter).select("username email phone contactPhone birthday customerProfile profileOnboardingRequired role adminAccess createdAt")
       .sort({ createdAt: -1, _id: -1 }).skip((page - 1) * pageSize).limit(pageSize).lean(),
     User.countDocuments(filter),
   ]);

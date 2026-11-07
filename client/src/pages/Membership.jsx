@@ -45,6 +45,9 @@ export default function Membership() {
   const [birthday, setBirthday] = useState(
     () => storeResources.peekMembership()?.profile.birthday || "",
   );
+  const [phone, setPhone] = useState(() => storeResources.peekMembership()?.profile.phone || "");
+  const [editingPhone, setEditingPhone] = useState(false);
+  const [savingPhone, setSavingPhone] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -59,6 +62,7 @@ export default function Membership() {
           setData(result);
           setLoadedAt(Date.now());
           setBirthday(result.profile.birthday || "");
+          setPhone(result.profile.phone || "");
           setError("");
         }
       })
@@ -90,6 +94,27 @@ export default function Membership() {
       toast.error(err.response?.data?.message || err.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const savePhone = async (event) => {
+    event.preventDefault();
+    if (savingPhone) return;
+    setSavingPhone(true);
+    try {
+      const {data} = await axios.patch("/api/users/profile/phone", {phone}, {
+        headers:{Authorization:`Bearer ${await getToken()}`}, timeout:15000,
+      });
+      if (!data.success || !data.profile) throw new Error(data.message || "Không thể lưu số điện thoại.");
+      setData(current => current?.userId === userId ? {...current,profile:data.profile} : current);
+      setPhone(data.profile.phone || "");
+      storeResources.invalidateMembership();
+      setEditingPhone(false);
+      toast.success("Đã cập nhật số điện thoại.");
+    } catch (err) {
+      toast.error(err.response?.data?.errors?.phone || err.response?.data?.message || err.message);
+    } finally {
+      setSavingPhone(false);
     }
   };
 
@@ -247,7 +272,16 @@ export default function Membership() {
                     <div className="min-w-0">
                       <dt className="text-xs text-gray-500">Số điện thoại</dt>
                       <dd className="mt-1 break-words text-sm">
-                        {current.profile.phone || "Chưa cập nhật"}
+                        {editingPhone ? <form onSubmit={savePhone} className="membership-phone-form">
+                          <label className="sr-only" htmlFor="membership-phone">Số điện thoại</label>
+                          <input id="membership-phone" name="phone" type="tel" autoComplete="tel" required maxLength={30}
+                            value={phone} disabled={savingPhone} onChange={event => setPhone(event.target.value)} />
+                          <button type="submit" disabled={savingPhone}>{savingPhone ? "Đang lưu…" : "Lưu"}</button>
+                          <button type="button" disabled={savingPhone} onClick={() => { setPhone(current.profile.phone || ""); setEditingPhone(false); }}>Hủy</button>
+                        </form> : <div className="membership-phone-value">
+                          <span>{current.profile.phone || "Chưa cập nhật"}</span>
+                          <button type="button" onClick={() => setEditingPhone(true)} aria-label="Chỉnh sửa số điện thoại">Chỉnh sửa</button>
+                        </div>}
                       </dd>
                     </div>
                   </div>
