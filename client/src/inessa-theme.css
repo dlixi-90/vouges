@@ -253,7 +253,7 @@
 .product-detail-visual-column { min-width: 0; }
 .product-detail-gallery { width: 100%; min-width: 0; }
 .product-detail-gallery-layout { display: flex; align-items: flex-start; gap: 8px; }
-.product-detail-thumbnails { display: flex; flex-direction: column; flex-shrink: 0; gap: 8px; width: 64px; max-height: 320px; overflow-y: auto; overflow-x: hidden; overscroll-behavior-y: contain; scrollbar-width: none; -ms-overflow-style: none; padding: 2px; cursor: grab; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
+.product-detail-thumbnails { display: flex; flex-direction: column; flex-shrink: 0; gap: 8px; width: 72px; max-height: 320px; overflow-y: auto; overflow-x: hidden; overscroll-behavior-y: contain; scrollbar-width: none; -ms-overflow-style: none; padding: 4px; cursor: grab; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
 .product-detail-thumbnails::-webkit-scrollbar { display: none; width: 0; height: 0; }
 .product-detail-thumbnails:active { cursor: grabbing; }
 .product-detail-thumbnails > button { display: flex; align-items: center; justify-content: center; flex: 0 0 64px; width: 64px; height: 64px; min-width: 64px; min-height: 64px; max-width: 64px; max-height: 64px; box-sizing: border-box; cursor: pointer; }
@@ -284,7 +284,7 @@
 .product-detail-experience .perfume-fragrance-charts { margin-top: 0; }
 @media (min-width: 640px) {
   .product-detail-gallery-layout { gap: 12px; }
-  .product-detail-thumbnails { width: 72px; max-height: 520px; }
+  .product-detail-thumbnails { width: 80px; max-height: 520px; }
   .product-detail-thumbnails > button { flex: 0 0 72px; width: 72px; height: 72px; min-width: 72px; min-height: 72px; max-width: 72px; max-height: 72px; }
   .product-detail-gallery-stage { min-height: 420px; padding: 48px; }
 }
