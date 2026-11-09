@@ -109,6 +109,16 @@ test("matching remains case-insensitive and query/price/filter input cannot inje
   assert.throws(() => parsePerfumeFilters(JSON.stringify({ notes: Array(31).fill("rose") })));
   const result = browseCatalog([fixture()], options({ q: "PERFUME", facets: JSON.stringify({ origins: ["pháp"], brands: ["brand a"] }) }));
   assert.equal(result.total, 1);
+  for (const q of ["Brand A", "hoa hong", "Hoa hồng", "cam chanh", "thanh lich", "phap", "Brand A EDP", "nuoc hoa nam"]) {
+    assert.equal(browseCatalog([fixture()], options({ q })).total, 1, `Expected "${q}" to match fixture`);
+  }
+  for (const q of ["nu", "nuoc hoa nu", "nữ", "Brand B"]) {
+    assert.equal(browseCatalog([fixture()], options({ q })).total, 0, `Expected "${q}" not to match men's fixture`);
+  }
+  const byNoteOnly = fixture(1, { title: "Velours Amber", brand: "Maison V" });
+  const byTitle = fixture(2, { title: "Hoa Hồng Đỏ", brand: "Maison V" });
+  const ranked = browseCatalog([byNoteOnly, byTitle], options({ q: "hoa hong", sort: "relevant" }));
+  assert.deepEqual(ranked.products.map(p => p._id), [byTitle._id, byNoteOnly._id]);
 });
 
 test("concurrent browse requests share one bounded snapshot; stock invalidation and expiry cause a fresh read", async (t) => {

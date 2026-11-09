@@ -5,6 +5,7 @@ import useCachedResource from "../hooks/useCachedResource";
 import usePaginationScroll from "../hooks/usePaginationScroll";
 import { LIBRARY_KINDS, libraryPath } from "../utils/fragranceLibrary";
 import { knowledgePresentation } from "../utils/knowledgePresentation";
+import { getProductImageUrl } from "../utils/productImage";
 import ProductArticle from "../components/ProductArticle";
 import KnowledgeDirectory from "../components/KnowledgeDirectory";
 import StorePageHeading from "../components/StorePageHeading";
@@ -16,7 +17,7 @@ import "./knowledge.css";
 function KnowledgeHero({ image, title }) {
   return <figure className="knowledge-hero">
     <a className="knowledge-hero-image" href={image.attrs.src} target="_blank" rel="noopener noreferrer" aria-label={`Xem ảnh đầy đủ: ${title}`}>
-      <img src={image.attrs.src} alt={image.attrs.alt || title} width={image.attrs.width} height={image.attrs.height} loading="eager" fetchPriority="high" decoding="async" />
+      <img src={getProductImageUrl(image.attrs.src, 1200)} alt={image.attrs.alt || title} width={image.attrs.width} height={image.attrs.height} loading="eager" fetchPriority="high" decoding="async" />
     </a>
     {image.attrs.title && <figcaption>{image.attrs.title}</figcaption>}
   </figure>;
@@ -79,7 +80,7 @@ export default function Knowledge() {
               </div>}
             </div>}
             {presentation.body.content.length > 0 && <ProductArticle content={presentation.body} library />}
-          </> : <>{term.image&&<img className="knowledge-empty-image" src={term.image} alt={term.name} width="160" height="160"/>}<p className="knowledge-empty">Phần giới thiệu đang được cập nhật. Bạn có thể khám phá các sản phẩm liên quan bên dưới.</p></>}
+          </> : <>{term.image&&<img className="knowledge-empty-image" src={getProductImageUrl(term.image, 320)} alt={term.name} width="160" height="160" loading="lazy" decoding="async"/>}<p className="knowledge-empty">Phần giới thiệu đang được cập nhật. Bạn có thể khám phá các sản phẩm liên quan bên dưới.</p></>}
         </article>
       </div>
       <section className="knowledge-related" aria-labelledby="knowledge-related-heading"><div ref={listRef} tabIndex={-1} className="knowledge-related-heading"><h2 id="knowledge-related-heading">{term.relatedHeading || "Sản phẩm liên quan"}</h2><p>{data.total.toLocaleString("vi-VN")} sản phẩm</p></div>

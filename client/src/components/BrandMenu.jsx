@@ -4,12 +4,13 @@ import { Link, useLocation } from "react-router-dom";
 import { ChevronDown, Search, X } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import { prefetchCollection } from "../utils/prefetchCollection";
+import { getProductImageUrl } from "../utils/productImage";
 
 const normalized = value => value.normalize("NFC").trim().toLocaleLowerCase("vi-VN");
 
 function BrandImage({ brand, eager }) {
   const [failed, setFailed] = useState(null);
-  return <span className="store-brand-image">{brand.image && failed !== brand.image ? <img src={brand.image} alt="" loading={eager ? "eager" : "lazy"} decoding="async" width={120} height={64} onError={() => setFailed(brand.image)} /> : <span>{brand.name}</span>}</span>;
+  return <span className="store-brand-image">{brand.image && failed !== brand.image ? <img src={getProductImageUrl(brand.image, 240)} alt="" loading={eager ? "eager" : "lazy"} decoding="async" width={120} height={64} onError={() => setFailed(brand.image)} /> : <span>{brand.name}</span>}</span>;
 }
 
 export default function BrandMenu({ directory, compact = false, onNavigate }) {

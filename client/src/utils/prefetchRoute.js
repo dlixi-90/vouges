@@ -6,6 +6,10 @@ export const prefetchRoute = path => {
     "/collection": () => import("../pages/Collection"),
     "/about": () => import("../pages/About"),
     "/contact": () => import("../pages/Contact"),
+    "/policies": () => import("../pages/Policies"),
+    "/knowledge": () => import("../pages/Knowledge"),
+    "/membership": () => import("../pages/Membership"),
+    "/my-orders": () => import("../pages/MyOrders"),
     "/cart": () => import("../pages/Cart"),
     "/owner": () => import("../pages/owner/PerfumeOverview"),
     "/owner/orders": () => import("../pages/owner/Dashboard"),
@@ -20,7 +24,9 @@ export const prefetchRoute = path => {
     "/owner/brands": () => import("../pages/owner/FragranceLibrary"),
     "/owner/library": () => import("../pages/owner/FragranceLibrary"),
   };
-  const loader = loaders[url] || (url.startsWith("/owner/edit-product/")
-    ? () => import("../pages/owner/PerfumeEditor") : null);
+  const loader = loaders[url]
+    || (url.startsWith("/knowledge/") ? () => import("../pages/Knowledge") : null)
+    || (url.startsWith("/collection/") ? () => import("../pages/ProductDetail") : null)
+    || (url.startsWith("/owner/edit-product/") ? () => import("../pages/owner/PerfumeEditor") : null);
   void loader?.().catch(() => {});
 };

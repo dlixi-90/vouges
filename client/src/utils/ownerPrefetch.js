@@ -59,7 +59,11 @@ export const prefetchOwnerRoute = (path, context) => {
   if (pathname === "/owner/messages") tasks.push(context.storeResources.loadSupportInbox(defaultInboxPath));
   if (["/owner/users", "/owner/customers"].includes(pathname)) tasks.push(context.storeResources.loadCatalog("/manage?q=&role=all&page=1&pageSize=25", "/api/users"));
   const productMatch = pathname.match(/^\/owner\/edit-product\/([a-f\d]{24})$/i);
-  if (productMatch) tasks.push(context.storeResources.loadCatalog(`/products/${productMatch[1]}`));
+  if (productMatch) {
+    tasks.push(context.storeResources.loadCatalog(`/products/${productMatch[1]}`));
+    tasks.push(import("../components/owner/ProductArticleEditor"));
+  }
+  if (pathname === "/owner/library") tasks.push(import("../components/owner/ProductArticleEditor"));
   if (["/owner", "/owner/orders"].includes(pathname)) tasks.push(import("../components/owner/RevenueChart"));
   return Promise.allSettled(tasks);
 };

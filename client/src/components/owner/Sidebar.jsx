@@ -36,7 +36,7 @@ export default function Sidebar() {
   const { isOwner, user, profileError, retryUserProfile } = context;
   const warm = path => { void prefetchOwnerRoute(path, context); };
   const { signOut } = useClerk();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const [menu, setMenu] = useState({ path: pathname, open: false });
   const menuOpen = menu.path === pathname && menu.open;
@@ -114,7 +114,7 @@ export default function Sidebar() {
         <header className="admin-topbar">
           <div className="admin-breadcrumb"><button type="button" className="admin-menu-toggle" onClick={() => setMenu({ path: pathname, open: !menuOpen })} aria-expanded={menuOpen} aria-controls="admin-navigation" aria-label="Mở menu quản trị"><Menu size={21} /></button><Link to="/owner">Quản trị</Link><ChevronRight size={13} aria-hidden="true" /><span>{activeItem?.label || "Quản lý nước hoa"}</span></div>
           <div className="admin-topbar-tools">
-            <QuickProductSearch className="admin-global-search" onSearch={query => navigate(`/owner/list-product?q=${encodeURIComponent(query)}`)} />
+            <QuickProductSearch className="admin-global-search" value={pathname === "/owner/list-product" ? new URLSearchParams(search).get("q") || "" : ""} onSearch={query => navigate(`/owner/list-product?q=${encodeURIComponent(query)}`)} />
             <Link to="/owner/messages" onPointerEnter={() => warm("/owner/messages")} onFocus={() => warm("/owner/messages")} className="admin-notification" aria-label="Mở tin nhắn hỗ trợ"><Bell size={19} strokeWidth={1.6} /></Link>
             <div className="admin-account"><UserButton appearance={{ elements: { userButtonAvatarBox: { width: "36px", height: "36px" } } }} /><div><strong>{user?.fullName || user?.firstName || "Quản trị viên"}</strong><span>{user?.primaryEmailAddress?.emailAddress || "Quản trị viên Velours"}</span></div></div>
           </div>

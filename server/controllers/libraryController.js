@@ -40,6 +40,7 @@ export const publicLibraryTerms = action(async (req, res) => {
   const rows = (await directory(req.params.kind)).filter(t => (!allowed||allowed.has(t.id))&&(!q || nameKey(t.name).includes(q)));
   if (view === "directory" && rows.length > 2000) fail("Thư viện vượt giới hạn hiển thị. Vui lòng tìm kiếm theo tên.", 413);
   const pageSize = view === "directory" ? Math.max(1, rows.length) : 24, totalPages = Math.max(1, Math.ceil(rows.length / pageSize)), active = Math.min(page, totalPages);
+  res.set("Cache-Control", "public, max-age=10, s-maxage=60, stale-while-revalidate=120");
   res.json({ success: true, terms: rows.slice((active - 1) * pageSize, active * pageSize), total: rows.length, page: active, pageSize, totalPages, overview:publicDirectoryOverview(req.params.kind) });
 });
 export function libraryProductFilter(term) {
@@ -51,13 +52,33 @@ export const publicLibraryTerm = action(async (req, res) => {
   const rows = await directory(req.params.kind);
   const matches = rows.filter(t => slug ? t.slug === slug : nameKey(t.name) === nameKey(name));
   if (matches.length !== 1) fail("Không tìm thấy nội dung này.", 404);
-  const source = await FragranceTerm.findById(matches[0].id).select("kind key name description descriptionContent contentStatus sourceUrl contentImport.relatedHeading").lean();
-  if (!source) fail("Không tìm thấy nội dung này.", 404);
-  const filter = libraryProductFilter(source), pageSize = 15;
-  const total = await Product.countDocuments(filter), totalPages = Math.max(1, Math.ceil(total / pageSize)), active = Math.min(page, totalPages);
-  const products = await Product.find(filter).select({ ...Object.fromEntries("title price sizes stockBySize inStockBySize category type brand inStock inventoryMode isPublished popular createdAt".split(" ").map(field => [field, 1])), images: { $slice: 1 } })
-    .sort({ createdAt: -1, _id: -1 }).skip((active - 1) * pageSize).limit(pageSize).lean();
-  // Publish an explicit reading reference; keep import evidence and internal keys private.
-  res.json({ success: true, term: { ...matches[0], description: source.description, descriptionContent: source.descriptionContent ? sanitizeArticle(source.descriptionContent, LIBRARY_ARTICLE_LIMITS) : null, contentStatus: source.contentStatus, relatedHeading:typeof source.contentImport?.relatedHeading==='string'?source.contentImport.relatedHeading.slice(0,500):'', referenceUrl:libraryReference(source.sourceUrl) },
-    products: products.map(p => toProductCard({ ...p, _id: String(p._id) })), total, page: active, totalPages, pageSize });
+  const payload = await catalogSnapshot(`library-term:${req.params.kind}:${matches[0].id}:${page}`, 30000, async () => {
+    const source = await FragranceTerm.findById(matches[0].id).select("kind key name description descriptionContent contentStatus sourceUrl contentImport.relatedHeading").lean();
+    if (!source) fail("Không tìm thấy nội dung này.", 404);
+    const filter = libraryProductFilter(source), pageSize = 15;
+    const projection = { ...Object.fromEntries("title price sizes stockBySize inStockBySize category type brand inStock inventoryMode isPublished popular createdAt".split(" ").map(field => [field, 1])), images: { $slice: 1 } };
+    let total, totalPages, active, products;
+    if (page === 1) {
+      [total, products] = await Promise.all([
+        Product.countDocuments(filter),
+        Product.find(filter).select(projection).sort({ createdAt: -1, _id: -1 }).skip(0).limit(pageSize).lean(),
+      ]);
+      totalPages = Math.max(1, Math.ceil(total / pageSize));
+      active = 1;
+    } else {
+      total = await Product.countDocuments(filter);
+      totalPages = Math.max(1, Math.ceil(total / pageSize));
+      active = Math.min(page, totalPages);
+      products = await Product.find(filter).select(projection).sort({ createdAt: -1, _id: -1 }).skip((active - 1) * pageSize).limit(pageSize).lean();
+    }
+    // Publish an explicit reading reference; keep import evidence and internal keys private.
+    return {
+      success: true,
+      term: { ...matches[0], description: source.description, descriptionContent: source.descriptionContent ? sanitizeArticle(source.descriptionContent, LIBRARY_ARTICLE_LIMITS) : null, contentStatus: source.contentStatus, relatedHeading:typeof source.contentImport?.relatedHeading==='string'?source.contentImport.relatedHeading.slice(0,500):'', referenceUrl:libraryReference(source.sourceUrl) },
+      products: products.map(p => toProductCard({ ...p, _id: String(p._id) })),
+      total, page: active, totalPages, pageSize,
+    };
+  });
+  res.set("Cache-Control", "public, max-age=10, s-maxage=60, stale-while-revalidate=120");
+  res.json(payload);
 });

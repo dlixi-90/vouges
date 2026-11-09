@@ -12,7 +12,7 @@ const PopularProducts = () => {
     fetchPopularProducts,
   } = usePopularProducts();
   const showSuggestions = !popularProductsLoading && !popularProductsError && !popularProducts.length;
-  const { products, loading: productsLoading, error: suggestionsError, reload: reloadSuggestions } = useProductFeed({ limit: 10, availability: "available", enabled: popularProductsLoading || showSuggestions });
+  const { products, loading: productsLoading, error: suggestionsError, reload: reloadSuggestions } = useProductFeed({ limit: 10, availability: "available", enabled: showSuggestions });
   const displayedProducts = showSuggestions
     ? products
     : popularProducts;

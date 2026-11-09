@@ -4,7 +4,7 @@ import { useAppContext } from "../context/AppContext";
 import { prefetchCollection } from "../utils/prefetchCollection";
 
 const Hero = () => {
-  const { publicCatalog, searchQuery } = useAppContext();
+  const { publicCatalog, setSearchQuery } = useAppContext();
   return (
     <section className="inessa-hero" aria-labelledby="hero-title">
       <img
@@ -28,11 +28,12 @@ const Hero = () => {
           <Link
             to="/collection"
             className="inessa-button"
+            onClick={() => setSearchQuery("")}
             onPointerEnter={() =>
-              prefetchCollection(publicCatalog, "/collection", searchQuery)
+              prefetchCollection(publicCatalog, "/collection")
             }
             onFocus={() =>
-              prefetchCollection(publicCatalog, "/collection", searchQuery)
+              prefetchCollection(publicCatalog, "/collection")
             }
           >
             Khám phá bộ sưu tập

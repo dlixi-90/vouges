@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { Search } from "lucide-react";
 
 export default function CollectionSearch({ value, onChange }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() => Boolean(value));
   const panelId = useId();
   const containerRef = useRef(null);
   const triggerRef = useRef(null);
@@ -12,7 +12,7 @@ export default function CollectionSearch({ value, onChange }) {
     if (!open) return;
     inputRef.current?.focus({ preventScroll: true });
     const onPointerDown = event => {
-      if (!containerRef.current?.contains(event.target)) setOpen(false);
+      if (!containerRef.current?.contains(event.target) && !value) setOpen(false);
     };
     const onKeyDown = event => {
       if (event.key !== "Escape") return;
@@ -26,7 +26,7 @@ export default function CollectionSearch({ value, onChange }) {
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [open]);
+  }, [open, value]);
 
   return <div className={`inessa-collection-search${open ? " is-open" : ""}`} ref={containerRef}>
     {open && <form id={panelId} className="inessa-collection-search-panel" role="search"
@@ -35,7 +35,7 @@ export default function CollectionSearch({ value, onChange }) {
         onChange(value);
       }}>
       <input ref={inputRef} type="search" value={value} aria-label="Tìm kiếm sản phẩm"
-        placeholder="Tìm kiếm sản phẩm…" onChange={event => onChange(event.target.value)} />
+        placeholder="Tìm tên, thương hiệu, nốt hương…" onChange={event => onChange(event.target.value)} />
     </form>}
     <button ref={triggerRef} type="button" className="inessa-collection-search-toggle"
       aria-label={open ? "Đóng tìm kiếm sản phẩm" : "Mở tìm kiếm sản phẩm"}

@@ -113,7 +113,6 @@ const ProductDetail = () => {
   // Start independently of the catalog request, including on direct links.
   useEffect(() => {
     void storeResources.loadReviews(productId).catch(() => {});
-    void storeResources.loadOwnReview(productId).catch(() => {});
   }, [storeResources, productId]);
   const product =
     detailResponse?.product || products.find((item) => item._id === productId);

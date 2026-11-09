@@ -103,7 +103,7 @@ export const AppContextProvider = ({ children }) => {
   }, []);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [categoriesError, setCategoriesError] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchState, setSearchState] = useState({ key: null, query: "" });
   const [cartItems, setCartItems] = useState({});
   const [cartAddedAt, setCartAddedAt] = useState({});
   const [cartDrawer, setCartDrawer] = useState(null);
@@ -115,7 +115,21 @@ export const AppContextProvider = ({ children }) => {
   const [method, setMethod] = useState("COD");
   const [profileResult, setProfileResult] = useState({ userId: null, role: null, error: "" });
   const navigate = useNavigate();
-  const { pathname, key: locationKey } = useLocation();
+  const { pathname, key: locationKey, state: locationState } = useLocation();
+  const searchQuery = pathname !== "/collection"
+    ? ""
+    : searchState.key === locationKey
+      ? searchState.query
+      : (locationState?.headerSearch ? String(locationState.q ?? searchState.query ?? "") : "");
+  const setSearchQuery = useCallback((nextValue) => {
+    setSearchState((current) => {
+      const base = current.key === locationKey
+        ? current.query
+        : (locationState?.headerSearch ? String(locationState.q ?? current.query ?? "") : "");
+      const query = typeof nextValue === "function" ? nextValue(base) : String(nextValue ?? "");
+      return { key: locationKey, query };
+    });
+  }, [locationKey, locationState]);
   const isCartPage = Boolean(useMatch("/cart"));
   const needsCategories = ["/owner/add-product", "/owner/add-category"].includes(pathname);
   const currency = "₫";

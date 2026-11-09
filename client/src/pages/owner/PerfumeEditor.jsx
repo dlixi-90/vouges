@@ -1,14 +1,15 @@
-import { useId, useState } from "react";
+import { lazy, Suspense, useId, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Save } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
 import { CatalogPage, CatalogState, Badge, issueLabels, useCatalog } from "../../components/owner/CatalogUI";
+import { LoadingStatus } from "../../components/LoadingState";
 import ProductImage from "../../components/ProductImage";
 import VariantEditor from "../../components/owner/VariantEditor";
 import ProductGalleryEditor from "../../components/owner/ProductGalleryEditor";
-import ProductArticleEditor from "../../components/owner/ProductArticleEditor";
 import { sanitizeArticle } from "../../utils/productArticle";
+const ProductArticleEditor = lazy(() => import("../../components/owner/ProductArticleEditor"));
 import { AccordEditor, AssessmentEditor } from "../../components/owner/FragranceEditorFields";
 import { editableFragrance } from "../../utils/fragrance";
 import { resolveCatalogSizeNames, catalogSizeRenames } from "../../utils/catalogVariantEdit";
@@ -98,8 +99,8 @@ function PerfumeForm({ product, reload }) {
       {tab === "general" && <>
         <div className="perfume-editor-columns"><section className="perfume-panel"><h2>Thông tin nước hoa</h2><div className="perfume-form-grid">{field("title", "Tên sản phẩm", { required: true })}{field("brand", "Thương hiệu")}{field("origin", "Xuất xứ")}{field("concentration", "Nồng độ")}{field("gender", "Đối tượng sử dụng")}<label className="perfume-field"><span>Danh mục</span><input value={product.category} readOnly /></label></div></section><aside className="perfume-panel"><h2>Hồ sơ cần chú ý</h2>{product.qualityIssues?.length ? <ul className="perfume-issue-list">{product.qualityIssues.map(issue => <li key={issue}>{issueLabels[issue] || issue}</li>)}</ul> : <p>Các trường cơ bản đã được điền.</p>}</aside></div>
         <section className="perfume-panel perfume-article-panel"><h2>Mô tả sản phẩm</h2>
-          <ProductArticleEditor value={draft.descriptionContent} text={draft.description} disabled={busy} onUploadingChange={setUploading}
-            onChange={(descriptionContent, description) => setDraft(current => ({ ...current, descriptionContent, description }))} />
+          <Suspense fallback={<LoadingStatus label="Đang tải trình soạn thảo…" />}><ProductArticleEditor value={draft.descriptionContent} text={draft.description} disabled={busy} onUploadingChange={setUploading}
+            onChange={(descriptionContent, description) => setDraft(current => ({ ...current, descriptionContent, description }))} /></Suspense>
         </section>
       </>}
       {tab === "variants" && <VariantEditor draft={draft} uploading={uploading || busy} onChange={update} onVariantField={variantField} onUpload={upload} newSize={newSize} setNewSize={setNewSize} addSize={addSize} onRename={renameSize} />}

@@ -249,10 +249,15 @@ export const singleProduct = async (req, res) => {
       });
     }
 
-    const product = await Product.findOne({
-      _id: productId,
-      isPublished: { $ne: false },
-      isDeleted: { $ne: true },
+    const product = await catalogSnapshot(`product-single:${productId}`, 30000, async () => {
+      const query = Product.findOne({
+        _id: productId,
+        isPublished: { $ne: false },
+        isDeleted: { $ne: true },
+      });
+      return typeof query?.lean === "function"
+        ? query.select("-source -variantMetadata -imageProcessing -qualityIssues -deletedAt").lean()
+        : query;
     });
 
     if (!product) {

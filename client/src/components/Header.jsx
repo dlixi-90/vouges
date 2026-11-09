@@ -39,7 +39,7 @@ const Header = () => {
   const chatLauncherRef = useRef(null);
   const { openSignIn } = useClerk();
 
-  const { navigate, setSearchQuery, openCart, isCartOpen, isCartPage, user, getCartCount, isOwner, storeResources } =
+  const { navigate, searchQuery, setSearchQuery, openCart, isCartOpen, isCartPage, user, getCartCount, isOwner, storeResources } =
     useAppContext();
 
   const prefetchMembership = () => {
@@ -81,7 +81,7 @@ const Header = () => {
           </div>
           {/* Logo */}
           <div className="inessa-brand flex">
-            <Link to={"/"} onPointerEnter={() => prefetchRoute("/")} onFocus={() => prefetchRoute("/")} onClick={() => setMenuOpened(false)} aria-label="Velours — Trang chủ" className="flex items-end">
+            <Link to={"/"} onPointerEnter={() => prefetchRoute("/")} onFocus={() => prefetchRoute("/")} onClick={() => { setSearchQuery(""); setMenuOpened(false); }} aria-label="Velours — Trang chủ" className="flex items-end">
               <img
                 src={assets.logoImg}
                 alt="Biểu trưng Velours"
@@ -93,10 +93,10 @@ const Header = () => {
             </Link>
           </div>
           <div className="inessa-header-right">
-            <QuickProductSearch className="store-header-search" onSearch={query => {
+            <QuickProductSearch className="store-header-search" value={searchQuery} onSearch={query => {
               setSearchQuery(query);
               setMenuOpened(false);
-              navigate("/collection", { state: { headerSearch: Date.now() } });
+              navigate("/collection", { state: { headerSearch: Date.now(), q: query } });
             }} />
             <Navbar group="info" navigationId="store-info-navigation" setMenuOpened={setMenuOpened} containerStyles="inessa-desktop-navigation" />
             {/* Buttons & Profile icon */}

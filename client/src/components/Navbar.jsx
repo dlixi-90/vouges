@@ -7,7 +7,7 @@ import NavigationDropdown from "./NavigationDropdown";
 
 const Navbar = ({ containerStyles, setMenuOpened, brandDirectory, group = "all", navigationId = "store-navigation" }) => {
   const { pathname, search } = useLocation();
-  const { publicCatalog, searchQuery } = useAppContext();
+  const { publicCatalog, setSearchQuery } = useAppContext();
   const selectedCategory = new URLSearchParams(search).get("category");
   const selectedBrand = new URLSearchParams(search).get("brand");
   const shoppingLinks = STORE_SHOP_LINKS;
@@ -23,8 +23,8 @@ const Navbar = ({ containerStyles, setMenuOpened, brandDirectory, group = "all",
   ];
   const renderLinks = links => links.map((link) => (
         <NavLink
-          onClick={() => setMenuOpened(false)}
-          onPointerEnter={() => prefetchCollection(publicCatalog, link.path, searchQuery)} onFocus={() => prefetchCollection(publicCatalog, link.path, searchQuery)}
+          onClick={() => { setSearchQuery(""); setMenuOpened(false); }}
+          onPointerEnter={() => prefetchCollection(publicCatalog, link.path)} onFocus={() => prefetchCollection(publicCatalog, link.path)}
           key={link.path}
           to={link.path}
           title={link.title}

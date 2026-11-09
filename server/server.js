@@ -37,6 +37,10 @@ app.use(
   express.raw({ type: "application/json" }),
   clerkWebhooks,
 );
+// Library introductions may hold up to 800k JSON characters (Vietnamese text is
+// 2-3 UTF-8 bytes per character), so only this route gets a larger body budget.
+// Vercel's 4.5 MB request cap still applies above it.
+app.use("/api/catalog/terms", express.json({ limit: "3mb" }));
 app.use(express.json({ limit: "512kb" })); // Allows structured product articles; individual fields retain validation.
 // Cron uses its own bearer secret, not a Clerk session token.
 app.get("/api/vouchers/birthdays", awardBirthdays);
@@ -60,6 +64,11 @@ app.use("/api/ai", aiRouter); // Routes for handling order
 // Route Endpoint to check API Status
 app.get("/", (req, res) => {
   res.send("API Successfully connected");
+});
+
+app.use((error, _req, res, next) => {
+  if (error?.type !== "entity.too.large") return next(error);
+  return res.status(413).json({ success: false, message: "Nội dung gửi lên quá lớn. Vui lòng rút gọn bài viết hoặc bớt ảnh rồi lưu lại." });
 });
 
 app.use((error, _req, res, next) => {

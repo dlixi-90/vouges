@@ -36,14 +36,17 @@ const Collection = () => {
   const [maxPrice, setMaxPrice] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = COLLECTION_PAGE_SIZE;
-  const criteriaKey = JSON.stringify({ q: searchQuery, facets: JSON.stringify(filters), minPrice, ...(maxPrice !== null ? { maxPrice } : {}) });
-  const [settledCriteria, setSettledCriteria] = useState(criteriaKey);
+  const facetsKey = JSON.stringify(filters);
+  const dynamicKey = JSON.stringify({ q: searchQuery, minPrice, ...(maxPrice !== null ? { maxPrice } : {}) });
+  const [settledDynamic, setSettledDynamic] = useState(dynamicKey);
   useEffect(() => {
-    const timer = window.setTimeout(() => setSettledCriteria(criteriaKey), 180);
+    const timer = window.setTimeout(() => setSettledDynamic(dynamicKey), 180);
     return () => window.clearTimeout(timer);
-  }, [criteriaKey]);
-  const criteria = JSON.parse(settledCriteria);
-  const criteriaPending = settledCriteria !== criteriaKey;
+  }, [dynamicKey]);
+  const activeDynamic = (!searchQuery && minPrice === 0 && maxPrice === null) ? dynamicKey : settledDynamic;
+  const criteria = { ...JSON.parse(activeDynamic), facets: facetsKey };
+  const criteriaKey = JSON.stringify({ q: searchQuery, facets: facetsKey, minPrice, ...(maxPrice !== null ? { maxPrice } : {}) });
+  const criteriaPending = activeDynamic !== dynamicKey;
   const { data: collection, loading: pageLoading, error: pageError, reload } = useCollectionPage({
     page: currentPage, limit: itemsPerPage, ...criteria, sort: selectedSort,
   }, { enabled: !criteriaPending });

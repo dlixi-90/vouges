@@ -5,7 +5,7 @@ import { selectRelatedProducts } from "../../client/src/utils/relatedProducts.js
 import { productFilterValues, parsePerfumeFilters, matchesPerfumeFilters } from "./perfumeFilters.js";
 
 const fields = "title price sizes stockBySize inStockBySize images category type brand gender origin concentration inStock inventoryMode isPublished popular createdAt";
-const profileFields = "fragrance.notes.top.name fragrance.notes.middle.name fragrance.notes.base.name fragrance.notes.general.name fragrance.components.notes fragrance.components.concentration fragrance.accords.label fragrance.style fragrance.longevity.label fragrance.longevity.displayedCount fragrance.sillage.label fragrance.sillage.displayedCount fragrance.suitability.label fragrance.suitability.displayedPercent";
+const profileFields = "fragrance.group fragrance.notes.top.name fragrance.notes.middle.name fragrance.notes.base.name fragrance.notes.general.name fragrance.components.notes fragrance.components.concentration fragrance.accords.label fragrance.style fragrance.longevity.label fragrance.longevity.displayedCount fragrance.sillage.label fragrance.sillage.displayedCount fragrance.suitability.label fragrance.suitability.displayedPercent";
 const filterFields = [..."price sizes stockBySize inStockBySize inStock inventoryMode category type brand gender origin concentration".split(" "), ...profileFields.split(" ")].join(" ");
 const profileKeys = ["longevity", "sillage", "suitability", "notes", "accords", "styles", "concentrations"];
 const visible = { isPublished: { $ne: false }, isDeleted: { $ne: true } };
@@ -37,7 +37,7 @@ export const needsFragranceProfiles = filters => profileKeys.some(key => filters
 // the full card catalog and a separate aggregation of fragrance profiles.
 export const getStorefrontFilterCatalog = () => catalogSnapshot("filter-catalog", 300000, async () => {
   const products = await Product.find(visible).select(filterFields).lean();
-  return products.map(product => ({ ...product, _filters: productFilterValues(product) }));
+  return products.map(product => ({ ...product, _group: product.fragrance?.group || "", _filters: productFilterValues(product) }));
 });
 export const getStorefrontCatalog = async (includeProfiles = false) => {
   const cards = catalogSnapshot("cards", 60000, async () => {
@@ -50,7 +50,8 @@ export const getStorefrontCatalog = async (includeProfiles = false) => {
   // arrays again when a shopper applies an advanced facet.
   const [products, filterCatalog] = await Promise.all([cards, getStorefrontFilterCatalog()]);
   const metadata = new Map(filterCatalog.map(product => [String(product._id), product._filters]));
-  return products.map(product => ({ ...product, _filters: { ...product._filters,
+  const groups = new Map(filterCatalog.map(product => [String(product._id), product._group || ""]));
+  return products.map(product => ({ ...product, _group: groups.get(product._id) || "", _filters: { ...product._filters,
     ...Object.fromEntries(profileKeys.filter(key => key !== 'concentrations' || metadata.get(product._id)?.concentrations?.length)
       .map(key => [key, metadata.get(product._id)?.[key] || []])) } }));
 };
@@ -73,6 +74,73 @@ const list = value => {
   } catch { fail(); }
 };
 const key = value => value.normalize("NFC").trim().toLocaleLowerCase("vi-VN");
+const foldText = value => String(value || "").normalize("NFD").replace(/\p{M}+/gu, "").replace(/đ/gi, "d").toLowerCase().trim();
+const normText = value => String(value || "").normalize("NFC").toLocaleLowerCase("vi-VN").trim();
+const splitWords = value => value.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+const matchesToken = (values, tokenNorm, tokenFold, hasAccent, allowSubstring = false) => {
+  const target = hasAccent ? tokenNorm : tokenFold;
+  if (!target) return false;
+  return values.some(raw => {
+    if (!raw) return false;
+    const content = hasAccent ? normText(raw) : foldText(raw);
+    if (!content) return false;
+    if (allowSubstring && target.length >= 3 && content.includes(target)) return true;
+    const words = splitWords(content);
+    return words.some(word => word === target || (target.length >= 2 && word.startsWith(target) && (hasAccent || target !== "nu" || word !== "nuoc")));
+  });
+};
+const searchMatchScore = (product, filters, rawQuery) => {
+  const fullNorm = normText(rawQuery);
+  const fullFold = foldText(rawQuery);
+  if (!fullFold) return 1;
+  const strippedNorm = fullNorm.replace(/^n(?:ước|uoc)\s+hoa\s+/u, "").trim() || fullNorm;
+  if (fullFold === "nuoc hoa" && strippedNorm === fullNorm) return 1;
+  const rawTokens = strippedNorm.split(/\s+/).filter(Boolean);
+  const activeTokens = rawTokens.filter(token => /[\p{L}\p{N}]/u.test(token));
+  const tokens = (activeTokens.length ? activeTokens : rawTokens).map(token => {
+    const tokenNorm = normText(token);
+    const tokenFold = foldText(token);
+    return { tokenNorm, tokenFold, hasAccent: tokenNorm !== tokenFold };
+  });
+  const titleValues = [product.title];
+  const brandValues = [product.brand, ...(filters.brands || [])];
+  const identityValues = [
+    product.gender, ...(filters.gender || []),
+    product.concentration, product.type, ...(filters.concentrations || []),
+    product.origin, ...(filters.origins || []),
+    product._group || product.fragrance?.group,
+  ];
+  const profileValues = [
+    ...(filters.accords || []),
+    ...(filters.notes || []),
+    ...(filters.styles || []),
+    ...(filters.sizes || []),
+  ];
+  let score = 0, allInTitle = true, allInTitleOrBrand = true;
+  for (const { tokenNorm, tokenFold, hasAccent } of tokens) {
+    const inTitle = matchesToken(titleValues, tokenNorm, tokenFold, hasAccent, true);
+    const inBrand = matchesToken(brandValues, tokenNorm, tokenFold, hasAccent, true);
+    const inIdentity = matchesToken(identityValues, tokenNorm, tokenFold, hasAccent, false);
+    const inProfile = matchesToken(profileValues, tokenNorm, tokenFold, hasAccent, false);
+    if (!inTitle && !inBrand && !inIdentity && !inProfile) return 0;
+    if (!inTitle) allInTitle = false;
+    if (!inTitle && !inBrand) allInTitleOrBrand = false;
+    if (inTitle) score += 30;
+    else if (inBrand) score += 25;
+    else if (inIdentity) score += 15;
+    else score += 10;
+  }
+  const phraseHasAccent = strippedNorm !== foldText(strippedNorm);
+  const phrase = phraseHasAccent ? strippedNorm : foldText(strippedNorm);
+  const titleText = phraseHasAccent ? normText(product.title) : foldText(product.title);
+  const brandText = phraseHasAccent ? normText(product.brand) : foldText(product.brand);
+  if (phrase && titleText.includes(phrase)) score += 100;
+  else if (allInTitle) score += 60;
+  if (phrase && brandText.includes(phrase)) score += 80;
+  else if (allInTitleOrBrand) score += 40;
+  if (phrase && [...identityValues, ...profileValues].some(raw => raw && (phraseHasAccent ? normText(raw) : foldText(raw)).includes(phrase))) score += 35;
+  return score;
+};
 const productNameCollator = new Intl.Collator("vi-VN", { sensitivity: "base", numeric: true });
 export const parseBrowseQuery = query => {
   const page = Number(query.page ?? 1), limit = Number(query.limit ?? 15);
@@ -81,7 +149,7 @@ export const parseBrowseQuery = query => {
   if (!Number.isSafeInteger(minPrice) || minPrice < 0 || (query.maxPrice !== undefined && (!Number.isSafeInteger(maxPrice) || maxPrice < minPrice))) fail();
   const sort = query.sort ?? "relevant", availability = query.availability ?? "available";
   if (!["relevant", "low", "high", "name-asc", "name-desc"].includes(sort) || !["available", "all"].includes(availability)) fail();
-  return { page, limit, minPrice, maxPrice, sort, availability, q: text(query.q).toLowerCase(),
+  return { page, limit, minPrice, maxPrice, sort, availability, q: normText(text(query.q)),
     brand: key(text(query.brand)), categories: list(query.categories), types: list(query.types), facets: parsePerfumeFilters(query.facets) };
 };
 export const browseCatalog = (catalog, options) => {
@@ -97,11 +165,21 @@ export const browseCatalog = (catalog, options) => {
     const sizes = (product.sizes || []).filter(size => isSizeAvailable(product, size) && (!facets.sizes?.length || facets.sizes.includes(size)));
     return sizes.find(size => Number(product.price?.[size]) >= minPrice && Number(product.price?.[size]) <= maxPrice) || sizes[0];
   };
-  let products = catalog.filter(product => (availability === "all" || hasAnyAvailableSize(product))
-    && (!brand || key(product.brand || "") === brand) && (!q || product.title.toLowerCase().includes(q))
-    && (!categories.length || categories.includes(product.category)) && (!activeTypes.length || activeTypes.includes(product.type))
-    && matchesPerfumeFilters(product._filters || productFilterValues(product), facets)
-    && (minPrice === 0 && maxPrice === Infinity || priceFor(product) >= minPrice && priceFor(product) <= maxPrice));
+  const scores = q ? new Map() : null;
+  let products = catalog.filter(product => {
+    if (availability !== "all" && !hasAnyAvailableSize(product)) return false;
+    if (brand && key(product.brand || "") !== brand) return false;
+    if (categories.length && !categories.includes(product.category)) return false;
+    if (activeTypes.length && !activeTypes.includes(product.type)) return false;
+    const filters = product._filters || productFilterValues(product);
+    if (!matchesPerfumeFilters(filters, facets)) return false;
+    if (!(minPrice === 0 && maxPrice === Infinity || priceFor(product) >= minPrice && priceFor(product) <= maxPrice)) return false;
+    if (!q) return true;
+    const score = searchMatchScore(product, filters, q);
+    if (score <= 0) return false;
+    scores.set(product, score);
+    return true;
+  });
   if (sort === "name-asc" || sort === "name-desc") {
     const direction = sort === "name-asc" ? 1 : -1;
     products = products.toSorted((a, b) => direction * (
@@ -110,6 +188,8 @@ export const browseCatalog = (catalog, options) => {
     ));
   } else if (sort === "low" || sort === "high") {
     products = products.toSorted((a, b) => (priceFor(a) - priceFor(b)) * (sort === "low" ? 1 : -1));
+  } else if (q && sort === "relevant") {
+    products = products.toSorted((a, b) => (scores.get(b) || 0) - (scores.get(a) || 0));
   }
   const total = products.length, totalPages = Math.max(1, Math.ceil(total / limit)), activePage = Math.min(page, totalPages);
   return { success: true, products: products.slice((activePage - 1) * limit, activePage * limit).map(product => ({ ...toProductCard(product),

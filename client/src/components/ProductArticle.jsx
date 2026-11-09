@@ -2,6 +2,7 @@ import { getArticleDocument, LIBRARY_ARTICLE_LIMITS } from "../utils/productArti
 import { Link } from "react-router-dom";
 import ArticleLibraryCards from "./ArticleLibraryCards";
 import { groupArticleSeasons } from "../utils/articleSeasons";
+import { getProductImageUrl } from "../utils/productImage";
 import "../product-article.css";
 
 function ArticleNode({ node, imageGallery = false, expandableImage = false, library = false }) {
@@ -22,14 +23,17 @@ function ArticleNode({ node, imageGallery = false, expandableImage = false, libr
   if (node.type === "libraryCards") return <ArticleLibraryCards node={node} />;
   if (node.type === "seasonRow") return <div className="article-season-row" role="list" aria-label="Mùa phù hợp">
     {node.items.map(({ image, label }, index) => <div className="article-season-item" role="listitem" key={index}>
-      <img src={image.attrs.src} alt="" width={40} height={40} loading="lazy" decoding="async" />
+      <img src={getProductImageUrl(image.attrs.src, 80)} alt="" width={40} height={40} loading="lazy" decoding="async" />
       <div className="article-season-label"><ArticleNode node={label} /></div>
     </div>)}
   </div>;
-  if (node.type === "image") return <figure style={{ width: `${node.attrs.articleWidth}%` }}>
-    {expandableImage?<a href={node.attrs.src} target="_blank" rel="noopener noreferrer" aria-label={`Xem ảnh lớn: ${node.attrs.alt||"hình minh họa"}`}><img src={node.attrs.src} alt={node.attrs.alt} width={node.attrs.width} height={node.attrs.height} loading="lazy" decoding="async"/></a>:<img src={node.attrs.src} alt={node.attrs.alt} width={node.attrs.width} height={node.attrs.height} loading="lazy" decoding="async" />}
-    {node.attrs.title && <figcaption>{node.attrs.title}</figcaption>}
-  </figure>;
+  if (node.type === "image") {
+    const optimizedSrc = getProductImageUrl(node.attrs.src, 1200);
+    return <figure style={{ width: `${node.attrs.articleWidth}%` }}>
+      {expandableImage?<a href={node.attrs.src} target="_blank" rel="noopener noreferrer" aria-label={`Xem ảnh lớn: ${node.attrs.alt||"hình minh họa"}`}><img src={optimizedSrc} alt={node.attrs.alt} width={node.attrs.width} height={node.attrs.height} loading="lazy" decoding="async"/></a>:<img src={optimizedSrc} alt={node.attrs.alt} width={node.attrs.width} height={node.attrs.height} loading="lazy" decoding="async" />}
+      {node.attrs.title && <figcaption>{node.attrs.title}</figcaption>}
+    </figure>;
+  }
   if (node.type === "doc") {
     if (library) return groupArticleSeasons(node.content).map((child, index) => <ArticleNode key={index} node={child} />);
     if (!imageGallery) return children;

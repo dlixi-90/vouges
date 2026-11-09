@@ -1,8 +1,10 @@
 import { useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ArrowDownRight, ArrowUp, ChevronDown, Search, X } from "lucide-react";
+import { useAppContext } from "../context/AppContext";
 import { LIBRARY_KINDS, libraryPath } from "../utils/fragranceLibrary";
 import { filterLibraryTerms, groupLibraryTerms, libraryDisplayName } from "../utils/libraryDirectory";
+import { getProductImageUrl } from "../utils/productImage";
 import { PageSkeleton } from "./LoadingState";
 import Breadcrumbs from "./Breadcrumbs";
 import LibraryTermCard from "./LibraryTermCard";
@@ -53,12 +55,13 @@ function DirectoryIntroduction({ kind, config, overview }) {
         <div><h3>Kiểu mùi</h3><p>Mô tả sắc thái khi ngửi, như sạch, phấn, cay, khói hoặc ngọt.</p></div>
         <div><h3>Note hương</h3><p>Gọi tên chất liệu hay liên tưởng tạo mùi, như hoa hồng, bergamot hoặc vani.</p></div>
       </div>
-      {overview?.images?.length > 0 && <div className="knowledge-introduction-images">{overview.images.map(image => <a key={image.src} href={image.src} target="_blank" rel="noopener noreferrer"><img src={image.src} alt={image.alt} loading="lazy" decoding="async" width={image.width} height={image.height} /></a>)}</div>}
+      {overview?.images?.length > 0 && <div className="knowledge-introduction-images">{overview.images.map(image => <a key={image.src} href={image.src} target="_blank" rel="noopener noreferrer"><img src={getProductImageUrl(image.src, 960)} alt={image.alt} loading="lazy" decoding="async" width={image.width} height={image.height} /></a>)}</div>}
     </details>
   </section>;
 }
 
 export default function KnowledgeDirectory({ kind, config, data, loading, query, origin, onSearch, onOrigin }) {
+  const { publicCatalog } = useAppContext();
   const { hash } = useLocation();
   const terms = useMemo(() => filterLibraryTerms(data?.terms || [], query, origin), [data?.terms, query, origin]);
   const sections = useMemo(() => groupLibraryTerms(terms, data?.overview?.origins || []), [terms, data?.overview?.origins]);
@@ -78,7 +81,7 @@ export default function KnowledgeDirectory({ kind, config, data, loading, query,
     <header className="knowledge-directory-title" id="knowledge-directory-top">
       <Breadcrumbs items={[{ label: config.title }]} />
       <h1>{titles[kind]}</h1>
-      <nav className="knowledge-library-tabs" aria-label="Thư viện hương thơm">{Object.entries(LIBRARY_KINDS).map(([key, value]) => <Link key={key} to={`/knowledge/${key}`} aria-current={kind === key ? "page" : undefined}>{value.title}</Link>)}</nav>
+      <nav className="knowledge-library-tabs" aria-label="Thư viện hương thơm">{Object.entries(LIBRARY_KINDS).map(([key, value]) => <Link key={key} to={`/knowledge/${key}`} onPointerEnter={() => { if (key !== kind) void publicCatalog?.library(key, { view: "directory" }).catch(() => {}); }} onFocus={() => { if (key !== kind) void publicCatalog?.library(key, { view: "directory" }).catch(() => {}); }} aria-current={kind === key ? "page" : undefined}>{value.title}</Link>)}</nav>
     </header>
     <DirectoryIntroduction kind={kind} config={config} overview={data?.overview} />
     {kind === "group" && <section className="knowledge-family-overview" aria-labelledby="knowledge-family-heading">
@@ -101,7 +104,7 @@ export default function KnowledgeDirectory({ kind, config, data, loading, query,
         </nav>}
         {kind === "note" ? <div className="knowledge-note-sections">{sections.map((section, index) => <section key={section.id} id={`origin-${section.id}`} className="knowledge-note-section" tabIndex={-1} aria-labelledby={`origin-title-${section.id}`}>
           <header className={`knowledge-origin-banner${section.banner ? " has-image" : ""}`}>
-            {section.banner && <img src={section.banner} alt="" width="1310" height="280" loading={index === 0 ? "eager" : "lazy"} decoding="async" />}
+            {section.banner && <img src={getProductImageUrl(section.banner, 1600)} alt="" width="1310" height="280" loading={index === 0 ? "eager" : "lazy"} decoding="async" />}
             <h2 id={`origin-title-${section.id}`}>{section.name}</h2>
           </header>
           <div className="knowledge-origin-description"><p>{section.description}</p><span>{section.terms.length} note hương</span></div>

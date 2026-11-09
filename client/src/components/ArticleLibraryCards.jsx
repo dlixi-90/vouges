@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import { getAvailableSizes } from "../utils/productStock";
+import { getProductImageUrl } from "../utils/productImage";
 import ProductCard from "./ProductCard";
 import LibraryTermCard from "./LibraryTermCard";
 
@@ -46,10 +47,10 @@ export default function ArticleLibraryCards({ node }) {
     {node.attrs.items.map((item, index) => {
       const id = productId(item), product = products.get(id);
       if(categories)return <div className="article-library-card" key={item.href}><Link className="article-library-category" to={item.href} onClick={()=>setSearchQuery("")}>
-        {item.image&&<img src={item.image} alt="" width={item.width||150} height={item.height||150} loading="lazy" decoding="async"/>}
+        {item.image&&<img src={getProductImageUrl(item.image, 360)} alt="" width={item.width||150} height={item.height||150} loading="lazy" decoding="async"/>}
         <span><strong>{item.name}</strong><small>{item.description||"Xem bộ sưu tập"}</small></span><ArrowRight size={17} aria-hidden="true"/>
       </Link></div>;
-      const label = <>{item.image && <img src={item.image} alt="" loading="lazy" decoding="async" width={item.width || 180} height={item.height || 180} />}<strong>{item.name}</strong>{item.englishName && <small lang="en">{item.englishName}</small>}</>;
+      const label = <>{item.image && <img src={getProductImageUrl(item.image, 360)} alt="" loading="lazy" decoding="async" width={item.width || 180} height={item.height || 180} />}<strong>{item.name}</strong>{item.englishName && <small lang="en">{item.englishName}</small>}</>;
       return <div className={`article-library-card${id ? " article-library-product" : ""}`} key={`${index}:${item.href}`}>
         {id ? <ProductCard product={product || { _id: id, title: item.name, image: item.image }}
           currency={currency} isAvailable={!product || getAvailableSizes(product).length > 0}

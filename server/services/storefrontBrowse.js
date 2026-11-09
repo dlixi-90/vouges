@@ -33,7 +33,7 @@ const metadata = () => catalogSnapshot("browse-metadata", 300000, async () => {
   return { types: (result.types || []).map(row => row._id), categories: (result.categories || []).map(row => row._id).filter(Boolean), maxPrice: result.price?.[0]?.maximum || 0 };
 });
 
-export const canPageBrowseDirectly = options => options.sort === "relevant" && options.minPrice === 0 && options.maxPrice === Infinity
+export const canPageBrowseDirectly = options => !options.q && options.sort === "relevant" && options.minPrice === 0 && options.maxPrice === Infinity
   && !needsFragranceProfiles(options.facets) && !options.facets?.sizes?.length;
 
 const basicFacetFilters = facets => {
@@ -53,7 +53,7 @@ const basicFacetFilters = facets => {
 
 export const readStorefrontBrowse = async options => {
   return catalogSnapshot(`browse-page:${JSON.stringify(options)}`, 60000, async () => {
-    if (!canPageBrowseDirectly(options)) return browseCatalog(await getStorefrontCatalog(needsFragranceProfiles(options.facets)), options);
+    if (!canPageBrowseDirectly(options)) return browseCatalog(await getStorefrontCatalog(needsFragranceProfiles(options.facets) || Boolean(options.q)), options);
     const metaRequest = metadata();
     const availableTypesFor = meta => [...new Set(meta.types.filter(row => (!options.brand || filterKey(row.brand) === options.brand)
       && (!options.categories.length || options.categories.includes(row.category))).map(row => row.type).filter(Boolean))].sort();
