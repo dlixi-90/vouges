@@ -103,10 +103,19 @@
 .inessa-hero h1 em { font-weight: var(--inessa-serif-weight); }
 .net-theme .inessa-hero-description { max-width: 350px; margin: 25px 0 28px; color: #545454; font-size: 12px; }
 .inessa-hero-caption { position: absolute; bottom: 26px; right: clamp(22px, 5.5vw, 80px); font-size: 9px; letter-spacing: .22em; color: #555; }
-.inessa-stories { padding-top: clamp(40px, 5vh, 60px); }
-.inessa-story { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: clamp(35px, 6vw, 100px); padding-block: 0 clamp(32px, 4.5vh, 60px); scroll-margin-top: calc(var(--net-header-height, 97px) + 20px); }
+.inessa-stories { padding-top: clamp(30px, 4vh, 60px); padding-bottom: clamp(20px, 3vh, 40px); }
+.inessa-story {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: clamp(35px, 6vw, 100px);
+  min-height: calc(100svh - var(--net-header-height, 97px));
+  padding-block: clamp(36px, 5vh, 64px);
+  box-sizing: border-box;
+  scroll-margin-top: var(--net-header-height, 97px);
+}
 .inessa-story-visual { position: relative; padding-left: 10%; display: flex; justify-content: center; }
-.inessa-story-photo { display: block; width: auto; max-width: 100%; max-height: min(480px, calc(100svh - var(--net-header-height, 97px) - 70px)); height: auto; aspect-ratio: .82; border-radius: var(--inessa-radius-panel); object-fit: cover; }
+.inessa-story-photo { display: block; width: auto; max-width: 100%; max-height: min(480px, calc(100svh - var(--net-header-height, 97px) - 80px)); height: auto; aspect-ratio: .82; border-radius: var(--inessa-radius-panel); object-fit: cover; }
 .inessa-story-inset { position: absolute; left: 0; top: 16%; width: 36%; height: auto; aspect-ratio: .79; border-radius: var(--inessa-radius-card); object-fit: cover; box-shadow: 0 12px 25px #0000000c; }
 .inessa-image-index { display: block; margin-top: 18px; color: #7a7a7a; font-size: 9px; letter-spacing: .18em; }
 .inessa-story-copy { padding-block: 20px; }
@@ -120,7 +129,7 @@
 .inessa-story-reverse .inessa-image-index { text-align: right; }
 
 /* Product sections share the global product-card presentation. */
-.net-theme :is(.net-new-arrivals,.net-popular-products) { padding-top: 16px; margin-top: 0; padding-bottom: clamp(24px, 3.5vh, 38px); scroll-margin-top: calc(var(--net-header-height, 97px) + 20px); }
+.net-theme :is(.net-new-arrivals,.net-popular-products) { padding-top: clamp(24px, 3.5vh, 40px); margin-top: 0; padding-bottom: clamp(28px, 4vh, 48px); scroll-margin-top: calc(var(--net-header-height, 97px) + 20px); }
 .inessa-section-eyebrow { text-align: center; margin-bottom: 10px; }
 .net-theme :is(.net-new-arrivals,.net-popular-products) .net-section-title { text-align: center; padding-bottom: 20px; }
 .net-theme :is(.net-new-arrivals,.net-popular-products) .net-section-title :is(h3,h3 > span) { font-weight: var(--inessa-serif-weight); text-transform: uppercase; }
@@ -130,9 +139,11 @@
   grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: clamp(30px, 5vw, 80px);
-  margin-block: clamp(16px, 2.5vh, 36px);
-  min-height: min(540px, calc(100svh - var(--net-header-height, 97px) - 40px));
-  scroll-margin-top: calc(var(--net-header-height, 97px) + 20px);
+  min-height: calc(100svh - var(--net-header-height, 97px));
+  padding-block: clamp(30px, 4.5vh, 50px);
+  margin-block: 0;
+  box-sizing: border-box;
+  scroll-margin-top: var(--net-header-height, 97px);
 }
 .inessa-campaign-image {
   display: flex;
@@ -140,12 +151,12 @@
   justify-content: center;
   overflow: hidden;
   border-radius: var(--inessa-radius-panel);
-  max-height: min(480px, calc(100svh - var(--net-header-height, 97px) - 70px));
+  max-height: min(480px, calc(100svh - var(--net-header-height, 97px) - 80px));
 }
 .inessa-campaign-image img {
   width: auto;
   max-width: 100%;
-  max-height: min(480px, calc(100svh - var(--net-header-height, 97px) - 70px));
+  max-height: min(480px, calc(100svh - var(--net-header-height, 97px) - 80px));
   aspect-ratio: 1;
   object-fit: cover;
   border-radius: var(--inessa-radius-panel);
@@ -822,8 +833,8 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
   .net-theme .inessa-hero h1 { font-size: calc(clamp(36px, 9vw, 60px) - 7px); }
   .net-theme .inessa-hero-description { max-width: 270px; }
   .inessa-hero-caption { font-size: 8px; bottom: 20px; }
-  .inessa-stories { padding-top: 65px; }
-  .inessa-story { grid-template-columns: 1fr; gap: 10px; padding-bottom: 55px; }
+  .inessa-stories { padding-top: 45px; padding-bottom: 0; }
+  .inessa-story { grid-template-columns: 1fr; gap: 10px; padding-block: 0 45px; min-height: 0; }
   .inessa-story-visual { width: 90%; }
   .inessa-story:not(.inessa-story-reverse) .inessa-story-copy { text-align: left; padding-left: 12%; }
   .inessa-story:not(.inessa-story-reverse) .inessa-story-copy > p { margin-left: 0; }
