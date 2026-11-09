@@ -72,9 +72,26 @@ const Header = () => {
       chatLauncherRef.current?.focus({ preventScroll: true });
     }
   }, [hasOpenedAIChat, isAIChatOpen]);
+  const headerRef = useRef(null);
+
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const syncHeaderHeight = () => {
+      const height = el.getBoundingClientRect().height;
+      if (height > 0) {
+        document.documentElement.style.setProperty("--net-header-height", `${Math.round(height)}px`);
+      }
+    };
+    syncHeaderHeight();
+    const observer = new ResizeObserver(syncHeaderHeight);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <>
-      <header className="net-header z-50 bg-white py-3">
+      <header ref={headerRef} className="net-header z-50 bg-white py-3">
         <div className="max-padd-container inessa-header-grid">
           <div className="inessa-navigation-left">
             <button type="button" onClick={toggleMenu} aria-label={menuOpened ? "Đóng menu" : "Mở menu"}

@@ -533,7 +533,7 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
 .inessa-checkout-details button:disabled,.inessa-checkout-submit button:disabled { opacity: .4; cursor: not-allowed; }
 .inessa-checkout-order { position: relative; isolation: isolate; grid-column: 2; grid-row: 1 / 3; min-width: 0; padding: 48px 0 60px 40px; border-left: 1px solid var(--inessa-line); }
 .inessa-checkout-order::before { position: absolute; inset: 0 auto 0 0; z-index: -1; width: 100vw; background: #fff; content: ""; }
-.inessa-checkout-order-content { position: sticky; top: 24px; min-width: 0; }
+.inessa-checkout-order-content { position: sticky; top: calc(var(--net-header-height, 97px) + 24px); min-width: 0; }
 .net-theme .inessa-checkout-order-content > h2 { font-size: 29px; }
 .inessa-checkout-order-content > h2 > span { margin-left: 4px; color: #888; font-family: Inter, sans-serif; font-size: 12px; letter-spacing: 0; }
 .inessa-checkout-products { padding-block: 24px; }

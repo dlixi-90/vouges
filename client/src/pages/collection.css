@@ -52,7 +52,17 @@
 /* Keep the sidebar in view; only its criteria scroll, with the title/reset fixed. */
 html:has(.collection-catalog), body:has(.collection-catalog) { overflow-x: clip; }
 .net-theme.net-storefront:has(.collection-catalog) { overflow: clip; }
-.collection-catalog .collection-filter-sidebar { position: sticky; top: 16px; display: flex; min-width: 0; max-height: var(--filter-available-height, calc(100dvh - 32px)); flex-direction: column; overflow: hidden; border-radius: 0; background: #fff; }
+.collection-catalog .collection-filter-sidebar {
+  position: sticky;
+  top: calc(var(--net-header-height, 97px) + 16px);
+  display: flex;
+  min-width: 0;
+  max-height: var(--filter-available-height, calc(100dvh - var(--net-header-height, 97px) - 32px));
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 0;
+  background: #fff;
+}
 .collection-filter-sidebar .inessa-filter-drawer-header { min-height: 44px; padding: 0 0 16px; }
 .collection-filter-actions { display:flex; align-items:center; gap:6px; }
 .collection-filter-actions button:disabled { cursor:wait; opacity:.45; }

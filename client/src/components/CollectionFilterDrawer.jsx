@@ -79,7 +79,10 @@ export default function CollectionFilterDrawer({
     let frame = null;
     const updateHeight = () => {
       frame = null;
-      const top = Math.max(16, sidebar.getBoundingClientRect().top);
+      const headerEl = document.querySelector(".net-header");
+      const headerBottom = headerEl ? headerEl.getBoundingClientRect().bottom : 0;
+      const minTop = Math.max(16, headerBottom + 16);
+      const top = Math.max(minTop, sidebar.getBoundingClientRect().top);
       sidebar.style.setProperty("--filter-available-height", `${Math.max(120, window.innerHeight - top - 16)}px`);
     };
     const scheduleUpdate = () => {

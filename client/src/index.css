@@ -62,6 +62,22 @@
   }
 }
 
+:root {
+  --net-header-height: 97px;
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --net-header-height: 104px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --net-header-height: 96px;
+  }
+}
+
 html, body {
   background-color: white;
   color: #000000cc;
