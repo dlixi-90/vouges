@@ -3,6 +3,7 @@ import { ArrowDown, ArrowUp, Check, ChevronDown, Plus, Search, X } from "lucide-
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
 import { assessmentGroups } from "../../utils/fragrance";
+import { splitFragranceGroups } from "../../utils/fragranceLibrary";
 import FragranceCharts from "../FragranceCharts";
 import FragranceAccords from "../FragranceAccords";
 
@@ -211,7 +212,42 @@ export function LibraryTermSelect({
   );
 }
 
+export function MultiGroupSelect({
+  label = "Nhóm hương",
+  value = "",
+  terms = [],
+  loading = false,
+  disabled = false,
+  onChange,
+}) {
+  const selectedGroups = useMemo(
+    () => splitFragranceGroups(value).map((name) => ({ name, url: null })),
+    [value],
+  );
+  return (
+    <MultiNoteSelect
+      kind="group"
+      unitLabel="nhóm hương"
+      label={label}
+      selectedNotes={selectedGroups}
+      terms={terms}
+      loading={loading}
+      disabled={disabled}
+      onChange={(nextList) =>
+        onChange(
+          nextList
+            .map((item) => (typeof item === "string" ? item : item?.name))
+            .filter(Boolean)
+            .join(", "),
+        )
+      }
+    />
+  );
+}
+
 export function MultiNoteSelect({
+  kind = "note",
+  unitLabel = "note hương",
   label,
   selectedNotes = [],
   terms = [],
@@ -226,7 +262,7 @@ export function MultiNoteSelect({
   const [query, setQuery] = useState("");
   const [visibleLimit, setVisibleLimit] = useState(120);
   const [creating, setCreating] = useState(false);
-  const createdNotes = useSessionCreatedTerms("note");
+  const createdNotes = useSessionCreatedTerms(kind);
 
   const normalizedSelected = useMemo(() => {
     const seen = new Set();
@@ -352,17 +388,17 @@ export function MultiNoteSelect({
       const token = await getToken();
       const { data } = await axios.post(
         "/api/catalog/terms",
-        { kind: "note", name: trimmedQuery, contentStatus: "linked" },
+        { kind, name: trimmedQuery, contentStatus: "linked" },
         { headers: { Authorization: `Bearer ${token}` }, timeout: 20000 },
       );
-      if (!data.success) throw new Error(data.message || "Không thể thêm note hương");
+      if (!data.success) throw new Error(data.message || `Không thể thêm ${unitLabel}`);
       const savedTerm = data.term || {
         _id: `local:${Date.now()}`,
-        kind: "note",
+        kind,
         name: trimmedQuery,
         sourceUrl: "",
       };
-      recordSessionTerm("note", savedTerm);
+      recordSessionTerm(kind, savedTerm);
       storeResources.invalidateCatalog();
       publicCatalog?.clear?.();
       dashboardCache?.clear?.();
@@ -374,19 +410,19 @@ export function MultiNoteSelect({
         ]);
       }
       setQuery("");
-      toast.success(`Đã thêm note hương "${savedTerm.name}"`);
+      toast.success(`Đã thêm ${unitLabel} "${savedTerm.name}"`);
     } catch (error) {
       if (error.response?.status === 409) {
-        const fallbackTerm = { _id: `local:${Date.now()}`, kind: "note", name: trimmedQuery, sourceUrl: "" };
-        recordSessionTerm("note", fallbackTerm);
+        const fallbackTerm = { _id: `local:${Date.now()}`, kind, name: trimmedQuery, sourceUrl: "" };
+        recordSessionTerm(kind, fallbackTerm);
         storeResources.invalidateCatalog();
         if (!selectedKeySet.has(normalizeKey(trimmedQuery))) {
           onChange([...normalizedSelected, { name: trimmedQuery, url: null }]);
         }
         setQuery("");
-        toast.success(`Đã chọn note hương "${trimmedQuery}"`);
+        toast.success(`Đã chọn ${unitLabel} "${trimmedQuery}"`);
       } else {
-        toast.error(error.response?.data?.message || error.message || "Không thể thêm note hương");
+        toast.error(error.response?.data?.message || error.message || `Không thể thêm ${unitLabel}`);
       }
     } finally {
       setCreating(false);
@@ -395,17 +431,17 @@ export function MultiNoteSelect({
 
   const summaryText =
     loading && !allNoteTerms.length
-      ? "Đang tải danh sách note hương…"
+      ? `Đang tải danh sách ${unitLabel}…`
       : normalizedSelected.length === 0
-        ? "Chọn note hương từ danh sách…"
-        : `Đã chọn ${normalizedSelected.length} note hương`;
+        ? `Chọn ${unitLabel} từ danh sách…`
+        : `Đã chọn ${normalizedSelected.length} ${unitLabel}`;
 
   return (
     <div ref={containerRef} className="perfume-field perfume-multi-note-field">
       <div className="perfume-field-header">
         <span className="perfume-field-label-text">{label}</span>
         <span className="perfume-note-count">
-          {normalizedSelected.length > 0 ? `${normalizedSelected.length} note` : "Chưa chọn"}
+          {normalizedSelected.length > 0 ? `${normalizedSelected.length} đã chọn` : "Chưa chọn"}
         </span>
       </div>
 
@@ -437,7 +473,7 @@ export function MultiNoteSelect({
                 value={query}
                 disabled={disabled || creating}
                 maxLength={160}
-                placeholder="Tìm kiếm hoặc nhập note hương mới…"
+                placeholder={`Tìm kiếm hoặc nhập ${unitLabel} mới…`}
                 onChange={(event) => {
                   setQuery(event.target.value);
                   setVisibleLimit(120);
@@ -461,7 +497,7 @@ export function MultiNoteSelect({
                 <button
                   type="button"
                   onClick={() => setQuery("")}
-                  aria-label="Xóa từ khóa tìm note"
+                  aria-label="Xóa từ khóa tìm kiếm"
                   className="perfume-note-search-clear"
                 >
                   <X size={14} />
@@ -478,8 +514,8 @@ export function MultiNoteSelect({
               >
                 <Plus size={14} aria-hidden="true" />
                 {creating
-                  ? "Đang thêm note hương…"
-                  : `Thêm note hương mới "${trimmedQuery}" vào thư viện`}
+                  ? `Đang thêm ${unitLabel}…`
+                  : `Thêm ${unitLabel} mới "${trimmedQuery}" vào thư viện`}
               </button>
             )}
 
@@ -501,8 +537,8 @@ export function MultiNoteSelect({
               {filteredTerms.length === 0 ? (
                 <p className="perfume-note-empty-list">
                   {loading
-                    ? "Đang tải thư viện note hương…"
-                    : "Không tìm thấy note hương phù hợp. Nhấn nút phía trên để thêm mới."}
+                    ? `Đang tải thư viện ${unitLabel}…`
+                    : `Không tìm thấy ${unitLabel} phù hợp. Nhấn nút phía trên để thêm mới.`}
                 </p>
               ) : (
                 filteredTerms.slice(0, visibleLimit).map((term) => {
@@ -528,7 +564,7 @@ export function MultiNoteSelect({
 
             <div className="perfume-note-dropdown-footer">
               <span>
-                Đã chọn <strong>{normalizedSelected.length}</strong> note
+                Đã chọn <strong>{normalizedSelected.length}</strong> mục
               </span>
               <div className="perfume-note-footer-actions">
                 {normalizedSelected.length > 0 && (
@@ -555,7 +591,7 @@ export function MultiNoteSelect({
       </div>
 
       {normalizedSelected.length > 0 ? (
-        <div className="perfume-note-chips" aria-label={`Các note đã chọn cho ${label}`}>
+        <div className="perfume-note-chips" aria-label={`Các mục đã chọn cho ${label}`}>
           {normalizedSelected.map((note) => (
             <span key={note.name} className="perfume-note-chip">
               <span>{note.name}</span>
@@ -563,7 +599,7 @@ export function MultiNoteSelect({
                 type="button"
                 disabled={disabled}
                 onClick={() => removeNote(note.name)}
-                aria-label={`Xóa note ${note.name} khỏi ${label}`}
+                aria-label={`Xóa ${note.name} khỏi ${label}`}
               >
                 <X size={12} />
               </button>
@@ -572,7 +608,7 @@ export function MultiNoteSelect({
         </div>
       ) : (
         <p className="perfume-note-empty-hint">
-          Bấm vào danh sách để chọn nhiều note hương cho {label.toLocaleLowerCase("vi-VN")}.
+          Bấm vào danh sách để chọn một hoặc nhiều {unitLabel} cho {label.toLocaleLowerCase("vi-VN")}.
         </p>
       )}
     </div>

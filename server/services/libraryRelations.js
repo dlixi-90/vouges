@@ -1,11 +1,13 @@
 export const normalizeLibraryName=value=>typeof value==='string'?value.normalize('NFC').trim().replace(/\s+/gu,' '):'';
 export const libraryNameKey=value=>normalizeLibraryName(value).toLocaleLowerCase('vi-VN');
 export const libraryNamePattern=value=>new RegExp(`^\\s*${normalizeLibraryName(value).split(/\s+/u).map(word=>word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('\\s+')}\\s*$`,'iu');
+export const splitLibraryGroups=value=>typeof value==='string'?value.split(/[,;\n]+/u).map(normalizeLibraryName).filter(Boolean):[];
+export const libraryGroupPattern=value=>new RegExp(`(?:^|[,;\\n])\\s*${normalizeLibraryName(value).split(/\s+/u).map(word=>word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('\\s+')}\\s*(?:$|[,;\\n])`,'iu');
 export const notePhases=['top','middle','base','general'];
 export function libraryProductRelation(term){
  const value=libraryNamePattern(term.name);
  if(term.kind==='brand')return {brand:value};
- if(term.kind==='group')return {$or:[{'fragrance.group':value},{'fragrance.components.group':value}]};
+ if(term.kind==='group'){const groupValue=libraryGroupPattern(term.name);return {$or:[{'fragrance.group':groupValue},{'fragrance.components.group':groupValue}]};}
  if(term.kind==='accord')return {$or:[{'fragrance.accords.label':value},{'fragrance.components.accords.label':value}]};
  return {$or:notePhases.flatMap(phase=>[`fragrance.notes.${phase}`,`fragrance.components.notes.${phase}`]).flatMap(field=>term.sourceUrl?[
   {[`${field}.url`]:term.sourceUrl},...(term.matchNameWithoutUrl===false?[]:[{[field]:{$elemMatch:{name:value,$or:[{url:null},{url:''}]}}}]),
@@ -19,7 +21,18 @@ export function renamedLibraryFields(product,term,name){
  const fragrance=product.fragrance||{};
  const renameProfile=profile=>{
   let updated=profile;
-  if(term.kind==='group'&&matches(profile.group))updated={...updated,group:name};
+  if(term.kind==='group'&&typeof profile.group==='string'){
+   const groups=splitLibraryGroups(profile.group);
+   if(groups.some(matches)){
+    const nextGroups=[];const seen=new Set();
+    for(const item of groups){
+     const nextItem=matches(item)?name:item;
+     const key=libraryNameKey(nextItem);
+     if(key&&!seen.has(key)){seen.add(key);nextGroups.push(nextItem);}
+    }
+    updated={...updated,group:nextGroups.join(', ')};
+   }
+  }
   if(term.kind==='accord'&&Array.isArray(profile.accords)&&profile.accords.some(row=>matches(row.label)))updated={...updated,accords:profile.accords.map(row=>matches(row.label)?{...row,label:name}:row)};
   if(term.kind==='note')for(const phase of notePhases){
    const matchesNote=row=>term.sourceUrl?row.url===term.sourceUrl||term.matchNameWithoutUrl!==false&&!row.url&&matches(row.name):matches(row.name);

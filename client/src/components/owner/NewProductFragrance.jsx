@@ -4,7 +4,7 @@ import { useCatalog } from "./CatalogUI";
 import {
   AccordEditor,
   AssessmentEditor,
-  LibraryTermSelect,
+  MultiGroupSelect,
   MultiNoteSelect,
 } from "./FragranceEditorFields";
 import {
@@ -85,10 +85,8 @@ export default function NewProductFragrance({
             </div>
 
             <div className="perfume-form-grid mb-5">
-              <LibraryTermSelect
-                kind="group"
+              <MultiGroupSelect
                 label="Nhóm hương"
-                placeholder="Chọn nhóm hương"
                 value={fragrance?.group || ""}
                 terms={groupLibrary.data?.terms || []}
                 loading={groupLibrary.loading}

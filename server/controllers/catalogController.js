@@ -16,7 +16,7 @@ import { productQualityIssues } from "../services/productQuality.js";
 import { scentPhases } from "../../client/src/utils/scentNotes.js";
 import {librarySlug} from "../../client/src/utils/fragranceLibrary.js";
 import {readLibraryInput,readLibraryVersion,checkLibraryVersion,renameLibraryProducts,liveLibraryCounts} from "../services/libraryManagement.js";
-import {libraryNamePattern,libraryNameKey,activeLibraryProducts} from "../services/libraryRelations.js";
+import {libraryNamePattern,libraryNameKey,activeLibraryProducts,splitLibraryGroups} from "../services/libraryRelations.js";
 
 const termCollator = new Intl.Collator("vi", { sensitivity: "base", numeric: true });
 const fail = (message, statusCode = 400) => { throw Object.assign(new Error(message), { statusCode }); };
@@ -153,7 +153,7 @@ export const saveCatalogProduct = catalogAction(async(req,res)=>{
     update.fragrance={...(update.fragrance||current.fragrance||{}),notes};
   }
   for(const field of ["group","style"]){
-    if(body[field]!==undefined){if(typeof body[field]!=="string"||body[field].length>500)fail("Hồ sơ mùi hương không hợp lệ");update.fragrance={...(update.fragrance||current.fragrance||{}),[field]:body[field].trim()};}
+    if(body[field]!==undefined){if(typeof body[field]!=="string"||body[field].length>500)fail("Hồ sơ mùi hương không hợp lệ");const val=field==="group"?[...new Set(splitLibraryGroups(body[field]))].join(", "):body[field].trim();update.fragrance={...(update.fragrance||current.fragrance||{}),[field]:val};}
   }
   update.qualityIssues=productQualityIssues({...((current.toObject?.())||current),...update});
   const persist=async(session)=>{
@@ -173,31 +173,16 @@ export const libraryTerms = catalogAction(async(req,res)=>{
   const filter={kind};if(req.query.q){const q=pattern(req.query.q);filter.$or=[{name:q},{key:q}];}if(req.query.status)filter.contentStatus=req.query.status;
   const termQuery=FragranceTerm.find(filter);
   if(req.query.includeCounts==="false")termQuery.select("kind name image contentStatus sourceUrl updatedAt");else if(kind==="brand")termQuery.select("kind name image updatedAt");
-  const distinctField=req.query.includeCounts==="false"&&req.query.includeProductValues==="true"&&!req.query.q&&!req.query.status&&page===1
-    ?(kind==="brand"?"brand":kind==="group"?"fragrance.group":null):null;
-  const [terms,total,productValues]=await Promise.all([
+  const [terms,total]=await Promise.all([
     termQuery.sort({name:1,_id:1}).skip((page-1)*pageSize).limit(pageSize).lean(),
     FragranceTerm.countDocuments(filter),
-    distinctField&&typeof Product.distinct==="function"?Product.distinct(distinctField,{isDeleted:{$ne:true}}):Promise.resolve([]),
   ]);
   let listedTerms=req.query.includeCounts==="false"?terms.map(term=>({...term,productCount:null})):await catalogSnapshot(`library-counts:${terms.map(term=>term._id).join(":")}`,300000,()=>liveLibraryCounts(terms));
-  if(req.query.includeCounts==="false"&&Array.isArray(productValues)&&productValues.length){
-    const seen=new Set(listedTerms.map(term=>libraryNameKey(term.name)).filter(Boolean));
-    for(const raw of productValues){
-      const name=typeof raw==="string"?raw.normalize("NFC").trim().replace(/\s+/gu," "):"";
-      const key=libraryNameKey(name);
-      if(name&&!seen.has(key)){
-        seen.add(key);
-        listedTerms.push({_id:`product:${key}`,kind,name,image:"",contentStatus:"linked",sourceUrl:"",productCount:null});
-      }
-    }
-  }
   if(req.query.includeCounts==="false"&&pageSize>=500){
-    listedTerms=listedTerms.toSorted((a,b)=>termCollator.compare(a.name||"",b.name||"")).slice(0,pageSize);
+    listedTerms=listedTerms.toSorted((a,b)=>termCollator.compare(a.name||"",b.name||""));
   }
-  const finalTotal=Math.max(total,listedTerms.length);
   res.set("Cache-Control","private, no-store");
-  res.json({success:true,terms:listedTerms,total:finalTotal,page,pageSize,totalPages:Math.max(1,Math.ceil(finalTotal/pageSize))});
+  res.json({success:true,terms:listedTerms,total,page,pageSize,totalPages:Math.max(1,Math.ceil(total/pageSize))});
 });
 
 export const libraryTermCounts = catalogAction(async(req,res)=>{

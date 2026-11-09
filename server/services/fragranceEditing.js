@@ -8,7 +8,9 @@ export const sanitizeNewProductFragrance = (raw = {}) => {
   for (const field of ["group", "style"]) {
     const value = raw[field] ?? "";
     if (typeof value !== "string" || value.length > 500) reject("Hồ sơ mùi hương không hợp lệ.");
-    result[field] = value.trim();
+    result[field] = field === "group"
+      ? [...new Set(value.split(/[,;\n]+/u).map(normalized).filter(Boolean))].join(", ")
+      : value.trim();
   }
   const notes = raw.notes ?? {};
   if (!notes || typeof notes !== "object" || Array.isArray(notes)) reject("Tầng hương không hợp lệ.");

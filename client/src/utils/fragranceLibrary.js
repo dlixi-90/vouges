@@ -15,3 +15,7 @@ export const librarySlug = term => {
 };
 export const libraryPath = term => `/knowledge/${term.kind}/${encodeURIComponent(term.slug || librarySlug(term))}`;
 export const libraryNamePath = (kind, name) => `/knowledge/${kind}?name=${encodeURIComponent(name)}`;
+export const splitFragranceGroups = value =>
+  typeof value === "string"
+    ? [...new Set(value.split(/[,;\n]+/u).map(item => item.normalize("NFC").trim().replace(/\s+/gu, " ")).filter(Boolean))]
+    : [];

@@ -132,13 +132,27 @@ test('owner library list returns live counts and rejects injected state filters'
  const bad=response();await libraryTerms({query:{kind:'brand',status:{$ne:''}}},bad);assert.equal(bad.statusCode,400);
 });
 
-test('dropdown term queries support large pageSize without counts and merge distinct product values',async t=>{
- t.mock.method(FragranceTerm,'find',()=>chain([{...current('brand'),name:'Dior'},{...current('brand'),_id:'2',name:'Chanel'}]));
+test('dropdown term queries support large pageSize without counts and return only library terms sorted in Vietnamese order',async t=>{
+ t.mock.method(FragranceTerm,'find',()=>chain([{...current('group'),name:'Gỗ (Woody)'},{...current('group'),_id:'2',name:'Cam Chanh (Citrus)'}]));
  t.mock.method(FragranceTerm,'countDocuments',async()=>2);
- t.mock.method(Product,'distinct',async()=>['dior','Amouage','']);
  const res=response();
- await libraryTerms({query:{kind:'brand',pageSize:'2000',includeCounts:'false',includeProductValues:'true'}},res);
+ await libraryTerms({query:{kind:'group',pageSize:'2000',includeCounts:'false'}},res);
  assert.equal(res.statusCode,200);
- assert.deepEqual(res.body.terms.map(item=>item.name),['Amouage','Chanel','Dior']);
- assert.equal(res.body.total,3);
+ assert.deepEqual(res.body.terms.map(item=>item.name),['Cam Chanh (Citrus)','Gỗ (Woody)']);
+ assert.equal(res.body.total,2);
+});
+
+test('multi-group products match individual library group relations and update only the renamed group token',()=>{
+ const term={kind:'group',name:'Cam Chanh Thảo Mộc (Citrus Aromatic)'};
+ const relation=activeLibraryProducts(term);
+ const pattern=relation.$or[0]['fragrance.group'];
+ assert.equal(pattern.test('Cam Chanh Thảo Mộc (Citrus Aromatic) , Gỗ Chypre (Woody Chypre)'),true);
+ assert.equal(pattern.test('Cam Chanh Thảo Mộc (Citrus Aromatic); Dương Xỉ Phương Đông (Oriental Fougere); Gỗ Phương Đông (Oriental Woody)'),true);
+ assert.equal(pattern.test('Cam Chanh (Citrus)'),false);
+ const renamed=renamedLibraryFields(
+  {fragrance:{group:'Cam Chanh Thảo Mộc (Citrus Aromatic) ; Gỗ Chypre (Woody Chypre)'}},
+  term,
+  'Cam Chanh Thảo Mộc Mới',
+ );
+ assert.equal(renamed.fragrance.group,'Cam Chanh Thảo Mộc Mới, Gỗ Chypre (Woody Chypre)');
 });

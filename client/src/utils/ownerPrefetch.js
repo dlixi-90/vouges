@@ -5,8 +5,8 @@ export const ownerOverviewPath = `/overview?timezone=${encodeURIComponent(OWNER_
 export const ownerDashboardKey = (userId, page = 1) => `${userId}:${OWNER_TIMEZONE}:${page}`;
 export const ownerDashboardSummaryKey = userId => `${userId}:${OWNER_TIMEZONE}:sales`;
 export const defaultInboxPath = "/api/support/inbox?search=&status=all&page=1";
-export const BRAND_OPTIONS_PATH = "/terms?kind=brand&pageSize=2000&includeCounts=false&includeProductValues=true";
-export const GROUP_OPTIONS_PATH = "/terms?kind=group&pageSize=2000&includeCounts=false&includeProductValues=true";
+export const BRAND_OPTIONS_PATH = "/terms?kind=brand&pageSize=2000&includeCounts=false";
+export const GROUP_OPTIONS_PATH = "/terms?kind=group&pageSize=2000&includeCounts=false";
 export const NOTE_OPTIONS_PATH = "/terms?kind=note&pageSize=2000&includeCounts=false";
 export const ACCORD_OPTIONS_PATH = "/terms?kind=accord&pageSize=2000&includeCounts=false";
 
