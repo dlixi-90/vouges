@@ -24,7 +24,7 @@ const PopularProducts = () => {
       <p className="inessa-eyebrow inessa-section-eyebrow">
         {showSuggestions ? "Khám phá cùng Velours" : "Được yêu thích tại Velours"}
       </p>
-      <Title title1={showSuggestions ? "Gợi ý" : "Sản phẩm"} title2={showSuggestions ? "cho bạn" : "bán chạy"} titleStyles={"pb-10"} />
+      <Title title1={showSuggestions ? "Gợi ý" : "Sản phẩm"} title2={showSuggestions ? "cho bạn" : "bán chạy"} titleStyles={"pb-6"} />
       {visibleError && (
         <p role="alert" className="mb-4 text-sm text-red-600">
           {visibleError}{" "}

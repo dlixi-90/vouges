@@ -7,9 +7,9 @@ const NewArrivals = () => {
   const { products, initialLoading, error, reload } = useProductFeed();
 
   return (
-    <section className="net-new-arrivals max-padd-container mt-28">
+    <section className="net-new-arrivals max-padd-container mt-6 sm:mt-10">
       <p className="inessa-eyebrow inessa-section-eyebrow">Những lựa chọn mới</p>
-      <Title title1={"Sản phẩm"} title2={"mới"} titleStyles={"pb-10"} />
+      <Title title1={"Sản phẩm"} title2={"mới"} titleStyles={"pb-6"} />
       {error && <p role="alert">{error} <button type="button" onClick={reload} className="underline">Thử lại</button></p>}
       {initialLoading ? <ProductGridSkeleton count={5} carousel /> : <ProductCarousel products={products.slice(0, 12)} />}
     </section>
