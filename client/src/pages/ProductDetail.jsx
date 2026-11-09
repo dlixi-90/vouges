@@ -65,6 +65,48 @@ const ProductDetail = () => {
   const [tabSelection, setTabSelection] = useState(null);
   const productImageRef = useRef(null);
   const addedResetTimerRef = useRef(null);
+  const thumbnailsRef = useRef(null);
+  const isDraggingThumbnailsRef = useRef(false);
+  const dragStartYRef = useRef(0);
+  const dragScrollTopRef = useRef(0);
+  const hasDraggedThumbnailsRef = useRef(false);
+
+  const handleThumbnailsPointerDown = (event) => {
+    if (event.button !== 0) return;
+    const container = thumbnailsRef.current;
+    if (!container) return;
+    isDraggingThumbnailsRef.current = true;
+    hasDraggedThumbnailsRef.current = false;
+    dragStartYRef.current = event.clientY;
+    dragScrollTopRef.current = container.scrollTop;
+  };
+
+  const handleThumbnailsPointerMove = (event) => {
+    if (!isDraggingThumbnailsRef.current) return;
+    const container = thumbnailsRef.current;
+    if (!container) return;
+    const deltaY = event.clientY - dragStartYRef.current;
+    if (Math.abs(deltaY) > 4) {
+      hasDraggedThumbnailsRef.current = true;
+    }
+    container.scrollTop = dragScrollTopRef.current - deltaY;
+  };
+
+  const handleThumbnailsPointerUp = () => {
+    isDraggingThumbnailsRef.current = false;
+  };
+
+  useEffect(() => {
+    const handleGlobalPointerEnd = () => {
+      isDraggingThumbnailsRef.current = false;
+    };
+    window.addEventListener("pointerup", handleGlobalPointerEnd);
+    window.addEventListener("pointercancel", handleGlobalPointerEnd);
+    return () => {
+      window.removeEventListener("pointerup", handleGlobalPointerEnd);
+      window.removeEventListener("pointercancel", handleGlobalPointerEnd);
+    };
+  }, []);
 
   const { productId } = useParams();
   const detailResource = useMemo(() => ({
@@ -201,14 +243,21 @@ const ProductDetail = () => {
           >
             <div className="product-detail-gallery-layout">
               {gallery.length > 0 && (
-                <div className="product-detail-thumbnails">
+                <div
+                  ref={thumbnailsRef}
+                  className="product-detail-thumbnails"
+                  onPointerDown={handleThumbnailsPointerDown}
+                  onPointerMove={handleThumbnailsPointerMove}
+                  onPointerUp={handleThumbnailsPointerUp}
+                >
                   {gallery.map((item, index) => (
                     <button
                       type="button"
                       key={`${item}-${index}`}
-                      onClick={() =>
-                        setSelectedImage({ productId, size, url: item })
-                      }
+                      onClick={() => {
+                        if (hasDraggedThumbnailsRef.current) return;
+                        setSelectedImage({ productId, size, url: item });
+                      }}
                       aria-pressed={item === image}
                       aria-label={`Xem ảnh sản phẩm ${index + 1}`}
                       className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-[#f5f5f0] p-1.5 transition-opacity sm:h-[72px] sm:w-[72px] ${
