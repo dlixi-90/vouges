@@ -398,7 +398,7 @@ export function MultiNoteSelect({
       ? "Đang tải danh sách note hương…"
       : normalizedSelected.length === 0
         ? "Chọn note hương từ danh sách…"
-        : `Đã chọn ${normalizedSelected.length} note hương (bấm để chọn thêm)`;
+        : `Đã chọn ${normalizedSelected.length} note hương`;
 
   return (
     <div ref={containerRef} className="perfume-field perfume-multi-note-field">

@@ -933,27 +933,6 @@ const ProductForm = () => {
               </div>
             </div>
 
-            <ul className="perfume-publish-checklist">
-              <li>
-                <span>Loại & danh mục</span>
-                <Badge tone={selectedType ? "green" : "amber"}>
-                  {selectedType ? selectedCategory?.name : "Chưa chọn"}
-                </Badge>
-              </li>
-              <li>
-                <span>Phân loại dung tích</span>
-                <Badge tone={sizePrices.length > 0 ? "green" : "amber"}>
-                  {sizePrices.length > 0 ? `${sizePrices.length} dung tích` : "Cần thêm"}
-                </Badge>
-              </li>
-              <li>
-                <span>Bộ ảnh sản phẩm</span>
-                <Badge tone={selectedImageCount > 0 ? "green" : "amber"}>
-                  {selectedImageCount > 0 ? `${selectedImageCount} ảnh` : "Cần tải ảnh"}
-                </Badge>
-              </li>
-            </ul>
-
             <button
               type="submit"
               disabled={loading || articleUploading || hasVariantEdits}
