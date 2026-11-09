@@ -275,6 +275,7 @@ test("ordinary browsing returns only one bounded database page and shares metada
 
 test("advanced size/price/profile filters retain the existing matching and sorting path", () => {
   assert.equal(canPageBrowseDirectly(options({})), true);
+  assert.equal(canPageBrowseDirectly(options({ q: "hoa hong" })), true);
   assert.equal(canPageBrowseDirectly(options({ facets: JSON.stringify({ gender: ["Nam"], brands: ["Brand A"] }) })), true);
   for (const query of [{ minPrice: 1 }, { sort: "high" }, { sort: "name-asc" }, { sort: "name-desc" }, { facets: JSON.stringify({ sizes: ["100ml"] }) }, { facets: JSON.stringify({ notes: ["Rose"] }) }, { facets: JSON.stringify({ longevity: ["Khá 6-8H"] }) }]) {
     assert.equal(canPageBrowseDirectly(options(query)), false);

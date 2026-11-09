@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import Item from "../components/Item";
 import { useAppContext } from "../context/AppContext";
 const CollectionFilterDrawer = lazy(() => import("../components/CollectionFilterDrawer"));
@@ -23,6 +23,7 @@ const Collection = () => {
   }, []);
 
   const { searchQuery, setSearchQuery, currency, navigate, publicCatalog } = useAppContext();
+  const { state: locationState } = useLocation();
   const [searchParams] = useSearchParams();
   const routeBrand = searchParams.get("brand") || "";
   const [filters, setFilters] = useState(() => {
@@ -40,10 +41,11 @@ const Collection = () => {
   const dynamicKey = JSON.stringify({ q: searchQuery, minPrice, ...(maxPrice !== null ? { maxPrice } : {}) });
   const [settledDynamic, setSettledDynamic] = useState(dynamicKey);
   useEffect(() => {
-    const timer = window.setTimeout(() => setSettledDynamic(dynamicKey), 180);
+    const timer = window.setTimeout(() => setSettledDynamic(dynamicKey), 120);
     return () => window.clearTimeout(timer);
   }, [dynamicKey]);
-  const activeDynamic = (!searchQuery && minPrice === 0 && maxPrice === null) ? dynamicKey : settledDynamic;
+  const isCommittedHeaderSearch = Boolean(locationState?.headerSearch && searchQuery === String(locationState.q ?? ""));
+  const activeDynamic = ((!searchQuery || isCommittedHeaderSearch) && minPrice === 0 && maxPrice === null) ? dynamicKey : settledDynamic;
   const criteria = { ...JSON.parse(activeDynamic), facets: facetsKey };
   const criteriaKey = JSON.stringify({ q: searchQuery, facets: facetsKey, minPrice, ...(maxPrice !== null ? { maxPrice } : {}) });
   const criteriaPending = activeDynamic !== dynamicKey;

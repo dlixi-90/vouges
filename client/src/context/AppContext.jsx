@@ -16,6 +16,7 @@ import { createUserProfileLoader } from "../utils/userProfileLoader";
 import { createDashboardCache } from "../utils/dashboardCache";
 import { createStoreResources } from "../utils/storeResources";
 import { createPublicCatalog } from "../utils/publicCatalog";
+import { prefetchRoute } from "../utils/prefetchRoute";
 import { persistCartSizeChange } from "../utils/cartSizeUpdate";
 import { getCartItemKey } from "../utils/cartSelection";
 import { MAX_CART_ADD_QUANTITY } from "../utils/purchaseQuantity";
@@ -132,6 +133,9 @@ export const AppContextProvider = ({ children }) => {
   }, [locationKey, locationState]);
   const isCartPage = Boolean(useMatch("/cart"));
   const needsCategories = ["/owner/add-product", "/owner/add-category"].includes(pathname);
+  useEffect(() => {
+    if (pathname.startsWith("/owner")) prefetchRoute(pathname);
+  }, [pathname]);
   const currency = "₫";
   const delivery_charges = 30000;
 

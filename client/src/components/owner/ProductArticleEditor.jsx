@@ -8,6 +8,7 @@ import { TextStyleKit } from "@tiptap/extension-text-style";
 import { AlignCenter, AlignJustify, AlignLeft, AlignRight, Bold, Eye, ImagePlus, Italic, Link2, List, ListOrdered, Minus, Quote, Redo2, RemoveFormatting, Strikethrough, Trash2, Underline, Undo2, Unlink } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import ProductArticle from "../ProductArticle";
+import ArticleEditorShell from "./ArticleEditorShell";
 import { ARTICLE_FONT_SIZES, ARTICLE_LIMITS, LIBRARY_ARTICLE_LIMITS, articleToPlainText, getArticleDocument, isArticleUrl, sanitizeArticle } from "../../utils/productArticle";
 import { getProductImageUrl } from "../../utils/productImage";
 
@@ -40,7 +41,24 @@ const ArticleImage = Image.extend({
   },
 });
 
-export default function ProductArticleEditor({ value, text, onChange, onUploadingChange, disabled = false, library = false, ariaLabel = "Trình soạn thảo mô tả sản phẩm" }) {
+export default function ProductArticleEditor({ value, text, onChange, onUploadingChange, disabled = false, loading = false, library = false, ariaLabel = "Trình soạn thảo mô tả sản phẩm" }) {
+  if (loading) {
+    return <ArticleEditorShell library={library} label={library ? "Đang tải nội dung giới thiệu…" : "Đang tải nội dung mô tả…"} />;
+  }
+  return (
+    <ArticleEditorCanvas
+      value={value}
+      text={text}
+      onChange={onChange}
+      onUploadingChange={onUploadingChange}
+      disabled={disabled}
+      library={library}
+      ariaLabel={ariaLabel}
+    />
+  );
+}
+
+function ArticleEditorCanvas({ value, text, onChange, onUploadingChange, disabled = false, library = false, ariaLabel = "Trình soạn thảo mô tả sản phẩm" }) {
   const { axios, getToken } = useAppContext();
   const [preview, setPreview] = useState(false), [uploading, setUploading] = useState(false), [error, setError] = useState("");
   const [linkOpen, setLinkOpen] = useState(false), [linkUrl, setLinkUrl] = useState("");
@@ -80,7 +98,7 @@ export default function ProductArticleEditor({ value, text, onChange, onUploadin
     return { content, imageCount, textLength: articleToPlainText(content).length };
   }, [editor, doc]);
 
-  if (!editor || !stats) return <LoadingStatus label="Đang tải trình soạn thảo…" />;
+  if (!editor || !stats) return <ArticleEditorShell library={library} label="Đang tải trình soạn thảo…" />;
   const busy = disabled || uploading;
   const { content, imageCount, textLength } = stats;
   const selectedImage = editor.isActive("image");

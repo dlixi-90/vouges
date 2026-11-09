@@ -1,8 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useId, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { ArrowLeft, ImagePlus, PackagePlus, Plus, X } from "lucide-react";
+import { ArrowLeft, ImagePlus, Layers3, PackagePlus, Plus, RotateCcw, X } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import { LoadingStatus } from "../../components/LoadingState";
+import { CatalogPage, Badge, useCatalog } from "../../components/owner/CatalogUI";
+import ArticleEditorShell from "../../components/owner/ArticleEditorShell";
+import { LibraryTermSelect } from "../../components/owner/FragranceEditorFields";
+import { BRAND_OPTIONS_PATH } from "../../utils/ownerPrefetch";
 import { useLocation, useParams } from "react-router-dom";
 import {
   restoreProductDraft,
@@ -11,10 +15,11 @@ import {
 import { saveVariantEdit } from "../../utils/productVariantEdit";
 import ProductVariantRow from "../../components/owner/ProductVariantRow";
 import ProductImageUpload from "../../components/owner/ProductImageUpload";
-import ProductArticleEditor from "../../components/owner/ProductArticleEditor";
 import { sanitizeArticle } from "../../utils/productArticle";
 import { editableFragrance } from "../../utils/fragrance";
 import NewProductFragrance from "../../components/owner/NewProductFragrance";
+
+const ProductArticleEditor = lazy(() => import("../../components/owner/ProductArticleEditor"));
 
 const createEmptyImages = () => ({
   1: null,
@@ -46,6 +51,7 @@ const AddProduct = () => {
 };
 
 const ProductForm = () => {
+  const formId = useId();
   const { productId } = useParams();
   const { state: navigationState } = useLocation();
 
@@ -63,7 +69,10 @@ const ProductForm = () => {
     productDrafts,
     saveProductDraft,
     clearProductDraft,
+    storeResources,
   } = useAppContext();
+
+  const brandLibrary = useCatalog(BRAND_OPTIONS_PATH);
 
   const isEditMode = Boolean(productId);
   const draftKey = `${user?.id}:${productId || "new"}`;
@@ -183,6 +192,8 @@ const ProductForm = () => {
       description: product.description || "",
       descriptionContent: product.descriptionContent ?? null,
       ingredients: product.ingredients || "",
+      brand: product.brand || "",
+      origin: product.origin || "",
       category: product.category || "",
       type: product.type || "",
       typeId: "",
@@ -231,12 +242,37 @@ const ProductForm = () => {
   const fragranceField = (field, value) => setInputs(current => ({ ...current,
     fragrance: { ...current.fragrance, [field]: value },
   }));
-  const updateNotes = (phase, text) => setInputs(current => ({ ...current,
-    notesText: { ...current.notesText, [phase]: text },
-    fragrance: { ...current.fragrance, notes: { ...current.fragrance.notes,
-      [phase]: text.split("\n").map(name => name.trim()).filter(Boolean).map(name => ({ name, url: null })),
-    } },
-  }));
+  const updateNotes = (phase, nextValue) =>
+    setInputs((current) => {
+      const existing = current.fragrance?.notes?.[phase] || [];
+      const list = Array.isArray(nextValue)
+        ? nextValue
+            .map((item) =>
+              typeof item === "string"
+                ? existing.find((note) => note.name === item) || { name: item, url: null }
+                : { name: String(item?.name || "").trim(), url: item?.url || null },
+            )
+            .filter((item) => item.name)
+        : String(nextValue || "")
+            .split("\n")
+            .map((name) => name.trim())
+            .filter(Boolean)
+            .map((name) => existing.find((note) => note.name === name) || { name, url: null });
+      return {
+        ...current,
+        notesText: {
+          ...current.notesText,
+          [phase]: list.map((item) => item.name).join("\n"),
+        },
+        fragrance: {
+          ...current.fragrance,
+          notes: {
+            ...current.fragrance.notes,
+            [phase]: list,
+          },
+        },
+      };
+    });
 
   const addSizePrice = () => {
     const size = newSize.trim();
@@ -506,6 +542,7 @@ const ProductForm = () => {
 
       if (data.success) {
         clearProductDraft(draftKey);
+        storeResources.invalidateCatalog();
         toast.success(
           data.message ||
             (isEditMode
@@ -518,7 +555,7 @@ const ProductForm = () => {
         if (isEditMode) {
           navigate("/owner/list-product");
         } else {
-          if(data.productId) navigate(`/owner/edit-product/${data.productId}`);
+          if (data.productId) navigate(`/owner/edit-product/${data.productId}`);
           else resetForm();
         }
       } else {
@@ -538,331 +575,438 @@ const ProductForm = () => {
     }
   };
 
+  const selectedImageCount = Object.values(images).filter(Boolean).length;
+  const submitLabel = loading
+    ? isEditMode
+      ? "Đang lưu thay đổi…"
+      : "Đang thêm sản phẩm…"
+    : isEditMode
+      ? "Lưu thay đổi"
+      : "Thêm sản phẩm";
+
   return (
-    <main className="m-1 h-[97vh] overflow-y-auto rounded-xl bg-primary px-3 py-6 shadow sm:m-3 sm:px-5 md:px-8 lg:w-11/12 xl:py-8">
-      <div className="mx-auto w-full max-w-[1120px]">
-        <header className="mb-6 flex flex-col gap-4 border-b border-[#e1e6e3] pb-6 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-[#263b4a] sm:text-3xl">
-              {isEditMode ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm"}
-            </h1>
-          </div>
+    <CatalogPage
+      title={isEditMode ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm"}
+      actions={
+        <>
           <button
             type="button"
             disabled={loading}
             onClick={() => navigate("/owner/list-product")}
-            className="btn-outline inline-flex w-fit items-center gap-2 px-4 py-2.5 text-sm disabled:opacity-50"
+            className="perfume-button"
           >
-            <ArrowLeft size={17} aria-hidden="true" />
-            Quay lại sản phẩm
+            <ArrowLeft size={15} aria-hidden="true" />
+            Danh sách sản phẩm
           </button>
-        </header>
-
-        <form
-          onSubmit={onSubmitHandler}
-          className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]"
-        >
-          <section className="rounded-2xl border border-[#e2e7e4] bg-white p-5 shadow-sm sm:p-6">
-            <div className="mb-6">
-              <h2 className="text-lg font-semibold text-[#263b4a]">
-                Thông tin sản phẩm
-              </h2>
+          <button
+            form={formId}
+            type="submit"
+            disabled={loading || articleUploading || hasVariantEdits}
+            className="perfume-button primary"
+          >
+            <PackagePlus size={15} aria-hidden="true" />
+            {submitLabel}
+          </button>
+        </>
+      }
+    >
+      <form
+        id={formId}
+        onSubmit={onSubmitHandler}
+        className="perfume-add-layout"
+      >
+        <div className="perfume-add-main">
+          <section className="perfume-panel">
+            <div className="perfume-section-heading">
+              <div>
+                <h2>Thông tin sản phẩm</h2>
+                <p className="perfume-muted">
+                  Nhập tên nước hoa, thương hiệu, xuất xứ và phân loại danh mục hiển thị trên cửa hàng.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={manageCategoryTypes}
+                disabled={loading}
+                className="perfume-button"
+              >
+                <Layers3 size={14} aria-hidden="true" />
+                Thêm / quản lý loại sản phẩm
+              </button>
             </div>
 
-            <div className="space-y-5">
-              <Field label="Tên sản phẩm" required>
+            <Field label="Tên sản phẩm" required>
+              <input
+                value={inputs.title}
+                onChange={(event) => updateInput("title", event.target.value)}
+                type="text"
+                placeholder="Ví dụ: Dior Sauvage Eau de Parfum"
+                autoComplete="off"
+                required
+              />
+            </Field>
+
+            <div className="perfume-form-grid">
+              <LibraryTermSelect
+                kind="brand"
+                label="Thương hiệu"
+                placeholder="Chọn thương hiệu"
+                value={inputs.brand || ""}
+                terms={brandLibrary.data?.terms || []}
+                loading={brandLibrary.loading}
+                disabled={loading}
+                onChange={(value) => updateInput("brand", value)}
+              />
+              <Field label="Xuất xứ">
                 <input
-                  value={inputs.title}
-                  onChange={(event) => updateInput("title", event.target.value)}
-                  type="text"
-                  placeholder="Ví dụ: Dior Sauvage Eau de Parfum"
-                  className="admin-input"
-                  autoComplete="off"
+                  value={inputs.origin || ""}
+                  onChange={(event) => updateInput("origin", event.target.value)}
+                  maxLength={200}
+                  placeholder="Ví dụ: Pháp"
+                />
+              </Field>
+            </div>
+
+            <div className="perfume-form-grid">
+              <Field label="Loại sản phẩm" required>
+                <select
+                  value={selectedType?._id || ""}
+                  onChange={(event) => {
+                    const next = getProductTypeSelection(categories, {
+                      typeId: event.target.value,
+                    });
+                    setInputs((current) => ({
+                      ...current,
+                      typeId: next?.type._id || "",
+                      type: next?.type.name || "",
+                      category: next?.category.name || "",
+                    }));
+                  }}
                   required
-                />
-              </Field>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Thương hiệu"><input value={inputs.brand||""} onChange={event=>updateInput("brand",event.target.value)} maxLength={200} placeholder="Ví dụ: Dior" className="admin-input"/></Field>
-                <Field label="Xuất xứ"><input value={inputs.origin||""} onChange={event=>updateInput("origin",event.target.value)} maxLength={200} placeholder="Ví dụ: Pháp" className="admin-input"/></Field>
-              </div>
-              <div><p className="mb-2 text-sm font-medium">Mô tả sản phẩm</p>
-                <ProductArticleEditor key={loadedProductId || "new-article"} value={inputs.descriptionContent} text={inputs.description} disabled={loading} onUploadingChange={setArticleUploading}
-                  onChange={(descriptionContent, description) => setInputs(current => ({ ...current, descriptionContent, description }))} />
-              </div>
-
-              <Field label="Thành phần">
-                <textarea
-                  value={inputs.ingredients}
-                  onChange={(event) =>
-                    updateInput("ingredients", event.target.value)
+                  disabled={
+                    categoriesLoading || Boolean(categoriesError) || loading
                   }
-                  placeholder="Thành phần ghi trên nhãn chai, nếu có…"
-                  rows={4}
-                  className="admin-input min-h-28 resize-y"
+                >
+                  <option value="">Chọn loại sản phẩm</option>
+                  {categories
+                    .filter((category) => category.types?.length)
+                    .map((category) => (
+                      <optgroup key={category._id} label={category.name}>
+                        {category.types.map((type) => (
+                          <option key={type._id} value={type._id}>
+                            {type.name}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                </select>
+                {categoriesLoading && (
+                  <LoadingStatus label="Đang tải danh sách loại sản phẩm…" />
+                )}
+                {categoriesError && (
+                  <small role="alert" className="perfume-field-error">
+                    {categoriesError}{" "}
+                    <button
+                      type="button"
+                      onClick={fetchCategories}
+                      className="underline"
+                    >
+                      Thử lại
+                    </button>
+                  </small>
+                )}
+              </Field>
+              <Field label="Danh mục">
+                <input
+                  type="text"
+                  value={selectedCategory?.name || ""}
+                  placeholder="Tự động điền khi chọn loại sản phẩm"
+                  readOnly
+                  aria-label="Danh mục"
                 />
               </Field>
+            </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field label="Loại sản phẩm" required>
-                  <select
-                    value={selectedType?._id || ""}
-                    onChange={(event) => {
-                      const next = getProductTypeSelection(categories, {
-                        typeId: event.target.value,
-                      });
-                      setInputs((current) => ({
-                        ...current,
-                        typeId: next?.type._id || "",
-                        type: next?.type.name || "",
-                        category: next?.category.name || "",
-                      }));
-                    }}
-                    className="admin-input"
-                    required
-                    disabled={
-                      categoriesLoading || Boolean(categoriesError) || loading
-                    }
-                  >
-                    <option value="">Chọn loại sản phẩm</option>
-                    {categories
-                      .filter((category) => category.types?.length)
-                      .map((category) => (
-                        <optgroup key={category._id} label={category.name}>
-                          {category.types.map((type) => (
-                            <option key={type._id} value={type._id}>
-                              {type.name}
-                            </option>
-                          ))}
-                        </optgroup>
-                      ))}
-                  </select>
-                  {categoriesLoading && (
-                    <LoadingStatus label="Đang tải danh sách loại sản phẩm…" />
-                  )}
-                  {categoriesError && (
-                    <span className="mt-1 block text-xs text-[#b55f5f]">
-                      {categoriesError}{" "}
-                      <button
-                        type="button"
-                        onClick={fetchCategories}
-                        className="underline"
-                      >
-                        Thử lại
-                      </button>
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={manageCategoryTypes}
+            <Field label="Thành phần">
+              <textarea
+                value={inputs.ingredients}
+                onChange={(event) =>
+                  updateInput("ingredients", event.target.value)
+                }
+                placeholder="Thành phần ghi trên nhãn chai, nếu có…"
+                rows={3}
+              />
+            </Field>
+          </section>
+
+          <section className="perfume-panel">
+            <div className="perfume-section-heading">
+              <div>
+                <h2>Mô tả sản phẩm</h2>
+                <p className="perfume-muted">
+                  Biên soạn bài viết giới thiệu chi tiết, hình ảnh minh họa và định dạng văn bản cho sản phẩm.
+                </p>
+              </div>
+            </div>
+            <Suspense fallback={<ArticleEditorShell label="Đang tải trình soạn thảo…" />}>
+              <ProductArticleEditor
+                key={loadedProductId || "new-article"}
+                value={inputs.descriptionContent}
+                text={inputs.description}
+                disabled={loading}
+                onUploadingChange={setArticleUploading}
+                onChange={(descriptionContent, description) =>
+                  setInputs((current) => ({
+                    ...current,
+                    descriptionContent,
+                    description,
+                  }))
+                }
+              />
+            </Suspense>
+          </section>
+
+          <section className="perfume-panel">
+            <div className="perfume-section-heading">
+              <div>
+                <h2>Dung tích, giá và tồn kho</h2>
+                <p className="perfume-muted">
+                  Thêm các phân loại dung tích kèm giá bán (VND), số lượng tồn kho và ảnh riêng cho từng dung tích.
+                </p>
+              </div>
+              <Badge tone={sizePrices.length > 0 ? "green" : "neutral"}>
+                {sizePrices.length} phân loại
+              </Badge>
+            </div>
+
+            <div className="perfume-add-variant-box">
+              <div className="perfume-add-variant-row">
+                <div className="perfume-add-variant-media">
+                  <ProductImageUpload
+                    file={newSizeImage}
+                    label="Ảnh dung tích mới"
                     disabled={loading}
-                    className="mt-2 text-xs font-medium text-[#496852] underline disabled:opacity-50"
-                  >
-                    Thêm / quản lý loại sản phẩm
-                  </button>
-                </Field>
-                <Field label="Danh mục">
-                  <input
-                    type="text"
-                    value={selectedCategory?.name || ""}
-                    placeholder="Vui lòng chọn loại sản phẩm trước"
-                    readOnly
-                    className="admin-input bg-[#f8faf8]"
-                    aria-label="Danh mục"
+                    onChange={(file) => changeSizeImage(file, setNewSizeImage)}
+                    onRemove={() => setNewSizeImage(null)}
                   />
-                </Field>
-              </div>
-
-              <div className="rounded-xl border border-[#e2e7e4] bg-[#f8faf8] p-4 sm:p-5">
-                <div className="mb-4">
-                  <h3 className="text-sm font-semibold text-[#263b4a]">
-                    Dung tích, giá và tồn kho
-                  </h3>
                 </div>
+                <div className="perfume-add-variant-inputs">
+                  <label className="perfume-field">
+                    <span>Dung tích</span>
+                    <input
+                      value={newSize}
+                      onChange={(event) => setNewSize(event.target.value)}
+                      onKeyDown={handleSizePriceKeyDown}
+                      type="text"
+                      placeholder="Ví dụ: 50ml"
+                      aria-label="Dung tích sản phẩm"
+                    />
+                  </label>
 
-                {/* Add variant form */}
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
-                  <input
-                    value={newSize}
-                    onChange={(event) => setNewSize(event.target.value)}
-                    onKeyDown={handleSizePriceKeyDown}
-                    type="text"
-                    placeholder="Dung tích, ví dụ: 50 ml"
-                    aria-label="Dung tích sản phẩm"
-                    className="admin-input"
-                  />
+                  <label className="perfume-field">
+                    <span>Giá bán (VND)</span>
+                    <input
+                      value={newPrice}
+                      onChange={(event) => setNewPrice(event.target.value)}
+                      onKeyDown={handleSizePriceKeyDown}
+                      type="number"
+                      min="1"
+                      step="1"
+                      placeholder="Ví dụ: 1250000"
+                      aria-label="Giá tính bằng đồng Việt Nam"
+                    />
+                  </label>
 
-                  <input
-                    value={newPrice}
-                    onChange={(event) => setNewPrice(event.target.value)}
-                    onKeyDown={handleSizePriceKeyDown}
-                    type="number"
-                    min="1"
-                    step="1"
-                    placeholder="Giá VND, ví dụ: 1250000"
-                    aria-label="Giá tính bằng đồng Việt Nam"
-                    className="admin-input"
-                  />
+                  <label className="perfume-field">
+                    <span>Số lượng kho</span>
+                    <input
+                      value={newQuantity}
+                      onChange={(event) => setNewQuantity(event.target.value)}
+                      onKeyDown={handleSizePriceKeyDown}
+                      type="number"
+                      min="0"
+                      step="1"
+                      inputMode="numeric"
+                      placeholder="Ví dụ: 10"
+                      aria-label="Số lượng tồn kho"
+                    />
+                  </label>
 
-                  <input
-                    value={newQuantity}
-                    onChange={(event) => setNewQuantity(event.target.value)}
-                    onKeyDown={handleSizePriceKeyDown}
-                    type="number"
-                    min="0"
-                    step="1"
-                    inputMode="numeric"
-                    placeholder="Số lượng"
-                    aria-label="Số lượng tồn kho"
-                    className="admin-input"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={addSizePrice}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#cfdad2] bg-white px-4 py-2.5 text-sm font-medium text-[#496852] transition hover:border-[#86a78d] hover:bg-[#f2f7f3]"
-                  >
-                    <Plus size={16} />
-                    Thêm
-                  </button>
-                </div>
-
-                {/* Added variants */}
-                <div className="mt-3 flex items-center gap-4">
-                  <div className="w-24 shrink-0">
-                    <ProductImageUpload file={newSizeImage} label="Ảnh dung tích mới" disabled={loading}
-                      onChange={(file) => changeSizeImage(file, setNewSizeImage)} onRemove={() => setNewSizeImage(null)} />
+                  <div className="perfume-add-variant-action">
+                    <button
+                      type="button"
+                      onClick={addSizePrice}
+                      disabled={loading}
+                      className="perfume-button primary"
+                    >
+                      <Plus size={15} />
+                      Thêm dung tích
+                    </button>
                   </div>
-                  <p className="text-xs text-gray-500">Chọn ảnh riêng trước khi thêm dung tích (không bắt buộc).</p>
-                </div>
-                <div className="mt-4 space-y-2" aria-live="polite">
-                  {sizePrices.length === 0 ? (
-                    <div className="rounded-lg border border-dashed border-[#d5ddd7] px-4 py-6 text-center">
-                      <PackagePlus
-                        size={20}
-                        className="mx-auto text-[#8ca095]"
-                      />
-
-                      <p className="mt-2 text-sm font-medium text-[#76847c]">
-                        Chưa thêm phân loại sản phẩm nào
-                      </p>
-                    </div>
-                  ) : (
-                    sizePrices.map((item) => (
-                      <ProductVariantRow
-                        key={item.id}
-                        item={item}
-                        draft={variantEdits[item.id]}
-                        loading={loading}
-                        onEdit={() =>
-                          setVariantEdits((current) => ({
-                            ...current,
-                            [item.id]: { ...item },
-                          }))
-                        }
-                        onChange={(field, value) => {
-                          const apply = (nextValue) => setVariantEdits((current) => ({
-                            ...current,
-                            [item.id]: { ...current[item.id], [field]: nextValue },
-                          }));
-                          if (field === "image" && value) changeSizeImage(value, apply);
-                          else apply(value);
-                        }}
-                        onSave={() => commitVariantEdit(item.id)}
-                        onCancel={() => cancelVariantEdit(item.id)}
-                        onRemove={() => removeSizePrice(item.id)}
-                      />
-                    ))
-                  )}
                 </div>
               </div>
+              <p className="perfume-muted">
+                Có thể chọn ảnh riêng cho dung tích trước khi bấm <strong>Thêm dung tích</strong> (không bắt buộc).
+              </p>
+            </div>
+
+            <div className="perfume-variant-list" aria-live="polite">
+              {sizePrices.length === 0 ? (
+                <div className="perfume-gallery-empty">
+                  <PackagePlus size={26} strokeWidth={1.3} />
+                  <p>Chưa thêm phân loại sản phẩm nào. Hãy nhập dung tích, giá và số lượng ở trên rồi bấm Thêm dung tích.</p>
+                </div>
+              ) : (
+                sizePrices.map((item) => (
+                  <ProductVariantRow
+                    key={item.id}
+                    item={item}
+                    draft={variantEdits[item.id]}
+                    loading={loading}
+                    onEdit={() =>
+                      setVariantEdits((current) => ({
+                        ...current,
+                        [item.id]: { ...item },
+                      }))
+                    }
+                    onChange={(field, value) => {
+                      const apply = (nextValue) =>
+                        setVariantEdits((current) => ({
+                          ...current,
+                          [item.id]: { ...current[item.id], [field]: nextValue },
+                        }));
+                      if (field === "image" && value) changeSizeImage(value, apply);
+                      else apply(value);
+                    }}
+                    onSave={() => commitVariantEdit(item.id)}
+                    onCancel={() => cancelVariantEdit(item.id)}
+                    onRemove={() => removeSizePrice(item.id)}
+                  />
+                ))
+              )}
             </div>
           </section>
 
-          <aside className="space-y-6 lg:sticky lg:top-6">
-            <section className="rounded-2xl border border-[#e2e7e4] bg-white p-5 shadow-sm">
-              <div className="mb-4">
-                <h2 className="text-base font-semibold text-[#263b4a]">
-                  Ảnh sản phẩm
-                </h2>
-                <p className="mt-2 text-xs text-gray-500">Bộ ảnh chung dùng trên thẻ sản phẩm. Ảnh theo dung tích được thêm riêng ở từng phân loại.</p>
-              </div>
+          <NewProductFragrance
+            fragrance={inputs.fragrance}
+            notesText={inputs.notesText}
+            onChange={fragranceField}
+            onNotes={updateNotes}
+            disabled={loading || articleUploading}
+          />
+        </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                {Object.keys(images).map((slot) => (
-                  <ImageUpload
-                    key={slot + "-" + imageInputVersion}
-                    slot={slot}
-                    file={images[slot]}
-                    onChange={handleImageChange}
-                    onRemove={removeImage}
-                  />
-                ))}
-              </div>
-            </section>
-
-            <section className="rounded-2xl border border-[#e2e7e4] bg-white p-5 shadow-sm">
-              <div className="mb-4">
-                <h2 className="text-base font-semibold text-[#263b4a]">
-                  Đăng sản phẩm
-                </h2>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading || articleUploading || hasVariantEdits}
-                className="admin-primary-button w-full justify-center"
-              >
-                <PackagePlus size={17} />
-
-                {loading
-                  ? isEditMode
-                    ? "Đang lưu thay đổi…"
-                    : "Đang thêm sản phẩm…"
-                  : isEditMode
-                    ? "Lưu thay đổi"
-                    : "Thêm sản phẩm"}
-              </button>
-              {hasVariantEdits && (
-                <p role="status" className="mt-2 text-xs text-amber-700">
-                  Lưu hoặc hủy thay đổi dung tích để tiếp tục.
+        <aside className="perfume-add-sidebar">
+          <section className="perfume-panel">
+            <div className="perfume-section-heading">
+              <div>
+                <h2>Ảnh sản phẩm</h2>
+                <p className="perfume-muted">
+                  Bộ ảnh chung dùng trên thẻ sản phẩm. Ảnh theo dung tích được thêm riêng ở từng phân loại.
                 </p>
-              )}
-              {isEditMode && (
+              </div>
+              <Badge tone={selectedImageCount > 0 ? "green" : "neutral"}>
+                {selectedImageCount}/4 ảnh
+              </Badge>
+            </div>
+
+            <div className="perfume-add-image-grid">
+              {Object.keys(images).map((slot) => (
+                <ImageUpload
+                  key={slot + "-" + imageInputVersion}
+                  slot={slot}
+                  file={images[slot]}
+                  onChange={handleImageChange}
+                  onRemove={removeImage}
+                />
+              ))}
+            </div>
+          </section>
+
+          <section className="perfume-panel perfume-publish-panel">
+            <div className="perfume-section-heading">
+              <div>
+                <h2>Đăng sản phẩm</h2>
+                <p className="perfume-muted">
+                  Kiểm tra các thông tin bắt buộc trước khi lưu vào hệ thống catalog.
+                </p>
+              </div>
+            </div>
+
+            <ul className="perfume-publish-checklist">
+              <li>
+                <span>Loại & danh mục</span>
+                <Badge tone={selectedType ? "green" : "amber"}>
+                  {selectedType ? selectedCategory?.name : "Chưa chọn"}
+                </Badge>
+              </li>
+              <li>
+                <span>Phân loại dung tích</span>
+                <Badge tone={sizePrices.length > 0 ? "green" : "amber"}>
+                  {sizePrices.length > 0 ? `${sizePrices.length} dung tích` : "Cần thêm"}
+                </Badge>
+              </li>
+              <li>
+                <span>Bộ ảnh sản phẩm</span>
+                <Badge tone={selectedImageCount > 0 ? "green" : "amber"}>
+                  {selectedImageCount > 0 ? `${selectedImageCount} ảnh` : "Cần tải ảnh"}
+                </Badge>
+              </li>
+            </ul>
+
+            <button
+              type="submit"
+              disabled={loading || articleUploading || hasVariantEdits}
+              className="perfume-button primary perfume-publish-submit"
+            >
+              <PackagePlus size={16} />
+              {submitLabel}
+            </button>
+
+            {hasVariantEdits && (
+              <p role="status" className="perfume-publish-warning">
+                Vui lòng lưu hoặc hủy thay đổi dung tích đang chỉnh sửa để tiếp tục.
+              </p>
+            )}
+
+            <div className="perfume-publish-secondary">
+              {!isEditMode ? (
                 <button
                   type="button"
+                  disabled={loading}
+                  onClick={resetForm}
+                  className="perfume-button"
+                >
+                  <RotateCcw size={14} />
+                  Làm mới biểu mẫu
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={loading}
                   onClick={() => navigate("/owner/list-product")}
-                  className="mt-3 w-full rounded-lg border border-[#dfe5e8] px-4 py-2.5 text-sm font-medium text-[#52616a] transition hover:bg-[#f7f9f8]"
+                  className="perfume-button"
                 >
                   Hủy
                 </button>
               )}
-            </section>
-          </aside>
-          <NewProductFragrance fragrance={inputs.fragrance} notesText={inputs.notesText}
-            onChange={fragranceField} onNotes={updateNotes} disabled={loading || articleUploading} />
-        </form>
-      </div>
-    </main>
+            </div>
+          </section>
+        </aside>
+      </form>
+    </CatalogPage>
   );
 };
 
 const Field = ({ label, hint, required = false, children }) => {
   return (
-    <label className="block">
-      <span className="mb-2 block text-sm font-medium text-[#334957]">
+    <label className="perfume-field">
+      <span>
         {label}
-
-        {required && <span className="ml-1 text-[#b55f5f]">*</span>}
+        {required && <i> *</i>}
       </span>
-
       {children}
-
-      {hint && (
-        <span className="mt-1.5 block text-xs leading-5 text-[#8a969e]">
-          {hint}
-        </span>
-      )}
+      {hint && <small className="perfume-muted">{hint}</small>}
     </label>
   );
 };
@@ -886,10 +1030,10 @@ const ImageUpload = ({ slot, file, onChange, onRemove }) => {
   }, [file, previewUrl]);
 
   return (
-    <div className="relative aspect-square">
+    <div className="perfume-upload-tile">
       <label
         htmlFor={"productImage" + slot}
-        className="group flex h-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-[#cfd9d2] bg-[#f8faf8] text-center transition hover:border-[#7fa087] hover:bg-[#f1f7f2]"
+        className="perfume-upload-label"
       >
         <input
           id={"productImage" + slot}
@@ -903,15 +1047,13 @@ const ImageUpload = ({ slot, file, onChange, onRemove }) => {
           <img
             src={previewUrl}
             alt={"Xem trước sản phẩm " + slot}
-            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
           />
         ) : (
-          <span className="flex flex-col items-center px-3 text-[#71808a]">
-            <span className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#5e8767] shadow-sm">
-              <ImagePlus size={19} />
+          <span className="perfume-upload-placeholder">
+            <span className="perfume-upload-icon">
+              <ImagePlus size={18} strokeWidth={1.6} />
             </span>
-
-            <span className="text-xs font-medium">Thêm ảnh {slot}</span>
+            <span>Thêm ảnh {slot}</span>
           </span>
         )}
       </label>
@@ -920,10 +1062,10 @@ const ImageUpload = ({ slot, file, onChange, onRemove }) => {
         <button
           type="button"
           onClick={() => onRemove(slot)}
-          className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-[#9c5555] shadow transition hover:bg-[#fff0f0]"
+          className="perfume-upload-remove"
           aria-label={"Xóa ảnh " + slot}
         >
-          <X size={15} />
+          <X size={14} />
         </button>
       )}
     </div>

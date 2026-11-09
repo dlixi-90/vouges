@@ -6,6 +6,9 @@ import Navbar from "./Navbar";
 import QuickProductSearch from "./QuickProductSearch";
 import useBrandDirectory from "../hooks/useBrandDirectory";
 import { prefetchRoute } from "../utils/prefetchRoute";
+import { prefetchOwnerRoute } from "../utils/ownerPrefetch";
+import { emptyPerfumeFilters } from "../data/perfumeFilters";
+import { COLLECTION_PAGE_SIZE } from "../utils/publicCatalog";
 import { useClerk, UserButton } from "@clerk/react";
 import { useAppContext } from "../context/AppContext";
 import { Headset, Ticket, X } from "lucide-react";
@@ -39,8 +42,9 @@ const Header = () => {
   const chatLauncherRef = useRef(null);
   const { openSignIn } = useClerk();
 
-  const { navigate, searchQuery, setSearchQuery, openCart, isCartOpen, isCartPage, user, getCartCount, isOwner, storeResources } =
-    useAppContext();
+  const context = useAppContext();
+  const { navigate, searchQuery, setSearchQuery, openCart, isCartOpen, isCartPage, user, getCartCount, isOwner, storeResources, publicCatalog } =
+    context;
 
   const prefetchMembership = () => {
     if (!user) return;
@@ -94,6 +98,11 @@ const Header = () => {
           </div>
           <div className="inessa-header-right">
             <QuickProductSearch className="store-header-search" value={searchQuery} onSearch={query => {
+              prefetchRoute("/collection");
+              void publicCatalog.browse({
+                page: 1, limit: COLLECTION_PAGE_SIZE, q: query,
+                facets: JSON.stringify(emptyPerfumeFilters()), minPrice: 0, sort: "relevant",
+              }).catch(() => {});
               setSearchQuery(query);
               setMenuOpened(false);
               navigate("/collection", { state: { headerSearch: Date.now(), q: query } });
@@ -104,6 +113,8 @@ const Header = () => {
               {isOwner && (
                 <div className="inessa-header-tools">
                   <button
+                    onPointerEnter={() => { void prefetchOwnerRoute("/owner", context); }}
+                    onFocus={() => { void prefetchOwnerRoute("/owner", context); }}
                     onClick={() => navigate("/owner")}
                     className="btn-outline px-2 py-2 text-xs font-semibold"
                   >

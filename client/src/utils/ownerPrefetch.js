@@ -5,6 +5,10 @@ export const ownerOverviewPath = `/overview?timezone=${encodeURIComponent(OWNER_
 export const ownerDashboardKey = (userId, page = 1) => `${userId}:${OWNER_TIMEZONE}:${page}`;
 export const ownerDashboardSummaryKey = userId => `${userId}:${OWNER_TIMEZONE}:sales`;
 export const defaultInboxPath = "/api/support/inbox?search=&status=all&page=1";
+export const BRAND_OPTIONS_PATH = "/terms?kind=brand&pageSize=2000&includeCounts=false&includeProductValues=true";
+export const GROUP_OPTIONS_PATH = "/terms?kind=group&pageSize=2000&includeCounts=false&includeProductValues=true";
+export const NOTE_OPTIONS_PATH = "/terms?kind=note&pageSize=2000&includeCounts=false";
+export const ACCORD_OPTIONS_PATH = "/terms?kind=accord&pageSize=2000&includeCounts=false";
 
 export const readOwnerDashboard = async ({ axios, getToken, page = 1, signal }) => {
   const token = await getToken();
@@ -54,6 +58,14 @@ export const prefetchOwnerRoute = (path, context) => {
     tasks.push(context.storeResources.loadCatalog(`/terms?${query}`));
   }
   if (["/owner/add-product", "/owner/add-category"].includes(pathname)) tasks.push(context.fetchCategories());
+  if (pathname === "/owner/add-product") {
+    tasks.push(
+      context.storeResources.loadCatalog(BRAND_OPTIONS_PATH),
+      context.storeResources.loadCatalog(GROUP_OPTIONS_PATH),
+      context.storeResources.loadCatalog(NOTE_OPTIONS_PATH),
+      context.storeResources.loadCatalog(ACCORD_OPTIONS_PATH),
+    );
+  }
   if (pathname === "/owner/vouchers") tasks.push(context.storeResources.loadCatalog("/", "/api/vouchers"));
   if (pathname === "/owner/loyalty") tasks.push(context.storeResources.loadCatalog("/admin/summary", "/api/loyalty"));
   if (pathname === "/owner/messages") tasks.push(context.storeResources.loadSupportInbox(defaultInboxPath));

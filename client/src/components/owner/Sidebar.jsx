@@ -5,6 +5,7 @@ import { ArrowUpRight, Bell, ChevronRight, Crown, FlaskConical, Grid2X2, Layers3
 import { useAppContext } from "../../context/AppContext";
 import { assets } from "../../assets/data";
 import { prefetchOwnerRoute } from "../../utils/ownerPrefetch";
+import { prefetchRoute } from "../../utils/prefetchRoute";
 import QuickProductSearch from "../QuickProductSearch";
 import { PageSkeleton } from "../LoadingState";
 import "../../perfume-dashboard.css";
@@ -43,6 +44,22 @@ export default function Sidebar() {
   const activeItem = navigation.flatMap(group => group.items).find(item => (item.activePaths || [item.path]).some(path => matchPath({ path, end: true }, pathname)));
   const isWorkspacePage = pathname === "/owner/messages";
   const closeMenu = () => setMenu({ path: pathname, open: false });
+  useEffect(() => {
+    if (isOwner !== true) return;
+    const idle = window.requestIdleCallback || (callback => window.setTimeout(callback, 120));
+    const cancel = window.cancelIdleCallback || window.clearTimeout;
+    const handle = idle(() => {
+      for (const group of navigation) {
+        for (const item of group.items) prefetchRoute(item.path);
+      }
+      void import("./ProductArticleEditor").catch(() => {});
+      void import("./RevenueChart").catch(() => {});
+      for (const target of ["/owner", "/owner/list-product", "/owner/library"]) {
+        if (target !== pathname) void prefetchOwnerRoute(target, context);
+      }
+    });
+    return () => cancel(handle);
+  }, [isOwner, pathname, context]);
   useEffect(() => {
     const mobile = window.matchMedia("(max-width: 767px)");
     if (!menuOpen || !mobile.matches) return;

@@ -18,10 +18,12 @@ import {librarySlug} from "../../client/src/utils/fragranceLibrary.js";
 import {readLibraryInput,readLibraryVersion,checkLibraryVersion,renameLibraryProducts,liveLibraryCounts} from "../services/libraryManagement.js";
 import {libraryNamePattern,libraryNameKey,activeLibraryProducts} from "../services/libraryRelations.js";
 
+const termCollator = new Intl.Collator("vi", { sensitivity: "base", numeric: true });
 const fail = (message, statusCode = 400) => { throw Object.assign(new Error(message), { statusCode }); };
 const pagination = (query) => {
   const page = Number(query.page || 1), pageSize = Number(query.pageSize || 25);
-  if (!Number.isSafeInteger(page) || page < 1 || page > 100000 || ![12,25,50,100].includes(pageSize)) fail("Phân trang không hợp lệ");
+  const allowed = query.includeCounts === "false" ? [12, 25, 50, 100, 500, 1000, 2000] : [12, 25, 50, 100];
+  if (!Number.isSafeInteger(page) || page < 1 || page > 100000 || !allowed.includes(pageSize)) fail("Phân trang không hợp lệ");
   return { page, pageSize };
 };
 const pattern = (value) => {
@@ -60,17 +62,20 @@ export const catalogOverview = catalogAction(async (req,res) => {
   const timezone=req.query.timezone??"UTC";
   if(typeof timezone!=="string"||timezone.length>100)fail("Múi giờ không hợp lệ");
   try{new Intl.DateTimeFormat("en-US",{timeZone:timezone});}catch{fail("Múi giờ không hợp lệ");}
-  const fields="title brand category images price sizes inStock qualityIssues";
-  const [summary,recentProducts,attentionProducts,sales,popularProducts]=await Promise.all([
-    readCatalogSummary({includeOrders:false}),
-    Product.find({isDeleted:{$ne:true}}).select(fields).sort({createdAt:-1,_id:-1}).limit(5).lean(),
-    Product.find({isDeleted:{$ne:true},"qualityIssues.0":{$exists:true}}).select(fields).sort({title:1,_id:1}).limit(4).lean(),
-    getDashboardData({timezone,includeOrders:false}), catalogSnapshot("popular-products",120000,getPopularProducts),
-  ]);
-  summary.orders={count:sales.totalOrders,revenue:sales.totalRevenue};
-  const cards=products=>products.map(product=>({...product,images:product.images?.slice(0,1)||[]}));
+  const overview = await catalogSnapshot(`owner-overview:${timezone}`, 30000, async () => {
+    const fields="title brand category images price sizes inStock qualityIssues";
+    const [summary,recentProducts,attentionProducts,sales,popularProducts]=await Promise.all([
+      readCatalogSummary({includeOrders:false}),
+      Product.find({isDeleted:{$ne:true}}).select(fields).sort({createdAt:-1,_id:-1}).limit(5).lean(),
+      Product.find({isDeleted:{$ne:true},"qualityIssues.0":{$exists:true}}).select(fields).sort({title:1,_id:1}).limit(4).lean(),
+      getDashboardData({timezone,includeOrders:false}), catalogSnapshot("popular-products",120000,getPopularProducts),
+    ]);
+    summary.orders={count:sales.totalOrders,revenue:sales.totalRevenue};
+    const cards=products=>products.map(product=>({...product,images:product.images?.slice(0,1)||[]}));
+    return {...summary,recentProducts:cards(recentProducts),attentionProducts:cards(attentionProducts),popularProducts:cards(popularProducts).slice(0,5),sales:{monthlyData:sales.monthlyData}};
+  });
   res.set("Cache-Control","private, no-store");
-  res.json({...summary,recentProducts:cards(recentProducts),attentionProducts:cards(attentionProducts),popularProducts:cards(popularProducts).slice(0,5),sales:{monthlyData:sales.monthlyData}});
+  res.json(overview);
 });
 
 export const catalogProducts = catalogAction(async (req,res) => {
@@ -167,11 +172,32 @@ export const libraryTerms = catalogAction(async(req,res)=>{
   if(req.query.status&&!['linked','complete'].includes(req.query.status))fail("Tình trạng nội dung không hợp lệ");
   const filter={kind};if(req.query.q){const q=pattern(req.query.q);filter.$or=[{name:q},{key:q}];}if(req.query.status)filter.contentStatus=req.query.status;
   const termQuery=FragranceTerm.find(filter);
-  if(req.query.includeCounts==="false")termQuery.select("kind name contentStatus sourceUrl updatedAt");else if(kind==="brand")termQuery.select("kind name image updatedAt");
-  const [terms,total]=await Promise.all([termQuery.sort({name:1,_id:1}).skip((page-1)*pageSize).limit(pageSize).lean(),FragranceTerm.countDocuments(filter)]);
-  const listedTerms=req.query.includeCounts==="false"?terms.map(term=>({...term,productCount:null})):await catalogSnapshot(`library-counts:${terms.map(term=>term._id).join(":")}`,300000,()=>liveLibraryCounts(terms));
+  if(req.query.includeCounts==="false")termQuery.select("kind name image contentStatus sourceUrl updatedAt");else if(kind==="brand")termQuery.select("kind name image updatedAt");
+  const distinctField=req.query.includeCounts==="false"&&req.query.includeProductValues==="true"&&!req.query.q&&!req.query.status&&page===1
+    ?(kind==="brand"?"brand":kind==="group"?"fragrance.group":null):null;
+  const [terms,total,productValues]=await Promise.all([
+    termQuery.sort({name:1,_id:1}).skip((page-1)*pageSize).limit(pageSize).lean(),
+    FragranceTerm.countDocuments(filter),
+    distinctField&&typeof Product.distinct==="function"?Product.distinct(distinctField,{isDeleted:{$ne:true}}):Promise.resolve([]),
+  ]);
+  let listedTerms=req.query.includeCounts==="false"?terms.map(term=>({...term,productCount:null})):await catalogSnapshot(`library-counts:${terms.map(term=>term._id).join(":")}`,300000,()=>liveLibraryCounts(terms));
+  if(req.query.includeCounts==="false"&&Array.isArray(productValues)&&productValues.length){
+    const seen=new Set(listedTerms.map(term=>libraryNameKey(term.name)).filter(Boolean));
+    for(const raw of productValues){
+      const name=typeof raw==="string"?raw.normalize("NFC").trim().replace(/\s+/gu," "):"";
+      const key=libraryNameKey(name);
+      if(name&&!seen.has(key)){
+        seen.add(key);
+        listedTerms.push({_id:`product:${key}`,kind,name,image:"",contentStatus:"linked",sourceUrl:"",productCount:null});
+      }
+    }
+  }
+  if(req.query.includeCounts==="false"&&pageSize>=500){
+    listedTerms=listedTerms.toSorted((a,b)=>termCollator.compare(a.name||"",b.name||"")).slice(0,pageSize);
+  }
+  const finalTotal=Math.max(total,listedTerms.length);
   res.set("Cache-Control","private, no-store");
-  res.json({success:true,terms:listedTerms,total,page,pageSize,totalPages:Math.max(1,Math.ceil(total/pageSize))});
+  res.json({success:true,terms:listedTerms,total:finalTotal,page,pageSize,totalPages:Math.max(1,Math.ceil(finalTotal/pageSize))});
 });
 
 export const libraryTermCounts = catalogAction(async(req,res)=>{
@@ -187,7 +213,8 @@ export const libraryTermCounts = catalogAction(async(req,res)=>{
 export const libraryTerm = catalogAction(async(req,res)=>{
   if(!isValidObjectId(req.params.id))fail("Mã thư viện không hợp lệ");
   // The editor never reads import evidence; omitting it keeps large intros light.
-  const term=await FragranceTerm.findById(req.params.id).select("kind name description descriptionContent image contentStatus sourceUrl updatedAt").lean();if(!term)fail("Không tìm thấy mục thư viện",404);
+  const term=await catalogSnapshot(`owner-term:${req.params.id}`,60000,()=>FragranceTerm.findById(req.params.id).select("kind name description descriptionContent image contentStatus sourceUrl updatedAt").lean());
+  if(!term)fail("Không tìm thấy mục thư viện",404);
   res.set("Cache-Control","private, no-store");res.json({success:true,term});
 });
 

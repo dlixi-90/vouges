@@ -131,3 +131,14 @@ test('owner library list returns live counts and rejects injected state filters'
  const res=response();await libraryTerms({query:{kind:'brand'}},res);assert.equal(res.body.terms[0].productCount,4);
  const bad=response();await libraryTerms({query:{kind:'brand',status:{$ne:''}}},bad);assert.equal(bad.statusCode,400);
 });
+
+test('dropdown term queries support large pageSize without counts and merge distinct product values',async t=>{
+ t.mock.method(FragranceTerm,'find',()=>chain([{...current('brand'),name:'Dior'},{...current('brand'),_id:'2',name:'Chanel'}]));
+ t.mock.method(FragranceTerm,'countDocuments',async()=>2);
+ t.mock.method(Product,'distinct',async()=>['dior','Amouage','']);
+ const res=response();
+ await libraryTerms({query:{kind:'brand',pageSize:'2000',includeCounts:'false',includeProductValues:'true'}},res);
+ assert.equal(res.statusCode,200);
+ assert.deepEqual(res.body.terms.map(item=>item.name),['Amouage','Chanel','Dior']);
+ assert.equal(res.body.total,3);
+});

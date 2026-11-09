@@ -2,6 +2,10 @@ import { createResourceCache } from "./resourceCache.js";
 
 export const createStoreResources = ({ cache = createResourceCache(), axios, userId, getToken }) => {
   const catalogCache = createResourceCache({ maxAge: 60000, maxEntries: 80 });
+  const catalogListeners = new Set();
+  const notifyCatalog = () => {
+    for (const listener of catalogListeners) listener();
+  };
   const memberKey = `membership:${userId}`;
   const reviewKey = (productId, page = 1) => `reviews:${productId}:${page}`;
   const ownKey = (productId) => `own-review:${userId}:${productId}`;
@@ -30,7 +34,17 @@ export const createStoreResources = ({ cache = createResourceCache(), axios, use
     },
     peekCatalog: (path, root = "/api/catalog") => catalogCache.peek(`catalog:${root}${path}`),
     setCatalog: (path, root, data) => catalogCache.set(`catalog:${root}${path}`, data),
-    invalidateCatalog: () => catalogCache.invalidate("catalog:"),
+    invalidateCatalog: () => {
+      catalogCache.invalidate("catalog:");
+      if (typeof window !== "undefined") {
+        try { window.localStorage?.setItem("velours:catalog-updated", String(Date.now())); } catch { /* Ignore storage restrictions. */ }
+      }
+      notifyCatalog();
+    },
+    subscribeCatalog: (listener) => {
+      catalogListeners.add(listener);
+      return () => catalogListeners.delete(listener);
+    },
     loadCatalog: (path, root = "/api/catalog", options) => catalogCache.load(`catalog:${root}${path}`,
       signal => read(`${root}${path}`, signal, true), options),
     peekSupportInbox: path => cache.peek(`support-inbox:${path}`),

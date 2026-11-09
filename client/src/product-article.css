@@ -71,6 +71,7 @@
 .article-upload:focus-within { outline: 2px solid #555; outline-offset: 1px; }
 .article-editor-toolbar .article-preview-toggle { margin-left: auto; padding-inline: 10px; white-space: nowrap; }
 .product-article-editable { min-height: 380px; padding: 32px; outline: none; }
+.product-article-editable.product-article-loading { display: flex; align-items: center; justify-content: center; color: #666; }
 .product-article-editable:focus { box-shadow: inset 0 0 0 1px #aaa; }
 .product-article-editable img.ProseMirror-selectednode { outline: 2px solid #222; outline-offset: 4px; }
 .product-article-editable .ProseMirror-gapcursor { border-color: #171717; }

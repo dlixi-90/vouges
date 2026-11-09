@@ -7,12 +7,14 @@ export default function CollectionSearch({ value, onChange }) {
   const containerRef = useRef(null);
   const triggerRef = useRef(null);
   const inputRef = useRef(null);
+  const valueRef = useRef(value);
+  useEffect(() => { valueRef.current = value; }, [value]);
 
   useEffect(() => {
     if (!open) return;
-    inputRef.current?.focus({ preventScroll: true });
+    if (!valueRef.current) inputRef.current?.focus({ preventScroll: true });
     const onPointerDown = event => {
-      if (!containerRef.current?.contains(event.target) && !value) setOpen(false);
+      if (!containerRef.current?.contains(event.target) && !valueRef.current) setOpen(false);
     };
     const onKeyDown = event => {
       if (event.key !== "Escape") return;
@@ -26,7 +28,7 @@ export default function CollectionSearch({ value, onChange }) {
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [open, value]);
+  }, [open]);
 
   return <div className={`inessa-collection-search${open ? " is-open" : ""}`} ref={containerRef}>
     {open && <form id={panelId} className="inessa-collection-search-panel" role="search"

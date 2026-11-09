@@ -13,7 +13,7 @@ import Pagination from "../../components/Pagination";
 import usePaginationScroll from "../../hooks/usePaginationScroll";
 import { Badge, CatalogPage, RefreshButton, OwnerLink } from "../../components/owner/CatalogUI";
 import { OperationsEmptyState, OperationsMetric, OperationsPanel } from "../../components/owner/OperationsUI";
-import { ownerDashboardKey, ownerDashboardSummaryKey, readOwnerDashboard, readOwnerDashboardSummary } from "../../utils/ownerPrefetch";
+import { ownerDashboardKey, ownerDashboardSummaryKey, ownerOverviewPath, readOwnerDashboard, readOwnerDashboardSummary } from "../../utils/ownerPrefetch";
 
 const RevenueChart = lazy(() => import("../../components/owner/RevenueChart"));
 
@@ -33,7 +33,13 @@ const Dashboard = () => {
   const cacheKey = ownerDashboardKey(userId, page);
   const summaryKey = ownerDashboardSummaryKey(userId);
   const cachedOrders = dashboardCache.peek(cacheKey);
-  const cachedSummary = dashboardCache.peek(summaryKey);
+  const overviewSnapshot = storeResources.peekCatalog(ownerOverviewPath);
+  const overviewSummary = overviewSnapshot?.sales?.monthlyData ? {
+    totalOrders: overviewSnapshot.orders?.count ?? 0,
+    totalRevenue: overviewSnapshot.orders?.revenue ?? 0,
+    monthlyData: overviewSnapshot.sales.monthlyData,
+  } : null;
+  const cachedSummary = dashboardCache.peek(summaryKey) || overviewSummary;
   const [dashboardData, setDashboardData] = useState(() => ({
     orders: [],
     totalOrders: null,
@@ -74,7 +80,13 @@ const Dashboard = () => {
   }, [requestDashboardData, dashboardCache, cacheKey]);
 
   const getDashboardSummary = useCallback(async ({ background = false, force = false } = {}) => {
-    const cached = dashboardCache.peek(summaryKey);
+    const overview = storeResources.peekCatalog(ownerOverviewPath);
+    const fallbackSummary = overview?.sales?.monthlyData ? {
+      totalOrders: overview.orders?.count ?? 0,
+      totalRevenue: overview.orders?.revenue ?? 0,
+      monthlyData: overview.sales.monthlyData,
+    } : null;
+    const cached = dashboardCache.peek(summaryKey) || fallbackSummary;
     if (cached) setDashboardData(current => ({ ...current, ...cached }));
     if (!background) setSummaryLoading(!cached);
     setSummaryError("");
@@ -88,7 +100,7 @@ const Dashboard = () => {
     } finally {
       setSummaryLoading(false);
     }
-  }, [axios, getToken, dashboardCache, summaryKey]);
+  }, [axios, getToken, dashboardCache, storeResources, summaryKey]);
 
   const statusHandler = async (event, orderId) => {
     const status = event.target.value;

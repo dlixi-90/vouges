@@ -15,7 +15,23 @@ export function useCatalog(path,apiRoot="/api/catalog"){
     peek:()=>storeResources.peekCatalog(path,apiRoot),
     load:options=>storeResources.loadCatalog(path,apiRoot,options),
   }:null,[storeResources,path,apiRoot]);
-  return useCachedResource(resource,{scope:`${authenticatedUserId}:${apiRoot}${path?.split("?")[0]}`,keepPrevious:true,delay:/[?&]q=[^&]+/.test(path||"")?120:0});
+  const query=useCachedResource(resource,{scope:`${authenticatedUserId}:${apiRoot}${path?.split("?")[0]}`,keepPrevious:true,delay:/[?&]q=[^&]+/.test(path||"")?120:0});
+  const {reload}=query;
+  useEffect(()=>{
+    if(!path||!storeResources.subscribeCatalog)return undefined;
+    const unsubscribe=storeResources.subscribeCatalog(()=>reload());
+    const onStorage=event=>{
+      if(event.key==="velours:catalog-updated"){
+        storeResources.invalidateCatalog();
+      }
+    };
+    window.addEventListener("storage",onStorage);
+    return()=>{
+      unsubscribe();
+      window.removeEventListener("storage",onStorage);
+    };
+  },[path,storeResources,reload]);
+  return query;
 }
 
 export function CatalogPage({title,actions,children,className=""}){
@@ -27,7 +43,7 @@ export function OwnerLink({to,onPointerEnter,onPointerLeave,onFocus,...props}){
   const warm=()=>{if(typeof to==="string")void prefetchOwnerRoute(to,context);};
   useEffect(()=>()=>window.clearTimeout(timer.current),[]);
   return <Link {...props} to={to}
-    onPointerEnter={event=>{onPointerEnter?.(event);cancel();timer.current=window.setTimeout(warm,120);}}
+    onPointerEnter={event=>{onPointerEnter?.(event);cancel();timer.current=window.setTimeout(warm,40);}}
     onPointerLeave={event=>{onPointerLeave?.(event);cancel();}}
     onFocus={event=>{onFocus?.(event);cancel();warm();}} />;
 }

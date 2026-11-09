@@ -4,13 +4,14 @@ import { ArrowLeft, Save } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
 import { CatalogPage, CatalogState, Badge, issueLabels, useCatalog } from "../../components/owner/CatalogUI";
-import { LoadingStatus } from "../../components/LoadingState";
+import ArticleEditorShell from "../../components/owner/ArticleEditorShell";
 import ProductImage from "../../components/ProductImage";
 import VariantEditor from "../../components/owner/VariantEditor";
 import ProductGalleryEditor from "../../components/owner/ProductGalleryEditor";
 import { sanitizeArticle } from "../../utils/productArticle";
 const ProductArticleEditor = lazy(() => import("../../components/owner/ProductArticleEditor"));
-import { AccordEditor, AssessmentEditor } from "../../components/owner/FragranceEditorFields";
+import { AccordEditor, AssessmentEditor, LibraryTermSelect, MultiNoteSelect } from "../../components/owner/FragranceEditorFields";
+import { ACCORD_OPTIONS_PATH, BRAND_OPTIONS_PATH, GROUP_OPTIONS_PATH, NOTE_OPTIONS_PATH } from "../../utils/ownerPrefetch";
 import { editableFragrance } from "../../utils/fragrance";
 import { resolveCatalogSizeNames, catalogSizeRenames } from "../../utils/catalogVariantEdit";
 import ScentNotes from "../../components/ScentNotes";
@@ -33,7 +34,10 @@ function PerfumeForm({ product, reload }) {
   const [newSize, setNewSize] = useState("");
   const unresolvedReview = (product.source?.profileCompletion?.unresolved || []).filter(item => product.qualityIssues?.includes(item.code));
   const [notesText, setNotesText] = useState(() => Object.fromEntries(["top", "middle", "base", "general"].map(phase => [phase, (product.fragrance?.notes?.[phase] || []).map(note => note.name).join("\n")])));
-  const accordLibrary = useCatalog(tab === "fragrance" ? "/terms?kind=accord&pageSize=100&includeCounts=false" : null);
+  const brandLibrary = useCatalog(tab === "general" ? BRAND_OPTIONS_PATH : null);
+  const groupLibrary = useCatalog(tab === "fragrance" ? GROUP_OPTIONS_PATH : null);
+  const noteLibrary = useCatalog(tab === "fragrance" ? NOTE_OPTIONS_PATH : null);
+  const accordLibrary = useCatalog(tab === "fragrance" ? ACCORD_OPTIONS_PATH : null);
   const update = (field, value) => setDraft(current => ({ ...current, [field]: value }));
   const fragranceField = (field, value) => setDraft(current => ({ ...current, fragrance: { ...current.fragrance, [field]: value } }));
   const variantField = (field, size, value) => setDraft(current => ({ ...current, [field]: { ...current[field], [size]: value } }));
@@ -84,10 +88,12 @@ function PerfumeForm({ product, reload }) {
     setDraft(current => ({ ...current, sizeNames: { ...current.sizeNames, [size]: size }, sizeOrigins: { ...(current.sizeOrigins ?? Object.fromEntries(product.sizes.map(item => [item, item]))), [size]: null }, sizes: [...current.sizes, size], price: { ...current.price, [size]: 0 }, stockBySize: { ...current.stockBySize, [size]: 0 }, inStockBySize: { ...current.inStockBySize, [size]: false } })); setNewSize("");
   };
   const field = (name, label, options = {}) => <label className="perfume-field"><span>{label}</span><input value={draft[name] || ""} onChange={event => update(name, event.target.value)} maxLength={200} {...options} /></label>;
-  const notes = (phase, text) => {
-    setNotesText(current => ({ ...current, [phase]: text }));
+  const notes = (phase, nextValue) => {
     const old = draft.fragrance.notes?.[phase] || [];
-    const list = text.split("\n").map(name => name.trim()).filter(Boolean).map(name => old.find(note => note.name === name) || { name, url: null });
+    const list = Array.isArray(nextValue)
+      ? nextValue.map(item => typeof item === "string" ? (old.find(note => note.name === item) || { name: item, url: null }) : { name: String(item?.name || "").trim(), url: item?.url || null }).filter(item => item.name)
+      : String(nextValue || "").split("\n").map(name => name.trim()).filter(Boolean).map(name => old.find(note => note.name === name) || { name, url: null });
+    setNotesText(current => ({ ...current, [phase]: list.map(item => item.name).join("\n") }));
     setDraft(current => ({ ...current, fragrance: { ...current.fragrance, notes: { ...current.fragrance.notes, [phase]: list } } }));
   };
 
@@ -97,14 +103,14 @@ function PerfumeForm({ product, reload }) {
     <nav className="perfume-tabs" aria-label="Các phần sản phẩm">{tabs.map(item => <button type="button" key={item.key} disabled={busy || uploading} aria-current={tab === item.key ? "page" : undefined} className={tab === item.key ? "active" : ""} onClick={() => setTab(item.key)}>{item.label}</button>)}</nav>
     <form id={formId} onSubmit={save} className="perfume-editor-body">
       {tab === "general" && <>
-        <div className="perfume-editor-columns"><section className="perfume-panel"><h2>Thông tin nước hoa</h2><div className="perfume-form-grid">{field("title", "Tên sản phẩm", { required: true })}{field("brand", "Thương hiệu")}{field("origin", "Xuất xứ")}{field("concentration", "Nồng độ")}{field("gender", "Đối tượng sử dụng")}<label className="perfume-field"><span>Danh mục</span><input value={product.category} readOnly /></label></div></section><aside className="perfume-panel"><h2>Hồ sơ cần chú ý</h2>{product.qualityIssues?.length ? <ul className="perfume-issue-list">{product.qualityIssues.map(issue => <li key={issue}>{issueLabels[issue] || issue}</li>)}</ul> : <p>Các trường cơ bản đã được điền.</p>}</aside></div>
+        <div className="perfume-editor-columns"><section className="perfume-panel"><h2>Thông tin nước hoa</h2><div className="perfume-form-grid">{field("title", "Tên sản phẩm", { required: true })}<LibraryTermSelect kind="brand" label="Thương hiệu" placeholder="Chọn thương hiệu" value={draft.brand || ""} terms={brandLibrary.data?.terms || []} loading={brandLibrary.loading} disabled={busy || uploading} onChange={value => update("brand", value)} />{field("origin", "Xuất xứ")}{field("concentration", "Nồng độ")}{field("gender", "Đối tượng sử dụng")}<label className="perfume-field"><span>Danh mục</span><input value={product.category} readOnly /></label></div></section><aside className="perfume-panel"><h2>Hồ sơ cần chú ý</h2>{product.qualityIssues?.length ? <ul className="perfume-issue-list">{product.qualityIssues.map(issue => <li key={issue}>{issueLabels[issue] || issue}</li>)}</ul> : <p>Các trường cơ bản đã được điền.</p>}</aside></div>
         <section className="perfume-panel perfume-article-panel"><h2>Mô tả sản phẩm</h2>
-          <Suspense fallback={<LoadingStatus label="Đang tải trình soạn thảo…" />}><ProductArticleEditor value={draft.descriptionContent} text={draft.description} disabled={busy} onUploadingChange={setUploading}
+          <Suspense fallback={<ArticleEditorShell label="Đang tải trình soạn thảo…" />}><ProductArticleEditor value={draft.descriptionContent} text={draft.description} disabled={busy} onUploadingChange={setUploading}
             onChange={(descriptionContent, description) => setDraft(current => ({ ...current, descriptionContent, description }))} /></Suspense>
         </section>
       </>}
       {tab === "variants" && <VariantEditor draft={draft} uploading={uploading || busy} onChange={update} onVariantField={variantField} onUpload={upload} newSize={newSize} setNewSize={setNewSize} addSize={addSize} onRename={renameSize} />}
-      {tab === "fragrance" && <section className="perfume-panel"><div className="perfume-section-heading"><h2>Hồ sơ mùi hương</h2><Link to="/owner/library?kind=accord" className="perfume-button">Mở thư viện kiểu mùi</Link></div><div className="perfume-form-grid mb-5">{["group", "style"].map(key => <label className="perfume-field" key={key}><span>{key === "group" ? "Nhóm hương" : "Phong cách"}</span><input maxLength={500} value={draft.fragrance[key] || ""} onChange={event => fragranceField(key, event.target.value)} /></label>)}</div><div className="perfume-notes-grid">{[{ phase: "top", label: "Hương đầu" }, { phase: "middle", label: "Hương giữa" }, { phase: "base", label: "Hương cuối" }].map(({ phase, label }) => <label className="perfume-field" key={phase}><span>{label}</span><textarea rows={8} value={notesText[phase]} onChange={event => notes(phase, event.target.value)} placeholder="Mỗi note một dòng" /></label>)}</div>{accordLibrary.error && <p role="alert" className="perfume-muted">Không tải được gợi ý thư viện. Bạn vẫn có thể nhập tên kiểu mùi.</p>}<AccordEditor accords={draft.fragrance.accords} terms={accordLibrary.data?.terms || []} onChange={rows => fragranceField("accords", rows)} listId={`${formId}-accords`} /></section>}
+      {tab === "fragrance" && <section className="perfume-panel"><div className="perfume-section-heading"><h2>Hồ sơ mùi hương</h2><Link to="/owner/library?kind=group" className="perfume-button">Mở thư viện hương</Link></div><div className="perfume-form-grid mb-5"><LibraryTermSelect kind="group" label="Nhóm hương" placeholder="Chọn nhóm hương" value={draft.fragrance.group || ""} terms={groupLibrary.data?.terms || []} loading={groupLibrary.loading} disabled={busy || uploading} onChange={value => fragranceField("group", value)} /><label className="perfume-field"><span>Phong cách</span><input maxLength={500} value={draft.fragrance.style || ""} onChange={event => fragranceField("style", event.target.value)} /></label></div><div className="perfume-notes-grid">{[{ phase: "top", label: "Hương đầu" }, { phase: "middle", label: "Hương giữa" }, { phase: "base", label: "Hương cuối" }].map(({ phase, label }) => <MultiNoteSelect key={phase} label={label} selectedNotes={draft.fragrance.notes?.[phase] || []} terms={noteLibrary.data?.terms || []} loading={noteLibrary.loading} disabled={busy || uploading} onChange={nextNotes => notes(phase, nextNotes)} />)}</div>{(groupLibrary.error || noteLibrary.error || accordLibrary.error) && <p role="alert" className="perfume-muted">Không tải được đầy đủ gợi ý thư viện. Bạn vẫn có thể thêm trực tiếp nhóm hương, note hương hoặc kiểu mùi.</p>}<AccordEditor accords={draft.fragrance.accords} terms={accordLibrary.data?.terms || []} onChange={rows => fragranceField("accords", rows)} listId={`${formId}-accords`} /></section>}
       {tab === "assessments" && <section className="perfume-panel"><div className="perfume-section-heading"><h2>Đánh giá trải nghiệm</h2></div><AssessmentEditor fragrance={draft.fragrance} onChange={fragranceField} /></section>}
       {tab === "fragrance" && <section className="perfume-panel">
         <label className="perfume-field"><span>Các nốt hương chưa được nguồn phân tầng</span><textarea rows={4} value={notesText.general} onChange={event => notes('general', event.target.value)} placeholder="Mỗi note một dòng. Không cần tự gán vào hương đầu, giữa hoặc cuối." /></label>

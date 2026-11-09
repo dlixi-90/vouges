@@ -5,6 +5,53 @@ import { filterKey } from "./perfumeFilters.js";
 const visible = { isPublished: { $ne: false }, isDeleted: { $ne: true } };
 const escape = value => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const exact = value => new RegExp(`^\\s*${value.normalize("NFC").trim().split(/\s+/).map(escape).join("\\s+")}\\s*$`, "i");
+const foldCharMap = {
+  a: "[aàáảãạăằắẳẵặâầấẩẫậ]",
+  e: "[eèéẻẽẹêềếểễệ]",
+  i: "[iìíỉĩị]",
+  o: "[oòóỏõọôồốổỗộơờớởỡợ]",
+  u: "[uùúủũụưừứửữự]",
+  y: "[yỳýỷỹỵ]",
+  d: "[dđ]",
+};
+const foldText = value => String(value || "").normalize("NFD").replace(/\p{M}+/gu, "").replace(/đ/gi, "d").toLowerCase().trim();
+const normText = value => String(value || "").normalize("NFC").toLocaleLowerCase("vi-VN").trim();
+const searchFields = [
+  "title", "brand", "gender", "category", "concentration", "type", "origin",
+  "fragrance.group", "fragrance.style", "fragrance.accords.label",
+  "fragrance.notes.top.name", "fragrance.notes.middle.name", "fragrance.notes.base.name", "fragrance.notes.general.name",
+];
+const toSearchRegex = raw => {
+  const norm = normText(raw), fold = foldText(raw), hasAccent = norm !== fold;
+  const core = hasAccent ? escape(norm) : [...fold].map(ch => foldCharMap[ch] || escape(ch)).join("");
+  if (fold === "nu" || fold === "nam") return new RegExp(`(?:^|[^\\p{L}\\p{N}])${core}(?:$|[^\\p{L}\\p{N}])`, "iu");
+  if (fold.length <= 2) return new RegExp(`(?:^|[^\\p{L}\\p{N}])${core}`, "iu");
+  return new RegExp(core, "iu");
+};
+const buildSearchSpec = rawQuery => {
+  const fullNorm = normText(rawQuery), fullFold = foldText(rawQuery);
+  if (!fullFold) return null;
+  const strippedNorm = fullNorm.replace(/^n(?:ước|uoc)\s+hoa\s+/u, "").trim() || fullNorm;
+  if (fullFold === "nuoc hoa" && strippedNorm === fullNorm) return null;
+  const rawTokens = strippedNorm.split(/\s+/).filter(Boolean);
+  const activeTokens = rawTokens.filter(token => /[\p{L}\p{N}]/u.test(token));
+  const tokens = activeTokens.length ? activeTokens : rawTokens;
+  const tokenRegexes = tokens.map(toSearchRegex);
+  const phraseRegex = toSearchRegex(strippedNorm);
+  return {
+    clauses: tokenRegexes.map(regex => ({ $or: searchFields.map(field => ({ [field]: regex })) })),
+    scoreExpression: {
+      $add: [
+        { $cond: [{ $regexMatch: { input: { $ifNull: ["$title", ""] }, regex: phraseRegex } }, 100, 0] },
+        { $cond: [{ $regexMatch: { input: { $ifNull: ["$brand", ""] }, regex: phraseRegex } }, 80, 0] },
+        ...tokenRegexes.flatMap(regex => [
+          { $cond: [{ $regexMatch: { input: { $ifNull: ["$title", ""] }, regex } }, 30, 0] },
+          { $cond: [{ $regexMatch: { input: { $ifNull: ["$brand", ""] }, regex } }, 25, 0] },
+        ]),
+      ],
+    },
+  };
+};
 const projection = Object.fromEntries("title price sizes stockBySize inStockBySize category type brand inStock inventoryMode isPublished popular createdAt".split(" ").map(field => [field, 1]));
 const sizeValue = field => ({ $let: { vars: { item: { $arrayElemAt: [{ $filter: { input: { $objectToArray: { $ifNull: [`$${field}`, {}] } }, as: "pair", cond: { $eq: ["$$pair.k", "$$size"] } } }, 0] } }, in: "$$item.v" } });
 const quantity = { $convert: { input: sizeValue("stockBySize"), to: "double", onError: 0, onNull: 0 } };
@@ -33,7 +80,7 @@ const metadata = () => catalogSnapshot("browse-metadata", 300000, async () => {
   return { types: (result.types || []).map(row => row._id), categories: (result.categories || []).map(row => row._id).filter(Boolean), maxPrice: result.price?.[0]?.maximum || 0 };
 });
 
-export const canPageBrowseDirectly = options => !options.q && options.sort === "relevant" && options.minPrice === 0 && options.maxPrice === Infinity
+export const canPageBrowseDirectly = options => options.sort === "relevant" && options.minPrice === 0 && options.maxPrice === Infinity
   && !needsFragranceProfiles(options.facets) && !options.facets?.sizes?.length;
 
 const basicFacetFilters = facets => {
@@ -65,10 +112,13 @@ export const readStorefrontBrowse = async options => {
     if (options.brand) clauses.push({ brand: exact(options.brand) });
     if (options.categories.length) clauses.push({ category: { $in: options.categories } });
     if (activeTypes.length) clauses.push({ type: { $in: activeTypes } });
-    if (options.q) clauses.push({ title: { $regex: escape(options.q), $options: "i" } });
+    const searchSpec = options.q ? buildSearchSpec(options.q) : null;
+    if (searchSpec) clauses.push(...searchSpec.clauses);
     if (options.availability !== "all") clauses.push({ $expr: { $gt: [{ $size: availableSizesExpression }, 0] } });
     const match = { ...visible, ...(clauses.length ? { $and: clauses } : {}) };
-    const base = [{ $match: match }, { $sort: { createdAt: -1, _id: -1 } }];
+    const base = searchSpec
+      ? [{ $match: match }, { $set: { _searchScore: searchSpec.scoreExpression } }, { $sort: { _searchScore: -1, createdAt: -1, _id: -1 } }]
+      : [{ $match: match }, { $sort: { createdAt: -1, _id: -1 } }];
     const readPage = async page => {
       const [result = {}] = await Product.aggregate([...base, { $facet: {
         total: [{ $count: "count" }],
