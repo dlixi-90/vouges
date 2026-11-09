@@ -16,7 +16,7 @@ export default function QuickProductSearch({ className = "", value = "", onSearc
   }}>
     <Search size={17} aria-hidden="true" />
     <input type="search" value={search} onChange={event => setDraft({ scope, text: event.target.value })}
-      placeholder="Tìm sản phẩm" aria-label="Tìm nhanh sản phẩm" />
+      placeholder="Tìm sản phẩm..." aria-label="Tìm nhanh sản phẩm" />
     <button type="submit" aria-label="Tìm kiếm"><ArrowUpRight size={15} aria-hidden="true" /></button>
   </form>;
 }
