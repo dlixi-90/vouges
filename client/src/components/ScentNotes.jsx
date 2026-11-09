@@ -1,6 +1,6 @@
 import { scentPhases } from '../utils/scentNotes';
 import { Link } from 'react-router-dom';
-import { libraryNamePath } from '../utils/fragranceLibrary';
+import { libraryNamePath, splitFragranceGroups } from '../utils/fragranceLibrary';
 
 function Notes({ notes = {} }) {
   const phases = scentPhases.filter(([phase]) => notes[phase]?.length > 0);
@@ -32,7 +32,16 @@ export default function ScentNotes({ fragrance = {} }) {
         {group.components.map((component, index) => <section className="mb-6 last:mb-0" key={`${component.name}:${index}`}>
         {assortment ? <h4 className="text-base font-medium">{component.name}</h4> : <h3 className="text-lg font-medium">{component.name}</h3>}
         {component.contents && <p className="mt-2 text-sm text-gray-600">{component.contents}</p>}
-        {[component.concentration, component.group].filter(Boolean).length > 0 && <p className="mt-2 text-sm text-gray-600">{[component.concentration, component.group].filter(Boolean).join(' · ')}</p>}
+        {[component.concentration, component.group].filter(Boolean).length > 0 && <p className="mt-2 text-sm text-gray-600">
+          {component.concentration}
+          {component.concentration && splitFragranceGroups(component.group).length > 0 && ' · '}
+          {splitFragranceGroups(component.group).map((groupName, groupIndex) => (
+            <span key={`${groupName}-${groupIndex}`}>
+              {groupIndex > 0 && ', '}
+              <Link className="hover:underline underline-offset-4" to={libraryNamePath('group', groupName)}>{groupName}</Link>
+            </span>
+          ))}
+        </p>}
         <Notes notes={component.notes} />
         </section>)}
       </section>)}

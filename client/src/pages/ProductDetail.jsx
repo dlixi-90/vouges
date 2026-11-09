@@ -211,7 +211,7 @@ const ProductDetail = () => {
                       }
                       aria-pressed={item === image}
                       aria-label={`Xem ảnh sản phẩm ${index + 1}`}
-                      className={`aspect-square overflow-hidden rounded-lg bg-[#f5f5f0] p-1.5 transition ${
+                      className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-[#f5f5f0] p-1.5 transition-opacity sm:h-[72px] sm:w-[72px] ${
                         item === image
                           ? "ring-1 ring-[#343434]"
                           : "opacity-70 hover:opacity-100"
