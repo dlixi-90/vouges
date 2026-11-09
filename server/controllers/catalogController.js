@@ -186,7 +186,8 @@ export const libraryTermCounts = catalogAction(async(req,res)=>{
 
 export const libraryTerm = catalogAction(async(req,res)=>{
   if(!isValidObjectId(req.params.id))fail("Mã thư viện không hợp lệ");
-  const term=await FragranceTerm.findById(req.params.id).lean();if(!term)fail("Không tìm thấy mục thư viện",404);
+  // The editor never reads import evidence; omitting it keeps large intros light.
+  const term=await FragranceTerm.findById(req.params.id).select("kind name description descriptionContent image contentStatus sourceUrl updatedAt").lean();if(!term)fail("Không tìm thấy mục thư viện",404);
   res.set("Cache-Control","private, no-store");res.json({success:true,term});
 });
 

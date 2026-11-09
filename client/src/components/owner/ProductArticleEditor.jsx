@@ -1,5 +1,5 @@
 import { LoadingStatus } from "../LoadingState";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { EditorContent, Node, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
@@ -9,6 +9,10 @@ import { AlignCenter, AlignJustify, AlignLeft, AlignRight, Bold, Eye, ImagePlus,
 import { useAppContext } from "../../context/AppContext";
 import ProductArticle from "../ProductArticle";
 import { ARTICLE_FONT_SIZES, ARTICLE_LIMITS, LIBRARY_ARTICLE_LIMITS, articleToPlainText, getArticleDocument, isArticleUrl, sanitizeArticle } from "../../utils/productArticle";
+import { getProductImageUrl } from "../../utils/productImage";
+
+// Editor previews only need resized images; the stored document keeps original URLs.
+const lazyImage = (src, width) => ({ src: getProductImageUrl(src, width), loading: "lazy", decoding: "async" });
 
 const LibraryCards = Node.create({
   name: "libraryCards", group: "block", atom: true,
@@ -16,7 +20,7 @@ const LibraryCards = Node.create({
   parseHTML() { return [{ tag: "div[data-library-cards]", getAttrs: element => { try { return sanitizeArticle({ type: "doc", content: [{ type: "libraryCards", attrs: JSON.parse(element.getAttribute("data-library-cards")) }] }, LIBRARY_ARTICLE_LIMITS).content[0].attrs; } catch { return false; } } }]; },
   renderHTML({ node }) {
     return ["div", { "data-library-cards": JSON.stringify(node.attrs), class: `article-library-cards columns-${node.attrs.columns}` }, ...node.attrs.items.map(item => ["div", { class: "article-library-card" },
-      ["a", { href: item.href }, ...(item.image ? [["img", { src: item.image, alt: "", width: item.width || 180, height: item.height || 180 }]] : []), ["strong", {}, item.name], ...(item.englishName ? [["small", { lang: "en" }, item.englishName]] : [])], ...(item.description ? [["p", {}, item.description]] : []),
+      ["a", { href: item.href }, ...(item.image ? [["img", { ...lazyImage(item.image, 360), alt: "", width: item.width || 180, height: item.height || 180 }]] : []), ["strong", {}, item.name], ...(item.englishName ? [["small", { lang: "en" }, item.englishName]] : [])], ...(item.description ? [["p", {}, item.description]] : []),
     ])];
   },
 });
@@ -27,7 +31,8 @@ const ArticleImage = Image.extend({
       const width = Number(element.getAttribute("width")), height = Number(element.getAttribute("height"));
       return [width, height].every(value => Number.isSafeInteger(value) && value > 0 && value <= 20000) && width * height <= 40000000 ? { width, height } : { width: null, height: null };
     };
-    return { ...this.parent?.(), width: { default: null, parseHTML: element => dimensions(element).width }, height: { default: null, parseHTML: element => dimensions(element).height }, articleWidth: {
+    const parent = this.parent?.() || {};
+    return { ...parent, src: { ...parent.src, renderHTML: attrs => lazyImage(attrs.src, 1200) }, width: { default: null, parseHTML: element => dimensions(element).width }, height: { default: null, parseHTML: element => dimensions(element).height }, articleWidth: {
       default: 100,
       parseHTML: element => [50, 75, 100].includes(Number(element.dataset.articleWidth)) ? Number(element.dataset.articleWidth) : 100,
       renderHTML: attrs => ({ "data-article-width": attrs.articleWidth, style: `width: ${attrs.articleWidth}%` }),
@@ -41,17 +46,23 @@ export default function ProductArticleEditor({ value, text, onChange, onUploadin
   const [linkOpen, setLinkOpen] = useState(false), [linkUrl, setLinkUrl] = useState("");
   const linkRef = useRef(null);
   const limits = library ? LIBRARY_ARTICLE_LIMITS : ARTICLE_LIMITS;
+  // Keep editor options referentially stable: TipTap calls setOptions (and redraws
+  // the whole view) whenever any option changes, and re-sanitizing a large library
+  // article on every keystroke made the dialog sluggish.
+  const extensions = useMemo(() => [
+    StarterKit.configure({ heading: { levels: [2, 3] }, codeBlock: false, link: { openOnClick: false, autolink: false, isAllowedUri: url => isArticleUrl(url) } }),
+    ArticleImage.configure({ allowBase64: false }),
+    ...(library ? [LibraryCards] : []),
+    TextAlign.configure({ types: ["heading", "paragraph"] }),
+    TextStyleKit.configure({ backgroundColor: false, fontFamily: false, lineHeight: false }),
+  ], [library]);
+  const [initialContent] = useState(() => getArticleDocument(value, text, limits));
+  const editorProps = useMemo(() => ({ attributes: { class: "product-article product-article-editable", role: "textbox", "aria-label": ariaLabel, "aria-multiline": "true" } }), [ariaLabel]);
   const editor = useEditor({
-    extensions: [
-      StarterKit.configure({ heading: { levels: [2, 3] }, codeBlock: false, link: { openOnClick: false, autolink: false, isAllowedUri: url => isArticleUrl(url) } }),
-      ArticleImage.configure({ allowBase64: false }),
-      ...(library ? [LibraryCards] : []),
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-      TextStyleKit.configure({ backgroundColor: false, fontFamily: false, lineHeight: false }),
-    ],
-    content: getArticleDocument(value, text, limits),
+    extensions,
+    content: initialContent,
     shouldRerenderOnTransaction: true,
-    editorProps: { attributes: { class: "product-article product-article-editable", role: "textbox", "aria-label": ariaLabel, "aria-multiline": "true" } },
+    editorProps,
     onUpdate: ({ editor: current }) => {
       const content = current.getJSON();
       onChange(content, articleToPlainText(content).trim().slice(0, 5000));
@@ -59,13 +70,19 @@ export default function ProductArticleEditor({ value, text, onChange, onUploadin
   });
   useEffect(() => { editor?.setEditable(!disabled && !uploading, false); }, [editor, disabled, uploading]);
   useEffect(() => { if (linkOpen) linkRef.current?.focus(); }, [linkOpen]);
+  // Selection-only transactions keep the same immutable doc, so statistics are reused.
+  const doc = editor?.state.doc;
+  const stats = useMemo(() => {
+    if (!editor || !doc) return null;
+    const content = editor.getJSON();
+    let imageCount = 0;
+    doc.descendants(node => { if (node.type.name === "image") imageCount++; if (node.type.name === "libraryCards") imageCount += node.attrs.items.filter(item => item.image).length; });
+    return { content, imageCount, textLength: articleToPlainText(content).length };
+  }, [editor, doc]);
 
-  if (!editor) return <LoadingStatus label="Đang tải trình soạn thảo…" />;
+  if (!editor || !stats) return <LoadingStatus label="Đang tải trình soạn thảo…" />;
   const busy = disabled || uploading;
-  const content = editor.getJSON();
-  let imageCount = 0;
-  editor.state.doc.descendants(node => { if (node.type.name === "image") imageCount++; if (node.type.name === "libraryCards") imageCount += node.attrs.items.filter(item => item.image).length; });
-  const textLength = articleToPlainText(content).length;
+  const { content, imageCount, textLength } = stats;
   const selectedImage = editor.isActive("image");
   const imageAttrs = selectedImage ? editor.getAttributes("image") : {};
   const tool = (label, Icon, action, active = false, unavailable = false) => <button type="button" title={label} aria-label={label} aria-pressed={active}
