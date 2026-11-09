@@ -65,9 +65,16 @@
 html, body {
   background-color: white;
   color: #000000cc;
-  overflow-x: hidden;
+  overflow-x: clip;
   scroll-behavior: smooth;
-   font-family: "Inter", sans-serif;
+  scroll-padding-top: var(--net-header-height, 90px);
+  font-family: "Inter", sans-serif;
+}
+
+@media (max-width: 1023px) {
+  html, body {
+    scroll-padding-top: var(--net-header-height, 130px);
+  }
 }
 
 .price-filter-range {
