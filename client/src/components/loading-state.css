@@ -5,9 +5,9 @@
 .skeleton-line.price { width:42%; height:30px; margin-top:24px; }
 .product-card-skeleton { pointer-events:none; }
 .product-card-skeleton .net-product-media { aspect-ratio:1; width:100%; }
-.product-card-skeleton .net-product-category { height:1.6em; }
+.product-card-skeleton .net-product-category { height:1.4em; }
 .product-card-skeleton .net-product-info .skeleton-line { margin:0; height:1em; }
-.product-card-skeleton h5 { min-height:2.7em; }
+.product-card-skeleton h5 { min-height:2.4em; }
 .product-card-skeleton h5 .skeleton-line+.skeleton-line { margin-top:.35em; width:75%; }
 .product-card-skeleton .net-product-price { min-width:100px; }
 .product-loading-carousel { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:20px; }
