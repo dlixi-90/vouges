@@ -170,7 +170,7 @@ function ArticleEditorCanvas({ value, text, onChange, onUploadingChange, disable
       <label>Chú thích ảnh<input value={imageAttrs.title || ""} maxLength={500} disabled={busy} onChange={event => editor.commands.updateAttributes("image", { title: event.target.value })} /></label>
       <label>Chiều rộng<select value={imageAttrs.articleWidth || 100} disabled={busy} onChange={event => editor.commands.updateAttributes("image", { articleWidth: Number(event.target.value) })}>{[50, 75, 100].map(width => <option key={width} value={width}>{width}%</option>)}</select></label>
       <label className="article-upload">Thay ảnh<input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" disabled={busy} aria-label="Thay ảnh trong mô tả" onChange={event => { void upload([...event.target.files], true); event.target.value = ""; }} /></label>
-      <button type="button" disabled={busy} onClick={() => editor.chain().focus().deleteSelection().run()}><Trash2 size={16} />Xóa ảnh</button>
+      <button type="button" disabled={busy} onClick={() => editor.chain().focus().deleteSelection().run()} style={{ color: "#ef4444" }}><Trash2 size={16} style={{ color: "#ef4444" }} />Xóa ảnh</button>
     </div>}
     {error && <p role="alert" className="article-editor-error">{error}</p>}
     {uploading && <LoadingStatus label="Đang tải ảnh bài viết…" />}

@@ -56,8 +56,8 @@
 .admin-operation-toolbar .perfume-search { max-width:420px; min-width:0; background:#fff; }
 .admin-operation-toolbar .perfume-search input { font-size:11px; }
 .net-admin .admin-operation-input { display:block; width:100%; min-width:0; min-height:38px; padding:10px 12px; border:1px solid #dedede; border-radius:7px; background:#fff; color:#333; font-size:12px; outline:none; }
-.net-admin .admin-danger-action { border-color:transparent; color:#888; }
-.net-admin .admin-danger-action:hover:not(:disabled) { border-color:#eee; background:#f6f6f6; color:#333; }
+.admin-danger-action, .net-admin .admin-danger-action { border-color:transparent; color:#ef4444; }
+.admin-danger-action:hover:not(:disabled), .net-admin .admin-danger-action:hover:not(:disabled) { border-color:#fee2e2; background:#fef2f2; color:#dc2626; }
 .admin-category-list { margin:0 -22px -22px; border-top:1px solid #eee; }
 .admin-category-list > li { border-bottom:1px solid #eee; }
 .admin-category-list > li:last-child { border-bottom:0; }

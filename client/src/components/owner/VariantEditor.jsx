@@ -96,8 +96,9 @@ export default function VariantEditor({
                         disabled={locked || !draft.sizeImages?.[size]}
                         aria-label={`Bỏ ảnh dung tích ${size}`}
                         onClick={() => onVariantField("sizeImages", size, null)}
+                        style={{ color: "#ef4444" }}
                       >
-                        <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" />
+                        <Trash2 size={15} strokeWidth={1.7} style={{ color: "#ef4444" }} aria-hidden="true" />
                       </button>
                     </div>
                   </div>

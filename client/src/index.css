@@ -452,3 +452,17 @@ html {
   }
 
 }
+
+/* Delete & Trash icon colors */
+.admin-danger-action,
+.perfume-library-delete,
+button[aria-label*="Xóa"]:not(.btn-dark):not(.primary):not([class*="bg-red"]) svg,
+button[title*="Xóa"]:not(.btn-dark):not(.primary):not([class*="bg-red"]) svg {
+  color: #ef4444;
+}
+
+.admin-danger-action:hover:not(:disabled),
+.perfume-library-delete:hover:not(:disabled) {
+  color: #dc2626;
+  background-color: #fef2f2;
+}

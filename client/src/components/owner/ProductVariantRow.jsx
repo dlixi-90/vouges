@@ -73,8 +73,9 @@ const ProductVariantRow = ({ item, draft, loading, onEdit, onChange, onSave, onC
             disabled={loading}
             className="perfume-button perfume-library-delete"
             aria-label={`Xóa dung tích ${item.size}`}
+            style={{ color: "#ef4444" }}
           >
-            <Trash2 size={14} /> Xóa
+            <Trash2 size={14} style={{ color: "#ef4444" }} /> Xóa
           </button>
         </div>
       </div>

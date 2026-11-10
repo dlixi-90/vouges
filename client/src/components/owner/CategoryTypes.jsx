@@ -91,8 +91,9 @@ const CategoryTypes = ({ category, disabled, onSave, onDelete }) => {
                     onClick={() => onDelete(category, type)}
                     aria-label={`Xóa loại sản phẩm ${type.name} trong danh mục ${category.name}`}
                     className="perfume-icon-button admin-danger-action"
+                    style={{ color: "#ef4444" }}
                   >
-                    <Trash2 size={14} />
+                    <Trash2 size={14} style={{ color: "#ef4444" }} />
                   </button>
                 </div>
               </div>
