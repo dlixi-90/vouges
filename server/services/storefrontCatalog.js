@@ -143,7 +143,7 @@ const searchMatchScore = (product, filters, rawQuery) => {
 };
 const productNameCollator = new Intl.Collator("vi-VN", { sensitivity: "base", numeric: true });
 export const parseBrowseQuery = query => {
-  const page = Number(query.page ?? 1), limit = Number(query.limit ?? 15);
+  const page = Number(query.page ?? 1), limit = Number(query.limit ?? 16);
   if (!Number.isSafeInteger(page) || page < 1 || page > 100000 || ![6, 10, 12, 15, 16].includes(limit)) fail();
   const minPrice = Number(query.minPrice ?? 0), maxPrice = query.maxPrice === undefined ? Infinity : Number(query.maxPrice);
   if (!Number.isSafeInteger(minPrice) || minPrice < 0 || (query.maxPrice !== undefined && (!Number.isSafeInteger(maxPrice) || maxPrice < minPrice))) fail();

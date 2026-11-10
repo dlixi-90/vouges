@@ -1,6 +1,6 @@
 import { createResourceCache } from "./resourceCache.js";
 
-export const COLLECTION_PAGE_SIZE = 15;
+export const COLLECTION_PAGE_SIZE = 16;
 
 export const normalizeBrowseParams = (params = {}) => {
   const values = { page: 1, limit: COLLECTION_PAGE_SIZE, availability: "available", sort: "relevant", minPrice: 0, ...params };

@@ -51,13 +51,13 @@ test("missing/zero assessment values do not invent recommendations; tied positiv
   assert.deepEqual(values.suitability, []);
 });
 
-test("a single paged response contains fifteen cards and global totals, without article/gallery/source/profile payloads", () => {
+test("a single paged response contains sixteen cards and global totals, without article/gallery/source/profile payloads", () => {
   const catalog = Array.from({ length: 37 }, (_, index) => fixture(index + 1));
   catalog[0].descriptionContent = { type: "doc" };
   const result = browseCatalog(catalog, options({ page: "2" }));
   assert.equal(result.total, 37); assert.equal(result.totalPages, 3);
-  assert.equal(result.products.length, 15); assert.equal(result.products[0]._id, catalog[15]._id);
-  assert.equal(result.pageSize, 15);
+  assert.equal(result.products.length, 16); assert.equal(result.products[0]._id, catalog[16]._id);
+  assert.equal(result.pageSize, 16);
   for (const product of result.products) {
     assert.equal(product.fragrance, undefined); assert.equal(product.descriptionContent, undefined); assert.equal(product._filters, undefined);
   }
@@ -258,7 +258,7 @@ test("ordinary browsing returns only one bounded database page and shares metada
     pipelines.push(pipeline);
     const facets = pipeline.at(-1).$facet;
     if (facets.types) return [{ types: [{ _id: { brand: "Brand A", category: "Nước hoa nam", type: "EDP" } }], categories: [{ _id: "Nước hoa nam" }], price: [{ maximum: 5000000 }] }];
-    assert.deepEqual(facets.products[1], { $limit: 15 });
+    assert.deepEqual(facets.products[1], { $limit: 16 });
     assert.deepEqual(facets.products[2].$project.images, { $slice: [{ $ifNull: ["$images", []] }, 1] });
     assert.equal(facets.products[2].$project.fragrance, undefined);
     return [{ total: [{ count: 35 }], products: [fixture()] }];
@@ -267,7 +267,7 @@ test("ordinary browsing returns only one bounded database page and shares metada
   assert.equal(first, same); assert.equal(pipelines.length, 2);
   assert.equal(first.total, 35); assert.equal(first.totalPages, 3); assert.equal(first.filters.maxPrice, 5000000);
   await readStorefrontBrowse(options({ page: 2 })); assert.equal(pipelines.length, 3);
-  assert.deepEqual(pipelines.at(-1).at(-1).$facet.products[0], { $skip: 15 });
+  assert.deepEqual(pipelines.at(-1).at(-1).$facet.products[0], { $skip: 16 });
   invalidateStorefrontCatalog();
   await readStorefrontBrowse(options({})); assert.equal(pipelines.length, 5);
   invalidateStorefrontCatalog();
@@ -282,20 +282,20 @@ test("advanced size/price/profile filters retain the existing matching and sorti
   }
 });
 
-test("navigation prefetch and collection mount share 15-product default, gender and brand requests", async () => {
+test("navigation prefetch and collection mount share 16-product default, gender and brand requests", async () => {
   const calls = [];
   const client = createPublicCatalog({ axios: { get: async (url, config) => { calls.push({ url, params: config.params }); return { data: { success: true, products: [] } }; } } });
   prefetchCollection(client);
-  await client.browse({ page: 1, limit: 15, availability: "available", q: "", sort: "relevant", minPrice: 0, facets: JSON.stringify({ gender: [], brands: [], notes: [] }) });
+  await client.browse({ page: 1, limit: 16, availability: "available", q: "", sort: "relevant", minPrice: 0, facets: JSON.stringify({ gender: [], brands: [], notes: [] }) });
   assert.equal(calls.length, 1);
-  assert.equal(calls[0].params.limit, 15);
+  assert.equal(calls[0].params.limit, 16);
   prefetchCollection(client, `/collection?category=${encodeURIComponent("Nước hoa nam")}`);
   await client.browse({ facets: JSON.stringify({ gender: ["Nam"], brands: [], notes: [] }) });
   assert.equal(calls.length, 2);
   prefetchCollection(client, `/collection?brand=${encodeURIComponent("Abercrombie & Fitch")}`);
-  await client.browse({ page: 1, limit: 15, facets: JSON.stringify({ brands: ["Abercrombie & Fitch"] }) });
+  await client.browse({ page: 1, limit: 16, facets: JSON.stringify({ brands: ["Abercrombie & Fitch"] }) });
   assert.equal(calls.length, 3);
-  assert.equal(calls[2].params.limit, 15);
+  assert.equal(calls[2].params.limit, 16);
   prefetchCollection(client, "/about"); assert.equal(calls.length, 3);
   await client.browse({}, { force: true }); assert.equal(calls.length, 4);
 });
