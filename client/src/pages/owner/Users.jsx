@@ -137,7 +137,11 @@ export default function Users() {
                   </td>
                   <td>
                     <Badge
-                      tone={customer.role === "owner" ? "warning" : "neutral"}
+                      tone={
+                        customer.isRootAdmin || customer.role === "owner"
+                          ? "amber"
+                          : "neutral"
+                      }
                     >
                       {customer.isRootAdmin
                         ? "Quản trị gốc"
@@ -147,7 +151,7 @@ export default function Users() {
                     </Badge>
                   </td>
                   <td>
-                    <Badge>
+                    <Badge tone={customer.completedAt ? "green" : "amber"}>
                       {customer.completedAt
                         ? "Đã hoàn thiện"
                         : "Chưa hoàn thiện"}
