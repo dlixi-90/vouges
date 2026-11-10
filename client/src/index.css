@@ -466,3 +466,26 @@ button[title*="Xóa"]:not(.btn-dark):not(.primary):not([class*="bg-red"]) svg {
   color: #dc2626;
   background-color: #fef2f2;
 }
+
+/* Badge status colors */
+.perfume-badge.tone-green {
+  background-color: #ecfdf5 !important;
+  color: #166534 !important;
+  border: 1px solid #bbf7d0 !important;
+  font-weight: 500;
+}
+
+.perfume-badge.tone-rose,
+.perfume-badge.tone-red {
+  background-color: #fef2f2 !important;
+  color: #dc2626 !important;
+  border: 1px solid #fecaca !important;
+  font-weight: 500;
+}
+
+.perfume-badge.tone-amber {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
+  font-weight: 500;
+}

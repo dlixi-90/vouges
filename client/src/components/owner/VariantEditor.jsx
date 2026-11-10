@@ -162,7 +162,9 @@ export default function VariantEditor({
                         )
                       }
                     />
-                    {draft.inStockBySize?.[size] ? "Còn hàng" : "Hết hàng"}
+                    <span className={draft.inStockBySize?.[size] ? "text-emerald-700 font-medium" : "text-red-500 font-medium"}>
+                      {draft.inStockBySize?.[size] ? "Còn hàng" : "Hết hàng"}
+                    </span>
                   </label>
                 </td>
                 <td>
