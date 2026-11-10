@@ -142,7 +142,12 @@ const Header = () => {
                   <button
                     onPointerEnter={() => { void prefetchOwnerRoute("/owner", context); }}
                     onFocus={() => { void prefetchOwnerRoute("/owner", context); }}
-                    onClick={() => navigate("/owner")}
+                    onClick={() => {
+                      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                      document.documentElement.scrollTop = 0;
+                      document.body.scrollTop = 0;
+                      navigate("/owner");
+                    }}
                     className="btn-outline px-2 py-2 text-xs font-semibold"
                   >
                     Dashboard

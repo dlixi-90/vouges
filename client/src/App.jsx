@@ -1,4 +1,4 @@
-import { lazy, Suspense, useLayoutEffect } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect } from "react";
 import Header from "./components/Header";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Footer from "./components/Footer";
@@ -34,6 +34,12 @@ const AddCategory = lazy(() => import("./pages/owner/AddCategory"));
 function ScrollToTopOnNavigation() {
   const { pathname, search } = useLocation();
 
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+  }, []);
+
   useLayoutEffect(() => {
     if (pathname === "/collection") {
       const params = new URLSearchParams(search);
@@ -41,7 +47,20 @@ function ScrollToTopOnNavigation() {
         return;
       }
     }
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+
+    const resetScroll = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      const mainEl = document.querySelector("main");
+      if (mainEl && mainEl.scrollTop) mainEl.scrollTop = 0;
+    };
+
+    resetScroll();
+    const frame = requestAnimationFrame(() => {
+      resetScroll();
+    });
+    return () => cancelAnimationFrame(frame);
   }, [pathname, search]);
 
   return null;
@@ -52,7 +71,7 @@ const App = () => {
   const { isCartOpen } = useAppContext();
   const isOwnerPath = location.pathname.includes("owner");
   return (
-    <main className={`net-theme ${isOwnerPath ? "net-admin overflow-hidden" : "net-storefront overflow-x-clip"} text-tertiary`}>
+    <main className={`net-theme ${isOwnerPath ? "net-admin overflow-x-clip" : "net-storefront overflow-x-clip"} text-tertiary`}>
       <ScrollToTopOnNavigation />
       {!isOwnerPath && <Header />}
       {isCartOpen && <Suspense fallback={null}><CartDrawer /></Suspense>}

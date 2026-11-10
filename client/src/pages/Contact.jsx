@@ -37,7 +37,7 @@ export default function Contact() {
             <p className="net-contact-eyebrow">Dịch vụ khách hàng</p>
             <h1 className="net-contact-title">Kết nối với chúng tôi</h1>
             <p className="net-contact-description">
-              Đội ngũ chuyên gia mùi hương tại Velours luôn sẵn sàng lắng nghe, tư vấn phong cách hương thơm và hỗ trợ mọi thắc mắc của bạn.
+              Đội ngũ chuyên gia tại Velours luôn sẵn sàng lắng nghe, tư vấn và hỗ trợ mọi thắc mắc của bạn.
             </p>
           </div>
 
@@ -47,8 +47,8 @@ export default function Contact() {
                 <MapPin size={15} aria-hidden="true" />
               </span>
               <div>
-                <strong>Boutique Velours</strong>
-                <p>68 Tràng Tiền, Hoàn Kiếm, Hà Nội</p>
+                <strong>Velours</strong>
+                <p>123 ABC, Hà Nội</p>
               </div>
             </div>
 
@@ -58,7 +58,7 @@ export default function Contact() {
               </span>
               <div>
                 <strong>Hotline hỗ trợ</strong>
-                <p><a href="tel:19006868">1900 6868</a> (09:00 – 21:00)</p>
+                <p><a href="tel:19006868">1900 0123</a> (09:00 – 22:00)</p>
               </div>
             </div>
 

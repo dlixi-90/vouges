@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useLayoutEffect, useState } from "react";
 import { Link, Outlet, Navigate, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { UserButton, useClerk } from "@clerk/react";
 import { ArrowUpRight, Bell, ChevronRight, Crown, FlaskConical, Grid2X2, Layers3, Library, LogOut, Menu, MessagesSquare, Package, ShoppingBag, Ticket, Users, X } from "lucide-react";
@@ -44,6 +44,12 @@ export default function Sidebar() {
   const activeItem = navigation.flatMap(group => group.items).find(item => (item.activePaths || [item.path]).some(path => matchPath({ path, end: true }, pathname)));
   const isWorkspacePage = pathname === "/owner/messages";
   const closeMenu = () => setMenu({ path: pathname, open: false });
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [pathname, search]);
   useEffect(() => {
     if (isOwner !== true) return;
     const idle = window.requestIdleCallback || (callback => window.setTimeout(callback, 120));
@@ -109,8 +115,33 @@ export default function Sidebar() {
       <aside className={`net-sidebar admin-sidebar${menuOpen ? " is-open" : ""}`} aria-label="Điều hướng quản trị" id="admin-navigation">
         <div className="admin-brand-row">
           <div className="admin-brand-lockup">
-            <Link to="/owner" className="admin-brand" aria-label="Velours — Dashboard" onClick={closeMenu}><img src={assets.logoImg} alt="" /><span>elours</span></Link>
-            <Link to="/" className="admin-store-link" aria-label="Xem cửa hàng" title="Xem cửa hàng" onClick={closeMenu}><ArrowUpRight size={24} aria-hidden="true" /></Link>
+            <Link
+              to="/owner"
+              className="admin-brand"
+              aria-label="Velours — Dashboard"
+              onClick={() => {
+                closeMenu();
+                window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+              }}
+            >
+              <img src={assets.logoImg} alt="" /><span>elours</span>
+            </Link>
+            <Link
+              to="/"
+              className="admin-store-link"
+              aria-label="Xem cửa hàng"
+              title="Xem cửa hàng"
+              onClick={() => {
+                closeMenu();
+                window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+              }}
+            >
+              <ArrowUpRight size={24} aria-hidden="true" />
+            </Link>
           </div>
           <button type="button" className="admin-mobile-close" aria-label="Đóng menu" onClick={closeMenu}><X size={20} /></button>
         </div>
@@ -119,7 +150,25 @@ export default function Sidebar() {
             <p>{group.label}</p>
             {group.items.map(({ path, label, icon: Icon, activePaths }) => {
               const active = (activePaths || [path]).some(pattern => matchPath({ path: pattern, end: true }, pathname));
-              return <Link to={path} key={path} onPointerEnter={() => warm(path)} onFocus={() => warm(path)} onClick={closeMenu} aria-current={active ? "page" : undefined}><Icon size={18} strokeWidth={1.65} aria-hidden="true" /><span>{label}</span>{active && <ChevronRight size={14} className="admin-nav-arrow" aria-hidden="true" />}</Link>;
+              return (
+                <Link
+                  to={path}
+                  key={path}
+                  onPointerEnter={() => warm(path)}
+                  onFocus={() => warm(path)}
+                  onClick={() => {
+                    closeMenu();
+                    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                    document.documentElement.scrollTop = 0;
+                    document.body.scrollTop = 0;
+                  }}
+                  aria-current={active ? "page" : undefined}
+                >
+                  <Icon size={18} strokeWidth={1.65} aria-hidden="true" />
+                  <span>{label}</span>
+                  {active && <ChevronRight size={14} className="admin-nav-arrow" aria-hidden="true" />}
+                </Link>
+              );
             })}
           </div>)}
         </nav>
@@ -129,10 +178,39 @@ export default function Sidebar() {
       </aside>
       <div className="velours-admin-main">
         <header className="admin-topbar">
-          <div className="admin-breadcrumb"><button type="button" className="admin-menu-toggle" onClick={() => setMenu({ path: pathname, open: !menuOpen })} aria-expanded={menuOpen} aria-controls="admin-navigation" aria-label="Mở menu quản trị"><Menu size={21} /></button><Link to="/owner">Quản trị</Link><ChevronRight size={13} aria-hidden="true" /><span>{activeItem?.label || "Quản lý nước hoa"}</span></div>
+          <div className="admin-breadcrumb">
+            <button type="button" className="admin-menu-toggle" onClick={() => setMenu({ path: pathname, open: !menuOpen })} aria-expanded={menuOpen} aria-controls="admin-navigation" aria-label="Mở menu quản trị">
+              <Menu size={21} />
+            </button>
+            <Link
+              to="/owner"
+              onClick={() => {
+                window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+              }}
+            >
+              Quản trị
+            </Link>
+            <ChevronRight size={13} aria-hidden="true" />
+            <span>{activeItem?.label || "Quản lý nước hoa"}</span>
+          </div>
           <div className="admin-topbar-tools">
             <QuickProductSearch className="admin-global-search" value={pathname === "/owner/list-product" ? new URLSearchParams(search).get("q") || "" : ""} onSearch={query => navigate(`/owner/list-product?q=${encodeURIComponent(query)}`)} />
-            <Link to="/owner/messages" onPointerEnter={() => warm("/owner/messages")} onFocus={() => warm("/owner/messages")} className="admin-notification" aria-label="Mở tin nhắn hỗ trợ"><Bell size={19} strokeWidth={1.6} /></Link>
+            <Link
+              to="/owner/messages"
+              onPointerEnter={() => warm("/owner/messages")}
+              onFocus={() => warm("/owner/messages")}
+              onClick={() => {
+                window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+              }}
+              className="admin-notification"
+              aria-label="Mở tin nhắn hỗ trợ"
+            >
+              <Bell size={19} strokeWidth={1.6} />
+            </Link>
             <div className="admin-account"><UserButton appearance={{ elements: { userButtonAvatarBox: { width: "36px", height: "36px" } } }} /><div><strong>{user?.fullName || user?.firstName || "Quản trị viên"}</strong><span>{user?.primaryEmailAddress?.emailAddress || "Quản trị viên Velours"}</span></div></div>
           </div>
         </header>

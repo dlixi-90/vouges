@@ -37,12 +37,18 @@ export function useCatalog(path,apiRoot="/api/catalog"){
 export function CatalogPage({title,actions,children,className=""}){
   return <section className={`perfume-workspace ${className}`}><header className="perfume-page-heading"><h1>{title}</h1><div className="perfume-heading-actions">{actions}</div></header>{children}</section>;
 }
-export function OwnerLink({to,onPointerEnter,onPointerLeave,onFocus,...props}){
+export function OwnerLink({to,onPointerEnter,onPointerLeave,onFocus,onClick,...props}){
   const context=useAppContext(),timer=useRef(null);
   const cancel=()=>{window.clearTimeout(timer.current);timer.current=null;};
   const warm=()=>{if(typeof to==="string")void prefetchOwnerRoute(to,context);};
   useEffect(()=>()=>window.clearTimeout(timer.current),[]);
   return <Link {...props} to={to}
+    onClick={event => {
+      onClick?.(event);
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }}
     onPointerEnter={event=>{onPointerEnter?.(event);cancel();timer.current=window.setTimeout(warm,40);}}
     onPointerLeave={event=>{onPointerLeave?.(event);cancel();}}
     onFocus={event=>{onFocus?.(event);cancel();warm();}} />;
