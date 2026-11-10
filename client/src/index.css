@@ -503,3 +503,28 @@ button[title*="Xóa"]:not(.btn-dark):not(.primary):not([class*="bg-red"]) svg {
   border: 1px solid #bfdbfe !important;
   font-weight: 500;
 }
+
+/* Order Payment status badges */
+.net-order-payment[data-payment-state="paid"],
+.store-order-payment-status[data-payment-state="paid"] {
+  background-color: #ecfdf5 !important;
+  color: #166534 !important;
+  border: 1px solid #bbf7d0 !important;
+  font-weight: 500;
+}
+
+.net-order-payment[data-payment-state="cod"],
+.store-order-payment-status[data-payment-state="cod"] {
+  background-color: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border: 1px solid #bfdbfe !important;
+  font-weight: 500;
+}
+
+.net-order-payment[data-payment-state="pending"],
+.store-order-payment-status[data-payment-state="pending"] {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
+  font-weight: 500;
+}

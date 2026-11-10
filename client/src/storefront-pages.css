@@ -40,7 +40,8 @@
 .store-order-card :is([class*="text-[#69747e]"], [class*="text-[#52616b]"]) { color: #666; }
 .net-theme .store-order-card .store-order-id { font-family: ui-monospace, monospace; font-size: 14px; font-weight: 600; letter-spacing: .02em; }
 .net-theme .store-order-card h4 { font-size: 13px; font-weight: 600; }
-.store-order-card .store-order-payment-status { border: 1px solid #ededed; font-size: 10px; font-weight: 500; }
+.store-order-card .store-order-payment-status { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; }
+.store-order-card .store-order-payment-status::before { content: ""; width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: currentColor; }
 .store-order-card-footer .inessa-order-overview-link { margin-right: auto; font-size: 11px; }
 .store-order-card button { border-color: #e5e5e5; border-radius: 8px; font-size: 11px; font-weight: 500; }
 

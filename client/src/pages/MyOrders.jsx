@@ -106,11 +106,8 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
 
         <div className="flex items-center justify-between gap-4 sm:justify-end">
           <span
-            className={`store-order-payment-status rounded-full px-2.5 py-1 text-xs font-semibold ${
-              order.isPaid
-                ? "bg-[#edf6ee] text-[#4f7f5a]"
-                : "bg-[#fff5e5] text-[#a26f2c]"
-            }`}
+            className="store-order-payment-status rounded-full px-2.5 py-1 text-xs font-semibold"
+            data-payment-state={order.isPaid ? "paid" : order.paymentMethod === "COD" ? "cod" : "pending"}
           >
             {order.isPaid
               ? "Đã thanh toán"

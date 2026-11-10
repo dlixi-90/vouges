@@ -11,7 +11,10 @@
 .net-admin .admin-orders-page .net-order-card :is(h3,h4) { font-size:12px; font-weight:600; }
 .net-admin .admin-orders-page .net-order-label { color:#999; font-size:9px; letter-spacing:.09em; }
 .net-admin .admin-orders-page .net-order-meta { color:#919191; font-size:10px; }
-.net-admin .admin-orders-page .net-order-payment { padding:6px 9px; border:1px solid #e5e5e5; border-radius:6px; background:#f4f4f4; color:#626262; font-size:10px; }
+.net-admin .admin-orders-page .net-order-payment { padding:5px 11px; border-radius:9999px; font-size:11px; font-weight:500; display:inline-flex; align-items:center; gap:6px; }
+.net-admin .admin-orders-page .net-order-payment[data-payment-state="paid"] { background:#ecfdf5; color:#166534; border:1px solid #bbf7d0; }
+.net-admin .admin-orders-page .net-order-payment[data-payment-state="cod"] { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
+.net-admin .admin-orders-page .net-order-payment[data-payment-state="pending"] { background:#fffbeb; color:#b45309; border:1px solid #fde68a; }
 .net-admin .admin-orders-page .net-order-total { font-size:18px; font-weight:600; color:#262626; }
 .admin-orders-page .net-order-products,.admin-orders-page .net-order-customer { padding:18px; }
 .admin-orders-page .net-order-thumbnail { width:48px; height:55px; }
