@@ -1,7 +1,7 @@
 import ArticleEditorShell from "../../components/owner/ArticleEditorShell";
 import { useCallback, useEffect, useRef, useState, lazy, Suspense } from "react";
 import {useSearchParams} from "react-router-dom";
-import {ExternalLink,Search,X,Save,Plus,Pencil,Trash2,Upload} from "lucide-react";
+import {Search,X,Save,Plus,Pencil,Trash2,Upload} from "lucide-react";
 import toast from "react-hot-toast";
 import {useAppContext} from "../../context/AppContext";
 import {CatalogPage,CatalogState,Pager,Badge,RefreshButton,useCatalog} from "../../components/owner/CatalogUI";
@@ -24,23 +24,13 @@ function LibraryManager({kind,onKind}){
   const {storeResources,publicCatalog,dashboardCache}=useAppContext();
   const [q,setQ]=useState(""),[status,setStatus]=useState(""),[page,setPage]=useState(1),[editing,setEditing]=useState(null),[deleting,setDeleting]=useState(null);
   const label=libraryTitle(kind).toLocaleLowerCase("vi-VN");
-  const query=useCatalog(`/terms?${new URLSearchParams({kind,q,status,page:String(page),pageSize:"25",includeCounts:"false"})}`);
-  const countIds=(query.data?.terms||[]).map(term=>term._id).join(",");
-  const [readyCountIds,setReadyCountIds]=useState("");
-  useEffect(()=>{
-    if(!countIds||editing)return;
-    const timer=window.setTimeout(()=>setReadyCountIds(countIds),300);
-    return()=>window.clearTimeout(timer);
-  },[countIds,editing]);
-  const activeCountIds=countIds&&readyCountIds===countIds?countIds:"";
-  const countsQuery=useCatalog(activeCountIds?`/terms/counts?ids=${encodeURIComponent(activeCountIds)}`:null);
-  const countById=new Map((countsQuery.data?.counts||[]).map(row=>[row._id,row.productCount]));
-  const rows=(query.data?.terms||[]).filter(term=>term.kind===kind).map(term=>({...term,productCount:countById.get(String(term._id))??null}));
-  const deletingTerm=deleting?{...deleting,productCount:countById.get(String(deleting._id))??deleting.productCount}:null;
+  const query=useCatalog(`/terms?${new URLSearchParams({kind,q,status,page:String(page),pageSize:"25"})}`);
+  const rows=(query.data?.terms||[]).filter(term=>term.kind===kind);
+  const deletingTerm=deleting?{...deleting,productCount:deleting.productCount}:null;
   const {listRef,changePage}=usePaginationScroll({page,onPageChange:setPage,ready:!query.loading&&query.data?.page===page});
   const warmKind=useCallback(targetKind=>{
     if(!targetKind||targetKind==="brand")return;
-    void storeResources.loadCatalog(`/terms?${new URLSearchParams({kind:targetKind,q:"",status:"",page:"1",pageSize:"25",includeCounts:"false"})}`).catch(()=>{});
+    void storeResources.loadCatalog(`/terms?${new URLSearchParams({kind:targetKind,q:"",status:"",page:"1",pageSize:"25"})}`).catch(()=>{});
   },[storeResources]);
   // Warm the TipTap chunk and sibling library tabs immediately so switching tabs or
   // opening "Giới thiệu" does not wait on serial downloads.
@@ -64,7 +54,7 @@ function LibraryManager({kind,onKind}){
   return <CatalogPage title={kind==="brand"?"Thương hiệu":"Thư viện hương"} actions={<><RefreshButton onClick={query.reload} disabled={query.loading}/><button type="button" className="perfume-button primary" onClick={()=>setEditing({kind,name:"",description:"",descriptionContent:null,image:"",contentStatus:"linked"})}><Plus size={16}/>Thêm {label}</button></>}>
     {kind!=="brand"&&<nav className="perfume-tabs" aria-label="Loại thư viện">{kinds.map(value=><button type="button" key={value} className={kind===value?"active":""} onPointerEnter={()=>warmKind(value)} onFocus={()=>warmKind(value)} onClick={()=>onKind(value)}>{LIBRARY_KINDS[value].title}</button>)}</nav>}
     <div className="perfume-filter-bar"><label className="perfume-search"><Search size={17}/><input aria-label="Tìm trong thư viện" placeholder={`Tìm ${label}…`} value={q} onChange={event=>{setQ(event.target.value);setPage(1);}}/></label>{kind!=="brand"&&<select aria-label="Tình trạng nội dung" value={status} onChange={event=>{setStatus(event.target.value);setPage(1);}}><option value="">Toàn bộ nội dung</option><option value="linked">Cần biên soạn</option><option value="complete">Đã hoàn thiện</option></select>}</div>
-    <CatalogState {...query}/><section className="perfume-table-panel"><div className="perfume-table-scroll"><table ref={listRef} tabIndex={-1} className="perfume-table pagination-list-start"><thead><tr><th>{kind==="brand"?"Thương hiệu":"Tên mục"}</th><th>Sản phẩm liên kết</th>{kind!=="brand"&&<th>Nội dung</th>}{kind!=="brand"&&<th>Nguồn</th>}<th><span className="sr-only">Thao tác</span></th></tr></thead><tbody>{rows.map(term=><tr key={term._id} onPointerEnter={()=>warmTerm(term)}><td><strong>{term.name||"Chưa có tên"}</strong></td><td>{term.productCount??"..."}</td>{kind!=="brand"&&<td><Badge tone={term.contentStatus==="complete"?"green":"amber"}>{term.contentStatus==="complete"?"Đã hoàn thiện":"Cần biên soạn"}</Badge></td>}{kind!=="brand"&&<td>{term.sourceUrl?<a href={term.sourceUrl} target="_blank" rel="noreferrer" className="perfume-inline-link">Xem nguồn <ExternalLink size={13}/></a>:"—"}</td>}<td><div className="perfume-library-actions"><button type="button" className="perfume-icon-button" onPointerEnter={()=>warmTerm(term)} onFocus={()=>warmTerm(term)} onClick={()=>setEditing(term)} aria-label={`Sửa ${label} ${term.name}`} title="Chỉnh sửa"><Pencil size={16}/></button><button type="button" className="perfume-icon-button perfume-library-delete" onClick={()=>setDeleting(term)} aria-label={`Xóa ${label} ${term.name}`} title="Xóa"><Trash2 size={16}/></button></div></td></tr>)}</tbody></table>{!query.loading&&!rows.length&&<p className="perfume-empty">Không tìm thấy mục phù hợp.</p>}</div><Pager page={page} totalPages={query.data?.totalPages} total={query.data?.total} onPage={changePage} disabled={query.loading}/></section>
+    <CatalogState {...query}/><section className="perfume-table-panel"><div className="perfume-table-scroll"><table ref={listRef} tabIndex={-1} className="perfume-table pagination-list-start"><thead><tr><th>{kind==="brand"?"Thương hiệu":"Tên mục"}</th><th>Sản phẩm liên kết</th>{kind!=="brand"&&<th>Nội dung</th>}<th><span className="sr-only">Thao tác</span></th></tr></thead><tbody>{rows.map(term=><tr key={term._id} onPointerEnter={()=>warmTerm(term)}><td><strong>{term.name||"Chưa có tên"}</strong></td><td>{term.productCount??0}</td>{kind!=="brand"&&<td><Badge tone={term.contentStatus==="complete"?"green":"amber"}>{term.contentStatus==="complete"?"Đã hoàn thiện":"Cần biên soạn"}</Badge></td>}<td><div className="perfume-library-actions"><button type="button" className="perfume-icon-button" onPointerEnter={()=>warmTerm(term)} onFocus={()=>warmTerm(term)} onClick={()=>setEditing(term)} aria-label={`Sửa ${label} ${term.name}`} title="Chỉnh sửa"><Pencil size={16}/></button><button type="button" className="perfume-icon-button perfume-library-delete" onClick={()=>setDeleting(term)} aria-label={`Xóa ${label} ${term.name}`} title="Xóa"><Trash2 size={16}/></button></div></td></tr>)}</tbody></table>{!query.loading&&!rows.length&&<p className="perfume-empty">Không tìm thấy mục phù hợp.</p>}</div><Pager page={page} totalPages={query.data?.totalPages} total={query.data?.total} onPage={changePage} disabled={query.loading}/></section>
     {editing&&<LibraryEditor key={editing._id||"new"} term={editing} onClose={()=>setEditing(null)} onSaved={()=>changed(editing._id?"edit":"create")}/>}
     {deletingTerm&&<DeleteLibraryDialog term={deletingTerm} onClose={()=>setDeleting(null)} onDeleted={()=>changed("delete")}/>}
   </CatalogPage>;
@@ -117,7 +107,6 @@ function LibraryEditor({term,onClose,onSaved}){
       </section>
       {term.kind!=="brand"&&<><section className="perfume-library-introduction" aria-labelledby="library-introduction-title"><h3 id="library-introduction-title">Giới thiệu</h3>{!detailsError&&<Suspense fallback={<ArticleEditorShell library label={detailsLoading?"Đang tải nội dung giới thiệu…":"Đang tải trình soạn thảo…"}/>}><ProductArticleEditor library loading={detailsLoading} value={draft.descriptionContent} text={draft.description} disabled={formLocked} ariaLabel="Trình soạn thảo giới thiệu" onUploadingChange={setUploading} onChange={(descriptionContent,description)=>updateDraft({descriptionContent,description})}/></Suspense>}</section>
       <label className="perfume-field"><span>Tình trạng biên soạn</span><select disabled={formLocked} value={draft.contentStatus} onChange={event=>updateDraft({contentStatus:event.target.value})}><option value="linked">Cần biên soạn</option><option value="complete">Đã hoàn thiện</option></select></label></>}
-      {term.kind!=="brand"&&term.sourceUrl&&<a href={term.sourceUrl} target="_blank" rel="noreferrer" className="perfume-inline-link">Đối chiếu nguồn <ExternalLink size={13}/></a>}
       <footer><button type="button" className="perfume-button" disabled={locked} onClick={onClose}>Hủy</button><button type="submit" className="perfume-button primary" disabled={formLocked}><Save size={15}/>{busy?"Đang lưu…":uploading||coverUploading?"Đang tải ảnh…":detailsLoading?"Đang tải…":creating?`Thêm ${label}`:"Lưu thay đổi"}</button></footer>
     </form>
   </dialog>;

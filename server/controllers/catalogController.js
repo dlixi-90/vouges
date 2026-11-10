@@ -172,7 +172,7 @@ export const libraryTerms = catalogAction(async(req,res)=>{
   if(req.query.status&&!['linked','complete'].includes(req.query.status))fail("Tình trạng nội dung không hợp lệ");
   const filter={kind};if(req.query.q){const q=pattern(req.query.q);filter.$or=[{name:q},{key:q}];}if(req.query.status)filter.contentStatus=req.query.status;
   const termQuery=FragranceTerm.find(filter);
-  if(req.query.includeCounts==="false")termQuery.select("kind name image contentStatus sourceUrl updatedAt");else if(kind==="brand")termQuery.select("kind name image updatedAt");
+  if(req.query.includeCounts==="false")termQuery.select("kind name image contentStatus sourceUrl updatedAt");else if(kind==="brand")termQuery.select("kind name image updatedAt");else termQuery.select("kind name image contentStatus updatedAt");
   const [terms,total]=await Promise.all([
     termQuery.sort({name:1,_id:1}).skip((page-1)*pageSize).limit(pageSize).lean(),
     FragranceTerm.countDocuments(filter),
