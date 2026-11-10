@@ -1,6 +1,6 @@
 import { LoadingStatus } from "./LoadingState";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { assets } from "../assets/data";
 import Navbar from "./Navbar";
 import QuickProductSearch from "./QuickProductSearch";
@@ -41,6 +41,7 @@ const Header = () => {
   const [hasOpenedAIChat, setHasOpenedAIChat] = useState(false);
   const chatLauncherRef = useRef(null);
   const { openSignIn } = useClerk();
+  const { pathname } = useLocation();
 
   const context = useAppContext();
   const { navigate, searchQuery, setSearchQuery, openCart, isCartOpen, isCartPage, user, getCartCount, isOwner, storeResources, publicCatalog } =
@@ -102,7 +103,12 @@ const Header = () => {
           </div>
           {/* Logo */}
           <div className="inessa-brand flex">
-            <Link to={"/"} onPointerEnter={() => prefetchRoute("/")} onFocus={() => prefetchRoute("/")} onClick={() => { setSearchQuery(""); setMenuOpened(false); }} aria-label="Velours — Trang chủ" className="flex items-end">
+            <Link to={"/"} onPointerEnter={() => prefetchRoute("/")} onFocus={() => prefetchRoute("/")} onClick={() => {
+              setSearchQuery(""); setMenuOpened(false);
+              // The logo always lands at the top of Home, even when Home is already open.
+              const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+              window.scrollTo({ top: 0, left: 0, behavior: pathname === "/" && !reducedMotion ? "smooth" : "instant" });
+            }} aria-label="Velours — Trang chủ" className="flex items-end">
               <img
                 src={assets.logoImg}
                 alt="Biểu trưng Velours"
