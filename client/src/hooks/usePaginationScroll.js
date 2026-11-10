@@ -2,12 +2,12 @@ import { useCallback, useLayoutEffect, useRef } from "react";
 
 // Wait for the selected page's rows, rather than scrolling to a loading stub.
 // The hook lives with the list so it survives a temporarily hidden pager.
-export default function usePaginationScroll({ page, onPageChange, ready = true, resetKey, initialScroll = false }) {
+export default function usePaginationScroll({ page, onPageChange, ready = true, resetKey }) {
   const listRef = useRef(null);
   const anchorRef = useRef(null);
-  const requestedPage = useRef(initialScroll ? page : null);
-  const focusList = useRef(!initialScroll);
-  const previousResetKey = useRef(initialScroll ? null : resetKey);
+  const requestedPage = useRef(null);
+  const focusList = useRef(true);
+  const previousResetKey = useRef(resetKey);
   const changePage = useCallback((nextPage) => {
     if (nextPage === page) return;
     requestedPage.current = nextPage;
@@ -46,8 +46,6 @@ export default function usePaginationScroll({ page, onPageChange, ready = true, 
       const header = nested ? null : document.querySelector(".net-header");
       const headerOffset = header && /^(sticky|fixed)$/.test(window.getComputedStyle(header).position) ? header.offsetHeight : 0;
       const top = current + anchor.getBoundingClientRect().top - (nested ? container.getBoundingClientRect().top : 0) - headerOffset - gap;
-      // Cancel any earlier animation before handling a rapid page change.
-      scroller.scrollTo({ top: current, behavior: "instant" });
       scroller.scrollTo({ top: Math.max(0, top), behavior: reducedMotion ? "instant" : "smooth" });
     }); });
     return () => { window.cancelAnimationFrame(paint); window.cancelAnimationFrame(frame); };

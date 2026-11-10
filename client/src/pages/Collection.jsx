@@ -108,7 +108,6 @@ const Collection = () => {
   const { listRef, anchorRef, changePage } = usePaginationScroll({
     page: activePage, onPageChange: setCurrentPage,
     ready: !productsLoading && !isFilterOpen, resetKey: scrollCriteria,
-    initialScroll: hasTargetFilter,
   });
 
   useLayoutEffect(() => {
@@ -116,10 +115,10 @@ const Collection = () => {
       window.scrollTo({ top: 0, left: 0, behavior: "instant" });
       return;
     }
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    scrollToCollectionToolbar("instant");
     const timer = setTimeout(() => {
-      scrollToCollectionToolbar("smooth");
-    }, 50);
+      scrollToCollectionToolbar("instant");
+    }, 60);
     return () => clearTimeout(timer);
   }, [hasTargetFilter, locationState?.headerSearch, routeCategory, routeBrand, routeQuery]);
   const startIndex = ((collection?.page || activePage) - 1) * itemsPerPage;
