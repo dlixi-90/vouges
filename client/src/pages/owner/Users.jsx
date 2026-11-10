@@ -138,9 +138,11 @@ export default function Users() {
                   <td>
                     <Badge
                       tone={
-                        customer.isRootAdmin || customer.role === "owner"
-                          ? "amber"
-                          : "neutral"
+                        customer.isRootAdmin
+                          ? "purple"
+                          : customer.role === "owner"
+                            ? "blue"
+                            : "neutral"
                       }
                     >
                       {customer.isRootAdmin
