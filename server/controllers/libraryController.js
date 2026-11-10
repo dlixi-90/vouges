@@ -13,6 +13,7 @@ const readText = value => {
   return value.normalize("NFC").trim();
 };
 const nameKey = value => value.normalize("NFC").trim().toLocaleLowerCase("vi-VN");
+const foldText = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLocaleLowerCase("vi-VN").trim();
 const action = handler => async (req, res) => {
   try {
     res.set("Cache-Control", "no-store");
@@ -37,7 +38,7 @@ export const publicLibraryTerms = action(async (req, res) => {
   const page = Number(req.query.page ?? 1);
   if (!Number.isSafeInteger(page) || page < 1 || page > 10000) fail("Phân trang không hợp lệ.");
   const allowed=ids?new Set(ids):null;
-  const rows = (await directory(req.params.kind)).filter(t => (!allowed||allowed.has(t.id))&&(!q || nameKey(t.name).includes(q)));
+  const rows = (await directory(req.params.kind)).filter(t => (!allowed||allowed.has(t.id))&&(!q || nameKey(t.name).includes(q) || foldText(t.name).includes(foldText(q)) || (t.englishName && foldText(t.englishName).includes(foldText(q)))));
   if (view === "directory" && rows.length > 2000) fail("Thư viện vượt giới hạn hiển thị. Vui lòng tìm kiếm theo tên.", 413);
   const pageSize = view === "directory" ? Math.max(1, rows.length) : 24, totalPages = Math.max(1, Math.ceil(rows.length / pageSize)), active = Math.min(page, totalPages);
   res.set("Cache-Control", "public, max-age=10, s-maxage=60, stale-while-revalidate=120");

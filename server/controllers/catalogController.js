@@ -170,7 +170,15 @@ export const saveCatalogProduct = catalogAction(async(req,res)=>{
 export const libraryTerms = catalogAction(async(req,res)=>{
   const {page,pageSize}=pagination(req.query);const kind=req.query.kind||"note";if(!["brand","group","accord","note"].includes(kind))fail("Thư viện không hợp lệ");
   if(req.query.status&&!['linked','complete'].includes(req.query.status))fail("Tình trạng nội dung không hợp lệ");
-  const filter={kind};if(req.query.q){const q=pattern(req.query.q);filter.$or=[{name:q},{key:q}];}if(req.query.status)filter.contentStatus=req.query.status;
+  const filter={kind};
+  if(req.query.q){
+    const rawQ = String(req.query.q || '').trim();
+    const q=pattern(rawQ);
+    const foldedQ = rawQ.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd');
+    const foldedRegex = pattern(foldedQ);
+    filter.$or=[{name:q},{key:q},{name:foldedRegex},{key:foldedRegex}];
+  }
+  if(req.query.status)filter.contentStatus=req.query.status;
   const termQuery=FragranceTerm.find(filter);
   if(req.query.includeCounts==="false")termQuery.select("kind name image contentStatus sourceUrl updatedAt");else if(kind==="brand")termQuery.select("kind name image updatedAt");else termQuery.select("kind name image contentStatus updatedAt");
   const [terms,total]=await Promise.all([

@@ -22,9 +22,21 @@ export default function FragranceLibrary({brands=false}){
 
 function LibraryManager({kind,onKind}){
   const {storeResources,publicCatalog,dashboardCache}=useAppContext();
-  const [q,setQ]=useState(""),[status,setStatus]=useState(""),[page,setPage]=useState(1),[editing,setEditing]=useState(null),[deleting,setDeleting]=useState(null);
+  const [q,setQ]=useState(""),[debouncedQ,setDebouncedQ]=useState(""),[status,setStatus]=useState(""),[page,setPage]=useState(1),[editing,setEditing]=useState(null),[deleting,setDeleting]=useState(null);
+  const isComposingRef=useRef(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isComposingRef.current) {
+        setDebouncedQ(q);
+        setPage(1);
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [q]);
+
   const label=libraryTitle(kind).toLocaleLowerCase("vi-VN");
-  const query=useCatalog(`/terms?${new URLSearchParams({kind,q,status,page:String(page),pageSize:"25"})}`);
+  const query=useCatalog(`/terms?${new URLSearchParams({kind,q:debouncedQ,status,page:String(page),pageSize:"25"})}`);
   const rows=(query.data?.terms||[]).filter(term=>term.kind===kind);
   const deletingTerm=deleting?{...deleting,productCount:deleting.productCount}:null;
   const {listRef,changePage}=usePaginationScroll({page,onPageChange:setPage,ready:!query.loading&&query.data?.page===page});
@@ -53,7 +65,62 @@ function LibraryManager({kind,onKind}){
   };
   return <CatalogPage title={kind==="brand"?"Thương hiệu":"Thư viện hương"} actions={<><RefreshButton onClick={query.reload} disabled={query.loading}/><button type="button" className="perfume-button primary" onClick={()=>setEditing({kind,name:"",description:"",descriptionContent:null,image:"",contentStatus:"linked"})}><Plus size={16}/>Thêm {label}</button></>}>
     {kind!=="brand"&&<nav className="perfume-tabs" aria-label="Loại thư viện">{kinds.map(value=><button type="button" key={value} className={kind===value?"active":""} onPointerEnter={()=>warmKind(value)} onFocus={()=>warmKind(value)} onClick={()=>onKind(value)}>{LIBRARY_KINDS[value].title}</button>)}</nav>}
-    <div className="perfume-filter-bar"><label className="perfume-search"><Search size={17}/><input aria-label="Tìm trong thư viện" placeholder={`Tìm ${label}…`} value={q} onChange={event=>{setQ(event.target.value);setPage(1);}}/></label>{kind!=="brand"&&<select aria-label="Tình trạng nội dung" value={status} onChange={event=>{setStatus(event.target.value);setPage(1);}}><option value="">Toàn bộ nội dung</option><option value="linked">Cần biên soạn</option><option value="complete">Đã hoàn thiện</option></select>}</div>
+    <div className="perfume-filter-bar">
+      <label className="perfume-search">
+        <Search size={17} aria-hidden="true" />
+        <input
+          type="text"
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck="false"
+          aria-label="Tìm trong thư viện"
+          placeholder={`Tìm ${label}…`}
+          value={q}
+          onChange={event => setQ(event.target.value)}
+          onCompositionStart={() => { isComposingRef.current = true; }}
+          onCompositionEnd={event => {
+            isComposingRef.current = false;
+            setQ(event.target.value);
+          }}
+          onKeyDown={event => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              if (!isComposingRef.current) {
+                setDebouncedQ(q);
+                setPage(1);
+              }
+            }
+          }}
+        />
+        {q && (
+          <button
+            type="button"
+            onClick={() => {
+              setQ("");
+              setDebouncedQ("");
+              setPage(1);
+            }}
+            aria-label="Xóa từ khóa"
+          >
+            <X size={15} />
+          </button>
+        )}
+      </label>
+      {kind !== "brand" && (
+        <select
+          aria-label="Tình trạng nội dung"
+          value={status}
+          onChange={event => {
+            setStatus(event.target.value);
+            setPage(1);
+          }}
+        >
+          <option value="">Toàn bộ nội dung</option>
+          <option value="linked">Cần biên soạn</option>
+          <option value="complete">Đã hoàn thiện</option>
+        </select>
+      )}
+    </div>
     <CatalogState {...query}/><section className="perfume-table-panel"><div className="perfume-table-scroll"><table ref={listRef} tabIndex={-1} className="perfume-table pagination-list-start"><thead><tr><th>{kind==="brand"?"Thương hiệu":"Tên mục"}</th><th>Sản phẩm liên kết</th>{kind!=="brand"&&<th>Nội dung</th>}<th><span className="sr-only">Thao tác</span></th></tr></thead><tbody>{rows.map(term=><tr key={term._id} onPointerEnter={()=>warmTerm(term)}><td><strong>{term.name||"Chưa có tên"}</strong></td><td>{term.productCount??0}</td>{kind!=="brand"&&<td><Badge tone={term.contentStatus==="complete"?"green":"amber"}>{term.contentStatus==="complete"?"Đã hoàn thiện":"Cần biên soạn"}</Badge></td>}<td><div className="perfume-library-actions"><button type="button" className="perfume-icon-button" onPointerEnter={()=>warmTerm(term)} onFocus={()=>warmTerm(term)} onClick={()=>setEditing(term)} aria-label={`Sửa ${label} ${term.name}`} title="Chỉnh sửa"><Pencil size={16}/></button><button type="button" className="perfume-icon-button perfume-library-delete" onClick={()=>setDeleting(term)} aria-label={`Xóa ${label} ${term.name}`} title="Xóa"><Trash2 size={16}/></button></div></td></tr>)}</tbody></table>{!query.loading&&!rows.length&&<p className="perfume-empty">Không tìm thấy mục phù hợp.</p>}</div><Pager page={page} totalPages={query.data?.totalPages} total={query.data?.total} onPage={changePage} disabled={query.loading}/></section>
     {editing&&<LibraryEditor key={editing._id||"new"} term={editing} onClose={()=>setEditing(null)} onSaved={()=>changed(editing._id?"edit":"create")}/>}
     {deletingTerm&&<DeleteLibraryDialog term={deletingTerm} onClose={()=>setDeleting(null)} onDeleted={()=>changed("delete")}/>}

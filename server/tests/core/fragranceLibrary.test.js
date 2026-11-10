@@ -68,8 +68,10 @@ test("complete directories reject unsupported modes and remain bounded",async t=
 test("directory search accepts unaccented Vietnamese and English while respecting origin filters",()=>{
  const terms=[{id:"rose",name:"Hoa Hồng",englishName:"Rose",originIds:["flowers"]},{id:"woody",name:"Gỗ",englishName:"Woody",originIds:["woods"]}];
  assert.deepEqual(filterLibraryTerms(terms,"hoa hong").map(row=>row.id),["rose"]);
+ assert.deepEqual(filterLibraryTerms(terms,"hoa hồng").map(row=>row.id),["rose"]);
  assert.deepEqual(filterLibraryTerms(terms," ROSE ").map(row=>row.id),["rose"]);
  assert.deepEqual(filterLibraryTerms(terms,"go","woods").map(row=>row.id),["woody"]);
+ assert.deepEqual(filterLibraryTerms(terms,"gỗ","woods").map(row=>row.id),["woody"]);
  assert.deepEqual(filterLibraryTerms(terms,"rose","woods"),[]);
  assert.equal(libraryDisplayName({name:"Hoa (Floral)",englishName:"Floral"}),"Hoa");
  assert.equal(libraryDisplayName({name:"Hoa (tươi)",englishName:"Floral"}),"Hoa (tươi)");

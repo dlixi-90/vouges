@@ -1,10 +1,42 @@
+const TONE_MAP = {
+  'oà': 'òa', 'oá': 'óa', 'oả': 'ỏa', 'oã': 'õa', 'oạ': 'ọa',
+  'oè': 'òe', 'oé': 'óe', 'oẻ': 'ỏe', 'oẽ': 'õe', 'oẹ': 'ọe',
+  'uỳ': 'ùy', 'uý': 'úy', 'uỷ': 'ủy', 'uỹ': 'ũy', 'uỵ': 'ụy'
+};
+
+export const canonicalizeVietnamese = value => {
+  let s = String(value || '').normalize('NFC').toLocaleLowerCase('vi-VN').trim().replace(/\s+/g, ' ');
+  for (const [k, v] of Object.entries(TONE_MAP)) {
+    s = s.replaceAll(k, v);
+  }
+  return s;
+};
+
 export const normalizeLibrarySearch = value => String(value || '').normalize('NFD')
-  .replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd').toLocaleLowerCase('vi-VN').trim();
+  .replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd').toLocaleLowerCase('vi-VN').trim().replace(/\s+/g, ' ');
 
 export const filterLibraryTerms = (terms, query, origin = '') => {
-  const needle = normalizeLibrarySearch(query);
-  return terms.filter(term => (!origin || term.originIds?.includes(origin))
-    && (!needle || normalizeLibrarySearch(`${term.name} ${term.englishName || ''}`).includes(needle)));
+  const rawQuery = String(query || '').trim();
+  if (!rawQuery && !origin) return terms;
+
+  const needle = normalizeLibrarySearch(rawQuery);
+  const canonQuery = canonicalizeVietnamese(rawQuery);
+  const hasAccent = canonQuery !== needle;
+
+  return terms.filter(term => {
+    if (origin && !term.originIds?.includes(origin)) return false;
+    if (!needle) return true;
+
+    if (hasAccent) {
+      const canonName = canonicalizeVietnamese(term.name);
+      const canonEnglish = canonicalizeVietnamese(term.englishName);
+      if (canonName.includes(canonQuery) || canonEnglish.includes(canonQuery)) return true;
+      return false;
+    }
+
+    const folded = normalizeLibrarySearch(`${term.name || ''} ${term.englishName || ''}`);
+    return folded.includes(needle);
+  });
 };
 
 export function groupLibraryTerms(terms, origins) {

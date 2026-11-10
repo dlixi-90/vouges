@@ -37,7 +37,8 @@ export default function CollectionSearch({ value, onChange }) {
         onChange(value);
       }}>
       <input ref={inputRef} type="search" value={value} aria-label="Tìm kiếm sản phẩm"
-        placeholder="Tìm tên, thương hiệu, nốt hương…" onChange={event => onChange(event.target.value)} />
+        autoComplete="off" autoCorrect="off" spellCheck="false"
+        placeholder="Tìm sản phẩm…" onChange={event => onChange(event.target.value)} />
     </form>}
     <button ref={triggerRef} type="button" className="inessa-collection-search-toggle"
       aria-label={open ? "Đóng tìm kiếm sản phẩm" : "Mở tìm kiếm sản phẩm"}

@@ -27,7 +27,7 @@ const FilterGroup = memo(function FilterGroup({ field, options = EMPTY_OPTIONS, 
     <summary><span>{field.label}{selected.length > 0 && <small>{selected.length}</small>}</span><ChevronDown size={16} aria-hidden="true" /></summary>
     <div className="inessa-filter-facet-body">
       {field.hint && <p className="inessa-filter-help">{field.hint}</p>}
-      {field.searchable && <label className="inessa-filter-facet-search"><Search size={15} aria-hidden="true" /><input type="search" aria-label={`Tìm ${field.label.toLocaleLowerCase("vi-VN")}`} placeholder={`Tìm ${field.label.toLocaleLowerCase("vi-VN")}…`} value={query} onChange={event => { setQuery(event.target.value); setLimit(initialLimit); }} /></label>}
+      {field.searchable && <label className="inessa-filter-facet-search"><Search size={15} aria-hidden="true" /><input type="search" autoComplete="off" autoCorrect="off" spellCheck="false" aria-label={`Tìm ${field.label.toLocaleLowerCase("vi-VN")}`} placeholder={`Tìm ${field.label.toLocaleLowerCase("vi-VN")}…`} value={query} onChange={event => { setQuery(event.target.value); setLimit(initialLimit); }} /></label>}
       <div className="inessa-filter-options" aria-labelledby={id}>
         <span id={id} className="sr-only">{field.label}</span>
         {matching.slice(0, limit).map(value => <label key={value}><input type="checkbox" checked={selected.includes(value)} onChange={() => onChange(field.id, value)} /><span>{value}</span></label>)}

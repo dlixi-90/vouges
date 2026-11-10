@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ArrowDownRight, ArrowUp, ChevronDown, Search, X } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
@@ -63,7 +63,30 @@ function DirectoryIntroduction({ kind, config, overview }) {
 export default function KnowledgeDirectory({ kind, config, data, loading, query, origin, onSearch, onOrigin }) {
   const { publicCatalog } = useAppContext();
   const { hash } = useLocation();
-  const terms = useMemo(() => filterLibraryTerms(data?.terms || [], query, origin), [data?.terms, query, origin]);
+  const [keyword, setKeyword] = useState(query || "");
+  const isComposingRef = useRef(false);
+  const lastSyncedQueryRef = useRef(query || "");
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if ((query || "") !== lastSyncedQueryRef.current) {
+      lastSyncedQueryRef.current = query || "";
+      setKeyword(query || "");
+    }
+  }, [query]);
+
+  useEffect(() => {
+    if (keyword === (query || "")) return;
+    const timer = setTimeout(() => {
+      if (!isComposingRef.current) {
+        lastSyncedQueryRef.current = keyword;
+        onSearch(keyword);
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [keyword, query, onSearch]);
+
+  const terms = useMemo(() => filterLibraryTerms(data?.terms || [], keyword, origin), [data?.terms, keyword, origin]);
   const sections = useMemo(() => groupLibraryTerms(terms, data?.overview?.origins || []), [terms, data?.overview?.origins]);
   const activeOrigin = data?.overview?.origins?.find(row => row.id === origin);
   useEffect(() => {
@@ -76,7 +99,7 @@ export default function KnowledgeDirectory({ kind, config, data, loading, query,
     });
     return () => window.cancelAnimationFrame(frame);
   }, [hash, loading, data, origin]);
-  const navigationSearch = query ? `?q=${encodeURIComponent(query)}` : "";
+  const navigationSearch = keyword ? `?q=${encodeURIComponent(keyword)}` : "";
   return <div className={`knowledge-directory-page knowledge-directory-page--${kind}`}>
     <header className="knowledge-directory-title" id="knowledge-directory-top">
       <Breadcrumbs items={[{ label: config.title }]} />
@@ -94,7 +117,48 @@ export default function KnowledgeDirectory({ kind, config, data, loading, query,
       <div className="knowledge-directory-toolbar">
         <div><h2 id="knowledge-directory-heading">{kind === "group" ? "Khám phá các nhóm hương" : kind === "accord" ? "Khám phá các kiểu mùi" : "Khám phá theo nguồn gốc"}</h2>
           {data && <p className="knowledge-count" role="status">{terms.length.toLocaleString("vi-VN")} {config.title.toLocaleLowerCase("vi-VN")}{activeOrigin ? ` · ${activeOrigin.name}` : ""}</p>}</div>
-        <label className="knowledge-search"><Search size={17} aria-hidden="true" /><input type="search" aria-label={`Tìm ${config.title.toLocaleLowerCase("vi-VN")}`} placeholder={`Tìm ${config.title.toLocaleLowerCase("vi-VN")}…`} value={query} onChange={event => onSearch(event.target.value)} />{query && <button type="button" onClick={() => onSearch("")} aria-label="Xóa từ khóa"><X size={15} /></button>}</label>
+        <label className="knowledge-search">
+          <Search size={17} aria-hidden="true" />
+          <input
+            ref={inputRef}
+            type="text"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck="false"
+            aria-label={`Tìm ${config.title.toLocaleLowerCase("vi-VN")}`}
+            placeholder={`Tìm ${config.title.toLocaleLowerCase("vi-VN")}…`}
+            value={keyword}
+            onChange={event => setKeyword(event.target.value)}
+            onCompositionStart={() => { isComposingRef.current = true; }}
+            onCompositionEnd={event => {
+              isComposingRef.current = false;
+              setKeyword(event.target.value);
+            }}
+            onKeyDown={event => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                if (!isComposingRef.current) {
+                  lastSyncedQueryRef.current = keyword;
+                  onSearch(keyword);
+                }
+              }
+            }}
+          />
+          {keyword && (
+            <button
+              type="button"
+              onClick={() => {
+                setKeyword("");
+                lastSyncedQueryRef.current = "";
+                onSearch("");
+                inputRef.current?.focus();
+              }}
+              aria-label="Xóa từ khóa"
+            >
+              <X size={15} />
+            </button>
+          )}
+        </label>
       </div>
       {origin && <div className="knowledge-origin-filter"><span>{activeOrigin?.name || "Nguồn gốc không còn tồn tại"}</span><button type="button" onClick={() => onOrigin("")}>Xem tất cả nguồn gốc <X size={14} aria-hidden="true" /></button></div>}
       {loading && !data ? <PageSkeleton compact label="Đang tải danh mục hương thơm…" /> : <>
