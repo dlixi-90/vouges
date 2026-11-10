@@ -403,21 +403,27 @@
   justify-content: center;
   padding: clamp(14px, 2.5vh, 28px) clamp(16px, 3vw, 24px);
   box-sizing: border-box;
-  background: #ffffff;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f5f0 100%);
 }
-.net-theme .net-contact-form {
-  width: min(100%, 540px);
-  margin: 0 auto;
-  background: #0f0f10;
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+.net-theme .net-contact-card {
+  width: min(100%, 880px);
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  background: #111113;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
-  padding: clamp(20px, 3vh, 32px) clamp(20px, 3.5vw, 36px);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
-  box-sizing: border-box;
+  box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  color: #ffffff;
+}
+.net-theme .net-contact-info-panel {
+  background: linear-gradient(165deg, #18181b 0%, #111113 100%);
+  padding: clamp(24px, 3.2vh, 34px) clamp(24px, 3vw, 34px);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 .net-theme .net-contact-eyebrow {
   color: #a1a1aa !important;
@@ -425,45 +431,107 @@
   font-size: 11px !important;
   text-transform: uppercase !important;
   letter-spacing: 0.18em !important;
-  margin-bottom: 4px;
+  margin: 0 0 6px 0 !important;
   font-weight: 500;
-  text-align: center;
 }
 .net-theme .net-contact-title {
   font-family: var(--inessa-serif);
-  font-size: clamp(26px, 3vw, 34px) !important;
+  font-size: clamp(24px, 2.6vw, 30px) !important;
   font-weight: var(--inessa-serif-weight) !important;
   color: #ffffff !important;
-  margin: 4px 0 6px !important;
-  line-height: 1.2 !important;
-  text-align: center;
+  margin: 0 0 8px 0 !important;
+  line-height: 1.25 !important;
 }
-.net-theme .net-contact-subtitle {
-  font-size: 13px;
-  color: #9ca3af !important;
-  text-align: center;
-  margin-bottom: clamp(14px, 2vh, 20px) !important;
+.net-theme .net-contact-description {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #a1a1aa;
+  margin: 0;
 }
-.net-theme .net-contact-subtitle a {
+.net-theme .net-contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.net-theme .net-contact-detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.net-theme .net-contact-icon-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e4e4e7;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.net-theme .net-contact-detail-item strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #f4f4f5;
+  letter-spacing: 0.02em;
+  margin-bottom: 2px;
+}
+.net-theme .net-contact-detail-item p {
+  margin: 0;
+  font-size: 12px;
+  color: #a1a1aa;
+}
+.net-theme .net-contact-detail-item a {
   color: #ffffff !important;
   text-decoration: underline;
   text-underline-offset: 3px;
   transition: opacity 0.2s;
 }
-.net-theme .net-contact-subtitle a:hover {
+.net-theme .net-contact-detail-item a:hover {
   opacity: 0.8;
+}
+.net-theme .net-contact-promise {
+  font-size: 11.5px;
+  color: #71717a;
+  font-style: italic;
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.net-theme .net-contact-form {
+  padding: clamp(24px, 3.2vh, 34px) clamp(24px, 3vw, 34px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #111113;
+}
+.net-theme .net-contact-form-header {
+  margin-bottom: clamp(12px, 1.8vh, 18px);
+}
+.net-theme .net-contact-form-header h2 {
+  font-family: var(--inessa-serif);
+  font-size: 20px;
+  font-weight: 500;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+}
+.net-theme .net-contact-form-header p {
+  font-size: 12px;
+  color: #a1a1aa;
+  margin: 0;
 }
 .net-theme .net-contact-fields {
   width: 100%;
-  max-width: 440px;
   display: flex;
   flex-direction: column;
-  gap: clamp(10px, 1.4vh, 14px);
+  gap: clamp(10px, 1.4vh, 13px);
 }
 .net-theme .net-contact-field {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 .net-theme .net-contact-label {
   font-size: 12px;
@@ -474,11 +542,11 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 40px;
-  padding: 0 14px;
+  height: 38px;
+  padding: 0 12px;
   background: #1c1c1e;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
@@ -501,12 +569,12 @@
 }
 .net-theme .net-contact-textarea {
   width: 100%;
-  min-height: 68px;
-  max-height: 90px;
-  padding: 10px 14px;
+  min-height: 64px;
+  max-height: 80px;
+  padding: 8px 12px;
   background: #1c1c1e !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 10px !important;
   color: #ffffff !important;
   font-size: 13px;
   outline: none;
@@ -528,8 +596,8 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  height: 42px;
-  margin-top: 6px;
+  height: 40px;
+  margin-top: 4px;
   background: #ffffff !important;
   color: #0f0f10 !important;
   font-size: 13px;
@@ -1000,7 +1068,9 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
   .inessa-categories { margin-bottom: 55px; }
   .inessa-page-heading { padding-block: 30px 38px; }
   .net-theme .net-contact { min-height: 0; padding-block: 20px 30px; }
-  .net-theme .net-contact-form { padding: 22px 18px; border-radius: 20px; }
+  .net-theme .net-contact-card { grid-template-columns: 1fr; border-radius: 20px; }
+  .net-theme .net-contact-info-panel { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 22px 18px; }
+  .net-theme .net-contact-form { padding: 22px 18px; }
   .net-product-detail,.net-orders,.net-cart,.net-theme.net-storefront .net-membership { padding-top: 30px; }
   .net-admin-layout > div { padding: 0; gap: 0; }
   .net-sidebar { width: 100%; min-width: 0; min-height: 0; border-right: 0; border-bottom: 1px solid var(--inessa-line); border-radius: var(--inessa-radius-panel); }

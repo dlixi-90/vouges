@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useLayoutEffect } from "react";
 import Header from "./components/Header";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Footer from "./components/Footer";
@@ -31,12 +31,29 @@ const FragranceLibrary = lazy(() => import("./pages/owner/FragranceLibrary"));
 const AddProduct = lazy(() => import("./pages/owner/AddProduct"));
 const AddCategory = lazy(() => import("./pages/owner/AddCategory"));
 
+function ScrollToTopOnNavigation() {
+  const { pathname, search } = useLocation();
+
+  useLayoutEffect(() => {
+    if (pathname === "/collection") {
+      const params = new URLSearchParams(search);
+      if (params.get("category") || params.get("brand") || params.get("q")) {
+        return;
+      }
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [pathname, search]);
+
+  return null;
+}
+
 const App = () => {
   const location = useLocation();
   const { isCartOpen } = useAppContext();
   const isOwnerPath = location.pathname.includes("owner");
   return (
     <main className={`net-theme ${isOwnerPath ? "net-admin overflow-hidden" : "net-storefront overflow-x-clip"} text-tertiary`}>
+      <ScrollToTopOnNavigation />
       {!isOwnerPath && <Header />}
       {isCartOpen && <Suspense fallback={null}><CartDrawer /></Suspense>}
       <Toaster position="bottom-right" />
