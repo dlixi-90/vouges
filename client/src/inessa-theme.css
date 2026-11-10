@@ -186,7 +186,7 @@
 .inessa-collection-breadcrumb { display: flex; flex-wrap: wrap; gap: 8px; color: #777; font-size: 13px; }
 .inessa-collection-breadcrumb a:hover { color: #171717; }
 .net-theme .inessa-collection-heading h1 { margin-top: 25px; font-size: calc(clamp(56px, 7vw, 100px) - 3px); font-weight: var(--inessa-serif-weight); line-height: 1.2; text-transform: uppercase; }
-.net-collection .inessa-collection-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px 28px; padding-bottom: 34px; }
+.net-collection .inessa-collection-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px 28px; padding-bottom: 34px; scroll-margin-top: 16px; }
 .inessa-collection-filter-tools,.inessa-collection-sort-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 18px; }
 .inessa-collection-results-tools { display: flex; align-items: center; gap: 6px; }
 .inessa-collection-search { display: flex; align-items: center; gap: 6px; min-width: 0; flex-shrink: 0; }

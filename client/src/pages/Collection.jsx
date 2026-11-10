@@ -17,15 +17,21 @@ import { LoadingStatus, ProductGridSkeleton } from "../components/LoadingState";
 import "./collection.css";
 
 const Collection = () => {
-  useLayoutEffect(() => {
-    // Reset when the lazy-loaded page mounts, before its first paint.
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  }, []);
-
   const { searchQuery, setSearchQuery, currency, navigate, publicCatalog } = useAppContext();
   const { state: locationState } = useLocation();
   const [searchParams] = useSearchParams();
   const routeBrand = searchParams.get("brand") || "";
+  const routeCategory = searchParams.get("category") || "";
+  const routeQuery = searchParams.get("q") || "";
+  const hasTargetFilter = Boolean(
+    routeCategory ||
+    routeBrand ||
+    routeQuery ||
+    searchQuery ||
+    locationState?.headerSearch ||
+    locationState?.keepToolbar
+  );
+
   const [filters, setFilters] = useState(() => {
     const category = searchParams.get("category");
     const gender = ({ "Nước hoa nam": "Nam", "Nước hoa nữ": "Nữ", "Nước hoa unisex": "Unisex" })[category];
@@ -86,7 +92,7 @@ const Collection = () => {
     setMaxPrice(null);
     setSearchQuery("");
     setCurrentPage(1);
-    if (routeBrand || searchParams.get("category")) navigate("/collection", { replace: true });
+    if (routeBrand || searchParams.get("category")) navigate("/collection", { replace: true, state: { keepToolbar: true } });
   };
 
   const toggleFilter = useCallback((field, value) => {
@@ -101,7 +107,42 @@ const Collection = () => {
   const { listRef, anchorRef, changePage } = usePaginationScroll({
     page: activePage, onPageChange: setCurrentPage,
     ready: !productsLoading && !isFilterOpen, resetKey: scrollCriteria,
+    initialScroll: hasTargetFilter,
   });
+
+  const scrollToToolbar = useCallback((behavior = "smooth") => {
+    const anchor = anchorRef.current;
+    if (!anchor) return;
+    const header = document.querySelector(".net-header");
+    const headerHeight = header && /^(sticky|fixed)$/.test(window.getComputedStyle(header).position)
+      ? header.offsetHeight
+      : 97;
+    const gap = Number.parseFloat(window.getComputedStyle(anchor).scrollMarginTop) || 16;
+    const targetTop = window.scrollY + anchor.getBoundingClientRect().top - headerHeight - gap;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({
+      top: Math.max(0, targetTop),
+      behavior: reducedMotion ? "instant" : behavior,
+    });
+  }, [anchorRef]);
+
+  useLayoutEffect(() => {
+    if (!hasTargetFilter) {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      return;
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    let frame;
+    const paint = window.requestAnimationFrame(() => {
+      frame = window.requestAnimationFrame(() => {
+        scrollToToolbar("smooth");
+      });
+    });
+    return () => {
+      window.cancelAnimationFrame(paint);
+      window.cancelAnimationFrame(frame);
+    };
+  }, [hasTargetFilter, scrollToToolbar]);
   const startIndex = ((collection?.page || activePage) - 1) * itemsPerPage;
   const paginatedProducts = collection?.products || [];
   const filterCount = Object.values(filters).reduce((count, values) => count + values.length, 0)

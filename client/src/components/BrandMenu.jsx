@@ -32,9 +32,23 @@ export default function BrandMenu({ directory, compact = false, onNavigate }) {
     document.addEventListener("keydown", escape);
     return () => { document.removeEventListener("pointerdown", outside); document.removeEventListener("keydown", escape); };
   }, [open]);
-  const choose = event => {
+  const choose = (event, brandName) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     setSearchQuery(""); setOpenedAt(null); onNavigate?.();
+    if (location.pathname === "/collection" && brandName && normalized(selectedBrand || "") === normalized(brandName)) {
+      event.preventDefault();
+      const toolbar = document.querySelector(".inessa-collection-toolbar");
+      if (toolbar) {
+        const header = document.querySelector(".net-header");
+        const headerH = header && /^(sticky|fixed)$/.test(window.getComputedStyle(header).position)
+          ? header.offsetHeight
+          : 97;
+        const gap = Number.parseFloat(window.getComputedStyle(toolbar).scrollMarginTop) || 16;
+        const target = window.scrollY + toolbar.getBoundingClientRect().top - headerH - gap;
+        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        window.scrollTo({ top: Math.max(0, target), behavior: reducedMotion ? "instant" : "smooth" });
+      }
+    }
   };
   return <div ref={ref} className={`store-brand-menu${compact ? " is-compact" : ""}`}>
     <button ref={buttonRef} type="button" className={`store-brand-trigger${active ? " is-active" : ""}`} aria-expanded={open} aria-controls={id}
@@ -46,8 +60,8 @@ export default function BrandMenu({ directory, compact = false, onNavigate }) {
       <label className="store-brand-search"><Search size={15} aria-hidden="true" /><input ref={searchRef} type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Tìm thương hiệu…" aria-label="Tìm thương hiệu nước hoa" /></label>
       {directory?.loading && !brands.length && <LoadingStatus label="Đang tải thương hiệu…" />}
       {directory?.error && <p role="alert" className="store-brand-state">{brands.length ? "Chưa thể cập nhật danh sách." : directory.error}<button type="button" onClick={directory.reload}>Thử lại</button></p>}
-      {(brands.length > 0 || (!directory?.loading && !directory?.error)) && <div className="store-brand-grid">{visible.map((brand, index) => <Link key={brand.name} to={`/collection?brand=${encodeURIComponent(brand.name)}`} onClick={choose} onPointerEnter={event => prefetchCollection(publicCatalog, event.currentTarget.getAttribute("href"))} onFocus={event => prefetchCollection(publicCatalog, event.currentTarget.getAttribute("href"))} aria-current={active && normalized(selectedBrand) === normalized(brand.name) ? "page" : undefined} className="store-brand-card"><BrandImage brand={brand} eager={index < 10} /><strong>{brand.name}</strong></Link>)}{!visible.length && <p className="store-brand-state">{query ? "Không tìm thấy thương hiệu phù hợp." : "Chưa có thương hiệu trong bộ sưu tập."}</p>}</div>}
-      <footer><Link to="/collection" onClick={choose}>Khám phá toàn bộ bộ sưu tập</Link></footer>
+      {(brands.length > 0 || (!directory?.loading && !directory?.error)) && <div className="store-brand-grid">{visible.map((brand, index) => <Link key={brand.name} to={`/collection?brand=${encodeURIComponent(brand.name)}`} onClick={e => choose(e, brand.name)} onPointerEnter={event => prefetchCollection(publicCatalog, event.currentTarget.getAttribute("href"))} onFocus={event => prefetchCollection(publicCatalog, event.currentTarget.getAttribute("href"))} aria-current={active && normalized(selectedBrand) === normalized(brand.name) ? "page" : undefined} className="store-brand-card"><BrandImage brand={brand} eager={index < 10} /><strong>{brand.name}</strong></Link>)}{!visible.length && <p className="store-brand-state">{query ? "Không tìm thấy thương hiệu phù hợp." : "Chưa có thương hiệu trong bộ sưu tập."}</p>}</div>}
+      <footer><Link to="/collection" onClick={e => choose(e, "")}>Khám phá toàn bộ bộ sưu tập</Link></footer>
     </div>}
   </div>;
 }

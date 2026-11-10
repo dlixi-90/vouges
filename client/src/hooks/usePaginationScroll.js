@@ -2,12 +2,12 @@ import { useCallback, useLayoutEffect, useRef } from "react";
 
 // Wait for the selected page's rows, rather than scrolling to a loading stub.
 // The hook lives with the list so it survives a temporarily hidden pager.
-export default function usePaginationScroll({ page, onPageChange, ready = true, resetKey }) {
+export default function usePaginationScroll({ page, onPageChange, ready = true, resetKey, initialScroll = false }) {
   const listRef = useRef(null);
   const anchorRef = useRef(null);
-  const requestedPage = useRef(null);
-  const focusList = useRef(true);
-  const previousResetKey = useRef(resetKey);
+  const requestedPage = useRef(initialScroll ? page : null);
+  const focusList = useRef(!initialScroll);
+  const previousResetKey = useRef(initialScroll ? null : resetKey);
   const changePage = useCallback((nextPage) => {
     if (nextPage === page) return;
     requestedPage.current = nextPage;

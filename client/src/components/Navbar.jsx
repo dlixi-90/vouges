@@ -21,9 +21,35 @@ const Navbar = ({ containerStyles, setMenuOpened, brandDirectory, group = "all",
     { path: "/knowledge/accord", title: "Kiểu mùi" },
     { path: "/knowledge/note", title: "Note hương" },
   ];
+  const handleNavLinkClick = (event, link) => {
+    setSearchQuery("");
+    setMenuOpened(false);
+    if (pathname === "/collection") {
+      const linkParams = new URLSearchParams(link.path.split("?")[1] || "");
+      const linkCategory = linkParams.get("category") || "";
+      if (linkCategory && selectedCategory === linkCategory) {
+        event.preventDefault();
+        const toolbar = document.querySelector(".inessa-collection-toolbar");
+        if (toolbar) {
+          const header = document.querySelector(".net-header");
+          const headerH = header && /^(sticky|fixed)$/.test(window.getComputedStyle(header).position)
+            ? header.offsetHeight
+            : 97;
+          const gap = Number.parseFloat(window.getComputedStyle(toolbar).scrollMarginTop) || 16;
+          const target = window.scrollY + toolbar.getBoundingClientRect().top - headerH - gap;
+          const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          window.scrollTo({ top: Math.max(0, target), behavior: reducedMotion ? "instant" : "smooth" });
+        }
+      } else if (!linkCategory && !selectedCategory && !selectedBrand) {
+        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        window.scrollTo({ top: 0, left: 0, behavior: reducedMotion ? "instant" : "smooth" });
+      }
+    }
+  };
+
   const renderLinks = links => links.map((link) => (
         <NavLink
-          onClick={() => { setSearchQuery(""); setMenuOpened(false); }}
+          onClick={(event) => handleNavLinkClick(event, link)}
           onPointerEnter={() => prefetchCollection(publicCatalog, link.path)} onFocus={() => prefetchCollection(publicCatalog, link.path)}
           key={link.path}
           to={link.path}
