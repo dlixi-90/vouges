@@ -196,7 +196,7 @@ export default function Sidebar() {
             <span>{activeItem?.label || "Quản lý nước hoa"}</span>
           </div>
           <div className="admin-topbar-tools">
-            <QuickProductSearch className="admin-global-search" onSearch={query => navigate(`/owner/list-product?q=${encodeURIComponent(query)}`)} />
+            <QuickProductSearch className="admin-global-search" buildItemUrl={product => `/owner/edit-product/${product._id}`} onSearch={query => navigate(`/owner/list-product?q=${encodeURIComponent(query)}`)} />
             <Link
               to="/owner/messages"
               onPointerEnter={() => warm("/owner/messages")}
