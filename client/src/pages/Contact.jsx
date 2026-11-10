@@ -1,65 +1,104 @@
-import { assets } from "../assets/data";
+import { useState } from "react";
+import { ArrowRight, Mail, User } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function Contact() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim() || !message.trim()) {
+      toast.error("Vui lòng điền đầy đủ thông tin.");
+      return;
+    }
+    setIsSubmitting(true);
+    setTimeout(() => {
+      toast.success("Cảm ơn bạn! Tin nhắn của bạn đã được gửi thành công.");
+      setName("");
+      setEmail("");
+      setMessage("");
+      setIsSubmitting(false);
+    }, 400);
+  };
+
   return (
-    <div className="net-contact bg-primary py-28">
-      <form className="flex flex-col items-center text-sm text-slate-800">
-        <p className="text-xs bg-black/80 text-white font-medium px-3 py-1 rounded-full">
+    <div className="net-contact">
+      <form onSubmit={handleSubmit} className="net-contact-form" noValidate={false}>
+        <p className="net-contact-eyebrow">
           Liên hệ với chúng tôi
         </p>
-        <h1 className="text-4xl font-bold py-4 text-center">
+        <h1 className="net-contact-title">
           Kết nối với chúng tôi
         </h1>
-        <p className="max-md:text-sm text-gray-500 pb-10 text-center">
+        <p className="net-contact-subtitle">
           Bạn cũng có thể liên hệ trực tiếp qua{" "}
-          <a href="#" className="text-secondary hover:underline">
+          <a href="mailto:hello@velours.com">
             hello@velours.com
           </a>
         </p>
 
-        <div className="max-w-96 w-full px-4">
-          <label htmlFor="name" className="font-medium">
-            Họ và tên
-          </label>
-          <div className="net-field-shell flex items-center mt-2 mb-4 h-10 pl-3 border border-slate-300 bg-secondary/10 rounded-full focus-within:ring-2 focus-within:ring-black/80 transition-all overflow-hidden">
-            <img src={assets.user} alt="" width={19} className="invert-50" />
-            <input
-              type="text"
-              className="h-full px-2 w-full outline-none"
-              placeholder="Nhập họ và tên của bạn"
+        <div className="net-contact-fields">
+          <div className="net-contact-field">
+            <label htmlFor="contact-name" className="net-contact-label">
+              Họ và tên
+            </label>
+            <div className="net-contact-input-shell">
+              <User size={16} className="text-neutral-400 shrink-0" aria-hidden="true" />
+              <input
+                id="contact-name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="net-contact-input"
+                placeholder="Nhập họ và tên của bạn"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="net-contact-field">
+            <label htmlFor="contact-email" className="net-contact-label">
+              Địa chỉ email
+            </label>
+            <div className="net-contact-input-shell">
+              <Mail size={16} className="text-neutral-400 shrink-0" aria-hidden="true" />
+              <input
+                id="contact-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="net-contact-input"
+                placeholder="Nhập địa chỉ email của bạn"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="net-contact-field">
+            <label htmlFor="contact-message" className="net-contact-label">
+              Tin nhắn
+            </label>
+            <textarea
+              id="contact-message"
+              rows={3}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="net-contact-textarea"
+              placeholder="Nhập nội dung tin nhắn của bạn..."
               required
             />
           </div>
-
-          <label htmlFor="email-address" className="font-medium mt-4">
-            Địa chỉ email
-          </label>
-          <div className="net-field-shell flex items-center mt-2 mb-4 h-10 pl-3 border border-slate-300 bg-secondary/10 rounded-full focus-within:ring-2 focus-within:ring-black/80 transition-all overflow-hidden">
-            <img src={assets.mail} alt="" width={18} className="invert-50" />
-            <input
-              type="email"
-              className="h-full px-2 w-full outline-none"
-              placeholder="Nhập địa chỉ email của bạn"
-              required
-            />
-          </div>
-
-          <label htmlFor="message" className="font-medium mt-4">
-            Tin nhắn
-          </label>
-          <textarea
-            rows="4"
-            className="w-full mt-2 p-2 border border-slate-300 bg-secondary/10 rounded-lg resize-none outline-none focus:ring-2 focus-within:ring-black/80 transition-all"
-            placeholder="Nhập nội dung tin nhắn"
-            required
-          ></textarea>
 
           <button
             type="submit"
-            className="flexCenter gap-1 mt-5 btn-secondary w-full !font-bold"
+            disabled={isSubmitting}
+            className="net-contact-submit"
           >
-            Gửi tin nhắn
-            <img src={assets.right} alt="" className="invert" />
+            <span>{isSubmitting ? "Đang gửi..." : "Gửi tin nhắn"}</span>
+            <ArrowRight size={16} aria-hidden="true" />
           </button>
         </div>
       </form>

@@ -395,11 +395,162 @@
   .inessa-about-story-reverse .inessa-about-story-copy { grid-row: 2; }
   .net-theme .inessa-about-story-copy h2 { font-size: calc(clamp(38px, 9vw, 52px) - 4px); }
 }
-.net-contact { padding-block: 60px 80px; background: #fff; }
-.net-contact form { border-radius: var(--inessa-radius-panel); padding: 45px; max-width: 720px; }
-.net-contact form h1 { font-size: calc(clamp(36px, 4vw, 55px) - 3px); font-weight: var(--inessa-serif-weight); }
-.net-contact form > p:first-child { color: #555; background: transparent; font-size: 10px; text-transform: uppercase; letter-spacing: .16em; }
-.net-contact form .h-10,.net-contact textarea { border-radius: var(--inessa-radius-control); }
+/* Contact page: fits within 1 screen under the frozen header, luxury dark card aesthetic */
+.net-theme .net-contact {
+  min-height: calc(100svh - var(--net-header-height, 97px));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(14px, 2.5vh, 28px) clamp(16px, 3vw, 24px);
+  box-sizing: border-box;
+  background: #ffffff;
+}
+.net-theme .net-contact-form {
+  width: min(100%, 540px);
+  margin: 0 auto;
+  background: #0f0f10;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: clamp(20px, 3vh, 32px) clamp(20px, 3.5vw, 36px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.net-theme .net-contact-eyebrow {
+  color: #a1a1aa !important;
+  background: transparent !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.18em !important;
+  margin-bottom: 4px;
+  font-weight: 500;
+  text-align: center;
+}
+.net-theme .net-contact-title {
+  font-family: var(--inessa-serif);
+  font-size: clamp(26px, 3vw, 34px) !important;
+  font-weight: var(--inessa-serif-weight) !important;
+  color: #ffffff !important;
+  margin: 4px 0 6px !important;
+  line-height: 1.2 !important;
+  text-align: center;
+}
+.net-theme .net-contact-subtitle {
+  font-size: 13px;
+  color: #9ca3af !important;
+  text-align: center;
+  margin-bottom: clamp(14px, 2vh, 20px) !important;
+}
+.net-theme .net-contact-subtitle a {
+  color: #ffffff !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.2s;
+}
+.net-theme .net-contact-subtitle a:hover {
+  opacity: 0.8;
+}
+.net-theme .net-contact-fields {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.4vh, 14px);
+}
+.net-theme .net-contact-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.net-theme .net-contact-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #d1d5db;
+}
+.net-theme .net-contact-input-shell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 14px;
+  background: #1c1c1e;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+.net-theme .net-contact-input-shell:focus-within {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 1px #ffffff;
+  background: #242426;
+}
+.net-theme .net-contact-input {
+  width: 100%;
+  height: 100%;
+  background: transparent !important;
+  color: #ffffff !important;
+  font-size: 13px;
+  outline: none;
+  border: none;
+}
+.net-theme .net-contact-input::placeholder {
+  color: #71717a !important;
+}
+.net-theme .net-contact-textarea {
+  width: 100%;
+  min-height: 68px;
+  max-height: 90px;
+  padding: 10px 14px;
+  background: #1c1c1e !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 12px !important;
+  color: #ffffff !important;
+  font-size: 13px;
+  outline: none;
+  resize: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+.net-theme .net-contact-textarea:focus {
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 1px #ffffff !important;
+  background: #242426 !important;
+}
+.net-theme .net-contact-textarea::placeholder {
+  color: #71717a !important;
+}
+.net-theme .net-contact-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 42px;
+  margin-top: 6px;
+  background: #ffffff !important;
+  color: #0f0f10 !important;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 9999px !important;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.net-theme .net-contact-submit:hover:not(:disabled) {
+  background: #e4e4e7 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.2);
+}
+.net-theme .net-contact-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+.net-theme .net-contact-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .net-cart { padding-top: 45px; background: #fff; }
 .net-cart-heading h1,.net-orders h1 { font-family: var(--inessa-serif); font-size: calc(clamp(36px, 4vw, 54px) - 3px); font-weight: var(--inessa-serif-weight); text-transform: uppercase; }
 .net-cart :is(section,article).bg-white,.net-orders article,.net-cart-item,.net-cart-table-head { border-color: var(--inessa-line); border-radius: var(--inessa-radius-card); }
@@ -848,8 +999,8 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
   .inessa-category > img { aspect-ratio: 1.3; }
   .inessa-categories { margin-bottom: 55px; }
   .inessa-page-heading { padding-block: 30px 38px; }
-  .net-contact { padding-block: 30px 50px; }
-  .net-contact form { padding: 30px 20px; border-radius: var(--inessa-radius-panel); }
+  .net-theme .net-contact { min-height: 0; padding-block: 20px 30px; }
+  .net-theme .net-contact-form { padding: 22px 18px; border-radius: 20px; }
   .net-product-detail,.net-orders,.net-cart,.net-theme.net-storefront .net-membership { padding-top: 30px; }
   .net-admin-layout > div { padding: 0; gap: 0; }
   .net-sidebar { width: 100%; min-width: 0; min-height: 0; border-right: 0; border-bottom: 1px solid var(--inessa-line); border-radius: var(--inessa-radius-panel); }

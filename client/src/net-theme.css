@@ -110,12 +110,6 @@ body { background:#fff; color:var(--net-ink); }
 .net-blog img { border-radius:20px; box-shadow:none; width:100%; }
 .net-blog .h5 { margin-top:10px; font-size:18px; }
 .net-blog p { line-height:1.9; }
-.net-contact { background:#fff; padding-block:112px var(--net-space); }
-.net-contact form { width:min(100% - 40px,680px); margin:auto; padding:36px 24px; background:#fff; border:1px solid var(--net-line); border-radius:24px; }
-.net-contact form h1 { font-weight:500; }
-.net-contact form .max-w-96 { max-width:480px; }
-.net-contact form .h-10 { height:48px; border-radius:12px; background:#fff; }
-.net-contact textarea { background:#fff; border-radius:12px; padding:14px; }
 .net-orders { background:#fff; }
 .net-cart { min-height:100dvh; background:linear-gradient(180deg,#fff 0,#fdf9fb 280px,#faf7f9 100%); }
 .net-cart-heading { padding-block:8px 30px; }
@@ -297,7 +291,6 @@ body { background:#fff; color:var(--net-ink); }
   .net-collection aside { border-radius:18px; margin-inline:0; }
   .net-footer { width:calc(100% - 24px); border-radius:20px; padding-top:36px; margin-bottom:12px; }
   .net-footer > .max-padd-container { padding-inline:24px; }
-  .net-contact form { padding:28px 18px; }
   .net-admin-layout > div { padding:10px; gap:10px; }
   .net-sidebar { border-radius:18px; }
   .net-sidebar a[href^="/owner"] { margin-inline:3px; padding:10px 14px; font-size:12px; min-height:40px; }
