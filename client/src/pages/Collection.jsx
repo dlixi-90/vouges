@@ -98,7 +98,7 @@ const Collection = () => {
   const total = collection?.total || 0;
   const totalPages = collection?.totalPages || 1;
   const activePage = !productsLoading && collection ? collection.page : currentPage;
-  const { listRef, changePage } = usePaginationScroll({
+  const { listRef, anchorRef, changePage } = usePaginationScroll({
     page: activePage, onPageChange: setCurrentPage,
     ready: !productsLoading && !isFilterOpen, resetKey: scrollCriteria,
   });
@@ -132,7 +132,7 @@ const Collection = () => {
         /></Suspense>
 
         <div className="collection-catalog-main">
-          <div className="inessa-collection-toolbar">
+          <div ref={anchorRef} className="inessa-collection-toolbar">
             <div className="inessa-collection-filter-tools">
               <button type="button" onClick={() => setIsFilterOpen(true)} className="inessa-collection-filter-trigger"
                 onPointerEnter={() => { void publicCatalog.filters().catch(() => {}); }} onFocus={() => { void publicCatalog.filters().catch(() => {}); }}
