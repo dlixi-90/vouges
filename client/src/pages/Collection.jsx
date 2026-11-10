@@ -14,6 +14,7 @@ import { COLLECTION_PAGE_SIZE } from "../utils/publicCatalog";
 import StorePageHeading from "../components/StorePageHeading";
 import { collectionBreadcrumbs } from "../utils/breadcrumbs";
 import { LoadingStatus, ProductGridSkeleton } from "../components/LoadingState";
+import { scrollToCollectionToolbar } from "../utils/collectionScroll";
 import "./collection.css";
 
 const Collection = () => {
@@ -110,39 +111,17 @@ const Collection = () => {
     initialScroll: hasTargetFilter,
   });
 
-  const scrollToToolbar = useCallback((behavior = "smooth") => {
-    const anchor = anchorRef.current;
-    if (!anchor) return;
-    const header = document.querySelector(".net-header");
-    const headerHeight = header && /^(sticky|fixed)$/.test(window.getComputedStyle(header).position)
-      ? header.offsetHeight
-      : 97;
-    const gap = Number.parseFloat(window.getComputedStyle(anchor).scrollMarginTop) || 16;
-    const targetTop = window.scrollY + anchor.getBoundingClientRect().top - headerHeight - gap;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.scrollTo({
-      top: Math.max(0, targetTop),
-      behavior: reducedMotion ? "instant" : behavior,
-    });
-  }, [anchorRef]);
-
   useLayoutEffect(() => {
     if (!hasTargetFilter) {
       window.scrollTo({ top: 0, left: 0, behavior: "instant" });
       return;
     }
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    let frame;
-    const paint = window.requestAnimationFrame(() => {
-      frame = window.requestAnimationFrame(() => {
-        scrollToToolbar("smooth");
-      });
-    });
-    return () => {
-      window.cancelAnimationFrame(paint);
-      window.cancelAnimationFrame(frame);
-    };
-  }, [hasTargetFilter, scrollToToolbar]);
+    const timer = setTimeout(() => {
+      scrollToCollectionToolbar("smooth");
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [hasTargetFilter, locationState?.headerSearch, routeCategory, routeBrand, routeQuery]);
   const startIndex = ((collection?.page || activePage) - 1) * itemsPerPage;
   const paginatedProducts = collection?.products || [];
   const filterCount = Object.values(filters).reduce((count, values) => count + values.length, 0)

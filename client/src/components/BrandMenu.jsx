@@ -5,6 +5,7 @@ import { ChevronDown, Search, X } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import { prefetchCollection } from "../utils/prefetchCollection";
 import { getProductImageUrl } from "../utils/productImage";
+import { scrollToCollectionToolbar } from "../utils/collectionScroll";
 
 const normalized = value => value.normalize("NFC").trim().toLocaleLowerCase("vi-VN");
 
@@ -35,18 +36,12 @@ export default function BrandMenu({ directory, compact = false, onNavigate }) {
   const choose = (event, brandName) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     setSearchQuery(""); setOpenedAt(null); onNavigate?.();
-    if (location.pathname === "/collection" && brandName && normalized(selectedBrand || "") === normalized(brandName)) {
-      event.preventDefault();
-      const toolbar = document.querySelector(".inessa-collection-toolbar");
-      if (toolbar) {
-        const header = document.querySelector(".net-header");
-        const headerH = header && /^(sticky|fixed)$/.test(window.getComputedStyle(header).position)
-          ? header.offsetHeight
-          : 97;
-        const gap = Number.parseFloat(window.getComputedStyle(toolbar).scrollMarginTop) || 16;
-        const target = window.scrollY + toolbar.getBoundingClientRect().top - headerH - gap;
+    if (location.pathname === "/collection") {
+      if (brandName) {
+        scrollToCollectionToolbar("smooth");
+      } else {
         const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        window.scrollTo({ top: Math.max(0, target), behavior: reducedMotion ? "instant" : "smooth" });
+        window.scrollTo({ top: 0, left: 0, behavior: reducedMotion ? "instant" : "smooth" });
       }
     }
   };

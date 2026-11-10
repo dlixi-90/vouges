@@ -11,6 +11,7 @@ import { emptyPerfumeFilters } from "../data/perfumeFilters";
 import { COLLECTION_PAGE_SIZE } from "../utils/publicCatalog";
 import { useClerk, UserButton } from "@clerk/react";
 import { useAppContext } from "../context/AppContext";
+import { scrollToCollectionToolbar } from "../utils/collectionScroll";
 import { Headset, Ticket, X } from "lucide-react";
 const AIChatPanel = lazy(() => import("./ai/AIChatPanel"));
 
@@ -129,6 +130,9 @@ const Header = () => {
               setSearchQuery(query);
               setMenuOpened(false);
               navigate("/collection", { state: { headerSearch: Date.now(), q: query } });
+              if (pathname === "/collection") {
+                scrollToCollectionToolbar("smooth");
+              }
             }} />
             <Navbar group="info" navigationId="store-info-navigation" setMenuOpened={setMenuOpened} containerStyles="inessa-desktop-navigation" />
             {/* Buttons & Profile icon */}
