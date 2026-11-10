@@ -199,8 +199,8 @@ const AddCategory = () => {
     <div className="admin-management-grid admin-categories-grid">
       <div className="admin-form-column"><OperationsPanel title="Thêm danh mục" description="Tạo danh mục và loại sản phẩm đầu tiên.">
         <form onSubmit={saveCategory} className="admin-operation-form">
-          <label className="perfume-field"><span>Tên danh mục <i>*</i></span><input type="text" value={name} onChange={event => setName(event.target.value)} placeholder="Ví dụ: Nước hoa unisex" maxLength={100} autoComplete="off" required disabled={busy} /></label>
-          <label className="perfume-field"><span>Loại sản phẩm <i>*</i></span><input type="text" value={typeName} onChange={event => setTypeName(event.target.value)} placeholder="Ví dụ: Eau de Parfum" maxLength={100} autoComplete="off" required disabled={busy} /></label>
+          <label className="perfume-field"><span>Tên danh mục <i style={{ color: "#ef4444", fontStyle: "normal" }}>*</i></span><input type="text" value={name} onChange={event => setName(event.target.value)} placeholder="Ví dụ: Nước hoa unisex" maxLength={100} autoComplete="off" required disabled={busy} /></label>
+          <label className="perfume-field"><span>Loại sản phẩm <i style={{ color: "#ef4444", fontStyle: "normal" }}>*</i></span><input type="text" value={typeName} onChange={event => setTypeName(event.target.value)} placeholder="Ví dụ: Eau de Parfum" maxLength={100} autoComplete="off" required disabled={busy} /></label>
           <button type="submit" disabled={busy || categoriesLoading || Boolean(categoriesError)} className="perfume-button primary admin-form-submit"><Plus size={15} />{saving && !editingId ? "Đang thêm danh mục…" : "Thêm danh mục"}</button>
         </form>
         <p className="admin-form-help">Có thể thêm loại sản phẩm khác, đổi tên và quản lý danh mục ở danh sách bên cạnh.</p>

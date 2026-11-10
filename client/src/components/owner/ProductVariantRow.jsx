@@ -25,7 +25,7 @@ const ProductVariantRow = ({ item, draft, loading, onEdit, onChange, onSave, onC
         <div className="perfume-variant-card-fields">
           {fields.map(({ name, label, ...attributes }) => (
             <label key={name} className="perfume-field">
-              <span>{label} <i>*</i></span>
+              <span>{label} <i style={{ color: "#ef4444", fontStyle: "normal" }}>*</i></span>
               <input
                 key={`${name}:${editing}`}
                 {...attributes}

@@ -57,7 +57,7 @@
 .perfume-add-layout { display:grid; grid-template-columns:minmax(0,1fr) 330px; align-items:start; gap:22px; }
 .perfume-add-main { display:grid; gap:22px; min-width:0; }
 .perfume-add-sidebar { position:sticky; top:20px; display:grid; gap:22px; min-width:0; }
-.perfume-field > span i { font-style:normal; color:#b42318; }
+.perfume-field > span i { font-style:normal; color:#ef4444; }
 .perfume-field input[readonly] { background:#fafafa; color:#666; }
 .perfume-field-error { display:block; color:#b42318; font-size:11px; }
 .perfume-add-image-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }

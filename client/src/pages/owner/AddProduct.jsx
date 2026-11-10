@@ -982,7 +982,7 @@ const Field = ({ label, hint, required = false, children }) => {
     <label className="perfume-field">
       <span>
         {label}
-        {required && <i> *</i>}
+        {required && <i style={{ color: "#ef4444", fontStyle: "normal" }}> *</i>}
       </span>
       {children}
       {hint && <small className="perfume-muted">{hint}</small>}

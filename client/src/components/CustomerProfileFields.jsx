@@ -10,7 +10,7 @@ export default function CustomerProfileFields({draft,setDraft,errors={},disabled
       {name:"phone",label:"Số điện thoại",type:"tel",autoComplete:"tel",maxLength:30},
       {name:"birthday",label:"Ngày, tháng, năm sinh",type:"date",autoComplete:"bday",min:"1900-01-01",max:latestAdultBirthday()},
     ].map(({name,label,...inputProps})=><label key={name} htmlFor={`${id}-${name}`}>
-      <span>{label} <span aria-hidden="true">*</span></span>
+      <span>{label} <span className="customer-field-required text-red-500" aria-hidden="true" style={{ color: "#ef4444" }}>*</span></span>
       <input {...inputProps} id={`${id}-${name}`} name={name} required disabled={disabled}
         value={draft[name]} onChange={event=>setDraft(current=>({...current,[name]:event.target.value}))}
         aria-invalid={Boolean(errors[name])} aria-describedby={errors[name]?`${id}-${name}-error`:name==="birthday"?`${id}-age-help`:undefined}/>

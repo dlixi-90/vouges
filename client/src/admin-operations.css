@@ -40,7 +40,7 @@
 .admin-form-column { display:flex; flex-direction:column; gap:18px; min-width:0; }
 .admin-operation-form .perfume-field { margin:0 0 18px; }
 .admin-operation-form .perfume-field > span { color:#777; font-size:11px; }
-.admin-operation-form .perfume-field i { font-style:normal; color:#888; }
+.admin-operation-form .perfume-field i { font-style:normal; color:#ef4444; }
 .admin-operation-form .perfume-field :is(input,select) { min-width:0; border-color:#dedede; border-radius:7px; font-size:12px; }
 .admin-operation-form fieldset { min-width:0; }
 .admin-operation-form .perfume-form-grid { gap:0 16px; }
