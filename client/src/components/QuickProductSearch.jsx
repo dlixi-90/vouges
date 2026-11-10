@@ -61,7 +61,7 @@ export default function QuickProductSearch({
           {
             q: trimmed,
             page: 1,
-            limit: 5,
+            limit: 6,
             availability: "all",
             sort: "relevant",
           },
@@ -69,18 +69,19 @@ export default function QuickProductSearch({
         );
 
         if (!controller.signal.aborted) {
-          setResults(data.products || []);
+          setResults(data.products?.slice(0, 5) || []);
           setTotalCount(data.total || 0);
           setLoading(false);
         }
       } catch (err) {
         if (!controller.signal.aborted) {
+          console.error("QuickProductSearch browse error:", err);
           setResults([]);
           setTotalCount(0);
           setLoading(false);
         }
       }
-    }, 250);
+    }, 200);
 
     return () => {
       clearTimeout(timer);
