@@ -8,6 +8,7 @@ export default function CollectionSearch({ value, onChange }) {
   const triggerRef = useRef(null);
   const inputRef = useRef(null);
   const valueRef = useRef(value);
+  const isComposingRef = useRef(false);
   useEffect(() => { valueRef.current = value; }, [value]);
 
   useEffect(() => {
@@ -36,9 +37,22 @@ export default function CollectionSearch({ value, onChange }) {
         event.preventDefault();
         onChange(value);
       }}>
-      <input ref={inputRef} type="search" value={value} aria-label="Tìm kiếm sản phẩm"
-        autoComplete="off" autoCorrect="off" spellCheck="false"
-        placeholder="Tìm sản phẩm…" onChange={event => onChange(event.target.value)} />
+      <input
+        ref={inputRef}
+        type="search"
+        value={value}
+        aria-label="Tìm kiếm sản phẩm"
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck="false"
+        placeholder="Tìm sản phẩm…"
+        onChange={event => onChange(event.target.value)}
+        onCompositionStart={() => { isComposingRef.current = true; }}
+        onCompositionEnd={event => {
+          isComposingRef.current = false;
+          onChange(event.target.value);
+        }}
+      />
     </form>}
     <button ref={triggerRef} type="button" className="inessa-collection-search-toggle"
       aria-label={open ? "Đóng tìm kiếm sản phẩm" : "Mở tìm kiếm sản phẩm"}

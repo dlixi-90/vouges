@@ -3,3 +3,5 @@
 .quick-product-search input::placeholder { color:#a0a0a0; }
 .quick-product-search > svg { flex-shrink:0; }
 .quick-product-search button { display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; }
+.quick-product-search .quick-product-search-clear { color:#888; background:transparent; border:none; padding:2px; transition:color 0.15s ease; }
+.quick-product-search .quick-product-search-clear:hover { color:#171717; }

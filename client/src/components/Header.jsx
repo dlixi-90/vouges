@@ -121,7 +121,7 @@ const Header = () => {
             </Link>
           </div>
           <div className="inessa-header-right">
-            <QuickProductSearch className="store-header-search" value={searchQuery} onSearch={query => {
+            <QuickProductSearch className="store-header-search" onSearch={query => {
               prefetchRoute("/collection");
               void publicCatalog.browse({
                 page: 1, limit: COLLECTION_PAGE_SIZE, q: query,
