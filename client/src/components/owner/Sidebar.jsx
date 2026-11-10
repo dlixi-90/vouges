@@ -20,8 +20,8 @@ const navigation = [
     { path: "/owner/list-product", label: "Sản phẩm", icon: Package, activePaths: ["/owner/list-product", "/owner/add-product", "/owner/edit-product/:productId"] },
   ] },
   { label: "Quản lý catalog", items: [
-    { path: "/owner/brands", label: "Thương hiệu", icon: FlaskConical },
     { path: "/owner/add-category", label: "Danh mục", icon: Layers3 },
+    { path: "/owner/brands", label: "Thương hiệu", icon: FlaskConical },
     { path: "/owner/library", label: "Thư viện hương", icon: Library },
   ] },
   { label: "Vận hành", items: [
