@@ -8,7 +8,7 @@ function Notes({ notes = {} }) {
   return <div className="product-description-notes my-6 grid gap-5 sm:grid-cols-3">
     {phases.map(([phase, label]) => <div className={`rounded-lg border border-gray-200 p-5 ${phase === 'general' ? 'sm:col-span-3' : ''}`} key={phase}>
       <h3 className="mb-3 text-xl">{phases.length === 1 ? 'Các note hương được ghi nhận' : label}</h3>
-      <p className="text-sm leading-7 text-gray-600">{notes[phase].map((note,index) => <span key={`${note.name}-${index}`}>{index > 0 && ', '}<Link className="hover:underline underline-offset-4" to={libraryNamePath('note', note.name)}>{note.name}</Link></span>)}</p>
+      <p className="text-sm leading-7 text-gray-600">{notes[phase].map((note,index) => <span key={`${note.name}-${index}`}>{index > 0 && ', '}<Link className="hover:underline underline-offset-4" to={libraryNamePath('note', note.name)} state={{ initialTerm: { name: note.name, kind: 'note' } }}>{note.name}</Link></span>)}</p>
     </div>)}
   </div>;
 }
@@ -38,7 +38,7 @@ export default function ScentNotes({ fragrance = {} }) {
           {splitFragranceGroups(component.group).map((groupName, groupIndex) => (
             <span key={`${groupName}-${groupIndex}`}>
               {groupIndex > 0 && ', '}
-              <Link className="hover:underline underline-offset-4" to={libraryNamePath('group', groupName)}>{groupName}</Link>
+              <Link className="hover:underline underline-offset-4" to={libraryNamePath('group', groupName)} state={{ initialTerm: { name: groupName, kind: 'group' } }}>{groupName}</Link>
             </span>
           ))}
         </p>}

@@ -55,7 +55,7 @@ export default function ArticleLibraryCards({ node }) {
         {id ? <ProductCard product={product || { _id: id, title: item.name, image: item.image }}
           currency={currency} isAvailable={!product || getAvailableSizes(product).length > 0}
           pricePending={loaded?.ids !== ids} />
-          : item.href.startsWith("/knowledge/") ? <LibraryTermCard to={item.href} name={item.name} englishName={item.englishName} image={item.image} variant={item.href.startsWith("/knowledge/group/") ? "group" : undefined} width={item.width || 180} height={item.height || 180} />
+          : item.href.startsWith("/knowledge/") ? <LibraryTermCard to={item.href} state={{ initialTerm: item }} name={item.name} englishName={item.englishName} image={item.image} variant={item.href.startsWith("/knowledge/group/") ? "group" : undefined} width={item.width || 180} height={item.height || 180} />
             : item.href.startsWith("/") ? <Link to={item.href}>{label}</Link>
             : <a href={item.href} target="_blank" rel="noopener noreferrer nofollow">{label}</a>}
         {item.description && <p>{item.description}</p>}

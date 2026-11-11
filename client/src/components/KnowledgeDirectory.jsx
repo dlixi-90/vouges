@@ -25,15 +25,38 @@ const families = [
   ["Gourmand · Thực phẩm", "Ngọt, béo và gợi món ăn", "Gợi ý cho người yêu những liên tưởng ấm áp, dễ chịu."],
 ];
 
-function TermCard({ term, kind, eager }) {
-  return <LibraryTermCard to={libraryPath(term)} name={libraryDisplayName(term)} englishName={term.englishName}
-    image={term.image} variant={kind} eager={eager} width={kind === "group" ? 360 : 180} height={kind === "group" ? 93 : 180} />;
+function TermCard({ term, kind, eager, onPrefetch }) {
+  return (
+    <LibraryTermCard
+      to={libraryPath(term)}
+      state={{ initialTerm: term }}
+      onPointerEnter={() => onPrefetch?.(term)}
+      onFocus={() => onPrefetch?.(term)}
+      name={libraryDisplayName(term)}
+      englishName={term.englishName}
+      image={term.image}
+      variant={kind}
+      eager={eager}
+      width={kind === "group" ? 360 : 180}
+      height={kind === "group" ? 93 : 180}
+    />
+  );
 }
 
-function TermGrid({ terms, kind, eager = false }) {
-  return <div className={`knowledge-directory knowledge-directory--${kind}`}>
-    {terms.map((term, index) => <TermCard key={term.id} term={term} kind={kind} eager={eager && index < (kind === "group" ? 3 : 6)} />)}
-  </div>;
+function TermGrid({ terms, kind, eager = false, onPrefetch }) {
+  return (
+    <div className={`knowledge-directory knowledge-directory--${kind}`}>
+      {terms.map((term, index) => (
+        <TermCard
+          key={term.id}
+          term={term}
+          kind={kind}
+          eager={eager && index < (kind === "group" ? 3 : 6)}
+          onPrefetch={onPrefetch}
+        />
+      ))}
+    </div>
+  );
 }
 
 function OriginLink({ section, search, active }) {
@@ -67,6 +90,13 @@ export default function KnowledgeDirectory({ kind, config, data, loading, query,
   const isComposingRef = useRef(false);
   const lastSyncedQueryRef = useRef(query || "");
   const inputRef = useRef(null);
+
+  const prefetchTerm = (term) => {
+    if (term?.slug || term?.name) {
+      const slug = term.slug || librarySlug(term);
+      void publicCatalog?.library(kind, { slug, page: 1 }).catch(() => {});
+    }
+  };
 
   useEffect(() => {
     if ((query || "") !== lastSyncedQueryRef.current) {
@@ -173,9 +203,9 @@ export default function KnowledgeDirectory({ kind, config, data, loading, query,
             <h2 id={`origin-title-${section.id}`}>{section.name}</h2>
           </header>
           <div className="knowledge-origin-description"><p>{section.description}</p><span>{section.terms.length} note hương</span></div>
-          <TermGrid terms={section.terms} kind="note" eager={index === 0} />
+          <TermGrid terms={section.terms} kind="note" eager={index === 0} onPrefetch={prefetchTerm} />
           <a className="knowledge-back-to-origins" href="#knowledge-directory-heading">Trở lại mục lục <ArrowUp size={14} aria-hidden="true" /></a>
-        </section>)}</div> : <TermGrid terms={terms} kind={kind} eager />}
+        </section>)}</div> : <TermGrid terms={terms} kind={kind} eager onPrefetch={prefetchTerm} />}
         {data && !terms.length && <div className="knowledge-directory-empty"><p>Không tìm thấy nội dung phù hợp.</p><Link to={`/knowledge/${kind}`}>Xem toàn bộ {config.title.toLocaleLowerCase("vi-VN")}</Link></div>}
       </>}
     </section>
