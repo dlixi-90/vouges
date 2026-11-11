@@ -99,8 +99,26 @@ export default function Knowledge() {
     if (!res.hero && term.image) {
       res.hero = { attrs: { src: term.image, alt: term.name } };
     }
+    if (res.hero && !res.layout) {
+      res.layout = (term.kind === "accord" || kind === "accord")
+        ? "accord"
+        : (term.kind === "group" || kind === "group")
+        ? "banner"
+        : "banner";
+    }
     return res;
-  }, [term]);
+  }, [term, kind]);
+
+  const openingLayoutClass = useMemo(() => {
+    if (presentation?.layout === "accord" || kind === "accord") return "accord";
+    if (presentation?.layout === "banner" || kind === "group") return "banner";
+    if (presentation?.layout === "portrait") {
+      return presentation.intro?.content?.length ? "split" : "portrait";
+    }
+    if (presentation?.layout) return presentation.layout;
+    if (kind === "note") return "banner";
+    return "banner";
+  }, [presentation?.layout, presentation?.intro?.content?.length, kind]);
 
   const pageTitle = presentation ? (
     <>
@@ -149,31 +167,91 @@ export default function Knowledge() {
       {detail && !data?.term && loading && (
         <div className="knowledge-reading-layout" aria-busy="true">
           <article className="knowledge-article">
-            {term?.image ? (
-              <div className="knowledge-opening">
+            {openingLayoutClass === "accord" || openingLayoutClass === "split" ? (
+              <div className={`knowledge-opening knowledge-opening--${openingLayoutClass}`}>
                 <figure className="knowledge-hero">
                   <div className="knowledge-hero-image">
-                    <img
-                      src={getProductImageUrl(term.image, 1200)}
-                      alt={term.name || ""}
-                      width="1200"
-                      height="600"
-                      loading="eager"
-                      fetchPriority="high"
-                      decoding="async"
-                    />
+                    {term?.image ? (
+                      <img
+                        src={getProductImageUrl(term.image, 600)}
+                        alt={term.name || ""}
+                        width="400"
+                        height="400"
+                        loading="eager"
+                        fetchPriority="high"
+                        decoding="async"
+                      />
+                    ) : (
+                      <div className="skeleton-surface aspect-square w-full" />
+                    )}
                   </div>
                 </figure>
+                <div className="knowledge-opening-copy">
+                  <div className="space-y-3.5">
+                    <div className="skeleton-line h-4 w-full" />
+                    <div className="skeleton-line h-4 w-11/12" />
+                    <div className="skeleton-line h-4 w-4/5" />
+                    <div className="skeleton-line h-4 w-3/4" />
+                  </div>
+                </div>
               </div>
+            ) : openingLayoutClass === "portrait" ? (
+              <>
+                <div className="knowledge-opening knowledge-opening--portrait">
+                  <figure className="knowledge-hero">
+                    <div className="knowledge-hero-image">
+                      {term?.image ? (
+                        <img
+                          src={getProductImageUrl(term.image, 600)}
+                          alt={term.name || ""}
+                          width="400"
+                          height="400"
+                          loading="eager"
+                          fetchPriority="high"
+                          decoding="async"
+                        />
+                      ) : (
+                        <div className="skeleton-surface aspect-square w-full" />
+                      )}
+                    </div>
+                  </figure>
+                </div>
+                <div className="mt-8 space-y-3.5">
+                  <div className="skeleton-line h-4 w-full" />
+                  <div className="skeleton-line h-4 w-11/12" />
+                  <div className="skeleton-line h-4 w-4/5" />
+                  <div className="skeleton-line h-4 w-3/4" />
+                </div>
+              </>
             ) : (
-              <div className="skeleton-surface mb-8 h-[340px] w-full rounded-2xl" />
+              <>
+                <div className="knowledge-opening knowledge-opening--banner">
+                  <figure className="knowledge-hero">
+                    <div className="knowledge-hero-image">
+                      {term?.image ? (
+                        <img
+                          src={getProductImageUrl(term.image, 1200)}
+                          alt={term.name || ""}
+                          width="1200"
+                          height={kind === "note" ? "260" : "350"}
+                          loading="eager"
+                          fetchPriority="high"
+                          decoding="async"
+                        />
+                      ) : (
+                        <div className="skeleton-surface h-full w-full" />
+                      )}
+                    </div>
+                  </figure>
+                </div>
+                <div className="mt-8 space-y-3.5">
+                  <div className="skeleton-line h-4 w-full" />
+                  <div className="skeleton-line h-4 w-11/12" />
+                  <div className="skeleton-line h-4 w-4/5" />
+                  <div className="skeleton-line h-4 w-3/4" />
+                </div>
+              </>
             )}
-            <div className="mt-8 space-y-3.5">
-              <div className="skeleton-line h-4 w-full" />
-              <div className="skeleton-line h-4 w-11/12" />
-              <div className="skeleton-line h-4 w-4/5" />
-              <div className="skeleton-line h-4 w-3/4" />
-            </div>
           </article>
         </div>
       )}
@@ -184,7 +262,7 @@ export default function Knowledge() {
               {data.term.description?.trim() || data.term.descriptionContent ? (
                 <>
                   {presentation.hero && (
-                    <div className={`knowledge-opening knowledge-opening--${presentation.layout === "accord" ? "accord" : presentation.layout === "banner" ? "banner" : presentation.intro.content.length ? "split" : "portrait"}`}>
+                    <div className={`knowledge-opening knowledge-opening--${openingLayoutClass}`}>
                       <KnowledgeHero image={presentation.hero} title={presentation.title} />
                       {(presentation.intro.content.length > 0 || presentation.facts.length > 0) && (
                         <div className="knowledge-opening-copy">
