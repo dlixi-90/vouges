@@ -23,10 +23,10 @@
 }
 .collection-banner-visual img { position: absolute; width: 100%; height: 100%; object-fit: cover; object-position: 50% 64%; filter: saturate(.65); }
 .collection-banner-copy { position: relative; align-self: center; padding: 32px 36px 32px 12px; }
-.collection-banner-eyebrow { display: flex; align-items: center; gap: 8px; color: #50534d; font-size: 11px; font-weight: 500; }
+.collection-banner-eyebrow { display: flex; align-items: center; gap: 8px; color: #50534d; font-size: 12.5px; font-weight: 600; letter-spacing: .08em; }
 .collection-banner-eyebrow > span { width: 15px; height: 1px; background: currentColor; }
-.net-theme .collection-banner h2 { margin: 12px 0 16px; font-family: Inter, sans-serif; font-size: clamp(24px, 2.5vw, 34px); font-weight: 500; line-height: 1.25; letter-spacing: -.055em; }
-.net-theme .collection-banner-copy > p:last-child { max-width: 320px; color: #6c6e67; font-size: 12px; line-height: 1.8; }
+.net-theme .collection-banner h2 { margin: 12px 0 16px; font-family: Inter, sans-serif; font-size: clamp(24px, 2.5vw, 34px); font-weight: 500; line-height: 1.35; letter-spacing: -.03em; }
+.net-theme .collection-banner-copy > p:last-child { max-width: 380px; color: #6c6e67; font-size: 13.5px; line-height: 1.8; }
 
 .net-theme .collection-catalog > .collection-catalog-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); align-items: start; gap: 32px; }
 .collection-catalog-main { min-width: 0; }
