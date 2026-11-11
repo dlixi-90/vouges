@@ -6,7 +6,7 @@ import { LIBRARY_KINDS, libraryPath } from "../utils/fragranceLibrary";
 import { filterLibraryTerms, groupLibraryTerms, libraryDisplayName } from "../utils/libraryDirectory";
 import { getProductImageUrl } from "../utils/productImage";
 import { PageSkeleton } from "./LoadingState";
-import Breadcrumbs from "./Breadcrumbs";
+import StorePageHeading from "./StorePageHeading";
 import LibraryTermCard from "./LibraryTermCard";
 import "./knowledge-directory.css";
 
@@ -101,11 +101,12 @@ export default function KnowledgeDirectory({ kind, config, data, loading, query,
   }, [hash, loading, data, origin]);
   const navigationSearch = keyword ? `?q=${encodeURIComponent(keyword)}` : "";
   return <div className={`knowledge-directory-page knowledge-directory-page--${kind}`}>
-    <header className="knowledge-directory-title" id="knowledge-directory-top">
-      <Breadcrumbs items={[{ label: config.title }]} />
-      <h1>{titles[kind]}</h1>
-      <nav className="knowledge-library-tabs" aria-label="Thư viện hương thơm">{Object.entries(LIBRARY_KINDS).map(([key, value]) => <Link key={key} to={`/knowledge/${key}`} onPointerEnter={() => { if (key !== kind) void publicCatalog?.library(key, { view: "directory" }).catch(() => {}); }} onFocus={() => { if (key !== kind) void publicCatalog?.library(key, { view: "directory" }).catch(() => {}); }} aria-current={kind === key ? "page" : undefined}>{value.title}</Link>)}</nav>
-    </header>
+    <StorePageHeading
+      title={titles[kind]}
+      titleId="knowledge-directory-top"
+      breadcrumbs={[{ label: config.title }]}
+    />
+    <nav className="knowledge-library-tabs" aria-label="Thư viện hương thơm">{Object.entries(LIBRARY_KINDS).map(([key, value]) => <Link key={key} to={`/knowledge/${key}`} onPointerEnter={() => { if (key !== kind) void publicCatalog?.library(key, { view: "directory" }).catch(() => {}); }} onFocus={() => { if (key !== kind) void publicCatalog?.library(key, { view: "directory" }).catch(() => {}); }} aria-current={kind === key ? "page" : undefined}>{value.title}</Link>)}</nav>
     <DirectoryIntroduction kind={kind} config={config} overview={data?.overview} />
     {kind === "group" && <section className="knowledge-family-overview" aria-labelledby="knowledge-family-heading">
       <h2 id="knowledge-family-heading">Các họ hương trong nước hoa</h2>

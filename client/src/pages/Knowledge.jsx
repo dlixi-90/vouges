@@ -62,7 +62,7 @@ export default function Knowledge() {
   if (name && data?.term) return <Navigate to={`${libraryPath(data.term)}${page > 1 ? `?page=${page}` : ""}`} replace />;
   const selectOrigin=value=>{const params=new URLSearchParams(search);params.delete("page");if(value)params.set("origin",value);else params.delete("origin");setSearch(params);};
   const setQuery=value=>{const params=new URLSearchParams(search);params.delete("page");if(value)params.set("q",value);else params.delete("q");setSearch(params,{replace:true});};
-  return <div className={`knowledge-page max-padd-container${detail ? ` knowledge-detail-page knowledge-detail-page--${kind} store-page-container` : ""}`}>
+  return <div className={`knowledge-page max-padd-container store-page-container${detail ? ` knowledge-detail-page knowledge-detail-page--${kind}` : ""}`}>
     {detail && <StorePageHeading className="knowledge-heading" title={presentation ? <>{presentation.title}{presentation.secondaryTitle && <> <span lang="en">({presentation.secondaryTitle})</span></>}</> : config.title} breadcrumbs={term ? [{ label: config.title, to: `/knowledge/${kind}` }, { label: presentation.label }] : [{ label: config.title }]} />}
     {error && <div role="alert" className="knowledge-empty">{error}<button onClick={reload} type="button">Thử lại</button></div>}
     <LoadingStatus active={loading} label="Đang tải thư viện…" />
