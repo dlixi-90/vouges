@@ -336,22 +336,23 @@
 }
 
 /* Full-width product information follows the gallery and purchase controls. */
-.product-detail-tabs { margin-top: 48px; }
+.product-detail-tabs { margin-top: 24px; }
 .product-detail-tab-list { position: relative; display: flex; gap: 26px; border-top: 1px solid #dedede; overflow-x: auto; overscroll-behavior-x: contain; }
-.net-product-detail .product-detail-tab-list > button { flex-shrink: 0; position: relative; min-height: 46px; padding: 12px 0; color: #777; font-size: 14px; font-weight: 600; line-height: 1.5; cursor: pointer; }
+.net-product-detail .product-detail-tab-list > button { flex-shrink: 0; position: relative; min-height: 40px; padding: 10px 0; color: #777; font-size: 14px; font-weight: 600; line-height: 1.5; cursor: pointer; }
 .product-detail-tab-list > button::before { content: ""; position: absolute; inset: 0 0 auto; height: 2px; background: transparent; }
 .net-product-detail .product-detail-tab-list > button[aria-selected="true"] { color: #171717; }
 .product-detail-tab-list > button[aria-selected="true"]::before { background: #171717; }
 .product-detail-tab-list > button:focus-visible { outline: 2px solid #777; outline-offset: -3px; }
-.product-detail-tab-panel { padding-top: 24px; }
+.product-detail-tab-panel { padding-top: 14px; }
 .product-detail-tab-panel[hidden] { display: none; }
 .product-detail-tab-panel:focus-visible { outline: 2px solid #aaa; outline-offset: 5px; }
 .net-theme .product-description-copy p { color: #626262; white-space: pre-line; font-size: 14px; line-height: 1.9; overflow-wrap: anywhere; }
+.product-description-copy > :first-child { margin-top: 0 !important; }
 @media (max-width: 767px) {
-  .product-detail-tabs { margin-top: 32px; }
+  .product-detail-tabs { margin-top: 20px; }
   .product-detail-tab-list { gap: 20px; }
-  .net-product-detail .product-detail-tab-list > button { font-size: 12px; }
-  .product-detail-tab-panel { padding-top: 20px; }
+  .net-product-detail .product-detail-tab-list > button { min-height: 36px; padding: 8px 0; font-size: 12px; }
+  .product-detail-tab-panel { padding-top: 10px; }
 }
 /* About replaces the former beauty journal with the reference's brand story. */
 .inessa-about { padding-bottom: 80px; background: #fff; }

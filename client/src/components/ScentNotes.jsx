@@ -5,7 +5,7 @@ import { libraryNamePath, splitFragranceGroups } from '../utils/fragranceLibrary
 function Notes({ notes = {} }) {
   const phases = scentPhases.filter(([phase]) => notes[phase]?.length > 0);
   if (!phases.length) return null;
-  return <div className="product-description-notes my-6 grid gap-5 sm:grid-cols-3">
+  return <div className="product-description-notes my-4 grid gap-5 sm:grid-cols-3">
     {phases.map(([phase, label]) => <div className={`rounded-lg border border-gray-200 p-5 ${phase === 'general' ? 'sm:col-span-3' : ''}`} key={phase}>
       <h3 className="mb-3 text-xl">{phases.length === 1 ? 'Các note hương được ghi nhận' : label}</h3>
       <p className="text-sm leading-7 text-gray-600">{notes[phase].map((note,index) => <span key={`${note.name}-${index}`}>{index > 0 && ', '}<Link className="hover:underline underline-offset-4" to={libraryNamePath('note', note.name)} state={{ initialTerm: { name: note.name, kind: 'note' } }}>{note.name}</Link></span>)}</p>
