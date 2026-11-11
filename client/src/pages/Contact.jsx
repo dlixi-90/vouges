@@ -1,10 +1,22 @@
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { ArrowRight, Clock, Mail, MapPin, Phone, User } from "lucide-react";
 import toast from "react-hot-toast";
+import Breadcrumbs from "../components/Breadcrumbs";
+import { useAppContext } from "../context/AppContext";
 
 export default function Contact() {
+  const { setSearchQuery } = useAppContext();
+
   useLayoutEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
+
+  useEffect(() => {
+    const previousTitle = document.title;
+    document.title = "Liên hệ | Velours";
+    return () => {
+      document.title = previousTitle;
+    };
   }, []);
 
   const [name, setName] = useState("");
@@ -30,7 +42,13 @@ export default function Contact() {
 
   return (
     <div className="net-contact">
-      <div className="net-contact-card">
+      <div className="net-contact-container">
+        <Breadcrumbs
+          items={[{ label: "Liên hệ" }]}
+          className="net-contact-breadcrumb"
+          onNavigate={() => setSearchQuery?.("")}
+        />
+        <div className="net-contact-card">
         {/* Left Side: Boutique & Consultation Information */}
         <div className="net-contact-info-panel">
           <div>
@@ -159,5 +177,6 @@ export default function Contact() {
         </form>
       </div>
     </div>
-  );
+  </div>
+);
 }

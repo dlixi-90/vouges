@@ -408,8 +408,18 @@
   box-sizing: border-box;
   background: linear-gradient(180deg, #ffffff 0%, #f7f5f0 100%);
 }
-.net-theme .net-contact-card {
+.net-theme .net-contact-container {
   width: min(100%, 880px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.net-theme .net-contact-breadcrumb {
+  align-self: flex-start;
+  margin-bottom: 2px;
+}
+.net-theme .net-contact-card {
+  width: 100%;
   display: grid;
   grid-template-columns: 1.05fr 1fr;
   background: #111113;
