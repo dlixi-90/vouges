@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { ArrowRight, Clock, Mail, MapPin, Phone, User } from "lucide-react";
 import toast from "react-hot-toast";
-import Breadcrumbs from "../components/Breadcrumbs";
+import StorePageHeading from "../components/StorePageHeading";
 import { useAppContext } from "../context/AppContext";
 
 export default function Contact() {
@@ -41,23 +41,22 @@ export default function Contact() {
   };
 
   return (
-    <div className="net-contact">
-      <div className="net-contact-container">
-        <Breadcrumbs
-          items={[{ label: "Liên hệ" }]}
-          className="net-contact-breadcrumb"
-          onNavigate={() => setSearchQuery?.("")}
-        />
+    <div className="contact-page max-padd-container store-page-container">
+      <StorePageHeading
+        title="Liên hệ"
+        onBreadcrumbNavigate={() => setSearchQuery?.("")}
+      />
+      <div className="net-contact-wrap">
         <div className="net-contact-card">
-        {/* Left Side: Boutique & Consultation Information */}
-        <div className="net-contact-info-panel">
-          <div>
-            <p className="net-contact-eyebrow">Dịch vụ khách hàng</p>
-            <h1 className="net-contact-title">Kết nối với chúng tôi</h1>
-            <p className="net-contact-description">
-              Đội ngũ chuyên gia tại Velours luôn sẵn sàng lắng nghe, tư vấn và hỗ trợ mọi thắc mắc của bạn.
-            </p>
-          </div>
+          {/* Left Side: Boutique & Consultation Information */}
+          <div className="net-contact-info-panel">
+            <div>
+              <p className="net-contact-eyebrow">Dịch vụ khách hàng</p>
+              <h2 className="net-contact-title">Kết nối với chúng tôi</h2>
+              <p className="net-contact-description">
+                Đội ngũ chuyên gia tại Velours luôn sẵn sàng lắng nghe, tư vấn và hỗ trợ mọi thắc mắc của bạn.
+              </p>
+            </div>
 
           <div className="net-contact-details">
             <div className="net-contact-detail-item">
