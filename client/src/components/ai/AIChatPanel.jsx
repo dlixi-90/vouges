@@ -324,11 +324,11 @@ const AIChatPanel = ({ isOpen, onClose }) => {
 
         <div className="flex min-h-0 flex-1 flex-col">
           <div
-            className="flex-1 overflow-y-auto px-4 py-5"
+            className="flex-1 overflow-y-auto px-4 pt-3.5 pb-4"
             aria-live="polite"
           >
             {!user ? (
-              <div className="flex h-full flex-col items-center justify-center px-6 text-center">
+              <div className="flex min-h-full flex-col items-center justify-center px-6 py-6 text-center">
                 <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-600">
                   <Bot className="h-7 w-7" aria-hidden="true" />
                 </div>
@@ -348,25 +348,25 @@ const AIChatPanel = ({ isOpen, onClose }) => {
                 </button>
               </div>
             ) : messages.length === 0 ? (
-              <div className="flex h-full flex-col items-center justify-center text-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-white shadow-lg shadow-secondary/20">
-                  <Bot className="h-7 w-7" aria-hidden="true" />
+              <div className="flex min-h-full flex-col items-center text-center">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-secondary text-white shadow-md shadow-secondary/15">
+                  <Bot className="h-6 w-6" aria-hidden="true" />
                 </div>
-                <h3 className="mt-4 text-base font-bold text-slate-900">
+                <h3 className="mt-3 text-base font-semibold text-slate-900">
                   Xin chào! Tôi là Velours AI
                 </h3>
-                <p className="mt-2 max-w-xs text-sm leading-6 text-slate-500">
+                <p className="mt-1.5 max-w-xs text-xs leading-relaxed text-slate-500">
                   Tôi có thể hỗ trợ bạn tìm hiểu nước hoa và lựa chọn mùi hương phù hợp.
                 </p>
 
-                <div className="mt-5 flex w-full flex-col gap-2">
+                <div className="mt-4 flex w-full flex-col gap-2">
                   {suggestedPrompts.map((prompt) => (
                     <button
                       key={prompt}
                       type="button"
                       onClick={() => void submitMessage(prompt)}
                       disabled={isSending}
-                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 disabled:opacity-50"
+                      className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-left text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 disabled:opacity-50"
                     >
                       {prompt}
                     </button>

@@ -55,7 +55,7 @@ export default function SupportChatPanel({ onClose, onBack, aiMessages }) {
           {error && <p role="alert" className="shrink-0 bg-red-50 px-4 py-2 text-xs text-red-700">{error}</p>}
           <SupportThread key={snapshot.conversation._id} conversationId={snapshot.conversation._id} initialSnapshot={snapshot} />
         </>
-        : <div className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto p-6 text-center">
+        : <div className="flex min-h-0 flex-1 flex-col items-center justify-start overflow-y-auto p-6 text-center">
           {!snapshot && !error ? <p role="status" className="flex items-center gap-2 text-sm text-gray-500"><LoaderCircle size={18} className="animate-spin" aria-hidden="true" />Đang kết nối với CSKH…</p> : <>
             <span className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary"><MessageCircle size={30} strokeWidth={1.5} aria-hidden="true" /></span>
             <h3 className="text-lg font-semibold">Bạn cần hỗ trợ thêm?</h3>
