@@ -97,13 +97,13 @@ body { background:#fff; color:var(--net-ink); }
 .net-testimonials .shadow { border:1px solid var(--net-line); border-radius:20px; box-shadow:none; padding:22px; }
 
 /* Product cards use their original component backgrounds, sizing and hover styles. */
-.net-theme .net-collection { margin-top:112px; padding-inline:clamp(20px,3.4vw,48px)!important; }
+.net-theme .net-collection { margin-top:0; padding-inline:clamp(20px,3.4vw,48px)!important; }
 .net-collection > div { gap:30px; }
 .net-collection aside { background:#fff; border-radius:22px; }
 .net-collection .collection-filters { padding:22px; border-radius:22px; }
 .net-collection .collection-filters > div:not(.net-search-input) { border:1px solid #e5e5e5; border-radius:15px; }
 .net-collection select { min-height:42px; border-radius:9px; }
-.net-product-detail { padding-top:112px; }
+.net-product-detail { padding-top:20px; }
 
 .net-blog { background:#fff; padding-block:112px var(--net-space); }
 .net-blog .bg-secondary\/10 { background:#fff; padding:0; border-radius:20px; overflow:hidden; }

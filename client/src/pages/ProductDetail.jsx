@@ -231,7 +231,7 @@ const ProductDetail = () => {
     return loadError ? <div className="max-padd-container py-32" role="alert">{loadError} <button type="button" onClick={reloadDetail} className="underline">Thử lại</button></div> : <ProductDetailSkeleton />;
 
   return (
-    <div className="net-product-detail max-padd-container pb-14 pt-24 sm:pt-28">
+    <div className="net-product-detail max-padd-container pb-14 pt-4 sm:pt-6">
       {loadError && <p role="alert">{loadError} <button type="button" onClick={reloadDetail} className="underline">Thử lại</button></p>}
       <LoadingStatus active={detailLoading} label="Đang cập nhật sản phẩm…" />
       <Breadcrumbs items={productBreadcrumbs(product)} className="product-detail-breadcrumb" onNavigate={() => setSearchQuery("")} />

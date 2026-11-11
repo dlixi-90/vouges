@@ -5,4 +5,4 @@
 .store-page-breadcrumb a:hover { color: #171717; text-decoration: underline; text-underline-offset: 3px; }
 .store-page-breadcrumb a:focus-visible { outline: 2px solid #8b7157; outline-offset: 4px; }
 .breadcrumb-separator { flex-shrink: 0; }
-.product-detail-breadcrumb { margin-bottom: 24px; }
+.product-detail-breadcrumb { margin-bottom: 14px; }

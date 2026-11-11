@@ -284,7 +284,7 @@
   .net-collection .inessa-collection-grid.pagination-list-start { scroll-margin-top: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .net-theme dialog.inessa-filter-drawer[open] { animation: none; } }
-.net-product-detail { padding-top: 48px; }
+.net-product-detail { padding-top: 20px; }
 .net-product-detail h1 { font-size: clamp(26px, 2.5vw, 36px); font-weight: var(--inessa-serif-weight); line-height: 1.3; }
 .net-product-detail button[class*="bg-[#242424]"],.net-product-detail button.bg-secondary { border-radius: var(--inessa-radius-control); }
 .net-product-detail [class*="bg-[#f5f5f0]"] { border-radius: var(--inessa-radius-card); }
@@ -1071,7 +1071,8 @@ html:has(:is(.inessa-checkout-page,.inessa-overview-page)),body:has(:is(.inessa-
   .net-theme .net-contact-card { grid-template-columns: 1fr; border-radius: 20px; }
   .net-theme .net-contact-info-panel { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 22px 18px; }
   .net-theme .net-contact-form { padding: 22px 18px; }
-  .net-product-detail,.net-orders,.net-cart,.net-theme.net-storefront .net-membership { padding-top: 30px; }
+  .net-product-detail { padding-top: 20px; }
+  .net-orders,.net-cart,.net-theme.net-storefront .net-membership { padding-top: 30px; }
   .net-admin-layout > div { padding: 0; gap: 0; }
   .net-sidebar { width: 100%; min-width: 0; min-height: 0; border-right: 0; border-bottom: 1px solid var(--inessa-line); border-radius: var(--inessa-radius-panel); }
   .net-sidebar > div:first-child { width: 100%; padding-top: 10px; gap: 10px; }
