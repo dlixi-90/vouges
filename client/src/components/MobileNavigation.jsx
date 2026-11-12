@@ -75,7 +75,6 @@ export default function MobileNavigation({ brandDirectory, menuOpened, setMenuOp
 
     {menuOpened && <MobileSheet id="mobile-menu" title="Khám phá Velours" onClose={closeMenu}>
       <Navbar brandDirectory={brandDirectory} navigationId="mobile-store-navigation" setMenuOpened={setMenuOpened} containerStyles="mobile-sheet-navigation" />
-      <Link className="mobile-sheet-link" to="/membership" onClick={closeMenu}><Ticket size={20} />Thành viên & ưu đãi<ArrowUpRight size={16} /></Link>
     </MobileSheet>}
 
     {accountOpen && <MobileSheet id="mobile-account" title="Tài khoản của bạn" onClose={closeAccount}>

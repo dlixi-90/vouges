@@ -27,10 +27,10 @@ export function EditorialStories() {
         <div className="inessa-story-copy">
           <p className="inessa-eyebrow">Tinh chọn bởi Velours</p>
           <h2 id="story-original">
-            Nét đẹp
-            <br />
-            từ những
-            <br />
+            Nét đẹp{" "}
+            <br className="inessa-story-break" />
+            từ những{" "}
+            <br className="inessa-story-break" />
             <span>điều tinh tế.</span>
           </h2>
           <p>
@@ -49,10 +49,10 @@ export function EditorialStories() {
         <div className="inessa-story-copy">
           <p className="inessa-eyebrow">Nghi thức làm đẹp mỗi ngày</p>
           <h2 id="story-everyday">
-            Tự nhiên.
-            <br />
-            Cuốn hút.
-            <br />
+            Tự nhiên.{" "}
+            <br className="inessa-story-break" />
+            Cuốn hút.{" "}
+            <br className="inessa-story-break" />
             <span>Là chính bạn.</span>
           </h2>
           <p>
