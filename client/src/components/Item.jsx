@@ -4,19 +4,19 @@ import { getAvailableSizes } from "../utils/productStock";
 import ProductCard from "./ProductCard";
 
 const Item = ({ product, priority = false }) => {
-  const { currency, storeResources, publicCatalog } = useAppContext();
+  const { currency, publicCatalog } = useAppContext();
   const prefetchTimer = useRef(null);
   useEffect(() => () => window.clearTimeout(prefetchTimer.current), []);
   const prefetchProduct = () => {
     void import("../pages/ProductDetail").catch(() => {});
     void publicCatalog.detail(product._id).catch(() => {});
-    void storeResources.loadReviews(product._id).catch(() => {});
   };
   const availableSizes = getAvailableSizes(product);
   const isAvailable = availableSizes.length > 0;
 
   return (
     <ProductCard product={product} priority={priority} currency={currency} isAvailable={isAvailable}
+      onPointerDown={prefetchProduct}
       onFocus={prefetchProduct}
       onMouseEnter={() => {
         prefetchTimer.current = window.setTimeout(prefetchProduct, 200);

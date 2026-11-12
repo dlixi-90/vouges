@@ -14,6 +14,7 @@ export default function ProductCard({ product, priority = false, currency = "₫
     aria-label={`Xem chi tiết ${product.title}`} className="net-product-card">
     <div className="net-product-media" style={{ backgroundColor }}>
       {image ? <ProductImage src={image} alt="" height={320} width={320}
+        sizes="(max-width: 767px) 36vw, (max-width: 1199px) 24vw, 200px"
         loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} />
         : <Package size={48} strokeWidth={1} aria-hidden="true" />}
       {!isAvailable && <p className="net-product-stock">Hết hàng</p>}

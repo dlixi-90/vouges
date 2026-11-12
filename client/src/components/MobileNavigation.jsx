@@ -78,19 +78,19 @@ export default function MobileNavigation({ brandDirectory, menuOpened, setMenuOp
     </MobileSheet>}
 
     {accountOpen && <MobileSheet id="mobile-account" title="Tài khoản của bạn" onClose={closeAccount}>
-      <div className="mobile-account-identity">
+      <div className={`mobile-account-identity${user ? "" : " mobile-account-identity--guest"}`}>
         <span className="mobile-account-avatar">{user?.imageUrl ? <img src={user.imageUrl} alt="" /> : <UserRound size={25} />}</span>
         <div><strong>{user?.fullName || user?.firstName || "Chào bạn, khách của Velours"}</strong><p>{user ? "Hương thơm riêng, đặc quyền riêng." : "Đăng nhập để theo dõi đơn và nhận ưu đãi."}</p></div>
       </div>
       {!user && <button type="button" className="mobile-account-signin" onClick={() => { closeAccount(); openSignIn(); }}>Đăng nhập / Đăng ký</button>}
-      <div className="mobile-account-links">
+      {user && <div className="mobile-account-links">
         <Link to="/my-orders" onClick={closeAccount} {...warm("/my-orders")}><Package size={20} />Đơn hàng của tôi<ArrowUpRight size={16} /></Link>
         <Link to="/membership" onClick={closeAccount} {...warm("/membership")}><Ticket size={20} />Thành viên & mã giảm giá<ArrowUpRight size={16} /></Link>
-        {user && <button type="button" onClick={() => { closeAccount(); openUserProfile(); }}><Settings size={20} />Cài đặt tài khoản<ArrowUpRight size={16} /></button>}
+        <button type="button" onClick={() => { closeAccount(); openUserProfile(); }}><Settings size={20} />Cài đặt tài khoản<ArrowUpRight size={16} /></button>
         {isOwner && <Link to="/owner" onClick={closeAccount}><LayoutDashboard size={20} />Quản lý cửa hàng<ArrowUpRight size={16} /></Link>}
         <Link to="/contact" onClick={closeAccount}><UserRound size={20} />Liên hệ hỗ trợ<ArrowUpRight size={16} /></Link>
-        {user && <button type="button" onClick={() => { closeAccount(); void signOut({ redirectUrl: "/" }); }}><LogOut size={20} />Đăng xuất</button>}
-      </div>
+        <button type="button" onClick={() => { closeAccount(); void signOut({ redirectUrl: "/" }); }}><LogOut size={20} />Đăng xuất</button>
+      </div>}
     </MobileSheet>}
   </>;
 }

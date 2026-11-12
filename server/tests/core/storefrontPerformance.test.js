@@ -186,8 +186,11 @@ test("client cache normalization does not turn malformed facet values into valid
 test("cached advanced filters stop returning an orderable card after stock invalidation", async t => {
   invalidateStorefrontCatalog();
   let inStock = true;
-  t.mock.method(Product, "find", () => ({ select: () => ({ sort: () => ({ lean: async () => [fixture(1, { inStock })] }) }) }));
-  const query = options({ sort: "low", minPrice: "1" });
+  t.mock.method(Product, "find", () => {
+    const query = { select: () => query, sort: () => query, lean: async () => [fixture(1, { inStock })] };
+    return query;
+  });
+  const query = options({ sort: "low", minPrice: "1", facets: JSON.stringify({ notes: ["Hoa hồng"] }) });
   const first = await readStorefrontBrowse(query);
   assert.equal(first.total, 1);
   assert.equal(await readStorefrontBrowse(query), first);
@@ -273,11 +276,14 @@ test("ordinary browsing returns only one bounded database page and shares metada
   invalidateStorefrontCatalog();
 });
 
-test("advanced size/price/profile filters retain the existing matching and sorting path", () => {
+test("price, size and name pages stay in MongoDB; rich fragrance and sorted searches preserve their matching path", () => {
   assert.equal(canPageBrowseDirectly(options({})), true);
   assert.equal(canPageBrowseDirectly(options({ q: "hoa hong" })), true);
   assert.equal(canPageBrowseDirectly(options({ facets: JSON.stringify({ gender: ["Nam"], brands: ["Brand A"] }) })), true);
-  for (const query of [{ minPrice: 1 }, { sort: "high" }, { sort: "name-asc" }, { sort: "name-desc" }, { facets: JSON.stringify({ sizes: ["100ml"] }) }, { facets: JSON.stringify({ notes: ["Rose"] }) }, { facets: JSON.stringify({ longevity: ["Khá 6-8H"] }) }]) {
+  for (const query of [{ minPrice: 1 }, { sort: "high" }, { sort: "name-asc" }, { sort: "name-desc" }, { facets: JSON.stringify({ sizes: ["100ml"] }) }]) {
+    assert.equal(canPageBrowseDirectly(options(query)), true);
+  }
+  for (const query of [{ q: "rose", sort: "low" }, { facets: JSON.stringify({ notes: ["Rose"] }) }, { facets: JSON.stringify({ longevity: ["Khá 6-8H"] }) }]) {
     assert.equal(canPageBrowseDirectly(options(query)), false);
   }
 });

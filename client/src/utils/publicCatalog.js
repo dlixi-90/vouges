@@ -1,4 +1,5 @@
 import { createResourceCache } from "./resourceCache.js";
+import { createPublicCatalogStorage } from "./publicCatalogStorage.js";
 
 export const COLLECTION_PAGE_SIZE = 16;
 
@@ -13,7 +14,34 @@ export const normalizeBrowseParams = (params = {}) => {
   return Object.fromEntries(Object.entries(values).filter(([field, value]) => value !== undefined && !(value === "" && ["q", "brand"].includes(field))));
 };
 
-export const createPublicCatalog = ({ axios, cache = createResourceCache({ maxAge: 60000, maxEntries: 60 }) }) => {
+export const createPublicCatalog = ({ axios, storage, cache = createResourceCache({ maxAge: 60000, maxEntries: 60 }) }) => {
+  const snapshots = createPublicCatalogStorage(storage);
+  const restored = new Set(), previews = new Map();
+  const remember = products => {
+    for (const product of products || []) if (product?._id) {
+      previews.delete(String(product._id));
+      previews.set(String(product._id), product);
+    }
+    while (previews.size > 100) previews.delete(previews.keys().next().value);
+  };
+  const peek = key => {
+    if (cache.peek(key) === undefined) {
+      const data = snapshots.peek(key);
+      if (data) { cache.set(key, data); restored.add(key); remember(data.products || (data.product ? [data.product] : [])); }
+    }
+    return cache.peek(key);
+  };
+  const load = (key, request, options) => {
+    peek(key);
+    return cache.load(key, async signal => {
+      const data = await request(signal);
+      signal.throwIfAborted();
+      restored.delete(key);
+      remember(data.products || (data.product ? [data.product] : []));
+      snapshots.set(key, data);
+      return data;
+    }, { ...options, force: options?.force || restored.has(key) });
+  };
   const metadata = createResourceCache({ maxAge: 300000, maxEntries: 4 });
   const filterMetadata = createResourceCache({ maxAge: 15000, maxEntries: 1 });
   const library = createResourceCache({ maxAge: 30000, maxEntries: 24 });
@@ -24,17 +52,20 @@ export const createPublicCatalog = ({ axios, cache = createResourceCache({ maxAg
   };
   const key = params => JSON.stringify(Object.entries(params).filter(([, value]) => value !== undefined).sort(([a], [b]) => a.localeCompare(b)));
   return {
-    clear: () => { cache.clear(); metadata.clear(); filterMetadata.clear(); library.clear(); },
+    clear: () => { cache.clear(); metadata.clear(); filterMetadata.clear(); library.clear(); snapshots.clear(); restored.clear(); previews.clear(); },
     peekLibrary: (kind, params) => library.peek(`${kind}:${key(params)}`),
     library: (kind, params, options) => library.load(`${kind}:${key(params)}`, signal => {
       const { slug, name, ...query } = params;
       return read(`/api/library/${encodeURIComponent(kind)}${slug ? `/${encodeURIComponent(slug)}` : name ? "/entry" : ""}`, { ...query, ...(name ? { name } : {}) }, signal);
     }, options),
     browseKey: params => `browse:${key(normalizeBrowseParams(params))}`,
-    peekBrowse: params => cache.peek(`browse:${key(normalizeBrowseParams(params))}`),
-    browse: (params = {}, options) => cache.load(`browse:${key(normalizeBrowseParams(params))}`, signal => read("/api/products/browse", normalizeBrowseParams(params), signal), options),
-    peekDetail: id => cache.peek(`detail:${id}`),
-    detail: (id, options) => cache.load(`detail:${id}`, signal => read("/api/products/single", { productId: id }, signal), options),
+    peekBrowse: params => peek(`browse:${key(normalizeBrowseParams(params))}`),
+    browse: (params = {}, options) => load(`browse:${key(normalizeBrowseParams(params))}`, signal => read("/api/products/browse", normalizeBrowseParams(params), signal), options),
+    peekDetail: id => peek(`detail:${id}`),
+    peekProduct: id => previews.get(String(id)),
+    detail: (id, options) => load(`detail:${id}`, signal => read("/api/products/single", { productId: id }, signal), options),
+    peekPopular: () => peek("popular"),
+    popular: options => load("popular", signal => read("/api/products/popular", options?.force ? { refresh: Date.now() } : {}, signal), options),
     related: id => cache.load(`related:${id}`, signal => read("/api/products/related", { productId: id }, signal)),
     brands: options => metadata.load("brands", signal => read("/api/products/brands", {}, signal), options),
     peekBrands: () => metadata.peek("brands"),

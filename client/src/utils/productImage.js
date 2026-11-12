@@ -19,3 +19,10 @@ export const getProductImageUrl = (src, width = 320) => {
     `$1f_auto,q_auto,c_limit,w_${safeWidth}/$2`,
   );
 };
+
+export const getProductImageSrcSet = (src, width = 320) => {
+  if (getProductImageUrl(src, width) === src) return undefined;
+  const maximum = Math.min(1600, Math.max(80, Math.round(Number(width) || 320)));
+  return [...new Set([160, 240, 320, 480, 640, 960, maximum].filter(value => value <= maximum))]
+    .sort((a, b) => a - b).map(value => `${getProductImageUrl(src, value)} ${value}w`).join(", ");
+};

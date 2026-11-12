@@ -15,7 +15,7 @@ import { createCartUpdateQueue } from "../utils/cartUpdateQueue";
 import { createUserProfileLoader } from "../utils/userProfileLoader";
 import { createDashboardCache } from "../utils/dashboardCache";
 import { createStoreResources } from "../utils/storeResources";
-import { createPublicCatalog } from "../utils/publicCatalog";
+import { storefrontCatalog, warmStorefront } from "../utils/storefrontClient";
 import { prefetchRoute } from "../utils/prefetchRoute";
 import { persistCartSizeChange } from "../utils/cartSizeUpdate";
 import { getCartItemKey } from "../utils/cartSelection";
@@ -60,7 +60,7 @@ export const AppContextProvider = ({ children }) => {
   const [productsLoading, setProductsLoading] = useState(false);
   const [productsError, setProductsError] = useState("");
   const [resolvedCartIds, setResolvedCartIds] = useState([]);
-  const [publicCatalog] = useState(() => createPublicCatalog({ axios }));
+  const [publicCatalog] = useState(() => storefrontCatalog);
   const cartItemsRef = useRef({});
   const registerProducts = useCallback((items) => {
     if (!items?.length) return;
@@ -80,7 +80,7 @@ export const AppContextProvider = ({ children }) => {
     });
   }, []);
   const [dashboardCache] = useState(() => createDashboardCache());
-  const [popularProducts, setPopularProducts] = useState([]);
+  const [popularProducts, setPopularProducts] = useState(() => storefrontCatalog.peekPopular()?.products || []);
   const [popularProductsLoading, setPopularProductsLoading] = useState(true);
   const [popularProductsError, setPopularProductsError] = useState("");
   const popularRequestRef = useRef(null);
@@ -116,7 +116,8 @@ export const AppContextProvider = ({ children }) => {
   const [method, setMethod] = useState("COD");
   const [profileResult, setProfileResult] = useState({ userId: null, role: null, error: "" });
   const navigate = useNavigate();
-  const { pathname, key: locationKey, state: locationState } = useLocation();
+  const { pathname, search: routeSearch, key: locationKey, state: locationState } = useLocation();
+  useEffect(() => { warmStorefront(pathname, routeSearch); }, [pathname, routeSearch]);
   const searchQuery = pathname !== "/collection"
     ? ""
     : searchState.key === locationKey
@@ -272,9 +273,7 @@ export const AppContextProvider = ({ children }) => {
     if (!force && Date.now() - popularSavedAt.current < 120000) return Promise.resolve();
     popularRequestRef.current = (async () => {
       try {
-        const { data } = await axios.get("/api/products/popular", {
-          ...(force ? { params: { refresh: Date.now() } } : {}), timeout: 15000,
-        });
+        const data = await storefrontCatalog.popular({ force });
         if (!data.success) {
           throw new Error(data.message || "Không thể tải sản phẩm bán chạy");
         }
@@ -342,6 +341,7 @@ export const AppContextProvider = ({ children }) => {
   // Replace only the product returned by an update API.
   // This avoids fetching the complete catalog after every stock toggle.
   const replaceProduct = (updatedProduct) => {
+    publicCatalog.clear();
     setProducts((currentProducts) =>
       currentProducts.map((product) =>
         product._id === updatedProduct._id ? updatedProduct : product,
@@ -350,6 +350,7 @@ export const AppContextProvider = ({ children }) => {
   };
 
   const applyStockUpdates = useCallback((updates = []) => {
+    if (updates.length) storefrontCatalog.clear();
     const byId = new Map(updates.map((item) => [item._id, item]));
     setProducts((current) => current.map((product) => byId.has(product._id)
       ? { ...product, ...byId.get(product._id) } : product));

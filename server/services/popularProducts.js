@@ -43,7 +43,7 @@ export const getPopularProducts = async () => {
       $project: {
         _id: "$product._id",
         title: "$product.title",
-        images: "$product.images",
+        images: { $slice: [{ $ifNull: ["$product.images", []] }, 1] },
         type: "$product.type",
         category: "$product.category",
         price: "$product.price",

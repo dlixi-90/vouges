@@ -35,7 +35,7 @@
 .net-theme .net-product-card:is(:hover, :focus-visible) > .net-product-media > img { transform: scale(1.04); }
 .net-theme .net-product-card > .net-product-info { min-width: 0; padding: 12px clamp(8px, 3.5cqi, 16px) 16px; }
 .net-theme .net-product-card .net-product-category { min-height: 1.4em; margin: 0; overflow: hidden; color: #999; font-family: Inter, sans-serif; font-size: clamp(10px, 2.5cqi + 1px, 12px); line-height: 1.5; text-overflow: ellipsis; white-space: nowrap; }
-.net-theme .net-product-card h5 { display: -webkit-box; overflow: hidden; margin: 5px 0 6px; font-family: var(--inessa-serif, Georgia, serif); font-size: clamp(12px, 3.2cqi + 1px, 15px); font-weight: 400; line-height: 1.32; letter-spacing: 0; text-transform: uppercase; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.net-theme .net-product-card h5 { display: -webkit-box; overflow: hidden; margin: 5px 0 6px; font-family: var(--inessa-serif, Georgia, serif); font-size: clamp(13px, 3.2cqi + 2px, 16px); font-weight: 700; line-height: 1.32; letter-spacing: 0; text-transform: uppercase; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .net-theme .net-product-card .net-product-price { margin: 0; padding: 0; border: 0; color: #555; font-family: Inter, sans-serif; font-size: clamp(12px, 3.2cqi + 1px, 15px); font-weight: 600; line-height: 1.45; }
 .net-product-price > span { white-space: nowrap; }
 .net-theme .net-product-card .net-product-stock { position: absolute; top: 8px; left: 8px; margin: 0; padding: 3px 9px; border: 1px solid #fecaca; border-radius: 20px; background: #fff1f2; color: #b91c1c; font-family: Inter, sans-serif; font-size: 10px; line-height: 1.6; }

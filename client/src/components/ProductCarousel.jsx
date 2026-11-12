@@ -17,9 +17,9 @@ const ProductCarousel = ({ products }) => (
     modules={[Autoplay]}
     className="net-product-carousel"
   >
-    {products.slice(0, 10).map((product) => (
+    {products.slice(0, 10).map((product, index) => (
       <SwiperSlide key={product._id}>
-        <Item product={product} />
+        <Item product={product} priority={index < 2} />
       </SwiperSlide>
     ))}
   </Swiper>

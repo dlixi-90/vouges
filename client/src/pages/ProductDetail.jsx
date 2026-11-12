@@ -157,14 +157,15 @@ const ProductDetail = () => {
     void storeResources.loadReviews(productId).catch(() => {});
   }, [storeResources, productId]);
   const product =
-    detailResponse?.product || products.find((item) => item._id === productId);
+    detailResponse?.product || products.find((item) => item._id === productId) || publicCatalog.peekProduct(productId);
+  const previewOnly = !detailResponse?.product;
   const productAvailable = product ? hasAnyAvailableSize(product) : false;
   const availableSizes = product ? getAvailableSizes(product) : [];
   const size = product?.sizes?.includes(selectedSize)
     ? selectedSize
     : (availableSizes[0] ?? product?.sizes?.[0] ?? null);
   const sizeImage = product?.sizeImages?.[size];
-  const gallery = getDetailGallery(product, size);
+  const gallery = previewOnly ? product?.images?.slice(0, 1) || [] : getDetailGallery(product, size);
   const image =
     selectedImage?.productId === productId &&
     selectedImage?.size === size &&
@@ -235,7 +236,7 @@ const ProductDetail = () => {
       {loadError && <p role="alert">{loadError} <button type="button" onClick={reloadDetail} className="underline">Thử lại</button></p>}
       <LoadingStatus active={detailLoading} label="Đang cập nhật sản phẩm…" />
       <Breadcrumbs items={productBreadcrumbs(product)} className="product-detail-breadcrumb" onNavigate={() => setSearchQuery("")} />
-      <div className="product-detail-overview">
+      <div className="product-detail-overview" aria-busy={detailLoading}>
         <div className="product-detail-visual-column">
           <section
             className="product-detail-gallery"
@@ -283,6 +284,7 @@ const ProductDetail = () => {
                     ref={productImageRef}
                     src={image}
                     imageWidth={960}
+                    sizes="(max-width: 767px) 220px, (max-width: 1199px) 70vw, 600px"
                     loading="eager"
                     fetchPriority="high"
                     alt={`${product.title}${sizeImage && image === sizeImage ? ` - ${size}` : ""}`}
@@ -306,48 +308,50 @@ const ProductDetail = () => {
           aria-label="Thông tin sản phẩm"
         >
           <div className="product-detail-buying">
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#858b87]">
-              {product.category} · {product.type.replaceAll("-", " ")}
-            </p>
-            <h1 className="text-2xl font-semibold leading-tight tracking-[-0.025em] text-[#303030] sm:text-3xl">
-              {product.title}
-            </h1>
-            <p className="mt-2 text-2xl text-[#737373]">
-              {formatVnd(size ? product.price?.[size] : 0, currency)}
-            </p>
-            <a
-              href="#reviews"
-              onClick={openReviews}
-              aria-label={
-                reviewStats && !reviewStats.error
-                  ? reviewStats.count > 0
-                    ? `${reviewStats.average.toFixed(1)} trên 5 sao, ${reviewStats.count} đánh giá. Xem hoặc viết đánh giá sản phẩm.`
-                    : "Chưa có đánh giá. Viết đánh giá sản phẩm."
-                  : "Xem hoặc viết đánh giá sản phẩm"
-              }
-              className="product-detail-review-link mt-3 inline-flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md py-1 text-sm text-secondary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary"
-            >
-              {reviewStats && !reviewStats.error ? (
-                <>
-                  <span className="border-b border-current leading-5">
-                    {reviewStats.count > 0
-                      ? reviewStats.average.toFixed(1)
-                      : "Chưa có đánh giá"}
-                  </span>
-                  <RatingStars average={reviewStats.average} />
-                  <span className="inline-flex items-center gap-1.5 border-l border-gray-200 pl-3">
+            <div className="product-detail-heading">
+              <p className="product-detail-category mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#858b87]">
+                {product.category} · {String(product.type || "").replaceAll("-", " ")}
+              </p>
+              <h1 className="text-2xl font-semibold leading-tight tracking-[-0.025em] text-[#303030] sm:text-3xl">
+                {product.title}
+              </h1>
+              <p className="product-detail-price mt-2 text-2xl text-[#737373]">
+                {formatVnd(size ? product.price?.[size] : 0, currency)}
+              </p>
+              <a
+                href="#reviews"
+                onClick={openReviews}
+                aria-label={
+                  reviewStats && !reviewStats.error
+                    ? reviewStats.count > 0
+                      ? `${reviewStats.average.toFixed(1)} trên 5 sao, ${reviewStats.count} đánh giá. Xem hoặc viết đánh giá sản phẩm.`
+                      : "Chưa có đánh giá. Viết đánh giá sản phẩm."
+                    : "Xem hoặc viết đánh giá sản phẩm"
+                }
+                className="product-detail-review-link mt-3 inline-flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md py-1 text-sm text-secondary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary"
+              >
+                {reviewStats && !reviewStats.error ? (
+                  <>
                     <span className="border-b border-current leading-5">
-                      {reviewStats.count.toLocaleString("vi-VN")}
+                      {reviewStats.count > 0
+                        ? reviewStats.average.toFixed(1)
+                        : "Chưa có đánh giá"}
                     </span>
-                    <span className="text-gray-500">Đánh giá</span>
+                    <RatingStars average={reviewStats.average} />
+                    <span className="inline-flex items-center gap-1.5 border-l border-gray-200 pl-3">
+                      <span className="border-b border-current leading-5">
+                        {reviewStats.count.toLocaleString("vi-VN")}
+                      </span>
+                      <span className="text-gray-500">Đánh giá</span>
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-gray-500">
+                    Xem đánh giá sản phẩm
                   </span>
-                </>
-              ) : (
-                <span className="text-gray-500">
-                  Xem đánh giá sản phẩm
-                </span>
-              )}
-            </a>
+                )}
+              </a>
+            </div>
 
             <div className="product-detail-size-options mt-6 border-t border-[#dededb] pt-5">
               <div className="mb-3 flex items-center justify-between gap-4">
@@ -374,6 +378,7 @@ const ProductDetail = () => {
                       key={item}
                       type="button"
                       disabled={!available}
+                      aria-pressed={item === size}
                       onClick={() => selectSize(item)}
                       className={`min-w-20 rounded-lg border px-4 py-2.5 text-xs transition ${
                         item === size
@@ -435,6 +440,7 @@ const ProductDetail = () => {
                 type="button"
                 onClick={handleAddToCart}
                 disabled={
+                  previewOnly ||
                   !selectedSizeAvailable ||
                   safeQuantity < 1 ||
                   addStatus === "adding"
@@ -447,7 +453,9 @@ const ProductDetail = () => {
               >
                 <span className="flex items-center justify-center gap-2">
                   {addStatus === "added" && <Check size={16} />}
-                  {addStatus === "adding"
+                  {previewOnly
+                    ? "Đang cập nhật…"
+                    : addStatus === "adding"
                     ? "Đang thêm…"
                     : addStatus === "added"
                       ? "Đã thêm!"
@@ -460,7 +468,7 @@ const ProductDetail = () => {
               </button>
             </div>
             {quantityInCart > 0 && (
-              <p className="mt-2 text-xs text-gray-500">
+              <p className="product-detail-cart-note mt-2 text-xs text-gray-500">
                 Đã có {quantityInCart.toLocaleString("vi-VN")} sản phẩm của dung
                 tích này trong giỏ.
               </p>

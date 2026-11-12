@@ -80,8 +80,29 @@ const metadata = () => catalogSnapshot("browse-metadata", 300000, async () => {
   return { types: (result.types || []).map(row => row._id), categories: (result.categories || []).map(row => row._id).filter(Boolean), maxPrice: result.price?.[0]?.maximum || 0 };
 });
 
-export const canPageBrowseDirectly = options => options.sort === "relevant" && options.minPrice === 0 && options.maxPrice === Infinity
-  && !needsFragranceProfiles(options.facets) && !options.facets?.sizes?.length;
+export const canPageBrowseDirectly = options => !needsFragranceProfiles(options.facets)
+  && (!options.q || options.sort === "relevant");
+
+const variantStages = options => {
+  const selectedSizes = options.facets?.sizes || [];
+  const priceForSize = { $convert: { input: sizeValue("price"), to: "double", onError: null, onNull: null } };
+  return [
+    { $set: { _availableSizes: selectedSizes.length ? { $filter: {
+      input: availableSizesExpression, as: "size", cond: { $in: ["$$size", selectedSizes] },
+    } } : availableSizesExpression } },
+    ...(selectedSizes.length ? [{ $match: { "_availableSizes.0": { $exists: true } } }] : []),
+    { $set: { _displaySize: { $ifNull: [
+      { $arrayElemAt: [{ $filter: { input: "$_availableSizes", as: "size", cond: { $and: [
+        { $gte: [priceForSize, options.minPrice] }, { $lte: [priceForSize, options.maxPrice] },
+      ] } } }, 0] },
+      { $arrayElemAt: ["$_availableSizes", 0] },
+    ] } } },
+    { $set: { _displayPrice: { $ifNull: [{ $let: { vars: { size: "$_displaySize" }, in: priceForSize } }, Infinity] } } },
+    ...(options.minPrice > 0 || options.maxPrice !== Infinity ? [{ $match: {
+      _displayPrice: { $gte: options.minPrice, $lte: options.maxPrice },
+    } }] : []),
+  ];
+};
 
 const basicFacetFilters = facets => {
   const clauses = [];
@@ -116,21 +137,31 @@ export const readStorefrontBrowse = async options => {
     if (searchSpec) clauses.push(...searchSpec.clauses);
     if (options.availability !== "all") clauses.push({ $expr: { $gt: [{ $size: availableSizesExpression }, 0] } });
     const match = { ...visible, ...(clauses.length ? { $and: clauses } : {}) };
-    const base = searchSpec
-      ? [{ $match: match }, { $set: { _searchScore: searchSpec.scoreExpression } }, { $sort: { _searchScore: -1, createdAt: -1, _id: -1 } }]
-      : [{ $match: match }, { $sort: { createdAt: -1, _id: -1 } }];
+    const priceSort = options.sort === "low" || options.sort === "high";
+    const nameSort = options.sort === "name-asc" || options.sort === "name-desc";
+    const showDisplaySize = options.facets?.sizes?.length || options.minPrice > 0 || options.maxPrice !== Infinity;
+    const base = [{ $match: match },
+      ...(priceSort || showDisplaySize ? variantStages(options) : []),
+      ...(nameSort ? [{ $set: { _sortName: { $trim: { input: { $ifNull: ["$title", ""] } } } } }]
+        : searchSpec && !priceSort ? [{ $set: { _searchScore: searchSpec.scoreExpression } }] : []),
+      { $sort: nameSort ? { _sortName: options.sort === "name-asc" ? 1 : -1, _id: options.sort === "name-asc" ? 1 : -1 }
+        : priceSort ? { _displayPrice: options.sort === "low" ? 1 : -1, createdAt: -1, _id: -1 }
+          : searchSpec ? { _searchScore: -1, createdAt: -1, _id: -1 } : { createdAt: -1, _id: -1 } },
+    ];
     const readPage = async page => {
       const [result = {}] = await Product.aggregate([...base, { $facet: {
         total: [{ $count: "count" }],
-        products: [{ $skip: (page - 1) * options.limit }, { $limit: options.limit }, { $project: { ...projection, images: { $slice: [{ $ifNull: ["$images", []] }, 1] } } }],
-      } }]);
+        products: [{ $skip: (page - 1) * options.limit }, { $limit: options.limit }, { $project: { ...projection,
+          ...(showDisplaySize ? { displaySize: "$_displaySize" } : {}), images: { $slice: [{ $ifNull: ["$images", []] }, 1] } } }],
+      } }], nameSort ? { collation: { locale: "vi", strength: 1, numericOrdering: true } } : {});
       return { total: result.total?.[0]?.count || 0, products: result.products || [] };
     };
     let [result, meta] = await Promise.all([readPage(options.page), metaRequest]);
     const availableTypes = availableTypesFor(meta);
     const totalPages = Math.max(1, Math.ceil(result.total / options.limit)), page = Math.min(options.page, totalPages);
     if (page !== options.page && result.total > 0) result = await readPage(page);
-    return { success: true, products: result.products.map(product => toProductCard({ ...product, _id: String(product._id) })),
+    return { success: true, products: result.products.map(product => ({ ...toProductCard({ ...product, _id: String(product._id) }),
+      ...(showDisplaySize && product.displaySize ? { displaySize: product.displaySize } : {}) })),
       total: result.total, page, totalPages, pageSize: options.limit,
       filters: { types: availableTypes, categories: meta.categories, maxPrice: meta.maxPrice } };
   });
