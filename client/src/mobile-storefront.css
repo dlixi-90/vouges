@@ -164,7 +164,8 @@
   .net-storefront .product-detail-gallery-layout { flex-direction: column-reverse; gap: 4px; }
   .net-storefront .product-detail-thumbnails { flex-direction: row; gap: 6px; width: 100%; max-height: none; overflow-x: auto; overflow-y: hidden; touch-action: pan-x; }
   .net-storefront .product-detail-thumbnails > button { flex-basis: 44px; width: 44px; height: 44px; min-width: 44px; min-height: 44px; max-width: 44px; max-height: 44px; padding: 3px; }
-  .net-storefront .product-detail-gallery-stage { width: 100%; flex: none; min-height: 0; height: clamp(156px, calc(100dvh - 524px), 256px); padding: 8px; background: var(--net-surface); border-radius: 14px; }
+  /* Width stays stable when a phone's browser bars collapse during scrolling. */
+  .net-storefront .product-detail-gallery-stage { width: 100%; flex: none; min-height: 0; height: clamp(176px, 52vw, 240px); padding: 8px; background: var(--net-surface); border-radius: 14px; }
   .net-storefront .product-detail-main-image { width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; }
   .net-storefront .product-detail-category { margin-bottom: 4px; font-size: 9px; line-height: 1.5; letter-spacing: .06em; }
   .net-storefront .net-product-detail h1 { font-size: clamp(18px, 4.8vw, 23px); line-height: 1.3; overflow-wrap: anywhere; }
@@ -177,13 +178,14 @@
   .net-storefront .product-detail-buying .product-detail-size-options { margin-top: 8px; padding-top: 8px; }
   .net-storefront .product-detail-size-options > div:first-child { gap: 8px; margin-bottom: 6px; }
   .net-storefront .product-detail-stock { font-size: 10px; }
-  .net-storefront .product-detail-size-options button { min-width: 64px; min-height: 44px; padding: 8px 12px; }
+  .net-storefront .product-detail-size-options button { min-width: 56px; min-height: 36px; padding: 6px 10px; font-size: 11px; }
   .net-storefront .product-detail-info .product-detail-purchase-actions { flex-wrap: nowrap; margin-top: 8px; }
-  .net-storefront .product-detail-purchase-actions > :is(div,button) { min-height: 48px; }
-  .net-storefront .product-detail-purchase-actions > button { min-width: 0; padding-inline: 10px; font-size: 12px; letter-spacing: 0; text-transform: none; }
+  .net-storefront .product-detail-purchase-actions > :is(div,button) { height: 40px; min-height: 40px; }
+  .net-storefront .product-detail-purchase-actions > div > button { width: 32px; }
+  .net-storefront .product-detail-purchase-actions > div > span { width: 24px; font-size: 12px; }
+  .net-storefront .product-detail-purchase-actions > button { min-width: 0; padding-inline: 8px; font-size: 11px; letter-spacing: 0; text-transform: none; }
   .net-storefront .product-detail-cart-note { margin-top: 6px; }
   .net-storefront .product-detail-summary { max-width: none; margin-top: 16px; }
-  .net-storefront:has(.net-product-detail) .inessa-chat-launcher { top: max(8px, env(safe-area-inset-top)); right: 72px; bottom: auto; box-shadow: none; }
   .net-storefront .net-product-detail .product-detail-tab-list > button { min-height: 48px; font-size: 13px; }
   .net-storefront .product-detail-assurances { font-size: 11px; line-height: 1.7; }
   .net-storefront .product-detail-assurances svg { flex-shrink: 0; }
