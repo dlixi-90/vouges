@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAppContext } from "../context/AppContext";
-import { createSupportEventParser, mergeSupportSnapshot } from "../utils/supportChat";
+import { mergeSupportSnapshot } from "../utils/supportChat";
+import { newestNotificationSnapshot } from "../utils/adminNotifications";
+import { startSupportFeed } from "../utils/supportFeed";
 
 export const useSupportApi = () => {
   const { axios, getToken, storeResources } = useAppContext();
@@ -8,7 +10,7 @@ export const useSupportApi = () => {
   useEffect(() => { tokenRef.current = getToken; }, [getToken]);
   return useMemo(() => ({
     token: () => tokenRef.current(),
-    url: (path) => new URL(path, axios.defaults.baseURL || window.location.origin).toString(),
+    url: path => new URL(path, axios.defaults.baseURL || window.location.origin).toString(),
     async request(method, path, body, signal) {
       const token = await tokenRef.current();
       signal?.throwIfAborted();
@@ -16,7 +18,7 @@ export const useSupportApi = () => {
       const { data } = await axios.request({ method, url: path, data: body, signal, timeout: 15000,
         headers: { Authorization: `Bearer ${token}` } });
       if (!data.success) throw new Error(data.message || "Không thể tải cuộc trò chuyện.");
-      if (method.toLowerCase() !== "get") storeResources.invalidateSupport();
+      if (method.toLowerCase() !== "get") storeResources.invalidateSupportInbox();
       return data;
     },
   }), [axios, storeResources]);
@@ -28,105 +30,37 @@ export const useSupportFeed = (path, enabled, conversationFeed = false, initialD
   const userId = user?.id;
   const key = `${userId}:${path}`;
   const inboxPath = !conversationFeed && path?.startsWith("/api/support/inbox/events") ? path.replace("/inbox/events", "/inbox") : null;
-  const cached = inboxPath ? storeResources.peekSupportInbox(inboxPath) : null;
+  const conversationId = conversationFeed ? path?.match(/\/conversations\/([^/]+)\/events/u)?.[1] : null;
+  const cached = conversationId ? storeResources.peekSupportConversation(conversationId)
+    : inboxPath ? storeResources.peekSupportInbox(inboxPath) : null;
   const [result, setResult] = useState(() => initialData ? { key, data: initialData } : null);
+  const latest = useRef(null);
   const [connection, setConnection] = useState({ key: "", status: "connecting", error: "" });
-  const update = useCallback((snapshot) => {
-    if (inboxPath) storeResources.setSupportInbox(inboxPath, snapshot);
-    setResult(previous => ({ key, data: conversationFeed ? mergeSupportSnapshot(previous?.key === key ? previous.data : null, snapshot) : snapshot }));
-  }, [key, conversationFeed, inboxPath, storeResources]);
+  const update = useCallback(snapshot => {
+    const current = latest.current?.key === key ? latest.current.data
+      : conversationId ? storeResources.peekSupportConversation(conversationId) : null;
+    const data = conversationFeed ? mergeSupportSnapshot(current, snapshot) : newestNotificationSnapshot(current, snapshot);
+    latest.current = { key, data };
+    if (inboxPath) storeResources.setSupportInbox(inboxPath, data);
+    if (conversationId) storeResources.setSupportConversation(conversationId, data);
+    setResult({ key, data });
+  }, [key, conversationFeed, inboxPath, conversationId, storeResources]);
+
   useEffect(() => {
-    if (!enabled || !userId || !path) return undefined;
-    let active = true;
-    let controller;
-    let bootstrapController;
-    let reconnect;
-    let failures = 0;
-    let generation = 0;
-    let liveSnapshots = 0;
-    let bootstrapPromise;
-    let bootstrapPending = false;
-    let bootstrapSnapshot = initialData || null;
-    // Load a conversation once over JSON before opening its live stream. Never
-    // let the bootstrap replace a newer live snapshot.
-    const snapshotPath = inboxPath || (conversationFeed ? path.replace(/\/events(?=\?|$)/, "/messages") : null);
-    if (inboxPath) void storeResources.loadSupportInbox(inboxPath).then(snapshot => {
-      if (active && liveSnapshots === 0) update(snapshot);
-    }).catch(() => {}); // The live connection retains its existing retry/error UI.
-    else if (snapshotPath && conversationFeed && !initialData) {
-      bootstrapPending = true;
-      bootstrapController = new AbortController();
-      bootstrapPromise = api.request("get", snapshotPath, undefined, bootstrapController.signal).then(snapshot => {
-        bootstrapSnapshot = snapshot;
-        if (active && liveSnapshots === 0) update(snapshot);
-      }).catch(() => {}).finally(() => { bootstrapPending = false; });
-    }
-    const connect = async () => {
-      if (!active || document.hidden) return;
-      const epoch = ++generation;
-      const current = () => active && epoch === generation && !document.hidden;
-      const requestController = new AbortController();
-      controller = requestController;
-      // Also recover when a proxy opens the stream but never flushes a frame.
-      const deadline = window.setTimeout(() => requestController.abort(), 30000);
-      try {
-        const token = await api.token();
-        requestController.signal.throwIfAborted();
-        if (!token) throw new Error("Phiên đăng nhập đã hết hạn.");
-        const conversation = conversationFeed && bootstrapSnapshot?.conversation;
-        const version = conversation?.updatedAt
-          ? [new Date(conversation.updatedAt).toISOString(), conversation.sequence, conversation.unreadStaff, conversation.unreadCustomer, conversation.status].join(":")
-          : "";
-        const streamPath = version ? `${path}${path.includes("?") ? "&" : "?"}since=${encodeURIComponent(version)}` : path;
-        const response = await fetch(api.url(streamPath), { signal: requestController.signal,
-          headers: { Authorization: `Bearer ${token}`, Accept: "text/event-stream" }, cache: "no-store" });
-        if (!response.ok || !response.body || !response.headers.get("content-type")?.includes("text/event-stream")) {
-          const error = new Error(response.status === 401 ? "Vui lòng đăng nhập lại để tiếp tục trò chuyện." : "Không thể kết nối trò chuyện. Đang thử lại…");
-          error.terminal = [401, 403, 404].includes(response.status);
-          throw error;
-        }
-        setConnection({ key, status: "live", error: "" });
-        const parse = createSupportEventParser((snapshot) => {
-          if (!current()) return;
-          failures = 0;
-          liveSnapshots++;
-          update(snapshot);
-          setConnection({ key, status: "live", error: "" });
-        });
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        try {
-          while (current()) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            parse(decoder.decode(value, { stream: true }));
-          }
-        } finally { await reader.cancel().catch(() => {}); }
-        if (current()) reconnect = window.setTimeout(connect, 250);
-      } catch (error) {
-        if (!current()) return;
-        setConnection({ key, status: error.terminal ? "error" : "reconnecting", error: error.name === "AbortError" ? "Kết nối gián đoạn. Đang kết nối lại…" : error.message });
-        if (!error.terminal) reconnect = window.setTimeout(connect, Math.min(15000, 1000 * 2 ** Math.min(failures++, 4)));
-      } finally { window.clearTimeout(deadline); }
-    };
-    const visibility = () => {
-      generation++;
-      window.clearTimeout(reconnect);
-      controller?.abort();
-      if (!document.hidden && !bootstrapPending) reconnect = window.setTimeout(connect, 0);
-    };
-    document.addEventListener("visibilitychange", visibility);
-    if (bootstrapPromise) void bootstrapPromise.then(() => { if (active && !document.hidden) void connect(); });
-    else void connect();
-    return () => {
-      active = false;
-      generation++;
-      window.clearTimeout(reconnect);
-      controller?.abort();
-      bootstrapController?.abort();
-      document.removeEventListener("visibilitychange", visibility);
-    };
-  }, [api, path, enabled, userId, key, update, inboxPath, storeResources, conversationFeed, initialData]);
-  return { data: result?.key === key ? result.data : cached, update,
+    if (!enabled || !userId || !path) return;
+    if (initialData) update(initialData);
+    return startSupportFeed({
+      path, api, conversationFeed,
+      getSnapshot: () => latest.current?.key === key ? latest.current.data
+        : conversationId ? storeResources.peekSupportConversation(conversationId)
+          : inboxPath ? storeResources.peekSupportInbox(inboxPath) : null,
+      readSnapshot: conversationId ? (signal, force) => !force && initialData ? Promise.resolve(initialData)
+        : storeResources.loadSupportConversation(conversationId, { signal, force })
+        : inboxPath ? (signal, force) => storeResources.loadSupportInbox(inboxPath, { signal, force }) : null,
+      onSnapshot: update,
+      onConnection: (status, error) => setConnection({ key, status, error }),
+    });
+  }, [api, path, enabled, userId, key, update, inboxPath, conversationId, storeResources, conversationFeed, initialData]);
+  return { data: result?.key === key ? result.data : cached || initialData, update,
     status: connection.key === key ? connection.status : "connecting", error: connection.key === key ? connection.error : "" };
 };

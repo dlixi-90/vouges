@@ -75,7 +75,7 @@ const App = () => {
       <ScrollToTopOnNavigation />
       {!isOwnerPath && <Header />}
       {isCartOpen && <Suspense fallback={null}><CartDrawer /></Suspense>}
-      <Toaster position="bottom-right" />
+      <Toaster position="bottom-right" containerClassName="store-toasts" />
       <Suspense
         fallback={
           location.pathname.startsWith("/collection/") ? <ProductDetailSkeleton /> : <PageSkeleton />

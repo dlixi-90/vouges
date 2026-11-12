@@ -3,6 +3,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react"
 import { Link, useLocation } from "react-router-dom";
 import { assets } from "../assets/data";
 import Navbar from "./Navbar";
+import MobileNavigation from "./MobileNavigation";
 import QuickProductSearch from "./QuickProductSearch";
 import useBrandDirectory from "../hooks/useBrandDirectory";
 import { prefetchRoute } from "../utils/prefetchRoute";
@@ -60,6 +61,7 @@ const Header = () => {
   const toggleMenu = () => {
     setMenuOpened((prev) => !prev);
   };
+  const closeMenu = useCallback(() => setMenuOpened(false), []);
 
   const toggleAIChat = () => {
     setHasOpenedAIChat(true);
@@ -97,7 +99,7 @@ const Header = () => {
         <div className="max-padd-container inessa-header-grid">
           <div className="inessa-navigation-left">
             <button type="button" onClick={toggleMenu} aria-label={menuOpened ? "Đóng menu" : "Mở menu"}
-              aria-expanded={menuOpened} aria-controls="store-navigation" className="inessa-menu-toggle">
+              aria-expanded={menuOpened} aria-controls="mobile-menu store-navigation" className="inessa-menu-toggle">
               <img src={menuOpened ? assets.menuClose : assets.menu} alt="" width={24} height={24} />
             </button>
             <Navbar group="shop" brandDirectory={brandDirectory} navigationId="store-shop-navigation" setMenuOpened={setMenuOpened} containerStyles="inessa-desktop-navigation" />
@@ -220,6 +222,8 @@ const Header = () => {
           {menuOpened && <Navbar brandDirectory={brandDirectory} setMenuOpened={setMenuOpened} containerStyles="inessa-mobile-navigation fixed" />}
         </div>
       </header>
+
+      <MobileNavigation brandDirectory={brandDirectory} menuOpened={menuOpened} setMenuOpened={setMenuOpened} closeMenu={closeMenu} />
 
       <button
         ref={chatLauncherRef}

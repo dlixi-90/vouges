@@ -1,0 +1,36 @@
+.admin-notifications { position: relative; flex-shrink: 0; }
+.admin-notifications .admin-notification { position: relative; cursor: pointer; }
+.admin-notification-badge { position: absolute; top: -6px; right: -6px; display: flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding-inline: 4px; border: 2px solid #f7f7f8; border-radius: 20px; background: #c53232; color: #fff; font-size: 10px; font-weight: 700; line-height: 1; }
+.admin-notification-panel { position: absolute; top: calc(100% + 14px); right: 0; z-index: 80; display: flex; flex-direction: column; width: 400px; max-width: calc(100vw - 32px); max-height: min(640px, calc(100dvh - 140px)); overflow: hidden; border: 1px solid #e7e7e7; border-radius: 18px; background: #fff; color: #252525; box-shadow: 0 16px 60px #00000020; }
+.admin-notification-panel > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 18px 14px; border-bottom: 1px solid #eee; }
+.net-admin .admin-notification-panel h2 { font-family: Inter, sans-serif; font-size: 17px; font-weight: 600; }
+.net-admin .admin-notification-panel header p { margin-top: 4px; font-size: 11px; color: #888; line-height: 1.5; }
+.admin-notification-close { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; background: #f6f6f6; cursor: pointer; }
+.admin-notification-read-all { display: flex; align-items: center; justify-content: flex-end; gap: 7px; min-height: 44px; padding: 10px 18px; border-bottom: 1px solid #eee; color: #555; font-size: 11px; cursor: pointer; }
+.admin-notification-read-all:disabled { cursor: wait; opacity: .5; }
+.net-admin .admin-notification-panel :is(.admin-notification-error, .admin-notification-connection) { padding: 10px 18px; font-size: 11px; line-height: 1.6; background: #faf8f3; color: #806c40; }
+.net-admin .admin-notification-panel .admin-notification-error { color: #b52828; background: #fff6f6; }
+.admin-notification-list { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.admin-notification-item { display: flex; align-items: flex-start; gap: 11px; padding: 15px 18px; border-bottom: 1px solid #f1f1f1; transition: background .15s; }
+.admin-notification-item:is(:hover,:focus-visible) { background: #f7f8f5; }
+.admin-notification-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 38px; height: 38px; border: 1px solid #eee; border-radius: 12px; background: #fafafa; color: #666; }
+.admin-notification-icon.is-message { background: #f2f6f0; color: #586c4e; }
+.admin-notification-icon.is-review { background: #fcf8ed; color: #92752d; }
+.admin-notification-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 5px; }
+.admin-notification-copy strong { font-size: 12px; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+.admin-notification-copy > span { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: #777; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.admin-notification-copy time { color: #999; font-size: 10px; }
+.admin-notification-item-count { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; min-width: 22px; height: 22px; padding-inline: 5px; border-radius: 20px; background: #c53232; color: #fff; font-size: 10px; }
+.admin-notification-unread { flex-shrink: 0; width: 6px; height: 6px; margin-top: 6px; border-radius: 50%; background: #c53232; }
+.admin-notification-empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 40px 25px; color: #888; text-align: center; font-size: 12px; }
+.admin-notification-empty strong { color: #444; font-size: 13px; }
+.net-admin .admin-notification-empty p { font-size: 12px; line-height: 1.7; }
+.admin-notification-panel > footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 18px; border-top: 1px solid #eee; font-size: 10px; }
+.admin-notification-panel > footer a { color: #444; text-decoration: underline; text-underline-offset: 3px; }
+.admin-notification-panel > footer span { color: #999; }
+.net-admin .admin-navigation .admin-nav-group > a:has(.admin-nav-notification) { gap: 8px; }
+.net-admin .admin-navigation a:has(.admin-nav-notification) > span { white-space: nowrap; }
+.admin-nav-notification { flex-shrink: 0; margin-left: auto; padding: 3px 6px; border-radius: 20px; background: #c53232; color: #fff; font-size: 10px; line-height: 1.2; }
+@media (max-width: 767px) {
+  .admin-notification-panel { position: fixed; top: 126px; right: 14px; left: 14px; width: auto; max-width: none; max-height: calc(100dvh - 142px - env(safe-area-inset-bottom)); }
+}

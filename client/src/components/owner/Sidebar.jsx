@@ -1,12 +1,14 @@
 import { Suspense, useEffect, useLayoutEffect, useState } from "react";
 import { Link, Outlet, Navigate, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { UserButton, useClerk } from "@clerk/react";
-import { ArrowUpRight, Bell, ChevronRight, Crown, FlaskConical, Grid2X2, Layers3, Library, LogOut, Menu, MessagesSquare, Package, ShoppingBag, Ticket, Users, X } from "lucide-react";
+import { ArrowUpRight, ChevronRight, Crown, FlaskConical, Grid2X2, Layers3, Library, LogOut, Menu, MessagesSquare, Package, ShoppingBag, Ticket, Users, X } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import { assets } from "../../assets/data";
 import { prefetchOwnerRoute } from "../../utils/ownerPrefetch";
-import { prefetchRoute } from "../../utils/prefetchRoute";
 import QuickProductSearch from "../QuickProductSearch";
+import AdminNotifications from "./AdminNotifications";
+import useAdminNotifications from "../../hooks/useAdminNotifications";
+import { notificationBadge } from "../../utils/adminNotifications";
 import { PageSkeleton } from "../LoadingState";
 import "../../perfume-dashboard.css";
 import "../../admin-dashboard.css";
@@ -35,6 +37,7 @@ const navigation = [
 export default function Sidebar() {
   const context = useAppContext();
   const { isOwner, user, profileError, retryUserProfile } = context;
+  const notifications = useAdminNotifications(isOwner === true);
   const warm = path => { void prefetchOwnerRoute(path, context); };
   const { signOut } = useClerk();
   const { pathname, search } = useLocation();
@@ -50,22 +53,6 @@ export default function Sidebar() {
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   }, [pathname, search]);
-  useEffect(() => {
-    if (isOwner !== true) return;
-    const idle = window.requestIdleCallback || (callback => window.setTimeout(callback, 120));
-    const cancel = window.cancelIdleCallback || window.clearTimeout;
-    const handle = idle(() => {
-      for (const group of navigation) {
-        for (const item of group.items) prefetchRoute(item.path);
-      }
-      void import("./ProductArticleEditor").catch(() => {});
-      void import("./RevenueChart").catch(() => {});
-      for (const target of ["/owner", "/owner/list-product", "/owner/library"]) {
-        if (target !== pathname) void prefetchOwnerRoute(target, context);
-      }
-    });
-    return () => cancel(handle);
-  }, [isOwner, pathname, context]);
   useEffect(() => {
     const mobile = window.matchMedia("(max-width: 767px)");
     if (!menuOpen || !mobile.matches) return;
@@ -166,7 +153,8 @@ export default function Sidebar() {
                 >
                   <Icon size={18} strokeWidth={1.65} aria-hidden="true" />
                   <span>{label}</span>
-                  {active && <ChevronRight size={14} className="admin-nav-arrow" aria-hidden="true" />}
+                  {path === "/owner/messages" && notifications.data?.unreadMessages > 0 && <b className="admin-nav-notification">{notificationBadge(notifications.data.unreadMessages)}</b>}
+                  {active && !(path === "/owner/messages" && notifications.data?.unreadMessages > 0) && <ChevronRight size={14} className="admin-nav-arrow" aria-hidden="true" />}
                 </Link>
               );
             })}
@@ -197,20 +185,7 @@ export default function Sidebar() {
           </div>
           <div className="admin-topbar-tools">
             <QuickProductSearch className="admin-global-search" buildItemUrl={product => `/owner/edit-product/${product._id}`} onSearch={query => navigate(`/owner/list-product?q=${encodeURIComponent(query)}`)} />
-            <Link
-              to="/owner/messages"
-              onPointerEnter={() => warm("/owner/messages")}
-              onFocus={() => warm("/owner/messages")}
-              onClick={() => {
-                window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-                document.documentElement.scrollTop = 0;
-                document.body.scrollTop = 0;
-              }}
-              className="admin-notification"
-              aria-label="Mở tin nhắn hỗ trợ"
-            >
-              <Bell size={19} strokeWidth={1.6} />
-            </Link>
+            <AdminNotifications feed={notifications} />
             <div className="admin-account"><UserButton appearance={{ elements: { userButtonAvatarBox: { width: "36px", height: "36px" } } }} /><div><strong>{user?.fullName || user?.firstName || "Quản trị viên"}</strong><span>{user?.primaryEmailAddress?.emailAddress || "Quản trị viên Velours"}</span></div></div>
           </div>
         </header>

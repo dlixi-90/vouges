@@ -5,11 +5,12 @@ import Item from "./Item";
 
 const ProductCarousel = ({ products }) => (
   <Swiper
+    slidesPerView={2}
     spaceBetween={20}
     autoplay={{ delay: 4000, disableOnInteraction: false }}
     breakpoints={{
-      555: { slidesPerView: 1 },
-      600: { slidesPerView: 2 },
+      0: { slidesPerView: 2, spaceBetween: 10 },
+      600: { slidesPerView: 2, spaceBetween: 20 },
       1022: { slidesPerView: 4 },
       1350: { slidesPerView: 5 },
     }}

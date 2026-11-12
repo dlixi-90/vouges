@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { MAX_ORDER_NOTE_LENGTH } from "../utils/orderNote.js";
+import { attachOrderNotifications } from "../services/adminNotificationEvents.js";
 
 const orderSchema = new mongoose.Schema(
   {
@@ -82,6 +83,7 @@ orderSchema.index({ userId: 1, status: 1, isPaid: 1, completedAt: 1 });
 orderSchema.index({ userId: 1, status: 1, isPaid: 1, loyaltyPending: 1 });
 orderSchema.index({ loyaltyPending: 1, status: 1 });
 
+attachOrderNotifications(orderSchema);
 const Order = mongoose.model("Order", orderSchema);
 
 export default Order;

@@ -1,7 +1,9 @@
 import { createResourceCache } from "./resourceCache.js";
+import { mergeSupportSnapshot } from "./supportChat.js";
 
 export const createStoreResources = ({ cache = createResourceCache(), axios, userId, getToken }) => {
   const catalogCache = createResourceCache({ maxAge: 60000, maxEntries: 80 });
+  const supportCache = createResourceCache({ maxAge: 15000, maxEntries: 12 });
   const catalogListeners = new Set();
   const notifyCatalog = () => {
     for (const listener of catalogListeners) listener();
@@ -19,7 +21,7 @@ export const createStoreResources = ({ cache = createResourceCache(), axios, use
     return data;
   };
   return {
-    clear: () => { cache.clear(); catalogCache.clear(); },
+    clear: () => { cache.clear(); catalogCache.clear(); supportCache.clear(); },
     peekOrders: (page = 1) => cache.peek(ordersKey(page)),
     invalidateOrders: () => cache.invalidate(`customer-orders:${userId}:`),
     loadOrders(page = 1, options) {
@@ -49,8 +51,20 @@ export const createStoreResources = ({ cache = createResourceCache(), axios, use
       signal => read(`${root}${path}`, signal, true), options),
     peekSupportInbox: path => cache.peek(`support-inbox:${path}`),
     setSupportInbox: (path, data) => cache.set(`support-inbox:${path}`, data),
-    invalidateSupport: () => cache.invalidate("support-inbox:"),
+    invalidateSupportInbox: () => cache.invalidate("support-inbox:"),
+    invalidateSupport: () => { cache.invalidate("support-inbox:"); supportCache.clear(); },
     loadSupportInbox: (path, options) => cache.load(`support-inbox:${path}`, signal => read(path, signal, true), options),
+    peekSupportConversation: id => supportCache.peek(String(id)),
+    setSupportConversation(id, snapshot) {
+      if (String(snapshot?.conversation?._id) !== String(id)) return;
+      const current = mergeSupportSnapshot(supportCache.peek(String(id)), snapshot);
+      // Keep recent messages for fast switching; older history remains paginated.
+      supportCache.set(String(id), { ...current, messages: current.messages.slice(-50) });
+    },
+    loadSupportConversation(id, options) {
+      if (!userId) return Promise.resolve(null);
+      return supportCache.load(String(id), signal => read(`/api/support/conversations/${encodeURIComponent(id)}/messages?limit=25`, signal, true), options);
+    },
     peekMembership: () => cache.peek(memberKey),
     invalidateMembership: () => cache.invalidate(memberKey),
     loadMembership(options) {

@@ -1,5 +1,10 @@
 export const SUPPORT_MESSAGE_LIMIT = 3000;
 export const supportStatuses = { waiting: "Chờ tiếp nhận", active: "Đang hỗ trợ", resolved: "Đã kết thúc" };
+export const supportSnapshotVersion = snapshot => {
+  const conversation = snapshot?.conversation;
+  if (!conversation?.updatedAt) return "";
+  return [new Date(conversation.updatedAt).toISOString(), conversation.sequence, conversation.unreadStaff, conversation.unreadCustomer, conversation.status].join(":");
+};
 export const mergeSupportMessages = (...groups) => [...new Map(groups.flat().map((message) => [String(message._id), message])).values()]
   .sort((a, b) => a.sequence - b.sequence);
 export const mergeSupportSnapshot = (current, incoming) => {

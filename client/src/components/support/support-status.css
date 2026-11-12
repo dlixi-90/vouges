@@ -1,0 +1,21 @@
+.net-theme .support-connection-status { display: inline-flex; align-items: center; gap: 7px; color: #9a6700; font-size: 11px; font-weight: 500; line-height: 1.6; white-space: nowrap; }
+.net-theme .support-connection-status .support-status-dot { display: inline-block; flex-shrink: 0; width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 3px #b97c0010; }
+.net-theme .support-connection-status[data-state="live"] { color: #17814c; }
+.net-theme .support-connection-status[data-state="live"] .support-status-dot { box-shadow: 0 0 0 3px #17814c12; }
+.net-theme .support-connection-status[data-state="error"] { color: #c13d3d; }
+.net-theme .support-connection-status[data-state="error"] .support-status-dot { box-shadow: 0 0 0 3px #c13d3d12; }
+.net-theme .support-connection-status[data-state="paused"] { color: #777; }
+.net-theme .support-connection-status[data-state="paused"] .support-status-dot { box-shadow: none; }
+.net-theme .support-case-status { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 6px; background: #f4f4f5; color: #73737b; font-size: 10px; font-weight: 500; line-height: 1.5; white-space: nowrap; }
+.net-theme .support-case-status[data-state="waiting"] { background: #fff7e3; color: #97630b; }
+.net-theme .support-case-status[data-state="active"] { background: #eef4ff; color: #3265ad; }
+.support-thread-status-labels { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.support-loading-history { display: flex; flex-direction: column; gap: 14px; width: 100%; padding: 6px 0; }
+.support-loading-history > span { display: block; width: 62%; height: 58px; border-radius: 14px; background: #f0f1f2; }
+.support-loading-history > span:nth-child(2) { align-self: flex-end; width: 52%; }
+.support-loading-history > small { color: #888; font-size: 12px; text-align: center; }
+.admin-inbox-loading { display: flex; align-items: center; gap: 12px; padding: 20px; border-bottom: 1px solid #f1f1f1; }
+.admin-inbox-loading > span { width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; background: #f0f1f2; }
+.admin-inbox-loading > div { display: grid; width: 70%; gap: 10px; }
+.admin-inbox-loading i { height: 8px; border-radius: 4px; background: #f0f1f2; }
+.admin-inbox-loading i:last-child { width: 65%; }

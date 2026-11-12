@@ -12,7 +12,8 @@ const pulseCart = (cartTarget) => {
 };
 
 export const flyProductToCart = ({ imageSrc, sourceElement }) => {
-  const cartTarget = document.querySelector("[data-cart-target]");
+  const cartTarget = [...document.querySelectorAll("[data-cart-target]")]
+    .find(target => target.getClientRects().length > 0);
   const reducedMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;

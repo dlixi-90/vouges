@@ -14,6 +14,7 @@ import orderRouter from "./routes/orderRoute.js";
 import aiRouter from "./routes/aiRoute.js";
 import voucherRouter from "./routes/voucherRoute.js";
 import supportRouter from "./routes/supportRoute.js";
+import notificationRouter from "./routes/notificationRoute.js";
 import catalogRouter from "./routes/catalogRoute.js";
 import libraryRouter from "./routes/libraryRoute.js";
 import loyaltyRouter from "./routes/loyaltyRoute.js";
@@ -59,6 +60,7 @@ app.use("/api/orders", orderRouter);
 app.use("/api/vouchers", voucherRouter);
 app.use("/api/loyalty", loyaltyRouter);
 app.use("/api/support", supportRouter);
+app.use("/api/notifications", notificationRouter);
 app.use("/api/ai", aiRouter); // Routes for handling order
 
 // Route Endpoint to check API Status

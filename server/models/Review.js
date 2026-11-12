@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { attachReviewNotifications } from "../services/adminNotificationEvents.js";
 const schema = new mongoose.Schema({
   productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
   userId: { type: String, ref: "User", required: true },
@@ -8,4 +9,5 @@ const schema = new mongoose.Schema({
 }, { timestamps: true });
 schema.index({ productId: 1, userId: 1 }, { unique: true });
 schema.index({ productId: 1, createdAt: -1, _id: -1 });
+attachReviewNotifications(schema);
 export default mongoose.model("Review", schema);
