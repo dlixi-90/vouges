@@ -156,9 +156,7 @@
   .net-theme.net-storefront .collection-catalog .inessa-collection-grid { gap: 12px 10px; }
   /* Preserve the vertical product layout and bring purchase details up. */
   .net-storefront .net-product-detail { padding-top: 8px; }
-  .net-storefront .product-detail-breadcrumb { overflow-x: auto; margin-bottom: 12px; padding-block: 2px; scrollbar-width: none; }
-  .net-storefront .product-detail-breadcrumb ol { flex-wrap: nowrap; white-space: nowrap; }
-  .net-storefront .product-detail-breadcrumb li { flex-shrink: 0; max-width: none; }
+  .net-storefront .product-detail-breadcrumb { display: none; }
   .net-storefront .product-detail-overview { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .net-storefront .product-detail-info { padding-block: 0; }
   .net-storefront .product-detail-buying { max-width: none; }
@@ -166,7 +164,7 @@
   .net-storefront .product-detail-gallery-layout { flex-direction: column-reverse; gap: 4px; }
   .net-storefront .product-detail-thumbnails { flex-direction: row; gap: 6px; width: 100%; max-height: none; overflow-x: auto; overflow-y: hidden; touch-action: pan-x; }
   .net-storefront .product-detail-thumbnails > button { flex-basis: 44px; width: 44px; height: 44px; min-width: 44px; min-height: 44px; max-width: 44px; max-height: 44px; padding: 3px; }
-  .net-storefront .product-detail-gallery-stage { width: 100%; flex: none; min-height: 0; height: clamp(120px, calc(100dvh - 560px), 220px); padding: 8px; background: var(--net-surface); border-radius: 14px; }
+  .net-storefront .product-detail-gallery-stage { width: 100%; flex: none; min-height: 0; height: clamp(156px, calc(100dvh - 524px), 256px); padding: 8px; background: var(--net-surface); border-radius: 14px; }
   .net-storefront .product-detail-main-image { width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; }
   .net-storefront .product-detail-category { margin-bottom: 4px; font-size: 9px; line-height: 1.5; letter-spacing: .06em; }
   .net-storefront .net-product-detail h1 { font-size: clamp(18px, 4.8vw, 23px); line-height: 1.3; overflow-wrap: anywhere; }
