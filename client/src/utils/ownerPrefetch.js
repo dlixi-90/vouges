@@ -73,6 +73,7 @@ export const prefetchOwnerRoute = (path, context) => {
   const productMatch = pathname.match(/^\/owner\/edit-product\/([a-f\d]{24})$/i);
   if (productMatch) {
     tasks.push(context.storeResources.loadCatalog(`/products/${productMatch[1]}`));
+    tasks.push(context.storeResources.loadCatalog(BRAND_OPTIONS_PATH));
     tasks.push(import("../components/owner/ProductArticleEditor"));
   }
   if (pathname === "/owner/library") tasks.push(import("../components/owner/ProductArticleEditor"));

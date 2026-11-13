@@ -36,14 +36,26 @@ function LibraryManager({kind,onKind}){
   }, [q]);
 
   const label=libraryTitle(kind).toLocaleLowerCase("vi-VN");
-  const query=useCatalog(`/terms?${new URLSearchParams({kind,q:debouncedQ,status,page:String(page),pageSize:"25"})}`);
+  const query=useCatalog(`/terms?${new URLSearchParams({kind,q:debouncedQ,status,page:String(page),pageSize:"25",includeCounts:"false"})}`);
   const rows=(query.data?.terms||[]).filter(term=>term.kind===kind);
-  const deletingTerm=deleting?{...deleting,productCount:deleting.productCount}:null;
+  const rowIds=rows.map(term=>term._id).filter(Boolean).join(",");
+  const countsQuery=useCatalog(rowIds?`/terms/counts?${new URLSearchParams({ids:rowIds})}`:null);
+  const countsMap=countsQuery.data?.counts||{};
+  const deletingTerm=deleting?{...deleting,productCount:deleting.productCount??countsMap[deleting._id]??null}:null;
   const {listRef,changePage}=usePaginationScroll({page,onPageChange:setPage,ready:!query.loading&&query.data?.page===page});
   const warmKind=useCallback(targetKind=>{
     if(!targetKind||targetKind==="brand")return;
-    void storeResources.loadCatalog(`/terms?${new URLSearchParams({kind:targetKind,q:"",status:"",page:"1",pageSize:"25"})}`).catch(()=>{});
+    void storeResources.loadCatalog(`/terms?${new URLSearchParams({kind:targetKind,q:"",status:"",page:"1",pageSize:"25",includeCounts:"false"})}`).catch(()=>{});
   },[storeResources]);
+  useEffect(()=>{
+    const totalPages=Number(query.data?.totalPages||1);
+    if(query.loading||page>=totalPages)return;
+    const nextPath=`/terms?${new URLSearchParams({kind,q:debouncedQ,status,page:String(page+1),pageSize:"25",includeCounts:"false"})}`;
+    const idle=window.requestIdleCallback||(callback=>window.setTimeout(callback,150));
+    const cancel=window.cancelIdleCallback||window.clearTimeout;
+    const handle=idle(()=>{void storeResources.loadCatalog(nextPath).catch(()=>{});});
+    return()=>cancel(handle);
+  },[kind,debouncedQ,status,page,query.loading,query.data?.totalPages,storeResources]);
   // Warm the TipTap chunk and sibling library tabs immediately so switching tabs or
   // opening "Giới thiệu" does not wait on serial downloads.
   useEffect(()=>{
@@ -121,7 +133,7 @@ function LibraryManager({kind,onKind}){
         </select>
       )}
     </div>
-    <CatalogState {...query}/><section className="perfume-table-panel"><div className="perfume-table-scroll"><table ref={listRef} tabIndex={-1} className="perfume-table pagination-list-start"><thead><tr><th>{kind==="brand"?"Thương hiệu":"Tên mục"}</th><th>Sản phẩm liên kết</th>{kind!=="brand"&&<th>Nội dung</th>}<th><span className="sr-only">Thao tác</span></th></tr></thead><tbody>{rows.map(term=><tr key={term._id} onPointerEnter={()=>warmTerm(term)}><td><strong>{term.name||"Chưa có tên"}</strong></td><td>{term.productCount??0}</td>{kind!=="brand"&&<td><Badge tone={term.contentStatus==="complete"?"green":"amber"}>{term.contentStatus==="complete"?"Đã hoàn thiện":"Cần biên soạn"}</Badge></td>}<td><div className="perfume-library-actions"><button type="button" className="perfume-icon-button" onPointerEnter={()=>warmTerm(term)} onFocus={()=>warmTerm(term)} onClick={()=>setEditing(term)} aria-label={`Sửa ${label} ${term.name}`} title="Chỉnh sửa"><Pencil size={16}/></button><button type="button" className="perfume-icon-button perfume-library-delete" onClick={()=>setDeleting(term)} aria-label={`Xóa ${label} ${term.name}`} title="Xóa" style={{ color: "#ef4444" }}><Trash2 size={16} style={{ color: "#ef4444" }}/></button></div></td></tr>)}</tbody></table>{!query.loading&&!rows.length&&<p className="perfume-empty">Không tìm thấy mục phù hợp.</p>}</div><Pager page={page} totalPages={query.data?.totalPages} total={query.data?.total} onPage={changePage} disabled={query.loading}/></section>
+    <CatalogState {...query}/><section className="perfume-table-panel"><div className="perfume-table-scroll"><table ref={listRef} tabIndex={-1} className="perfume-table pagination-list-start"><thead><tr><th>{kind==="brand"?"Thương hiệu":"Tên mục"}</th><th>Sản phẩm liên kết</th>{kind!=="brand"&&<th>Nội dung</th>}<th><span className="sr-only">Thao tác</span></th></tr></thead><tbody>{rows.map(term=><tr key={term._id} onPointerEnter={()=>warmTerm(term)}><td><strong>{term.name||"Chưa có tên"}</strong></td><td>{term.productCount??countsMap[term._id]??(countsQuery.loading?"…":0)}</td>{kind!=="brand"&&<td><Badge tone={term.contentStatus==="complete"?"green":"amber"}>{term.contentStatus==="complete"?"Đã hoàn thiện":"Cần biên soạn"}</Badge></td>}<td><div className="perfume-library-actions"><button type="button" className="perfume-icon-button" onPointerEnter={()=>warmTerm(term)} onFocus={()=>warmTerm(term)} onClick={()=>setEditing(term)} aria-label={`Sửa ${label} ${term.name}`} title="Chỉnh sửa"><Pencil size={16}/></button><button type="button" className="perfume-icon-button perfume-library-delete" onClick={()=>setDeleting(term)} aria-label={`Xóa ${label} ${term.name}`} title="Xóa" style={{ color: "#ef4444" }}><Trash2 size={16} style={{ color: "#ef4444" }}/></button></div></td></tr>)}</tbody></table>{!query.loading&&!rows.length&&<p className="perfume-empty">Không tìm thấy mục phù hợp.</p>}</div><Pager page={page} totalPages={query.data?.totalPages} total={query.data?.total} onPage={changePage} disabled={query.loading}/></section>
     {editing&&<LibraryEditor key={editing._id||"new"} term={editing} onClose={()=>setEditing(null)} onSaved={()=>changed(editing._id?"edit":"create")}/>}
     {deletingTerm&&<DeleteLibraryDialog term={deletingTerm} onClose={()=>setDeleting(null)} onDeleted={()=>changed("delete")}/>}
   </CatalogPage>;
