@@ -1,19 +1,26 @@
 import { scentPhases } from '../utils/scentNotes';
 import { Link } from 'react-router-dom';
+import { useAppContext } from '../context/AppContext';
 import { libraryNamePath, splitFragranceGroups } from '../utils/fragranceLibrary';
+import { prefetchRoute } from '../utils/prefetchRoute';
 
-function Notes({ notes = {} }) {
+function Notes({ notes = {}, onPrefetch }) {
   const phases = scentPhases.filter(([phase]) => notes[phase]?.length > 0);
   if (!phases.length) return null;
   return <div className="product-description-notes my-4 grid gap-5 sm:grid-cols-3">
     {phases.map(([phase, label]) => <div className={`rounded-lg border border-gray-200 p-5 ${phase === 'general' ? 'sm:col-span-3' : ''}`} key={phase}>
       <h3 className="mb-3 text-xl">{phases.length === 1 ? 'Các note hương được ghi nhận' : label}</h3>
-      <p className="text-sm leading-7 text-gray-600">{notes[phase].map((note,index) => <span key={`${note.name}-${index}`}>{index > 0 && ', '}<Link className="hover:underline underline-offset-4" to={libraryNamePath('note', note.name)} state={{ initialTerm: { name: note.name, kind: 'note' } }}>{note.name}</Link></span>)}</p>
+      <p className="text-sm leading-7 text-gray-600">{notes[phase].map((note,index) => <span key={`${note.name}-${index}`}>{index > 0 && ', '}<Link className="hover:underline underline-offset-4" to={libraryNamePath('note', note.name)} state={{ initialTerm: { name: note.name, kind: 'note' } }} onPointerEnter={() => onPrefetch?.('note', note.name)} onFocus={() => onPrefetch?.('note', note.name)}>{note.name}</Link></span>)}</p>
     </div>)}
   </div>;
 }
 
 export default function ScentNotes({ fragrance = {} }) {
+  const { publicCatalog } = useAppContext();
+  const prefetchLibrary = (kind, name) => {
+    prefetchRoute('/knowledge');
+    if (name) void publicCatalog?.library?.(kind, { name, page: 1 }).catch(() => {});
+  };
   const assortment = fragrance.profileKind === 'assortment';
   const groups = assortment
     ? [...new Set((fragrance.components || []).map(component => component.variantKey))].map(key => ({
@@ -22,7 +29,7 @@ export default function ScentNotes({ fragrance = {} }) {
     }))
     : [{ key: 'bundle', components: fragrance.components || [] }];
   return <>
-    <Notes notes={fragrance.notes} />
+    <Notes notes={fragrance.notes} onPrefetch={prefetchLibrary} />
     {fragrance.components?.length > 0 && <section className="my-8" aria-label="Mùi hương theo từng sản phẩm">
       <h2 className="mb-5 text-xl">{assortment ? 'Mùi hương theo lựa chọn' : 'Mùi hương trong bộ sản phẩm'}</h2>
       {assortment && <p className="mb-5 text-sm text-gray-600">Mỗi lựa chọn là một set riêng. Xem các chai nước hoa đi kèm từng set dưới đây.</p>}
@@ -38,11 +45,11 @@ export default function ScentNotes({ fragrance = {} }) {
           {splitFragranceGroups(component.group).map((groupName, groupIndex) => (
             <span key={`${groupName}-${groupIndex}`}>
               {groupIndex > 0 && ', '}
-              <Link className="hover:underline underline-offset-4" to={libraryNamePath('group', groupName)} state={{ initialTerm: { name: groupName, kind: 'group' } }}>{groupName}</Link>
+              <Link className="hover:underline underline-offset-4" to={libraryNamePath('group', groupName)} state={{ initialTerm: { name: groupName, kind: 'group' } }} onPointerEnter={() => prefetchLibrary('group', groupName)} onFocus={() => prefetchLibrary('group', groupName)}>{groupName}</Link>
             </span>
           ))}
         </p>}
-        <Notes notes={component.notes} />
+        <Notes notes={component.notes} onPrefetch={prefetchLibrary} />
         </section>)}
       </section>)}
     </section>}

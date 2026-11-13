@@ -24,21 +24,43 @@ const action = handler => async (req, res) => {
     res.status(error.statusCode || 500).json({ success: false, message: error.statusCode ? error.message : "Không thể tải thư viện. Vui lòng thử lại." });
   }
 };
-const directory = kind => catalogSnapshot(`library-directory:${kind}`, 30000, async () => {
+const termSearchIndex = new WeakMap();
+const getTermSearchTokens = term => {
+  let cached = termSearchIndex.get(term);
+  if (!cached) {
+    cached = {
+      nameKey: nameKey(term.name),
+      foldedName: foldText(term.name),
+      foldedEnglish: term.englishName ? foldText(term.englishName) : "",
+    };
+    termSearchIndex.set(term, cached);
+  }
+  return cached;
+};
+const directory = kind => catalogSnapshot(`library-directory:${kind}`, 300000, async () => {
   const rows = await FragranceTerm.find({ kind }).select("kind key name slug contentStatus image").lean();
-  return rows.filter(t => t.name?.trim()).map(term => ({ id: String(term._id), kind, name: term.name, englishName: libraryEnglishName(term), slug: librarySlug(term), contentStatus: term.contentStatus, image: libraryImage(term.image), originIds: libraryTermOrigins(kind, String(term._id)) }))
-    .sort((a, b) => a.name.localeCompare(b.name, "vi", { sensitivity: "base", numeric: true }));
+  return rows.filter(t => t.name?.trim()).map(term => {
+    const mapped = { id: String(term._id), kind, name: term.name, englishName: libraryEnglishName(term), slug: librarySlug(term), contentStatus: term.contentStatus, image: libraryImage(term.image), originIds: libraryTermOrigins(kind, String(term._id)) };
+    getTermSearchTokens(mapped);
+    return mapped;
+  }).sort((a, b) => a.name.localeCompare(b.name, "vi", { sensitivity: "base", numeric: true }));
 });
 export const publicLibraryTerms = action(async (req, res) => {
   const view = readText(req.query.view);
   if (view && view !== "directory") fail("Cách hiển thị thư viện không hợp lệ.");
   const q = nameKey(readText(req.query.q));
+  const foldedQ = q ? foldText(q) : "";
   const origin=readText(req.query.origin),ids=origin?libraryOriginIds(req.params.kind,origin):null;
   if(origin&&!ids)fail("Không tìm thấy nhóm nguồn gốc này.",404);
   const page = Number(req.query.page ?? 1);
   if (!Number.isSafeInteger(page) || page < 1 || page > 10000) fail("Phân trang không hợp lệ.");
   const allowed=ids?new Set(ids):null;
-  const rows = (await directory(req.params.kind)).filter(t => (!allowed||allowed.has(t.id))&&(!q || nameKey(t.name).includes(q) || foldText(t.name).includes(foldText(q)) || (t.englishName && foldText(t.englishName).includes(foldText(q)))));
+  const rows = (await directory(req.params.kind)).filter(t => {
+    if (allowed && !allowed.has(t.id)) return false;
+    if (!q) return true;
+    const tokens = getTermSearchTokens(t);
+    return tokens.nameKey.includes(q) || tokens.foldedName.includes(foldedQ) || (tokens.foldedEnglish && tokens.foldedEnglish.includes(foldedQ));
+  });
   if (view === "directory" && rows.length > 2000) fail("Thư viện vượt giới hạn hiển thị. Vui lòng tìm kiếm theo tên.", 413);
   const pageSize = view === "directory" ? Math.max(1, rows.length) : 24, totalPages = Math.max(1, Math.ceil(rows.length / pageSize)), active = Math.min(page, totalPages);
   res.set("Cache-Control", "public, max-age=10, s-maxage=60, stale-while-revalidate=120");
@@ -51,9 +73,10 @@ export const publicLibraryTerm = action(async (req, res) => {
   const slug = readText(req.params.slug), name = readText(req.query.name), page = Number(req.query.page ?? 1);
   if ((!slug && !name) || !Number.isSafeInteger(page) || page < 1 || page > 10000) fail("Thông tin trang không hợp lệ.");
   const rows = await directory(req.params.kind);
-  const matches = rows.filter(t => slug ? t.slug === slug : nameKey(t.name) === nameKey(name));
+  const targetNameKey = name ? nameKey(name) : "";
+  const matches = rows.filter(t => slug ? t.slug === slug : getTermSearchTokens(t).nameKey === targetNameKey);
   if (matches.length !== 1) fail("Không tìm thấy nội dung này.", 404);
-  const payload = await catalogSnapshot(`library-term:${req.params.kind}:${matches[0].id}:${page}`, 30000, async () => {
+  const payload = await catalogSnapshot(`library-term:${req.params.kind}:${matches[0].id}:${page}`, 300000, async () => {
     const source = await FragranceTerm.findById(matches[0].id).select("kind key name description descriptionContent contentStatus sourceUrl contentImport.relatedHeading").lean();
     if (!source) fail("Không tìm thấy nội dung này.", 404);
     const filter = libraryProductFilter(source), pageSize = 15;

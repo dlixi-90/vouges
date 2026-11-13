@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { Package } from "lucide-react";
 import { formatVnd } from "../utils/money";
@@ -5,7 +6,7 @@ import { getProductPriceRange } from "../utils/productPrice";
 import ProductImage from "./ProductImage";
 import { LoadingStatus } from "./LoadingState";
 
-export default function ProductCard({ product, priority = false, currency = "₫", priceRange = getProductPriceRange(product), isAvailable = true, pricePending = false, ...linkProps }) {
+function ProductCard({ product, priority = false, currency = "₫", priceRange = getProductPriceRange(product), isAvailable = true, pricePending = false, ...linkProps }) {
   const image = product.images?.[0] || product.image;
   const colors = ["#f2f2f2", "#f6f9f6", "#f6f8fe"];
   const productId = String(product._id || product.id || "0");
@@ -29,3 +30,5 @@ export default function ProductCard({ product, priority = false, currency = "₫
     </div>
   </Link>;
 }
+
+export default memo(ProductCard);

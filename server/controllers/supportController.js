@@ -88,7 +88,7 @@ const readInbox = ({ filter, page, cacheKey }) => {
 export const getSupportInbox = action(async (req, res) => res.json({ success: true, ...await readInbox(inboxQuery(req)) }));
 export const streamSupportInbox = action(async (req, res) => {
   const query = inboxQuery(req);
-  await streamSnapshots(req, res, () => readInbox(query), { intervalMs: 3000 });
+  await streamSnapshots(req, res, () => readInbox(query), { intervalMs: 1500 });
 });
 export const streamSupportConversation = action(async (req, res) => {
   let initial = await findConversation(req.params.id, req.user);
@@ -102,5 +102,5 @@ export const streamSupportConversation = action(async (req, res) => {
     const snapshot = await conversationSnapshot(conversation, limit);
     version = next;
     return snapshot;
-  }, { intervalMs: 3000 });
+  }, { intervalMs: 1500 });
 });

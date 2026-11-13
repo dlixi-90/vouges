@@ -15,6 +15,29 @@ export const canonicalizeVietnamese = value => {
 export const normalizeLibrarySearch = value => String(value || '').normalize('NFD')
   .replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd').toLocaleLowerCase('vi-VN').trim().replace(/\s+/g, ' ');
 
+const termIndexCache = new WeakMap();
+const getTermIndex = term => {
+  if (!term || typeof term !== 'object') {
+    return {
+      canonName: canonicalizeVietnamese(term?.name),
+      canonEnglish: canonicalizeVietnamese(term?.englishName),
+      folded: normalizeLibrarySearch(`${term?.name || ''} ${term?.englishName || ''}`),
+    };
+  }
+  let entry = termIndexCache.get(term);
+  if (!entry || entry.name !== term.name || entry.englishName !== term.englishName) {
+    entry = {
+      name: term.name,
+      englishName: term.englishName,
+      canonName: canonicalizeVietnamese(term.name),
+      canonEnglish: canonicalizeVietnamese(term.englishName),
+      folded: normalizeLibrarySearch(`${term.name || ''} ${term.englishName || ''}`),
+    };
+    termIndexCache.set(term, entry);
+  }
+  return entry;
+};
+
 export const filterLibraryTerms = (terms, query, origin = '') => {
   const rawQuery = String(query || '').trim();
   if (!rawQuery && !origin) return terms;
@@ -27,15 +50,12 @@ export const filterLibraryTerms = (terms, query, origin = '') => {
     if (origin && !term.originIds?.includes(origin)) return false;
     if (!needle) return true;
 
+    const indexed = getTermIndex(term);
     if (hasAccent) {
-      const canonName = canonicalizeVietnamese(term.name);
-      const canonEnglish = canonicalizeVietnamese(term.englishName);
-      if (canonName.includes(canonQuery) || canonEnglish.includes(canonQuery)) return true;
-      return false;
+      return indexed.canonName.includes(canonQuery) || indexed.canonEnglish.includes(canonQuery);
     }
 
-    const folded = normalizeLibrarySearch(`${term.name || ''} ${term.englishName || ''}`);
-    return folded.includes(needle);
+    return indexed.folded.includes(needle);
   });
 };
 

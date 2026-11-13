@@ -6,9 +6,9 @@ import { supportContext } from "../../utils/supportChat";
 import SupportThread from "./SupportThread";
 
 export default function SupportChatPanel({ onClose, onBack, aiMessages }) {
-  const { user, requireCartLogin } = useAppContext();
+  const { user, requireCartLogin, storeResources } = useAppContext();
   const api = useSupportApi();
-  const [snapshot, setSnapshot] = useState(null);
+  const [snapshot, setSnapshot] = useState(() => storeResources?.peekMySupport?.() || null);
   const [error, setError] = useState("");
   const [starting, setStarting] = useState(false);
   const [shareContext, setShareContext] = useState(true);
@@ -19,12 +19,19 @@ export default function SupportChatPanel({ onClose, onBack, aiMessages }) {
   const userId = user?.id;
   useEffect(() => {
     if (!userId) return undefined;
+    const cached = storeResources?.peekMySupport?.();
+    if (cached) setSnapshot(cached);
     const controller = new AbortController();
-    void api.request("get", "/api/support/mine", undefined, controller.signal).then((data) => {
-      if (!controller.signal.aborted) { setSnapshot(data); setError(""); }
-    }).catch((err) => { if (!controller.signal.aborted) setError(err.response?.data?.message || err.message); });
+    const request = storeResources?.loadMySupport
+      ? storeResources.loadMySupport({ signal: controller.signal, force: attempt > 0 })
+      : api.request("get", "/api/support/mine", undefined, controller.signal);
+    void request.then((data) => {
+      if (!controller.signal.aborted && data) { setSnapshot(data); setError(""); }
+    }).catch((err) => {
+      if (!controller.signal.aborted && err?.name !== "AbortError") setError(err.response?.data?.message || err.message);
+    });
     return () => { controller.abort(); requestRef.current?.abort(); };
-  }, [api, userId, attempt]);
+  }, [api, storeResources, userId, attempt]);
   const start = async () => {
     if (requestRef.current) return;
     const controller = new AbortController();
@@ -33,7 +40,11 @@ export default function SupportChatPanel({ onClose, onBack, aiMessages }) {
     setError("");
     try {
       const data = await api.request("post", "/api/support/mine", { context: shareContext ? context : [] }, controller.signal);
-      if (!controller.signal.aborted) { setSnapshot(data); setShared(true); }
+      if (!controller.signal.aborted) {
+        storeResources?.setMySupport?.(data);
+        setSnapshot(data);
+        setShared(true);
+      }
     } catch (err) { if (!controller.signal.aborted) setError(err.response?.data?.message || err.message); }
     finally {
       requestRef.current = null;

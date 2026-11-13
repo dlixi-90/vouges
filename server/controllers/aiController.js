@@ -68,7 +68,7 @@ const getRelevantAITools = (messages) => {
     .join(" ");
   const selectedTools = new Set();
   const has = (pattern) => pattern.test(recentUserMessages);
-  const productIntent = has(/nuoc hoa|san pham|mui huong|mua chai|ton tai|con hang|con san pham|gia bao nhieu/);
+  const productIntent = has(/nuoc hoa|san pham|mui huong|mua chai|ton tai|con hang|con san pham|gia bao nhieu|goi y|tu van|ngan sach|trieu|nghin|usd|eur|\bml\b|\bedp\b|\bedt\b|parfum|extrait|unisex|luu huong|toa huong|mua he|mua dong|di lam|hen ho|ban ngay|buoi toi/);
   const compareIntent = has(/so sanh|khac nhau|tot hon|nen chon|chon cai nao/);
   const orderIntent = has(/don hang|lich su mua|da dat|giao hang cua toi|trang thai don/);
   const cartIntent = has(/gio hang|them vao gio|bo vao gio|mua chai|dat mua/);
@@ -230,6 +230,7 @@ const requestGroq = async ({
       messages,
       temperature: retryToolJson ? 0.2 : 0,
       max_completion_tokens: 500,
+      ...(/^(?:openai\/gpt-oss-)/i.test(model) ? { reasoning_effort: "low" } : {}),
       ...(allowTools
         ? {
             tools,
@@ -278,7 +279,7 @@ const requestGroq = async ({
   return assistantMessage;
 };
 
-const executeToolCall = async (toolCall, context, allowedToolNames) => {
+const executeToolCall = async (toolCall, context, allowedToolNames, auditPromises) => {
   const startedAt = Date.now();
   const toolName = toolCall?.function?.name;
   const executeTool = TOOL_EXECUTORS.get(toolName);
@@ -320,7 +321,7 @@ const executeToolCall = async (toolCall, context, allowedToolNames) => {
     }
   }
 
-  await auditAIToolCall({
+  const auditPromise = auditAIToolCall({
     context,
     toolCallId: toolCall?.id,
     toolName,
@@ -329,11 +330,13 @@ const executeToolCall = async (toolCall, context, allowedToolNames) => {
     errorMessage: toolResult.error,
     durationMs: Date.now() - startedAt,
   });
+  if (auditPromises) auditPromises.push(auditPromise);
+  else await auditPromise;
 
   return toolResult;
 };
 
-const auditRejectedToolCall = async (toolCall, context, errorMessage) => {
+const auditRejectedToolCall = async (toolCall, context, errorMessage, auditPromises) => {
   let toolArguments = {};
 
   try {
@@ -342,7 +345,7 @@ const auditRejectedToolCall = async (toolCall, context, errorMessage) => {
     // The rejected call is still audited without storing malformed raw JSON.
   }
 
-  await auditAIToolCall({
+  const auditPromise = auditAIToolCall({
     context,
     toolCallId: toolCall?.id,
     toolName: toolCall?.function?.name,
@@ -351,6 +354,8 @@ const auditRejectedToolCall = async (toolCall, context, errorMessage) => {
     errorMessage,
     durationMs: 0,
   });
+  if (auditPromises) auditPromises.push(auditPromise);
+  else await auditPromise;
 };
 
 const removeProductImage = (product) => {
@@ -414,96 +419,101 @@ export const runAgent = async (initialMessages, context = {}) => {
   const toolsUsed = new Set();
   const productsById = new Map();
   const ordersById = new Map();
+  const auditPromises = [];
   let cart = null;
   let pendingCartAction = null;
   let toolCallCount = 0;
   let budgetConversions = null;
 
-  for (let step = 0; step < MAX_AGENT_STEPS; step += 1) {
-    const assistantMessage = await requestGroq({
-      messages: conversation,
-      tools,
-    });
-    const toolCalls = assistantMessage.tool_calls || [];
+  try {
+    for (let step = 0; step < MAX_AGENT_STEPS; step += 1) {
+      const assistantMessage = await requestGroq({
+        messages: conversation,
+        tools,
+      });
+      const toolCalls = assistantMessage.tool_calls || [];
 
-    if (toolCalls.length === 0) {
-      return {
-        answer: explainConvertedBudget(assistantMessage.content?.trim(),budgetConversions),
-        toolsUsed: [...toolsUsed],
-        products: [...productsById.values()].slice(0, 8),
-        orders: [...ordersById.values()].slice(0, 10),
-        cart,
-        pendingCartAction,
-      };
-    }
-
-    conversation.push({
-      role: "assistant",
-      content: assistantMessage.content || null,
-      tool_calls: toolCalls,
-    });
-
-    for (const toolCall of toolCalls) {
-      let toolResult;
-
-      if (toolCallCount >= MAX_TOOL_CALLS) {
-        toolResult = {
-          success: false,
-          error: "Đã đạt giới hạn số lần gọi tool",
+      if (toolCalls.length === 0) {
+        return {
+          answer: explainConvertedBudget(assistantMessage.content?.trim(),budgetConversions),
+          toolsUsed: [...toolsUsed],
+          products: [...productsById.values()].slice(0, 8),
+          orders: [...ordersById.values()].slice(0, 10),
+          cart,
+          pendingCartAction,
         };
-        await auditRejectedToolCall(toolCall, context, toolResult.error);
-      } else {
-        toolCallCount += 1;
-        toolResult = await executeToolCall(toolCall, context, allowedToolNames);
-
-        if (toolResult.success) {
-          toolsUsed.add(toolCall.function.name);
-          if(toolCall.function.name==="searchProducts"&&toolResult.filters?.budgetConversions)budgetConversions=toolResult.filters.budgetConversions;
-
-          for (const product of toolResult.products || []) {
-            productsById.set(product.id, product);
-          }
-
-          if (toolResult.product) {
-            productsById.set(toolResult.product.id, toolResult.product);
-          }
-
-          for (const order of toolResult.orders || []) {
-            ordersById.set(order.id, order);
-          }
-
-          if (toolResult.cart) {
-            cart = toolResult.cart;
-          }
-
-          if (toolResult.pendingCartAction) {
-            pendingCartAction = toolResult.pendingCartAction;
-          }
-        }
       }
 
       conversation.push({
-        role: "tool",
-        tool_call_id: toolCall.id,
-        name: toolCall.function.name,
-        content: JSON.stringify(createModelToolResult(toolResult, toolCall.function?.name)),
+        role: "assistant",
+        content: assistantMessage.content || null,
+        tool_calls: toolCalls,
       });
+
+      for (const toolCall of toolCalls) {
+        let toolResult;
+
+        if (toolCallCount >= MAX_TOOL_CALLS) {
+          toolResult = {
+            success: false,
+            error: "Đã đạt giới hạn số lần gọi tool",
+          };
+          await auditRejectedToolCall(toolCall, context, toolResult.error, auditPromises);
+        } else {
+          toolCallCount += 1;
+          toolResult = await executeToolCall(toolCall, context, allowedToolNames, auditPromises);
+
+          if (toolResult.success) {
+            toolsUsed.add(toolCall.function.name);
+            if(toolCall.function.name==="searchProducts"&&toolResult.filters?.budgetConversions)budgetConversions=toolResult.filters.budgetConversions;
+
+            for (const product of toolResult.products || []) {
+              productsById.set(product.id, product);
+            }
+
+            if (toolResult.product) {
+              productsById.set(toolResult.product.id, toolResult.product);
+            }
+
+            for (const order of toolResult.orders || []) {
+              ordersById.set(order.id, order);
+            }
+
+            if (toolResult.cart) {
+              cart = toolResult.cart;
+            }
+
+            if (toolResult.pendingCartAction) {
+              pendingCartAction = toolResult.pendingCartAction;
+            }
+          }
+        }
+
+        conversation.push({
+          role: "tool",
+          tool_call_id: toolCall.id,
+          name: toolCall.function.name,
+          content: JSON.stringify(createModelToolResult(toolResult, toolCall.function?.name)),
+        });
+      }
     }
+
+    const finalMessage = await requestGroq({
+      messages: conversation,
+      allowTools: false,
+    });
+
+    return {
+      answer: explainConvertedBudget(finalMessage.content?.trim(),budgetConversions),
+      toolsUsed: [...toolsUsed],
+      products: [...productsById.values()].slice(0, 8),
+      orders: [...ordersById.values()].slice(0, 10),
+      cart,
+      pendingCartAction,
+    };
+  } finally {
+    if (auditPromises.length) await Promise.all(auditPromises);
   }
-
-  const finalMessage = await requestGroq({
-    messages: conversation,
-    allowTools: false,
-  });
-
-  return {
-    answer: explainConvertedBudget(finalMessage.content?.trim(),budgetConversions),
-    toolsUsed: [...toolsUsed],
-    products: [...productsById.values()].slice(0, 8),
-    orders: [...ordersById.values()].slice(0, 10),
-    cart,
-    pendingCartAction,
-  };
 };
 
 export const chatWithAI = async (req, res) => {

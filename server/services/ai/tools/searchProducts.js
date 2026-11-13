@@ -1,4 +1,5 @@
 import Product from "../../../models/Product.js";
+import { catalogSnapshot } from "../../storefrontCatalog.js";
 import { parseBudgetAmount } from "../budgetAmount.js";
 import { getVndExchangeRate, convertBudgetToVnd } from "../exchangeRates.js";
 import { scentNoteNames, scentPhases } from "../../../../client/src/utils/scentNotes.js";
@@ -8,6 +9,38 @@ import {
   getProductPriceRange,
   getPerfumeProfile,
 } from "./productToolUtils.js";
+
+const defaultProductFind = Product.find;
+const AI_SEARCH_SELECT = "title description price sizes stockBySize inventoryMode isPublished inStockBySize images category type popular inStock createdAt brand origin concentration gender fragrance";
+const AI_CATALOG_PROJECTION = {
+  title: 1,
+  description: 1,
+  price: 1,
+  sizes: 1,
+  stockBySize: 1,
+  inventoryMode: 1,
+  isPublished: 1,
+  inStockBySize: 1,
+  images: { $slice: 1 },
+  category: 1,
+  type: 1,
+  popular: 1,
+  inStock: 1,
+  createdAt: 1,
+  brand: 1,
+  origin: 1,
+  concentration: 1,
+  gender: 1,
+  "fragrance.group": 1,
+  "fragrance.style": 1,
+  "fragrance.profileKind": 1,
+  "fragrance.notes": 1,
+  "fragrance.accords": 1,
+  "fragrance.longevity": 1,
+  "fragrance.sillage": 1,
+  "fragrance.suitability": 1,
+  "fragrance.components": 1,
+};
 
 const DEFAULT_RESULT_LIMIT = 5;
 const MAX_RESULT_LIMIT = 8;
@@ -184,8 +217,8 @@ export const searchProducts = async (argumentsValue = {}) => {
     catalogScope: { $ne: "other" },
   };
 
-  if (query) {
-    const queryPattern = new RegExp(escapeRegExp(query), "i");
+  const queryPattern = query ? new RegExp(escapeRegExp(query), "i") : null;
+  if (queryPattern) {
     databaseFilter.$or = SEARCH_FIELDS.map(field => ({ [field]: queryPattern }));
   }
 
@@ -196,18 +229,47 @@ export const searchProducts = async (argumentsValue = {}) => {
   if (type) {
     databaseFilter.type = new RegExp(`^${escapeRegExp(type)}$`, "i");
   }
+  const perfumePatterns = {};
   for (const [key, field] of Object.entries(PERFUME_FILTERS)) {
     if (!perfumeFilters[key]) continue;
     const pattern = new RegExp(["brand", "gender"].includes(key) ? `^${escapeRegExp(perfumeFilters[key])}$` : escapeRegExp(perfumeFilters[key]), "i");
+    perfumePatterns[key] = pattern;
     if (key === "note") databaseFilter.$and = [{ $or: NOTE_FIELDS.map(name => ({ [name]: pattern })) }];
     else databaseFilter[field] = pattern;
   }
 
-  const databaseProducts = await Product.find(databaseFilter)
-    .select(
-      "title description price sizes stockBySize inventoryMode isPublished inStockBySize images category type popular inStock createdAt brand origin concentration gender fragrance",
-    )
-    .lean();
+  const databaseProducts = Product.find === defaultProductFind
+    ? (await catalogSnapshot("ai-search-catalog", 60000, () =>
+        Product.find({
+          isDeleted: { $ne: true },
+          isPublished: { $ne: false },
+          catalogScope: { $ne: "other" },
+        }).select(AI_CATALOG_PROJECTION).lean()
+      )).filter((product) => {
+        if (databaseFilter.category && !databaseFilter.category.test(product.category || "")) return false;
+        if (databaseFilter.type && !databaseFilter.type.test(product.type || "")) return false;
+        if (perfumePatterns.brand && !perfumePatterns.brand.test(product.brand || "")) return false;
+        if (perfumePatterns.gender && !perfumePatterns.gender.test(product.gender || "")) return false;
+        if (perfumePatterns.concentration && !perfumePatterns.concentration.test(product.concentration || "")) return false;
+        if (perfumePatterns.fragranceGroup && !perfumePatterns.fragranceGroup.test(product.fragrance?.group || "")) return false;
+        if (perfumePatterns.accord && !(product.fragrance?.accords || []).some(row => perfumePatterns.accord.test(row?.label || ""))) return false;
+        if (perfumePatterns.note && !scentNoteNames(product.fragrance).some(name => perfumePatterns.note.test(name))) return false;
+        if (queryPattern) {
+          const directFields = [
+            product.title, product.description, product.category, product.type,
+            product.brand, product.gender, product.concentration,
+            product.fragrance?.group, product.fragrance?.style,
+          ];
+          const matchesDirect = directFields.some(val => val && queryPattern.test(val));
+          const matchesAccord = !matchesDirect && (product.fragrance?.accords || []).some(row => queryPattern.test(row?.label || ""));
+          const matchesNote = !matchesDirect && !matchesAccord && scentNoteNames(product.fragrance).some(name => queryPattern.test(name));
+          if (!matchesDirect && !matchesAccord && !matchesNote) return false;
+        }
+        return true;
+      })
+    : await Product.find(databaseFilter)
+        .select(AI_SEARCH_SELECT)
+        .lean();
 
   const normalizedQuery = query.toLowerCase();
 

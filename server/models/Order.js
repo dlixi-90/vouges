@@ -78,6 +78,7 @@ orderSchema.index({
 orderSchema.index({ isPaid: 1, status: 1 });
 orderSchema.index({ paymentMethod: 1, status: 1, isPaid: 1 });
 orderSchema.index({ createdAt: -1, _id: -1 });
+orderSchema.index({ userId: 1, createdAt: -1, _id: -1 });
 orderSchema.index({ userId: 1, status: 1, "items.product": 1 });
 orderSchema.index({ userId: 1, status: 1, isPaid: 1, completedAt: 1 });
 orderSchema.index({ userId: 1, status: 1, isPaid: 1, loyaltyPending: 1 });

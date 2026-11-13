@@ -18,6 +18,20 @@ export const warmStorefront = (pathname, search = "") => {
     const params = new URLSearchParams(search);
     prefetchCollection(storefrontCatalog, pathname + search, params.get("q") || "");
   } else if (/^\/collection\/[a-f0-9]{24}$/iu.test(pathname)) {
-    void storefrontCatalog.detail(pathname.split("/")[2]).catch(() => {});
+    const productId = pathname.split("/")[2];
+    void storefrontCatalog.detail(productId).catch(() => {});
+    void storefrontCatalog.related(productId).catch(() => {});
+  } else if (pathname.startsWith("/knowledge/")) {
+    const [, , kind, rawSlug] = pathname.split("/");
+    if (!["group", "accord", "note"].includes(kind)) return;
+    const params = new URLSearchParams(search);
+    const name = params.get("name") || "";
+    const page = Math.max(1, Number(params.get("page")) || 1);
+    const slug = rawSlug && rawSlug !== "entry" ? decodeURIComponent(rawSlug) : "";
+    if (slug || name) {
+      void storefrontCatalog.library(kind, { ...(slug ? { slug } : { name }), page }).catch(() => {});
+    } else {
+      void storefrontCatalog.library(kind, { view: "directory" }).catch(() => {});
+    }
   }
 };

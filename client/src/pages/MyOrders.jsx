@@ -1,6 +1,7 @@
 import { getSizeImage } from "../utils/productImage";
 import { getOrderStatusLabel, getPaymentMethodLabel } from "../utils/localization.js";
-import { lazy, Suspense, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { prefetchRoute } from "../utils/prefetchRoute";
 import { ChevronDown, ChevronUp, Package, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import StorePageHeading from "../components/StorePageHeading";
@@ -29,6 +30,11 @@ const MyOrders = () => {
   const orders = accountLoading ? [] : data?.orders || [];
   const {listRef,changePage} = usePaginationScroll({page,onPageChange:setPage,ready:!loading && data?.page===page});
   const [reviewProduct, setReviewProduct] = useState(null);
+  useEffect(() => {
+    if (userId && data?.totalPages > page) {
+      void storeResources.loadOrders(page + 1).catch(() => {});
+    }
+  }, [userId, page, data?.totalPages, storeResources]);
 
   return (
     <main className="net-orders store-account-page store-page-container max-padd-container">
@@ -285,7 +291,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
       </div>
 
       <footer className="store-order-card-footer flex flex-wrap items-center justify-end gap-3 border-t border-[#edf0f2] bg-[#fafbfb] px-4 py-3 sm:px-5">
-        <Link to={`/order-overview/${order._id}`} className="inessa-order-overview-link" aria-label={`Xem tổng quan đơn hàng ${String(order._id).slice(-8).toUpperCase()}`}>Xem tổng quan đơn hàng →</Link>
+        <Link to={`/order-overview/${order._id}`} state={{ initialOrder: order }} onPointerEnter={() => prefetchRoute(`/order-overview/${order._id}`)} onFocus={() => prefetchRoute(`/order-overview/${order._id}`)} className="inessa-order-overview-link" aria-label={`Xem tổng quan đơn hàng ${String(order._id).slice(-8).toUpperCase()}`}>Xem tổng quan đơn hàng →</Link>
         <span className="text-xs font-medium text-[#69747e]">Trạng thái đơn hàng</span>
         <span className="store-order-status" data-order-status={order.status}>
           {getOrderStatusLabel(order.status)}

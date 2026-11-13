@@ -44,7 +44,7 @@ export const createPublicCatalog = ({ axios, storage, cache = createResourceCach
   };
   const metadata = createResourceCache({ maxAge: 300000, maxEntries: 4 });
   const filterMetadata = createResourceCache({ maxAge: 15000, maxEntries: 1 });
-  const library = createResourceCache({ maxAge: 30000, maxEntries: 24 });
+  const library = createResourceCache({ maxAge: 120000, maxEntries: 64 });
   const read = async (url, params, signal) => {
     const { data } = await axios.get(url, { params, signal, timeout: 15000 });
     if (!data.success) throw new Error(data.message || "Không thể tải sản phẩm.");

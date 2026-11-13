@@ -23,8 +23,14 @@ export default function ArticleLibraryCards({ node }) {
     const load = async () => {
       if (requested) return;
       requested = true;
+      const idList = ids.split(",");
+      const missingIds = idList.filter(id => !publicCatalog?.peekProduct?.(id));
+      if (!missingIds.length) {
+        if (active) setLoaded({ ids, products: idList.map(id => publicCatalog.peekProduct(id)).filter(Boolean) });
+        return;
+      }
       try {
-        const products = await publicCatalog.batch(ids.split(","));
+        const products = await publicCatalog.batch(idList);
         if (active) setLoaded({ ids, products });
       } catch {
         if (active) setLoaded({ ids, products: [] });
@@ -43,9 +49,13 @@ export default function ArticleLibraryCards({ node }) {
     return () => { active = false; observer.disconnect(); };
   }, [ids, publicCatalog]);
   const products = new Map((loaded?.ids === ids ? loaded.products : []).map(product => [product._id, product]));
+  const prefetchKnowledgeHref = href => {
+    const match = /^\/knowledge\/(group|accord|note)\/([^/?#]+)$/u.exec(href || "");
+    if (match) void publicCatalog?.library(match[1], { slug: decodeURIComponent(match[2]), page: 1 }).catch(() => {});
+  };
   return <div ref={container} className={`article-library-cards columns-${node.attrs.columns} article-library-cards--${categories ? "categories" : ids ? "products" : "terms"}${groups ? " article-library-cards--groups" : ""}`}>
     {node.attrs.items.map((item, index) => {
-      const id = productId(item), product = products.get(id);
+      const id = productId(item), product = products.get(id) || (id ? publicCatalog?.peekProduct?.(id) : null);
       if(categories)return <div className="article-library-card" key={item.href}><Link className="article-library-category" to={item.href} onClick={()=>setSearchQuery("")}>
         {item.image&&<img src={getProductImageUrl(item.image, 360)} alt="" width={item.width||150} height={item.height||150} loading="lazy" decoding="async"/>}
         <span><strong>{item.name}</strong><small>{item.description||"Xem bộ sưu tập"}</small></span><ArrowRight size={17} aria-hidden="true"/>
@@ -54,8 +64,10 @@ export default function ArticleLibraryCards({ node }) {
       return <div className={`article-library-card${id ? " article-library-product" : ""}`} key={`${index}:${item.href}`}>
         {id ? <ProductCard product={product || { _id: id, title: item.name, image: item.image }}
           currency={currency} isAvailable={!product || getAvailableSizes(product).length > 0}
-          pricePending={loaded?.ids !== ids} />
-          : item.href.startsWith("/knowledge/") ? <LibraryTermCard to={item.href} state={{ initialTerm: item }} name={item.name} englishName={item.englishName} image={item.image} variant={item.href.startsWith("/knowledge/group/") ? "group" : undefined} width={item.width || 180} height={item.height || 180} />
+          pricePending={!product && loaded?.ids !== ids}
+          onPointerEnter={() => { void publicCatalog?.detail?.(id).catch(() => {}); }}
+          onFocus={() => { void publicCatalog?.detail?.(id).catch(() => {}); }} />
+          : item.href.startsWith("/knowledge/") ? <LibraryTermCard to={item.href} state={{ initialTerm: item }} onPointerEnter={() => prefetchKnowledgeHref(item.href)} onFocus={() => prefetchKnowledgeHref(item.href)} name={item.name} englishName={item.englishName} image={item.image} variant={item.href.startsWith("/knowledge/group/") ? "group" : undefined} width={item.width || 180} height={item.height || 180} />
             : item.href.startsWith("/") ? <Link to={item.href}>{label}</Link>
             : <a href={item.href} target="_blank" rel="noopener noreferrer nofollow">{label}</a>}
         {item.description && <p>{item.description}</p>}

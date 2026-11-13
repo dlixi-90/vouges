@@ -70,7 +70,16 @@ const Dashboard = () => {
     setLoadError("");
     try {
       const data = await dashboardCache.load(cacheKey, requestDashboardData, { force });
-      if (requestId === requestIdRef.current) setDashboardData(current => ({ ...current, ...data }));
+      if (requestId === requestIdRef.current) {
+        setDashboardData(current => ({ ...current, ...data }));
+        if (data?.totalPages > page) {
+          const nextPage = page + 1;
+          const nextKey = ownerDashboardKey(userId, nextPage);
+          if (!dashboardCache.peek(nextKey)) {
+            void dashboardCache.load(nextKey, signal => readOwnerDashboard({ axios, getToken, page: nextPage, signal })).catch(() => {});
+          }
+        }
+      }
     } catch (error) {
       if (requestId === requestIdRef.current && error.name !== "AbortError" && error.code !== "ERR_CANCELED") {
         setLoadError(error.response?.data?.message || error.message);

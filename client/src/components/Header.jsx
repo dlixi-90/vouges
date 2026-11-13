@@ -63,7 +63,14 @@ const Header = () => {
   };
   const closeMenu = useCallback(() => setMenuOpened(false), []);
 
+  const prefetchChat = () => {
+    void import("./ai/AIChatPanel").catch(() => {});
+    void import("./support/SupportChatPanel").catch(() => {});
+    if (user) void storeResources.loadMySupport?.().catch(() => {});
+  };
+
   const toggleAIChat = () => {
+    prefetchChat();
     setHasOpenedAIChat(true);
     setMenuOpened(false);
     setIsAIChatOpen((isOpen) => !isOpen);
@@ -126,6 +133,8 @@ const Header = () => {
             ref={chatLauncherRef}
             type="button"
             hidden={isAIChatOpen}
+            onPointerEnter={prefetchChat}
+            onFocus={prefetchChat}
             onClick={toggleAIChat}
             aria-label="Hỏi trợ lý AI"
             aria-haspopup="dialog"

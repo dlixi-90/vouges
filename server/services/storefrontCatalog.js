@@ -5,7 +5,7 @@ import { selectRelatedProducts } from "../../client/src/utils/relatedProducts.js
 import { productFilterValues, parsePerfumeFilters, matchesPerfumeFilters } from "./perfumeFilters.js";
 
 const fields = "title price sizes stockBySize inStockBySize images category type brand gender origin concentration inStock inventoryMode isPublished popular createdAt";
-const profileFields = "fragrance.group fragrance.notes.top.name fragrance.notes.middle.name fragrance.notes.base.name fragrance.notes.general.name fragrance.components.notes fragrance.components.concentration fragrance.accords.label fragrance.style fragrance.longevity.label fragrance.longevity.displayedCount fragrance.sillage.label fragrance.sillage.displayedCount fragrance.suitability.label fragrance.suitability.displayedPercent";
+const profileFields = "fragrance.group fragrance.notes.top.name fragrance.notes.middle.name fragrance.notes.base.name fragrance.notes.general.name fragrance.components.notes.top.name fragrance.components.notes.middle.name fragrance.components.notes.base.name fragrance.components.notes.general.name fragrance.components.concentration fragrance.accords.label fragrance.style fragrance.longevity.label fragrance.longevity.displayedCount fragrance.sillage.label fragrance.sillage.displayedCount fragrance.suitability.label fragrance.suitability.displayedPercent";
 const filterFields = [..."price sizes stockBySize inStockBySize inStock inventoryMode category type brand gender origin concentration".split(" "), ...profileFields.split(" ")].join(" ");
 const profileKeys = ["longevity", "sillage", "suitability", "notes", "accords", "styles", "concentrations"];
 const visible = { isPublished: { $ne: false }, isDeleted: { $ne: true } };
@@ -17,13 +17,17 @@ export const invalidateStorefrontCatalog = () => { revision++; entries.clear(); 
 export const catalogSnapshot = (key, maxAge, read) => {
   const existing = entries.get(key);
   if (existing?.pending) return existing.pending;
-  if (existing && Date.now() < existing.expiresAt) return Promise.resolve(existing.data);
+  if (existing && Date.now() < existing.expiresAt) {
+    entries.delete(key);
+    entries.set(key, existing);
+    return Promise.resolve(existing.data);
+  }
   const generation = revision;
   const entry = {};
   entries.set(key, entry);
   // Page/search snapshots share this store; keep it bounded between writes.
   for (const [oldKey, oldEntry] of entries) {
-    if (entries.size <= 64) break;
+    if (entries.size <= 256) break;
     if (oldKey !== key && !oldEntry.pending) entries.delete(oldKey);
   }
   entry.pending = Promise.resolve().then(read).then(data => {

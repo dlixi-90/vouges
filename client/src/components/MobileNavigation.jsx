@@ -46,7 +46,7 @@ function MobileSheet({ id, title, onClose, children }) {
 }
 
 export default function MobileNavigation({ brandDirectory, menuOpened, setMenuOpened, closeMenu }) {
-  const { user, isOwner, getCartCount, setSearchQuery } = useAppContext();
+  const { user, isOwner, getCartCount, setSearchQuery, storeResources } = useAppContext();
   const { openSignIn, openUserProfile, signOut } = useClerk();
   const location = useLocation();
   const [accountOpenedAt, setAccountOpenedAt] = useState(null);
@@ -54,6 +54,13 @@ export default function MobileNavigation({ brandDirectory, menuOpened, setMenuOp
   const count = getCartCount();
   const closeAccount = useCallback(() => setAccountOpenedAt(null), []);
   const accountActive = accountOpen || ["/membership", "/my-orders"].includes(location.pathname) || location.pathname.startsWith("/order-overview/");
+  const warmAccount = () => {
+    if (!user) return;
+    prefetchRoute("/my-orders");
+    prefetchRoute("/membership");
+    void storeResources?.loadOrders?.().catch(() => {});
+    void storeResources?.loadMembership?.().catch(() => {});
+  };
   const warm = path => ({ onPointerEnter: () => prefetchRoute(path), onFocus: () => prefetchRoute(path) });
 
   return <>
@@ -70,7 +77,8 @@ export default function MobileNavigation({ brandDirectory, menuOpened, setMenuOp
         </span><span>Giỏ hàng</span>
       </NavLink>
       <button type="button" className={accountActive ? "active" : ""} aria-expanded={accountOpen} aria-haspopup="dialog" aria-controls="mobile-account"
-        onClick={() => { closeMenu(); setAccountOpenedAt(location.key); }}>
+        onPointerEnter={warmAccount} onFocus={warmAccount}
+        onClick={() => { warmAccount(); closeMenu(); setAccountOpenedAt(location.key); }}>
         <span className="mobile-tab-icon"><UserRound size={23} strokeWidth={1.7} aria-hidden="true" /></span><span>Tài khoản</span>
       </button>
     </nav>

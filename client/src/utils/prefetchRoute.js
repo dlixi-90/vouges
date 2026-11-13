@@ -10,6 +10,7 @@ export const prefetchRoute = path => {
     "/knowledge": () => import("../pages/Knowledge"),
     "/membership": () => import("../pages/Membership"),
     "/my-orders": () => import("../pages/MyOrders"),
+    "/order-overview": () => import("../pages/OrderOverview"),
     "/cart": () => import("../pages/Cart"),
     "/owner": () => import("../pages/owner/PerfumeOverview"),
     "/owner/orders": () => import("../pages/owner/Dashboard"),
@@ -27,6 +28,7 @@ export const prefetchRoute = path => {
   const loader = loaders[url]
     || (url.startsWith("/knowledge/") ? () => import("../pages/Knowledge") : null)
     || (url.startsWith("/collection/") ? () => import("../pages/ProductDetail") : null)
+    || (url.startsWith("/order-overview/") ? () => import("../pages/OrderOverview") : null)
     || (url.startsWith("/owner/edit-product/") ? () => import("../pages/owner/PerfumeEditor") : null);
   void loader?.().catch(() => {});
 };

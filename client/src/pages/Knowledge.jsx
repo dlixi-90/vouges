@@ -137,6 +137,11 @@ export default function Knowledge() {
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [kind, slug, name]);
   useEffect(() => {
+    if (!detail || !config || !data?.page || !data?.totalPages || data.page >= data.totalPages) return;
+    const nextParams = { ...(slug ? { slug } : { name }), page: data.page + 1 };
+    void publicCatalog.library(kind, nextParams).catch(() => {});
+  }, [detail, config, data?.page, data?.totalPages, slug, name, kind, publicCatalog]);
+  useEffect(() => {
     const previous = document.title;
     document.title = `${presentation?.label || config?.title || "Kiến thức"} | Velours`;
     return () => { document.title = previous; };

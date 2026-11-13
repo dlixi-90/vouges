@@ -141,25 +141,26 @@ export const aiRateLimit = async (req, res, next) => {
     const minuteWindow = getWindow(now, MILLISECONDS_PER_MINUTE);
     const dayWindow = getWindow(now, MILLISECONDS_PER_DAY);
 
-    const minuteResult = await consumeWindow({
-      userId,
-      windowType: "minute",
-      windowStart: minuteWindow.start,
-      windowEnd: minuteWindow.end,
-      limit: minuteLimit,
-    });
+    const [minuteResult, dayResult] = await Promise.all([
+      consumeWindow({
+        userId,
+        windowType: "minute",
+        windowStart: minuteWindow.start,
+        windowEnd: minuteWindow.end,
+        limit: minuteLimit,
+      }),
+      consumeWindow({
+        userId,
+        windowType: "day",
+        windowStart: dayWindow.start,
+        windowEnd: dayWindow.end,
+        limit: dayLimit,
+      }),
+    ]);
 
     if (!minuteResult.allowed) {
       return sendRateLimitResponse(res, minuteResult, "mỗi phút");
     }
-
-    const dayResult = await consumeWindow({
-      userId,
-      windowType: "day",
-      windowStart: dayWindow.start,
-      windowEnd: dayWindow.end,
-      limit: dayLimit,
-    });
 
     if (!dayResult.allowed) {
       return sendRateLimitResponse(res, dayResult, "mỗi ngày");

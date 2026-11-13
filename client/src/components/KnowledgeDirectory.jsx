@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ArrowDownRight, ArrowUp, ChevronDown, Search, X } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
-import { LIBRARY_KINDS, libraryPath } from "../utils/fragranceLibrary";
+import { LIBRARY_KINDS, libraryPath, librarySlug } from "../utils/fragranceLibrary";
 import { filterLibraryTerms, groupLibraryTerms, libraryDisplayName } from "../utils/libraryDirectory";
 import { getProductImageUrl } from "../utils/productImage";
 import { PageSkeleton } from "./LoadingState";
@@ -91,12 +91,29 @@ export default function KnowledgeDirectory({ kind, config, data, loading, query,
   const lastSyncedQueryRef = useRef(query || "");
   const inputRef = useRef(null);
 
-  const prefetchTerm = (term) => {
+  const prefetchTerm = useCallback((term) => {
     if (term?.slug || term?.name) {
       const slug = term.slug || librarySlug(term);
       void publicCatalog?.library(kind, { slug, page: 1 }).catch(() => {});
     }
-  };
+  }, [kind, publicCatalog]);
+
+  useEffect(() => {
+    if (loading || !data || !publicCatalog) return undefined;
+    const warmOtherKinds = () => {
+      for (const otherKind of Object.keys(LIBRARY_KINDS)) {
+        if (otherKind !== kind) {
+          void publicCatalog.library(otherKind, { view: "directory" }).catch(() => {});
+        }
+      }
+    };
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(warmOtherKinds, { timeout: 1200 });
+      return () => window.cancelIdleCallback?.(id);
+    }
+    const timer = window.setTimeout(warmOtherKinds, 180);
+    return () => window.clearTimeout(timer);
+  }, [loading, data, kind, publicCatalog]);
 
   useEffect(() => {
     if ((query || "") !== lastSyncedQueryRef.current) {

@@ -74,8 +74,12 @@ export const getLocalAIAnswer = (message) => {
     return "Velours xin chào! Mình có thể giúp bạn tìm nước hoa, xem thông tin sản phẩm, phí giao hàng hoặc hướng dẫn theo dõi đơn.";
   }
 
-  if (containsAny(text, ["ban giup duoc gi", "co the hoi gi", "ban lam duoc gi", "tro ly co the lam gi", "tu van giup toi"])) {
+  if (containsAny(text, ["ban giup duoc gi", "ban co the giup gi", "giup gi cho toi", "co the hoi gi", "ban lam duoc gi", "tro ly co the lam gi", "tu van giup toi"])) {
     return "Mình có thể tìm và so sánh nước hoa trong cửa hàng, tra cứu giỏ hàng hoặc đơn hàng của bạn, và giải đáp thông tin giao hàng. Bạn cứ mô tả mùi hương, ngân sách hoặc điều muốn biết.";
+  }
+
+  if (text === "giup toi chon nuoc hoa theo ngan sach") {
+    return "Bạn muốn tìm nước hoa trong khoảng ngân sách bao nhiêu (ví dụ: dưới 500.000đ, 1–2 triệu hay tầm 3 triệu) và dành cho nam, nữ hay unisex? Bạn cho mình biết mức giá để mình lọc ngay các lựa chọn đang còn hàng nhé.";
   }
 
   const shippingAnswer = getShippingAnswer(text);

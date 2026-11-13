@@ -34,6 +34,10 @@ export default function Messages() {
   const params = new URLSearchParams({ search: query, status, page: String(page) });
   const feed = useSupportFeed(`/api/support/inbox/events?${params}`, true);
   const inbox = feed.data;
+  useEffect(() => {
+    const firstTarget = inbox?.conversations?.find(item => item.unreadStaff > 0) || inbox?.conversations?.[0];
+    if (firstTarget?._id) void storeResources.loadSupportConversation(firstTarget._id).catch(() => {});
+  }, [inbox?.conversations, storeResources]);
   const selected = conversationId ? storeResources.peekSupportConversation(conversationId)?.conversation
     || (selection?._id === conversationId ? selection : null)
     || inbox?.conversations.find(item => item._id === conversationId)

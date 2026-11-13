@@ -16,8 +16,12 @@ export default function NavigationDropdown({ title, links, compact, onNavigate }
     const match = /^\/knowledge\/(group|accord|note)$/u.exec(path);
     if (match) void publicCatalog?.library(match[1], { view: "directory" }).catch(() => {});
   };
+  const warmAll = () => {
+    for (const link of links) warmLink(link.path);
+  };
   useEffect(() => {
     if (!open) return;
+    warmAll();
     const outside = event => { if (!root.current?.contains(event.target)) setOpenedAt(null); };
     const escape = event => { if (event.key === "Escape") { setOpenedAt(null); trigger.current?.focus(); } };
     document.addEventListener("pointerdown", outside); document.addEventListener("keydown", escape);
@@ -25,7 +29,7 @@ export default function NavigationDropdown({ title, links, compact, onNavigate }
   }, [open]);
   return <div ref={root} className={`store-info-menu${compact ? " is-compact" : ""}`} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setOpenedAt(null); }}>
     <button ref={trigger} type="button" className={`store-brand-trigger${active ? " is-active" : ""}`} aria-expanded={open} aria-controls={id}
-      onPointerEnter={() => links[0] && prefetchRoute(links[0].path)} onFocus={() => links[0] && prefetchRoute(links[0].path)}
+      onPointerEnter={warmAll} onFocus={warmAll}
       onClick={() => setOpenedAt(open ? null : location.key)} onKeyDown={event => {
         if (event.key === "ArrowDown") { event.preventDefault(); setOpenedAt(location.key); requestAnimationFrame(() => root.current?.querySelector("a")?.focus()); }
       }}>{title}<ChevronDown size={13} aria-hidden="true" /></button>

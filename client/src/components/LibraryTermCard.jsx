@@ -1,8 +1,9 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { getProductImageUrl } from "../utils/productImage";
 import "./library-term-card.css";
 
-export default function LibraryTermCard({
+function LibraryTermCard({
   to,
   name,
   englishName,
@@ -44,3 +45,5 @@ export default function LibraryTermCard({
     </Link>
   );
 }
+
+export default memo(LibraryTermCard);

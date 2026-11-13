@@ -134,7 +134,7 @@ const formatOrderDate = (value) => {
 
 const AIChatPanel = ({ isOpen, onClose }) => {
   const { openSignIn } = useClerk();
-  const { addToCart, getToken, updateQuantity, user, openCart, requireCartLogin } = useAppContext();
+  const { addToCart, getToken, updateQuantity, user, openCart, requireCartLogin, storeResources } = useAppContext();
   const {
     messages,
     isSending,
@@ -171,10 +171,12 @@ const AIChatPanel = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (!isOpen || !user) return;
+    void import("../support/SupportChatPanel").catch(() => {});
+    void storeResources?.loadMySupport?.().catch(() => {});
 
     const focusTimer = window.setTimeout(() => textareaRef.current?.focus(), 0);
     return () => window.clearTimeout(focusTimer);
-  }, [isOpen, user]);
+  }, [isOpen, storeResources, user]);
 
   const handleInputChange = (event) => {
     setInput(event.target.value);

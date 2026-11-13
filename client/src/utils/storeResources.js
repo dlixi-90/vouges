@@ -12,6 +12,8 @@ export const createStoreResources = ({ cache = createResourceCache(), axios, use
   const reviewKey = (productId, page = 1) => `reviews:${productId}:${page}`;
   const ownKey = (productId) => `own-review:${userId}:${productId}`;
   const ordersKey = page => `customer-orders:${userId}:${page}`;
+  const singleOrderKey = orderId => `customer-order:${userId}:${String(orderId || "").toLowerCase()}`;
+  const mySupportKey = `mine:${userId}`;
   const addressesKey = `addresses:${userId}`;
   const read = async (url, signal, authenticated = false, params) => {
     const headers = authenticated ? { Authorization: `Bearer ${await getToken()}` } : undefined;
@@ -23,7 +25,24 @@ export const createStoreResources = ({ cache = createResourceCache(), axios, use
   return {
     clear: () => { cache.clear(); catalogCache.clear(); supportCache.clear(); },
     peekOrders: (page = 1) => cache.peek(ordersKey(page)),
-    invalidateOrders: () => cache.invalidate(`customer-orders:${userId}:`),
+    peekOrder: (orderId) => {
+      if (!userId || !orderId) return undefined;
+      const direct = cache.peek(singleOrderKey(orderId));
+      if (direct) return direct;
+      const target = String(orderId).toLowerCase();
+      for (let page = 1; page <= 5; page++) {
+        const found = cache.peek(ordersKey(page))?.orders?.find(item => String(item?._id || "").toLowerCase() === target);
+        if (found) return found;
+      }
+      return undefined;
+    },
+    setOrder: (order) => {
+      if (userId && order?._id) cache.set(singleOrderKey(order._id), order);
+    },
+    invalidateOrders: () => {
+      cache.invalidate(`customer-orders:${userId}:`);
+      cache.invalidate(`customer-order:${userId}:`);
+    },
     loadOrders(page = 1, options) {
       if (!userId) return Promise.resolve(null);
       return cache.load(ordersKey(page), signal => read("/api/orders/mine", signal, true, {page,pageSize:10}), options);
@@ -58,12 +77,41 @@ export const createStoreResources = ({ cache = createResourceCache(), axios, use
     setSupportConversation(id, snapshot) {
       if (String(snapshot?.conversation?._id) !== String(id)) return;
       const current = mergeSupportSnapshot(supportCache.peek(String(id)), snapshot);
+      const bounded = { ...current, messages: current.messages.slice(-50) };
       // Keep recent messages for fast switching; older history remains paginated.
-      supportCache.set(String(id), { ...current, messages: current.messages.slice(-50) });
+      supportCache.set(String(id), bounded);
+      if (userId && String(supportCache.peek(mySupportKey)?.conversation?._id) === String(id)) {
+        supportCache.set(mySupportKey, bounded);
+      }
     },
     loadSupportConversation(id, options) {
       if (!userId) return Promise.resolve(null);
       return supportCache.load(String(id), signal => read(`/api/support/conversations/${encodeURIComponent(id)}/messages?limit=25`, signal, true), options);
+    },
+    peekMySupport: () => userId ? supportCache.peek(mySupportKey) : undefined,
+    setMySupport(snapshot) {
+      if (!userId || !snapshot) return;
+      if (snapshot.conversation?._id) {
+        const id = String(snapshot.conversation._id);
+        const merged = mergeSupportSnapshot(supportCache.peek(id) || supportCache.peek(mySupportKey), snapshot);
+        const bounded = { ...merged, messages: merged.messages.slice(-50) };
+        supportCache.set(id, bounded);
+        supportCache.set(mySupportKey, bounded);
+      } else {
+        supportCache.set(mySupportKey, snapshot);
+      }
+    },
+    loadMySupport(options) {
+      if (!userId) return Promise.resolve(null);
+      return supportCache.load(mySupportKey, async signal => {
+        const data = await read("/api/support/mine", signal, true);
+        if (data?.conversation?._id) {
+          const id = String(data.conversation._id);
+          const merged = mergeSupportSnapshot(supportCache.peek(id), data);
+          supportCache.set(id, { ...merged, messages: merged.messages.slice(-50) });
+        }
+        return data;
+      }, options);
     },
     peekMembership: () => cache.peek(memberKey),
     invalidateMembership: () => cache.invalidate(memberKey),

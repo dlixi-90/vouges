@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import { useAppContext } from "../context/AppContext";
 import { getAvailableSizes } from "../utils/productStock";
 import ProductCard from "./ProductCard";
@@ -10,6 +10,7 @@ const Item = ({ product, priority = false }) => {
   const prefetchProduct = () => {
     void import("../pages/ProductDetail").catch(() => {});
     void publicCatalog.detail(product._id).catch(() => {});
+    void publicCatalog.related?.(product._id).catch(() => {});
   };
   const availableSizes = getAvailableSizes(product);
   const isAvailable = availableSizes.length > 0;
@@ -19,7 +20,7 @@ const Item = ({ product, priority = false }) => {
       onPointerDown={prefetchProduct}
       onFocus={prefetchProduct}
       onMouseEnter={() => {
-        prefetchTimer.current = window.setTimeout(prefetchProduct, 200);
+        prefetchTimer.current = window.setTimeout(prefetchProduct, 80);
       }}
       onMouseLeave={() => window.clearTimeout(prefetchTimer.current)}
       onClick={(event) => {
@@ -31,4 +32,4 @@ const Item = ({ product, priority = false }) => {
   );
 };
 
-export default Item;
+export default memo(Item);

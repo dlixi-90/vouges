@@ -1,7 +1,7 @@
 import { LoadingStatus } from "../components/LoadingState";
 import { getSizeImage } from "../utils/productImage";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/react";
 import { ArrowLeft, Check, CheckCircle2, Clock3, Package } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
@@ -21,7 +21,8 @@ const formatDate = (value) => {
 
 const OrderOverview = () => {
   const { orderId } = useParams();
-  const { user, axios, getToken, currency } = useAppContext();
+  const location = useLocation();
+  const { user, axios, getToken, currency, storeResources } = useAppContext();
   const { isLoaded } = useUser();
   const { openSignIn } = useClerk();
   const [attempt, setAttempt] = useState(0);
@@ -30,6 +31,9 @@ const OrderOverview = () => {
   const validId = /^[a-f\d]{24}$/i.test(orderId || "");
   const requestKey = `${userId || ""}:${orderId}:${attempt}`;
   const current = result?.key === requestKey ? result : null;
+  const stateOrder = location.state?.initialOrder;
+  const matchedStateOrder = stateOrder && String(stateOrder._id || "").toLowerCase() === String(orderId || "").toLowerCase() ? stateOrder : null;
+  const cachedOrder = validId ? (matchedStateOrder || storeResources?.peekOrder?.(orderId)) : null;
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [orderId]);
   useEffect(() => {
@@ -48,14 +52,17 @@ const OrderOverview = () => {
         if (!data.success || String(data.order?._id).toLowerCase() !== orderId.toLowerCase()) {
           throw new Error(data.message || "Không tìm thấy đơn hàng.");
         }
-        if (!controller.signal.aborted) setResult({ key: requestKey, order: data.order });
+        if (!controller.signal.aborted) {
+          storeResources?.setOrder?.(data.order);
+          setResult({ key: requestKey, order: data.order });
+        }
       } catch (error) {
         if (!controller.signal.aborted) setResult({ key: requestKey, error: error.response?.data?.message || error.message || "Không thể tải đơn hàng." });
       }
     };
     void loadOrder();
     return () => controller.abort();
-  }, [axios, getToken, orderId, requestKey, userId, validId]);
+  }, [axios, getToken, orderId, requestKey, storeResources, userId, validId]);
 
   const shell = (content) => <div className="net-cart inessa-overview-page"><div className="max-padd-container">{content}</div></div>;
   if (!isLoaded) return shell(<LoadingStatus label="Đang tải tài khoản…" />);
@@ -64,14 +71,13 @@ const OrderOverview = () => {
     <p>Đăng nhập bằng tài khoản đã đặt hàng để xem thông tin đơn hàng.</p>
     <button type="button" onClick={() => openSignIn()} className="btn-dark">Đăng nhập</button>
   </div>);
-  if (!validId || current?.error) return shell(<div className="inessa-overview-state" role="alert">
+  if (!validId || (current?.error && !cachedOrder)) return shell(<div className="inessa-overview-state" role="alert">
     <h1>Không thể xem đơn hàng</h1><p>{!validId ? "Mã đơn hàng không hợp lệ." : current.error}</p>
     <div>{validId && <button type="button" onClick={() => setAttempt((value) => value + 1)} className="btn-dark">Thử lại</button>}
       <Link to="/my-orders" className="btn-outline">Đơn hàng của tôi</Link></div>
   </div>);
-  if (!current?.order) return shell(<LoadingStatus label="Đang tải thông tin đơn hàng…" />);
-
-  const order = current.order;
+  const order = current?.order || cachedOrder;
+  if (!order) return shell(<LoadingStatus label="Đang tải thông tin đơn hàng…" />);
   const address = typeof order.address === "object" && order.address ? order.address : {};
   const items = order.items || [];
   const customerName = [address.firstName, address.lastName].filter(Boolean).join(" ");

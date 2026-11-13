@@ -8,6 +8,6 @@ import {
 
 const aiRouter = express.Router();
 
-aiRouter.post("/chat", authUser, answerLocallyWhenPossible, aiRateLimit, chatWithAI);
+aiRouter.post("/chat", answerLocallyWhenPossible, authUser, aiRateLimit, chatWithAI);
 
 export default aiRouter;

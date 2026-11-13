@@ -87,7 +87,7 @@
 .knowledge-origin-link[aria-current="location"] .knowledge-origin-link-meta { color: #806544; }
 .knowledge-origin-filter { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; padding: 14px 18px; margin-bottom: 24px; background: #f7f5f0; font-size: 12px; }
 .knowledge-origin-filter button { display: inline-flex; align-items: center; gap: 8px; text-decoration: underline; text-underline-offset: 4px; }
-.knowledge-note-section { margin-bottom: 48px; scroll-margin-top: 24px; }
+.knowledge-note-section { margin-bottom: 48px; scroll-margin-top: 24px; content-visibility: auto; contain-intrinsic-size: auto 360px; }
 .knowledge-note-section:focus { outline: none; }
 .knowledge-origin-banner { position: relative; display: grid; align-items: end; min-height: 80px; background: #f3f0e8; }
 .knowledge-origin-banner > img { width: 100%; height: clamp(160px, 19vw, 270px); object-fit: cover; }
