@@ -43,6 +43,14 @@
 .store-order-card .store-order-payment-status { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; }
 .store-order-card .store-order-payment-status::before { content: ""; width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: currentColor; }
 .store-order-card-footer .inessa-order-overview-link { margin-right: auto; font-size: 11px; }
+.store-order-card .store-order-status { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid #e4e4e7; border-radius: 6px; background: #f4f4f5; color: #52525b; font-size: 11px; font-weight: 600; line-height: 1.5; }
+.store-order-card .store-order-status::before { content: ""; width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: currentColor; }
+.store-order-status:is([data-order-status="Awaiting Payment"], [data-order-status="Order Placed"]) { color: #854d0e; background: #fefce8; border-color: #fde68a; }
+.store-order-status[data-order-status="Packing"] { color: #6b21a8; background: #faf5ff; border-color: #e9d5ff; }
+.store-order-status:is([data-order-status="Shipping"], [data-order-status="Out for delivery"]) { color: #1d4ed8; background: #eff6ff; border-color: #bfdbfe; }
+.store-order-status:is([data-order-status="Delivery"], [data-order-status="Delivered"]) { color: #166534; background: #f0fdf4; border-color: #bbf7d0; }
+.store-order-status[data-order-status="Payment Review"] { color: #9a3412; background: #fff7ed; border-color: #fed7aa; }
+.store-order-status:is([data-order-status="Payment Expired"], [data-order-status="Payment Cancelled"]) { color: #991b1b; background: #fef2f2; border-color: #fecaca; }
 .store-order-card button { border-color: #e5e5e5; border-radius: 8px; font-size: 11px; font-weight: 500; }
 
 /* The profile and voucher wallet share the same monochrome card system. */

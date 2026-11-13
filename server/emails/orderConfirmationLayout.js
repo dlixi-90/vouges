@@ -71,8 +71,8 @@ export const renderOrderConfirmation = (data, money) => {
         </td></tr>
         <tr><td class="content-pad" style="padding:30px 32px 24px;">
           <p style="margin:0 0 14px;font-size:10px;line-height:18px;font-weight:600;letter-spacing:1.5px;color:#686868;">${escapeHtml(heading.toLocaleUpperCase("vi-VN"))}</p>
-          <h1 class="headline" style="margin:0 0 18px;font-family:${serif};font-size:36px;font-weight:500;line-height:46px;letter-spacing:-.5px;color:#161616;">Cảm ơn bạn đã<br>chọn Velours.</h1>
-          <p style="margin:0 0 8px;font-size:14px;line-height:24px;color:#161616;">Xin chào ${escapeHtml(recipient || "bạn")},</p>
+          <h1 class="headline" style="margin:0 0 18px;font-family:${serif};font-size:36px;font-weight:500;line-height:46px;letter-spacing:-.5px;color:#161616;">Cảm ơn bạn đã chọn Velours.</h1>
+          <p style="margin:0 0 8px;font-size:14px;line-height:24px;color:#161616;">Xin chào ${escapeHtml(recipient || "bạn")}!</p>
           <p style="margin:0;font-size:14px;line-height:24px;color:#686868;">${escapeHtml(introduction)}</p>
         </td></tr>
         <tr><td class="content-pad" style="padding:0 32px 8px;">
@@ -81,7 +81,6 @@ export const renderOrderConfirmation = (data, money) => {
               <td class="meta-column" width="52%" valign="top" style="width:52%;padding:0 16px 18px 0;">
                 <p style="margin:0 0 6px;font-size:10px;line-height:18px;letter-spacing:1px;color:#686868;">MÃ ĐƠN HÀNG</p>
                 <p style="margin:0;font-size:13px;font-weight:600;line-height:21px;overflow-wrap:anywhere;">#${escapeHtml(orderId.slice(-8).toUpperCase())}</p>
-                <p style="margin:3px 0 0;font-size:10px;line-height:16px;color:#888;overflow-wrap:anywhere;">${escapeHtml(orderId)}</p>
               </td>
               <td class="meta-column" width="48%" valign="top" style="width:48%;padding:0 0 18px;">
                 <p style="margin:0 0 6px;font-size:10px;line-height:18px;letter-spacing:1px;color:#686868;">NGÀY ĐẶT HÀNG</p>
@@ -100,7 +99,7 @@ export const renderOrderConfirmation = (data, money) => {
           </table>
           <table role="presentation" width="100%" style="border-top:1px solid #161616;"><tr>
             <td style="padding-top:16px;font-size:14px;font-weight:600;line-height:22px;">${escapeHtml(totalLabel)}</td>
-            <td class="total-value" align="right" style="padding-top:16px;font-family:${serif};font-size:28px;font-weight:600;line-height:36px;white-space:nowrap;">${escapeHtml(money(total))}</td>
+            <td class="total-value" align="right" style="padding-top:16px;font-family:Arial,Helvetica,sans-serif;font-size:26px;font-weight:700;line-height:34px;white-space:nowrap;">${escapeHtml(money(total))}</td>
           </tr></table>
         </td></tr>
         <tr><td class="content-pad" style="padding:0 32px 8px;">
@@ -127,7 +126,7 @@ export const renderOrderConfirmation = (data, money) => {
           <p style="margin:12px 0 0;font-size:11px;line-height:19px;color:#888;">Đăng nhập bằng tài khoản đã dùng để đặt hàng.</p>
         </td></tr>
         <tr><td class="content-pad" align="center" bgcolor="#161616" style="padding:24px 32px;background:#161616;border-radius:0 0 11px 11px;">
-          <p style="margin:0 0 10px;font-family:${serif};font-size:19px;font-weight:500;line-height:28px;color:#ffffff;">Một hương thơm, một dấu ấn riêng.</p>
+          <p style="margin:0 0 10px;font-family:Arial,Helvetica,sans-serif;font-size:18px;font-weight:400;font-style:normal;line-height:28px;letter-spacing:normal;color:#ffffff;">Một hương thơm, một dấu ấn riêng.</p>
           <p style="margin:0 0 12px;font-size:12px;line-height:21px;color:#d4d4d4;">Cần hỗ trợ? <a href="${escapeHtml(contactUrl)}" style="color:#ffffff;text-decoration:underline;text-underline-offset:3px;">Liên hệ Velours</a> và cung cấp mã đơn hàng.</p>
           <p style="margin:0;font-size:10px;line-height:18px;color:#a3a3a3;">VELOURS · THẾ GIỚI NƯỚC HOA<br>Vui lòng giữ lại email này để đối chiếu thông tin mua hàng.</p>
         </td></tr>

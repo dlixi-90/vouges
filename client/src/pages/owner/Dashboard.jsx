@@ -2,7 +2,7 @@ import { LoadingStatus } from "../../components/LoadingState";
 import { getSizeImage } from "../../utils/productImage";
 import { getOrderStatusLabel, getPaymentMethodLabel } from "../../utils/localization.js";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { Banknote, CalendarDays, Package, ShoppingBag } from "lucide-react";
+import { Banknote, CalendarDays, ChevronDown, ChevronUp, Package, ShoppingBag } from "lucide-react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
@@ -18,6 +18,7 @@ import { ownerDashboardKey, ownerDashboardSummaryKey, ownerOverviewPath, readOwn
 const RevenueChart = lazy(() => import("../../components/owner/RevenueChart"));
 
 const ORDER_STATUSES = ["Order Placed", "Packing", "Shipping", "Delivery"];
+const ORDER_ITEMS_PREVIEW = 3;
 
 const Dashboard = () => {
   const { authenticatedUserId: userId, currency, axios, getToken, dashboardCache, storeResources } = useAppContext();
@@ -189,7 +190,14 @@ const Dashboard = () => {
       <OperationsPanel title="Sản phẩm bán chạy" description="Xếp hạng theo số lượng đã thanh toán">
         {popularProductsError && <p role="alert" className="perfume-alert">{popularProductsError}<button type="button" onClick={fetchPopularProducts}>Thử lại</button></p>}
         {popularProductsLoading && <LoadingStatus label="Đang tải sản phẩm bán chạy…" />}
-        <div className="admin-sales-ranking">{popularProducts.slice(0, 4).map((product, index) => <OwnerLink key={product._id} to={`/owner/edit-product/${product._id}`}><span className="admin-ranking-number">{index + 1}</span><span className="admin-product-image">{product.images?.[0] ? <ProductImage src={product.images[0]} imageWidth={100} alt="" /> : <Package size={18} />}</span><span><strong>{product.title}</strong><small>{product.category}</small></span><Badge>{product.soldQuantity} đã bán</Badge></OwnerLink>)}</div>
+        <div className="admin-sales-ranking">{popularProducts.slice(0, 4).map((product, index) => (
+          <OwnerLink key={product._id} to={`/owner/edit-product/${product._id}`}>
+            <span className="admin-ranking-number">{index + 1}</span>
+            <span className="admin-product-image">{product.images?.[0] ? <ProductImage src={product.images[0]} imageWidth={100} alt="" /> : <Package size={18} />}</span>
+            <span className="admin-ranking-product"><strong>{product.title}</strong><small>{product.category}</small></span>
+            <Badge>{product.soldQuantity} đã bán</Badge>
+          </OwnerLink>
+        ))}</div>
         {!popularProductsLoading && !popularProductsError && !popularProducts.length && <OperationsEmptyState icon={Package} title="Chưa có sản phẩm nào được bán" description="Danh sách sẽ xuất hiện sau khi có đơn được thanh toán." />}
       </OperationsPanel>
     </div>
@@ -204,9 +212,15 @@ const Dashboard = () => {
 };
 
 const OrderCard = ({ order, currency, onStatusChange, updating }) => {
+  const [itemsExpanded, setItemsExpanded] = useState(false);
+  const itemsRef = useRef(null);
   const currentStep = ORDER_STATUSES.indexOf(order.status);
   const address = order.address || {};
   const items = order.items || [];
+  const totalQuantity = items.reduce((total, item) => total + (Number(item.quantity) || 0), 0);
+  const hasMoreItems = items.length > ORDER_ITEMS_PREVIEW;
+  const visibleItems = itemsExpanded ? items : items.slice(0, ORDER_ITEMS_PREVIEW);
+  const itemsId = `order-items-${order._id}`;
   const customerName = [address.firstName, address.lastName]
     .filter(Boolean)
     .join(" ");
@@ -268,17 +282,24 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
         </div>
       </header>
 
-      <div className="grid lg:grid-cols-[minmax(0,1.55fr)_minmax(260px,0.75fr)]">
-        <section className="net-order-products p-4 sm:p-5 lg:border-r">
-          <div className="flex items-center justify-between">
+      <div className="net-order-body">
+        <section className="net-order-products">
+          <div className="net-order-products-heading">
             <h4 className="net-order-heading text-sm font-semibold">Sản phẩm</h4>
             <span className="net-order-meta text-xs">
-              {items.length} {"sản phẩm"}
+              {items.length} mặt hàng · {totalQuantity} sản phẩm
             </span>
           </div>
 
-          <div className="net-order-items mt-3 divide-y">
-            {items.map((item, index) => {
+          <div
+            id={itemsId}
+            ref={itemsRef}
+            className={`net-order-items${itemsExpanded ? " is-expanded" : ""}`}
+            tabIndex={itemsExpanded ? 0 : undefined}
+            role={itemsExpanded ? "region" : undefined}
+            aria-label={itemsExpanded ? `Sản phẩm trong đơn hàng #${String(order._id).slice(-8).toUpperCase()}` : undefined}
+          >
+            {visibleItems.map((item, index) => {
               const product =
                 item.product && typeof item.product === "object"
                   ? item.product
@@ -290,43 +311,35 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
               return (
                 <div
                   key={item._id || index}
-                  className="flex items-start gap-4 py-3 first:pt-0 last:pb-0"
+                  className="net-order-item"
                 >
-                  {/* LEFT: Product */}
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <div className="net-order-thumbnail flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border p-1">
-                      {productImage ? (
-                        <ProductImage
-                          src={productImage}
-                          imageWidth={160}
-                          alt={productTitle}
-                          className="h-full w-full object-contain"
-                        />
-                      ) : (
-                        <Package size={19} className="text-[#8b949c]" />
-                      )}
-                    </div>
+                  <div className="net-order-thumbnail flex shrink-0 items-center justify-center overflow-hidden rounded-md border p-1">
+                    {productImage ? (
+                      <ProductImage
+                        src={productImage}
+                        imageWidth={160}
+                        alt={productTitle}
+                        className="h-full w-full object-contain"
+                      />
+                    ) : (
+                      <Package size={19} className="text-[#8b949c]" />
+                    )}
+                  </div>
 
-                    <div className="min-w-0">
-                      <p className="net-order-heading truncate text-sm font-semibold">
-                        {productTitle}
-                      </p>
+                  <div className="net-order-item-info">
+                    <p className="net-order-heading net-order-item-title">
+                      {productTitle}
+                    </p>
 
-                      <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px] text-[#69747e]">
-                        <span className="net-order-variant rounded-md px-2 py-1">
-                          Dung tích: <b className="text-[#263b4a]">{item.size}</b>
-                        </span>
-
-                        <span className="net-order-variant rounded-md px-2 py-1">
-                          Số lượng: <b className="text-[#263b4a]">{item.quantity}</b>
-                        </span>
-                      </div>
+                    <div className="net-order-item-meta">
+                      <span>{item.size || "—"}</span>
+                      <span>Số lượng: <b>{item.quantity}</b></span>
                     </div>
                   </div>
 
-                  {/* RIGHT: Price */}
-                  <div className="shrink-0 pt-0.5 text-right">
-                    <p className="net-order-heading whitespace-nowrap text-sm font-semibold leading-5">
+                  <div className="net-order-item-price">
+                    <span className="net-order-meta">Đơn giá</span>
+                    <p className="net-order-heading">
                       {formatVnd(
                         item.unitPrice ?? product.price?.[item.size] ?? 0,
                         currency,
@@ -337,15 +350,31 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
               );
             })}
           </div>
+          {hasMoreItems && <div className="net-order-items-footer">
+            <span className="net-order-meta">Hiển thị {visibleItems.length}/{items.length} mặt hàng</span>
+            <button
+              type="button"
+              className="net-order-items-toggle"
+              aria-expanded={itemsExpanded}
+              aria-controls={itemsId}
+              onClick={() => {
+                if (itemsRef.current) itemsRef.current.scrollTop = 0;
+                setItemsExpanded(expanded => !expanded);
+              }}
+            >
+              {itemsExpanded ? "Thu gọn danh sách" : `Xem thêm ${items.length - ORDER_ITEMS_PREVIEW} mặt hàng`}
+              {itemsExpanded ? <ChevronUp size={14} aria-hidden="true" /> : <ChevronDown size={14} aria-hidden="true" />}
+            </button>
+          </div>}
         </section>
 
-        <aside className="net-order-customer border-t p-4 sm:p-5 lg:border-t-0">
+        <aside className="net-order-customer">
           <h4 className="net-order-heading text-sm font-semibold">
             Thông tin khách hàng
           </h4>
 
           <dl className="mt-4 space-y-4">
-            {order.note && <div>
+            {order.note && <div className="net-order-customer-full">
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Lời nhắn cho cửa hàng</dt>
               <dd className="mt-1 whitespace-pre-wrap break-words text-sm text-[#52616b]">{order.note}</dd>
             </div>}
@@ -365,7 +394,7 @@ const OrderCard = ({ order, currency, onStatusChange, updating }) => {
                 {address.phone || "—"}
               </dd>
             </div>
-            <div>
+            <div className="net-order-customer-full">
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
                 Địa chỉ giao hàng
               </dt>

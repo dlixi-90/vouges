@@ -16,24 +16,43 @@
 .net-admin .admin-orders-page .net-order-payment[data-payment-state="cod"] { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
 .net-admin .admin-orders-page .net-order-payment[data-payment-state="pending"] { background:#fffbeb; color:#b45309; border:1px solid #fde68a; }
 .net-admin .admin-orders-page .net-order-total { font-size:18px; font-weight:600; color:#262626; }
-.admin-orders-page .net-order-products,.admin-orders-page .net-order-customer { padding:18px; }
-.admin-orders-page .net-order-thumbnail { width:48px; height:55px; }
-.admin-orders-page .net-order-items p { font-size:12px; }
+.admin-orders-page .net-order-body { display:grid; grid-template-columns:minmax(0,1fr); }
+.net-admin .admin-orders-page .net-order-products,.net-admin .admin-orders-page .net-order-customer { min-width:0; padding:18px; border-radius:0; }
+.net-admin .admin-orders-page .net-order-customer { border-top:1px solid #eee; background:#fcfcfc; }
+.admin-orders-page .net-order-products-heading { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px 12px; margin-bottom:10px; }
+.admin-orders-page .net-order-items { min-width:0; }
+.admin-orders-page .net-order-items.is-expanded { max-height:360px; overflow-y:auto; overscroll-behavior-y:contain; scrollbar-gutter:stable; padding-right:8px; }
+.admin-orders-page .net-order-item { display:grid; grid-template-columns:40px minmax(0,1fr) max-content; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid #eee; }
+.admin-orders-page .net-order-item:first-child { padding-top:0; }
+.admin-orders-page .net-order-item:last-child { border-bottom:0; padding-bottom:0; }
+.admin-orders-page .net-order-thumbnail { width:40px; height:46px; }
+.admin-orders-page .net-order-item-info { min-width:0; }
+.admin-orders-page .net-order-item-title { font-size:12px; font-weight:500; line-height:1.5; overflow-wrap:anywhere; }
+.admin-orders-page .net-order-item-meta { display:flex; flex-wrap:wrap; gap:4px 12px; margin-top:5px; font-size:10px; line-height:1.5; color:#888; overflow-wrap:anywhere; }
+.admin-orders-page .net-order-item-meta b { font-weight:500; color:#555; }
+.admin-orders-page .net-order-item-price { text-align:right; white-space:nowrap; }
+.admin-orders-page .net-order-item-price p { margin-top:3px; font-size:12px; font-weight:500; font-variant-numeric:tabular-nums; }
+.admin-orders-page .net-order-items-footer { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px 12px; margin-top:14px; padding-top:12px; border-top:1px solid #eee; }
+.admin-orders-page .net-order-items-toggle { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; padding:7px 10px; border:1px solid #ddd; border-radius:6px; background:#fff; color:#444; font-size:11px; font-weight:500; cursor:pointer; }
+.admin-orders-page .net-order-items-toggle:hover { background:#f5f5f5; border-color:#aaa; }
+.admin-orders-page .net-order-items-toggle:focus-visible,.admin-orders-page .net-order-items.is-expanded:focus-visible { outline:2px solid #777; outline-offset:3px; }
 .admin-orders-page .net-order-customer dl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:16px; }
 .admin-orders-page .net-order-customer dl > div { min-width:0; margin:0; }
+.admin-orders-page .net-order-customer-full { grid-column:1/-1; }
 .admin-orders-page .net-order-customer :is(dt,dd) { overflow-wrap:anywhere; }
 .admin-orders-page .net-order-customer dt { font-size:9px; }
 .admin-orders-page .net-order-customer dd { font-size:11px; }
 .net-admin .admin-orders-page .net-order-actions { padding:12px 18px; border-color:#eee; background:#fafafa; }
 .net-admin .admin-orders-page .net-order-status { border-radius:7px; border-color:#ddd; font-size:11px; font-weight:400; }
 .admin-operation-pagination { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-top:20px; padding-top:18px; border-top:1px solid #eee; color:#999; font-size:10px; }
-.admin-sales-ranking { display:grid; gap:2px; }
-.admin-sales-ranking > a { display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid #f0f0f0; }
+.admin-sales-ranking { display:grid; grid-template-columns:minmax(0,1fr); min-width:0; gap:2px; }
+.admin-sales-ranking > a { display:grid; grid-template-columns:14px 38px minmax(0,1fr) max-content; min-width:0; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid #f0f0f0; }
 .admin-sales-ranking > a:last-child { border:0; }
 .admin-ranking-number { width:14px; font-size:10px; color:#aaa; }
-.admin-sales-ranking > a > span:nth-child(3) { flex:1; min-width:0; }
-.admin-sales-ranking strong { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; font-weight:500; }
-.admin-sales-ranking small { display:block; margin-top:5px; color:#999; font-size:9px; }
+.admin-sales-ranking .admin-ranking-product { min-width:0; overflow-wrap:anywhere; }
+.admin-sales-ranking strong { display:block; font-size:11px; font-weight:500; line-height:1.5; }
+.admin-sales-ranking small { display:block; margin-top:5px; color:#999; font-size:9px; line-height:1.5; }
+.admin-sales-ranking .perfume-badge { justify-self:end; white-space:nowrap; }
 .admin-operation-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:45px 20px; text-align:center; color:#939393; }
 .admin-operation-empty > span { display:flex; align-items:center; justify-content:center; width:53px; height:53px; border-radius:14px; background:#f5f5f5; color:#999; }
 .admin-operation-empty > strong { color:#696969; font-size:12px; font-weight:500; line-height:1.6; }
@@ -195,6 +214,7 @@
 .admin-support-thread .support-thread-compose textarea { font-size:12px; line-height:1.8; }
 .admin-support-thread .support-thread-compose button[aria-label="Gửi tin nhắn CSKH"] { width:36px; height:36px; border-radius:7px; background:#242424; }
 
+@media(min-width:1024px) { .admin-orders-page .net-order-body { grid-template-columns:minmax(0,1.55fr) minmax(260px,.75fr); }.net-admin .admin-orders-page .net-order-customer { border-top:0; border-left:1px solid #eee; } }
 @media(max-width:1200px) { .admin-management-grid { grid-template-columns:280px minmax(0,1fr); gap:18px; }.admin-message-sidebar { width:285px; } }
 @media(max-width:1023px) { .admin-management-grid { grid-template-columns:1fr; }.admin-form-column { gap:12px; }.admin-operation-tip { display:none; }.admin-category-list { margin-top:0; }.admin-message-sidebar { width:100%; border-right:0; }.admin-message-sidebar.is-conversation-selected { display:none; }.admin-message-thread:not(.has-conversation) { display:none; }.admin-thread-back { display:flex; } }
 @media(max-width:767px) {
@@ -232,10 +252,13 @@
   .admin-support-thread .support-thread-status { padding-inline:12px; }
   .admin-support-thread .support-thread-history { padding:16px 12px; }
   .admin-orders-page .net-order-card > header { padding:14px; }
-  .admin-orders-page .net-order-products,.admin-orders-page .net-order-customer { padding:14px; }
+  .net-admin .admin-orders-page .net-order-products,.net-admin .admin-orders-page .net-order-customer { padding:14px; }
   .admin-orders-page .net-order-card :is(h3,h4) { font-size:11px; }
-  .admin-orders-page .net-order-items > div { flex-wrap:wrap; gap:10px; }
-  .admin-orders-page .net-order-items > div > div:last-child { margin-left:auto; }
+  .admin-orders-page .net-order-item { grid-template-columns:36px minmax(0,1fr); gap:6px 10px; }
+  .admin-orders-page .net-order-thumbnail { grid-row:1/3; align-self:start; width:36px; height:43px; }
+  .admin-orders-page .net-order-item-price { grid-column:2; text-align:left; white-space:normal; }
+  .admin-orders-page .net-order-item-price > span { display:none; }
+  .admin-orders-page .net-order-item-price p { margin:0; }
   .admin-operation-pagination { font-size:9px; }
 }
 @media(prefers-reduced-motion:reduce) { .admin-category-toggle > svg,.admin-toggle-switch > span,.admin-toggle-switch > span::after { transition:none; } }
