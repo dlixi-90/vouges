@@ -134,7 +134,7 @@
   .net-storefront .product-detail-thumbnails > button { flex: 0 0 44px; width: 44px; height: 44px; min-width: 44px; min-height: 44px; max-width: 44px; max-height: 44px; padding: 4px; border-radius: 10px; }
   /* Reserve room for the header, purchase dock and product choices. svh stays
      stable while browser chrome expands/collapses in Safari or an in-app view. */
-  .net-storefront .product-detail-gallery-stage { height: clamp(150px, min(64vw, calc(100svh - var(--net-header-height, 112px) - var(--mobile-nav-height, 82px) - 380px)), 300px); padding: 14px; background: #f7f7f4; border-radius: 18px; }
+  .net-storefront .product-detail-gallery-stage { height: clamp(150px, min(64vw, calc(100svh - var(--net-header-height, 112px) - var(--mobile-nav-height, 82px) - 380px)), 300px); padding: 2px; background: #f7f7f4; border-radius: 18px; }
   .net-storefront .product-detail-category { margin-bottom: 6px; font-size: 11px; }
   .net-storefront .net-product-detail h1 { font-size: clamp(22px, 5.6vw, 25px); line-height: 1.25; }
   .net-storefront .product-detail-price { margin-top: 8px; font-size: 22px; }
