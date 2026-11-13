@@ -1,7 +1,7 @@
 import { getSizeImage } from "../utils/productImage";
 import { getOrderStatusLabel, getPaymentMethodLabel } from "../utils/localization.js";
-import { lazy, Suspense, useMemo, useState } from "react";
-import { Package, Star } from "lucide-react";
+import { lazy, Suspense, useMemo, useRef, useState } from "react";
+import { ChevronDown, ChevronUp, Package, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import StorePageHeading from "../components/StorePageHeading";
 import { useAppContext } from "../context/AppContext";
@@ -14,6 +14,7 @@ import useCachedResource from "../hooks/useCachedResource";
 import { LoadingStatus, PageSkeleton } from "../components/LoadingState";
 
 const ProductReviewDialog = lazy(() => import("../components/ProductReviewDialog"));
+const ORDER_ITEMS_PREVIEW = 2;
 
 const MyOrders = () => {
   const { currency, user, storeResources, accountLoading } = useAppContext();
@@ -33,9 +34,9 @@ const MyOrders = () => {
     <main className="net-orders store-account-page store-page-container max-padd-container">
       <StorePageHeading title="Đơn hàng của tôi" />
 
-      <div ref={listRef} tabIndex={-1} className="pagination-list-start space-y-4" aria-busy={loading}>
+      <div ref={listRef} tabIndex={-1} className="pagination-list-start store-orders-list" aria-busy={loading}>
         {(initialLoading || accountLoading) && <PageSkeleton compact label="Đang tải đơn hàng…" />}
-        <div className="resource-loading-state"><LoadingStatus active={updating} label="Đang cập nhật đơn hàng…" /></div>
+        <LoadingStatus active={updating} label="Đang cập nhật đơn hàng…" />
         {error && <p role="alert">{error} <button type="button" className="underline" onClick={reload}>Thử lại</button></p>}
         {orders.map((order) => (
           <CustomerOrderCard
@@ -63,8 +64,13 @@ const MyOrders = () => {
 };
 
 const CustomerOrderCard = ({ order, currency, onReview }) => {
+  const [itemsExpanded, setItemsExpanded] = useState(false);
+  const itemsRef = useRef(null);
   const address = order.address || {};
   const items = order.items || [];
+  const visibleItems = itemsExpanded ? items : items.slice(0, ORDER_ITEMS_PREVIEW);
+  const itemsId = `customer-order-items-${order._id}`;
+  const quantity = items.reduce((total, item) => total + (Number(item.quantity) || 0), 0);
   const customerName = [address.firstName, address.lastName]
     .filter(Boolean)
     .join(" ");
@@ -89,7 +95,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
   return (
     <article className="store-order-card overflow-hidden rounded-xl border border-[#e2e7eb] bg-white shadow-sm">
       <header className="store-order-card-heading flex flex-col gap-3 border-b border-[#edf0f2] bg-[#fafbfb] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-        <div className="min-w-0">
+        <div className="store-order-reference">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8b949c]">
             Đơn hàng
           </p>
@@ -104,7 +110,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
           </p>
         </div>
 
-        <div className="flex items-center justify-between gap-4 sm:justify-end">
+        <div className="store-order-summary">
           <span
             className="store-order-payment-status rounded-full px-2.5 py-1 text-xs font-semibold"
             data-payment-state={order.isPaid ? "paid" : order.paymentMethod === "COD" ? "cod" : "pending"}
@@ -126,17 +132,24 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
         </div>
       </header>
 
-      <div className="grid lg:grid-cols-[minmax(0,1.55fr)_minmax(260px,0.75fr)]">
-        <section className="min-w-0 p-4 sm:p-5 lg:border-r lg:border-[#edf0f2]">
-          <div className="flex items-center justify-between">
+      <div className="store-order-body">
+        <section className="store-order-products">
+          <div className="store-order-products-heading">
             <h4 className="text-sm font-semibold text-[#263b4a]">Sản phẩm</h4>
             <span className="text-xs text-[#8b949c]">
-              {items.length} {"sản phẩm"}
+              {items.length} mặt hàng · {quantity} sản phẩm
             </span>
           </div>
 
-          <div className="mt-3 divide-y divide-[#edf0f2]">
-            {items.map((item, index) => {
+          <div
+            id={itemsId}
+            ref={itemsRef}
+            className={`store-order-items${itemsExpanded ? " is-expanded" : ""}`}
+            tabIndex={itemsExpanded ? 0 : undefined}
+            role={itemsExpanded ? "region" : undefined}
+            aria-label={itemsExpanded ? `Sản phẩm trong đơn hàng #${String(order._id).slice(-8).toUpperCase()}` : undefined}
+          >
+            {visibleItems.map((item, index) => {
               const product =
                 item.product && typeof item.product === "object"
                   ? item.product
@@ -149,39 +162,37 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
               return (
                 <div
                   key={item._id || index}
-                  className="flex flex-col gap-3 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-start sm:gap-4"
+                  className="store-order-item"
                 >
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-[#edf0f2] bg-[#f7f9f8] p-1">
-                      {productImage ? (
-                        <ProductImage
-                          src={productImage}
-                          imageWidth={160}
-                          alt={productTitle}
-                          className="h-full w-full object-contain"
-                        />
-                      ) : (
-                        <Package size={19} className="text-[#8b949c]" />
-                      )}
-                    </div>
+                  <div className="store-order-thumbnail">
+                    {productImage ? (
+                      <ProductImage
+                        src={productImage}
+                        imageWidth={160}
+                        alt={productTitle}
+                        className="h-full w-full object-contain"
+                      />
+                    ) : (
+                      <Package size={19} className="text-[#8b949c]" />
+                    )}
+                  </div>
 
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-[#263b4a]">
-                        {productTitle}
-                      </p>
-                      <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px] text-[#69747e]">
-                        <span className="rounded-md bg-[#f1f4f2] px-2 py-1">
-                          Dung tích: <b className="text-[#263b4a]">{item.size}</b>
-                        </span>
-                        <span className="rounded-md bg-[#f1f4f2] px-2 py-1">
-                          Số lượng: <b className="text-[#263b4a]">{item.quantity}</b>
-                        </span>
-                      </div>
+                  <div className="store-order-item-info">
+                    <p className="store-order-item-title">
+                      {productTitle}
+                    </p>
+                    <div className="store-order-item-meta">
+                      <span>
+                        Dung tích: <b>{item.size || "—"}</b>
+                      </span>
+                      <span>
+                        Số lượng: <b>{item.quantity}</b>
+                      </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between gap-3 text-right sm:block sm:shrink-0 sm:space-y-3 sm:pt-0.5">
-                    <p className="whitespace-nowrap text-sm font-semibold leading-5 text-[#263b4a]">
+                  <div className="store-order-item-actions">
+                    <p className="store-order-item-price">
                       {formatVnd(
                         item.unitPrice ?? product.price?.[item.size] ?? 0,
                         currency,
@@ -189,7 +200,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
                     </p>
                     {order.status === "Delivery" && (order.paymentMethod === "COD" || order.isPaid) && productId && !product.isDeleted && (
                       <button type="button" onClick={() => onReview({ id: String(productId), title: productTitle, image: productImage, size: item.size })}
-                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-secondary/30 bg-white px-3 py-2 text-xs font-semibold text-secondary transition hover:bg-secondary/5">
+                        className="store-order-review">
                         <Star size={14} aria-hidden="true" />Đánh giá
                       </button>
                     )}
@@ -198,27 +209,24 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
               );
             })}
           </div>
+          {items.length > ORDER_ITEMS_PREVIEW && <div className="store-order-items-footer">
+            <span>Hiển thị {visibleItems.length}/{items.length} mặt hàng</span>
+            <button type="button" className="store-order-items-toggle" aria-expanded={itemsExpanded} aria-controls={itemsId} onClick={() => {
+              if (itemsRef.current) itemsRef.current.scrollTop = 0;
+              setItemsExpanded(expanded => !expanded);
+            }}>
+              {itemsExpanded ? "Thu gọn danh sách" : `Xem thêm ${items.length - ORDER_ITEMS_PREVIEW} mặt hàng`}
+              {itemsExpanded ? <ChevronUp size={14} aria-hidden="true" /> : <ChevronDown size={14} aria-hidden="true" />}
+            </button>
+          </div>}
         </section>
 
-        <aside className="store-order-customer border-t border-[#edf0f2] bg-[#fcfdfc] p-4 sm:p-5 lg:border-t-0">
+        <aside className="store-order-customer">
           <h4 className="text-sm font-semibold text-[#263b4a]">
             Thông tin khách hàng
           </h4>
 
-          <dl className="mt-4 space-y-4">
-            {order.note && <div>
-              <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Lời nhắn cho cửa hàng</dt>
-              <dd className="mt-1 whitespace-pre-wrap break-words text-sm text-[#52616b]">{order.note}</dd>
-            </div>}
-            {order.shipping !== undefined && <div>
-              <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Giao hàng</dt>
-              <dd className="mt-1 text-sm">{SHIPPING_METHODS.find((method) => method.id === order.shippingMethod)?.label || "Giao tiêu chuẩn"} · {order.shippingMethod === "urgent" ? "Thanh toán sau" : formatVnd(order.shipping, currency)}</dd>
-              {order.shippingMethod === "urgent" && <dd className="mt-1 text-xs text-gray-500">{URGENT_SHIPPING_NOTE}</dd>}
-            </div>}
-            {order.discount > 0 && <div>
-              <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Mã giảm giá {order.voucherCode}</dt>
-              <dd className="mt-1 text-sm text-green-700">−{formatVnd(order.discount, currency)}</dd>
-            </div>}
+          <dl className="store-order-details">
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
                 Khách hàng
@@ -235,7 +243,7 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
                 {address.phone || "—"}
               </dd>
             </div>
-            <div>
+            <div className="store-order-detail-full">
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
                 Địa chỉ giao hàng
               </dt>
@@ -243,6 +251,15 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
                 {fullAddress || "—"}
               </dd>
             </div>
+            {order.shipping !== undefined && <div>
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Giao hàng</dt>
+              <dd className="mt-1 text-sm">{SHIPPING_METHODS.find((method) => method.id === order.shippingMethod)?.label || "Giao tiêu chuẩn"} · {order.shippingMethod === "urgent" ? "Thanh toán sau" : formatVnd(order.shipping, currency)}</dd>
+              {order.shippingMethod === "urgent" && <dd className="mt-1 text-xs text-gray-500">{URGENT_SHIPPING_NOTE}</dd>}
+            </div>}
+            {order.discount > 0 && <div>
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Mã giảm giá {order.voucherCode}</dt>
+              <dd className="mt-1 text-sm text-green-700">−{formatVnd(order.discount, currency)}</dd>
+            </div>}
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">
                 Mã bưu chính
@@ -259,6 +276,10 @@ const CustomerOrderCard = ({ order, currency, onReview }) => {
                 {getPaymentMethodLabel(order.paymentMethod)}
               </dd>
             </div>
+            {order.note && <div className="store-order-detail-full">
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-[#9aa3aa]">Lời nhắn cho cửa hàng</dt>
+              <dd className="mt-1 whitespace-pre-wrap break-words text-sm text-[#52616b]">{order.note}</dd>
+            </div>}
           </dl>
         </aside>
       </div>

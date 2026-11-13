@@ -53,6 +53,52 @@
 .store-order-status:is([data-order-status="Payment Expired"], [data-order-status="Payment Cancelled"]) { color: #991b1b; background: #fef2f2; border-color: #fecaca; }
 .store-order-card button { border-color: #e5e5e5; border-radius: 8px; font-size: 11px; font-weight: 500; }
 
+/* Keep the order summary and actions visible without a tall customer column. */
+.net-theme .net-orders > .store-page-heading { padding-block: 22px 18px; }
+.store-orders-list { display: grid; gap: 16px; }
+.store-order-card .store-order-card-heading { display: flex; flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 20px; padding: 14px 18px; }
+.store-order-reference { display: grid; grid-template-columns: auto auto; align-items: center; gap: 4px 10px; min-width: 0; }
+.store-order-reference > :is(p,h3) { margin: 0; line-height: 1.5; }
+.store-order-reference > p:last-child { grid-column: 1 / -1; font-size: 11px; }
+.store-order-summary { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 18px; }
+.store-order-summary > div > p:first-child { font-size: 10px; line-height: 1.5; }
+.store-order-summary > div > p:last-child { font-size: 18px; line-height: 1.4; font-variant-numeric: tabular-nums; }
+.store-order-body { display: grid; grid-template-columns: minmax(0,1fr); }
+.store-order-products,.store-order-card .store-order-customer { min-width: 0; padding: 18px; }
+.store-order-products-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; margin-bottom: 12px; }
+.store-order-products-heading > span { font-size: 11px; }
+.store-order-items { min-width: 0; }
+.store-order-items.is-expanded { max-height: clamp(220px,40dvh,360px); overflow-y: auto; overscroll-behavior-y: contain; scrollbar-gutter: stable; padding-right: 8px; }
+.store-order-item { display: grid; grid-template-columns: 48px minmax(0,1fr) max-content; align-items: start; gap: 12px; padding: 12px 0; border-bottom: 1px solid #efefef; }
+.store-order-item:first-child { padding-top: 0; }
+.store-order-item:last-child { padding-bottom: 0; border-bottom: 0; }
+.store-order-thumbnail { display: flex; align-items: center; justify-content: center; width: 48px; height: 56px; padding: 4px; overflow: hidden; border: 1px solid #efefef; border-radius: 8px; color: #888; }
+.store-order-thumbnail img { width: 100%; height: 100%; object-fit: contain; }
+.store-order-item-info { min-width: 0; }
+.store-order-item-title { color: #292929; font-size: 13px; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; }
+.store-order-item-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: 11px; line-height: 1.5; color: #777; overflow-wrap: anywhere; }
+.store-order-item-meta b { color: #444; font-weight: 500; }
+.store-order-item-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.store-order-item-price { color: #292929; font-size: 13px; font-weight: 600; line-height: 1.5; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.store-order-card :is(.store-order-review,.store-order-items-toggle) { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 32px; padding: 6px 10px; border: 1px solid #e5e5e5; border-radius: 6px; background: #fff; color: #444; cursor: pointer; }
+.store-order-card :is(.store-order-review,.store-order-items-toggle):hover { border-color: #aaa; background: #fafafa; }
+.store-order-card :is(.store-order-review,.store-order-items-toggle,.store-order-items):focus-visible { outline: 2px solid #777; outline-offset: 3px; }
+.store-order-items-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; margin-top: 12px; padding-top: 10px; border-top: 1px solid #efefef; }
+.store-order-items-footer > span { font-size: 11px; color: #888; }
+.store-order-card .store-order-customer { border-top: 1px solid #efefef; }
+.store-order-details { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px 18px; margin-top: 12px; }
+.store-order-details > div { min-width: 0; }
+.store-order-details dt { font-size: 10px; line-height: 1.5; overflow-wrap: anywhere; }
+.store-order-details dd { font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.store-order-detail-full { grid-column: 1 / -1; }
+.store-order-card .store-order-card-footer { padding: 10px 18px; gap: 8px 12px; }
+
+@media (min-width: 1024px) {
+  .store-order-body { grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); }
+  .store-order-card .store-order-customer { border-top: 0; border-left: 1px solid #efefef; }
+  .store-order-items.is-expanded { max-height: clamp(144px,calc(100dvh - 460px),280px); }
+}
+
 /* The profile and voucher wallet share the same monochrome card system. */
 .net-theme.net-storefront .store-account-page.net-membership { --member-ink: #292929; --member-muted: #777; --member-accent: #333; --member-line: #efefef; }
 .store-member-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); align-items: start; gap: 28px; }
@@ -96,6 +142,13 @@
   .store-account-page .inessa-cart-totals-content { padding-inline: 16px; }
   .net-theme .store-account-page .inessa-cart-totals h2 { padding: 16px; }
   .net-theme .store-account-page .store-order-card { border-radius: 12px; }
+  .store-order-card .store-order-card-heading { padding: 12px 14px; }
+  .store-order-summary { width: 100%; }
+  .store-order-products,.store-order-card .store-order-customer { padding: 14px; }
+  .store-order-item { grid-template-columns: 42px minmax(0,1fr); gap: 8px 10px; }
+  .store-order-thumbnail { grid-row: 1 / 3; width: 42px; height: 50px; }
+  .store-order-item-actions { grid-column: 2; flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .store-order-card :is(.store-order-review,.store-order-items-toggle) { min-height: 44px; }
   .store-order-card-footer { justify-content: flex-start; gap: 10px; }
   .store-order-card-footer .inessa-order-overview-link { flex-basis: 100%; }
   .net-theme .store-account-page :is(.net-member-panel, .net-member-gift, .net-member-voucher) { border-radius: 12px; }
