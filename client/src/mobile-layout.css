@@ -6,6 +6,8 @@
   .net-theme.net-storefront { --mobile-nav-height: calc(72px + env(safe-area-inset-bottom, 0px)); padding-bottom: calc(var(--mobile-nav-height) + 12px); }
   .net-storefront :is(a, button, summary):focus-visible { outline: 2px solid var(--net-ink); outline-offset: 3px; }
   .net-storefront :is(button, a) { touch-action: manipulation; }
+  .net-storefront .store-page-breadcrumb { display: none; }
+  .net-theme.net-storefront .store-page-heading .store-page-heading-copy h1 { margin-top: 0; }
   .net-theme.net-storefront .max-padd-container { padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right)); }
 
   /* A centred wordmark, accessible menu and full-width search. */
@@ -126,7 +128,6 @@
 
   /* Product: larger imagery and choices; purchase stays in thumb reach. */
   .net-storefront .net-product-detail { padding-top: 12px; }
-  .net-storefront .product-detail-breadcrumb { display: block; margin-bottom: 12px; font-size: 11px; }
   .net-storefront .product-detail-overview { gap: 22px; }
   .net-storefront .product-detail-gallery-layout { gap: 12px; }
   .net-storefront .product-detail-thumbnails { gap: 8px; padding: 3px; }
@@ -137,14 +138,12 @@
   .net-storefront .product-detail-price { margin-top: 12px; font-size: 24px; }
   .net-storefront .product-detail-heading .product-detail-review-link { min-height: 44px; font-size: 13px; }
   .net-storefront .product-detail-buying .product-detail-size-options { margin-top: 18px; padding-top: 18px; }
-  .net-storefront .product-detail-size-options > div:first-child { flex-wrap: wrap; gap: 8px; }
+  .net-storefront .product-detail-size-options > div:first-child { flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
   .net-storefront .product-detail-stock { font-size: 12px; }
   .net-storefront .product-detail-size-options button { min-width: 76px; min-height: 48px; padding: 12px 16px; font-size: 14px; }
-  .net-storefront .product-detail-info .product-detail-purchase-actions { margin-top: 18px; }
-  .net-storefront .product-detail-purchase-actions > :is(div, button) { height: 48px; min-height: 48px; }
-  .net-storefront .product-detail-purchase-actions > div > button { width: 44px; }
-  .net-storefront .product-detail-purchase-actions > button { font-size: 12px; }
-  .net-storefront .product-detail-summary { margin-top: 26px; }
+  .net-storefront .product-detail-info .product-detail-purchase-actions { display: none; }
+  .net-storefront .product-detail-cart-note { margin-top: 12px; line-height: 1.6; }
+  .net-storefront .product-detail-summary { margin-top: 20px; padding-top: 8px; border-top: 1px solid var(--net-line); }
   .net-storefront .product-detail-tab-list { overflow-x: auto; }
   .net-storefront .net-product-detail .product-detail-tab-list > button { min-height: 50px; flex-shrink: 0; font-size: 14px; }
   .net-storefront .product-detail-assurances { padding: 16px; border-radius: 12px; background: #f8f8f6; font-size: 12px; }
@@ -230,6 +229,4 @@
   .mobile-product-dock { grid-template-columns: minmax(80px, 1fr) minmax(0, 1.3fr) 44px; gap: 6px; padding-inline: 12px; }
   .mobile-product-dock-add { padding-inline: 6px; font-size: 12px; }
   .mobile-product-dock-price strong { font-size: 13px; }
-  .net-storefront .product-detail-info .product-detail-purchase-actions { flex-wrap: wrap; }
-  .net-storefront .product-detail-purchase-actions > button { flex-basis: 100%; }
 }

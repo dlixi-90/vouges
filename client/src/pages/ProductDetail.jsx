@@ -189,9 +189,10 @@ const ProductDetail = () => {
     setQuantity(1);
   };
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = async (requestedQuantity = safeQuantity) => {
+    const quantityToAdd = Math.min(requestedQuantity, maxQuantity);
     if (!requireCartLogin()) return;
-    if (addStatus === "adding" || !selectedSizeAvailable || safeQuantity < 1)
+    if (addStatus === "adding" || !selectedSizeAvailable || quantityToAdd < 1)
       return;
 
     setAddStatus("adding");
@@ -210,7 +211,7 @@ const ProductDetail = () => {
     const result = await addToCart(
       product._id,
       size,
-      safeQuantity,
+      quantityToAdd,
       showAddedFeedback,
     );
 
@@ -444,7 +445,7 @@ const ProductDetail = () => {
 
               <button
                 type="button"
-                onClick={handleAddToCart}
+                onClick={() => handleAddToCart()}
                 disabled={purchaseDisabled}
                 className={`h-12 flex-1 rounded-lg px-5 text-xs font-medium uppercase tracking-[0.12em] text-white transition disabled:cursor-not-allowed disabled:opacity-45 ${
                   addStatus === "added"
@@ -505,7 +506,7 @@ const ProductDetail = () => {
         <button type="button" className="mobile-product-dock-price" aria-label="Xem và chọn dung tích" onClick={() => {
           document.querySelector(".product-detail-size-options")?.scrollIntoView({ block: "center", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
         }}><span>{size || "Chọn dung tích"}<ChevronDown size={13} aria-hidden="true" /></span><strong>{formatVnd(size ? product.price?.[size] : 0, currency)}</strong></button>
-        <button type="button" className="mobile-product-dock-add" disabled={purchaseDisabled} onClick={handleAddToCart}>
+        <button type="button" className="mobile-product-dock-add" disabled={purchaseDisabled} onClick={() => handleAddToCart(1)}>
           {addStatus === "added" && <Check size={16} aria-hidden="true" />}{purchaseLabel}
         </button>
         <Link to="/cart" className="mobile-product-dock-cart" data-cart-target aria-label={`Giỏ hàng, ${getCartCount()} sản phẩm`}><ShoppingBag size={22} aria-hidden="true" />{getCartCount() > 0 && <span>{getCartCount() > 99 ? "99+" : getCartCount()}</span>}</Link>
