@@ -19,8 +19,6 @@ import {readLibraryInput,readLibraryVersion,checkLibraryVersion,renameLibraryPro
 import {libraryNamePattern,libraryNameKey,activeLibraryProducts,splitLibraryGroups} from "../services/libraryRelations.js";
 
 const termCollator = new Intl.Collator("vi", { sensitivity: "base", numeric: true });
-const defaultProductFind = Product.find;
-const defaultTermFind = FragranceTerm.find;
 const fail = (message, statusCode = 400) => { throw Object.assign(new Error(message), { statusCode }); };
 const pagination = (query) => {
   const page = Number(query.page || 1), pageSize = Number(query.pageSize || 25);
@@ -89,13 +87,10 @@ export const catalogProducts = catalogAction(async (req,res) => {
   if(req.query.quality==="issues")filter["qualityIssues.0"]={$exists:true};
   const sort={ [({price:"title",brand:"brand",newest:"createdAt"})[req.query.sort]||"title"]:req.query.sort==="newest"?-1:1,_id:1};
   const projection={...Object.fromEntries("title brand category concentration gender origin price sizes inStockBySize stockBySize inventoryMode isPublished inStock catalogScope qualityIssues updatedAt".split(" ").map(field=>[field,1])),images:{$slice:1}};
-  const loadCatalogProducts=()=>Promise.all([
+  const [products,total,[brands,concentrations,categories]]=await Promise.all([
     Product.find(filter).select(projection).sort(sort).skip((page-1)*pageSize).limit(pageSize).lean(),
     Product.countDocuments(filter), catalogSnapshot("owner-filter-options",300000,()=>Promise.all([Product.distinct("brand",{isDeleted:{$ne:true}}),Product.distinct("concentration",{isDeleted:{$ne:true}}),Product.distinct("category",{isDeleted:{$ne:true}})])),
   ]);
-  const [products,total,[brands,concentrations,categories]]=Product.find===defaultProductFind
-    ?await catalogSnapshot(`owner-products:${JSON.stringify(req.query)}`,60000,loadCatalogProducts)
-    :await loadCatalogProducts();
   res.set("Cache-Control","private, no-store");res.json({success:true,products,total,page,pageSize,totalPages:Math.max(1,Math.ceil(total/pageSize)),filters:{brands:brands.filter(Boolean).sort(),concentrations:concentrations.filter(Boolean).sort(),categories:categories.filter(Boolean).sort()}});
 });
 
@@ -184,22 +179,16 @@ export const libraryTerms = catalogAction(async(req,res)=>{
     filter.$or=[{name:q},{key:q},{name:foldedRegex},{key:foldedRegex}];
   }
   if(req.query.status)filter.contentStatus=req.query.status;
-  const loadTermsPayload=async()=>{
-    const termQuery=FragranceTerm.find(filter);
-    if(req.query.includeCounts==="false")termQuery.select("kind name image contentStatus sourceUrl updatedAt");else if(kind==="brand")termQuery.select("kind name image updatedAt");else termQuery.select("kind name image contentStatus updatedAt");
-    const [terms,total]=await Promise.all([
-      termQuery.sort({name:1,_id:1}).skip((page-1)*pageSize).limit(pageSize).lean(),
-      FragranceTerm.countDocuments(filter),
-    ]);
-    let listedTerms=req.query.includeCounts==="false"?terms.map(term=>({...term,productCount:null})):await catalogSnapshot(`library-counts:${terms.map(term=>term._id).join(":")}`,300000,()=>liveLibraryCounts(terms));
-    if(req.query.includeCounts==="false"&&pageSize>=500){
-      listedTerms=listedTerms.toSorted((a,b)=>termCollator.compare(a.name||"",b.name||""));
-    }
-    return {terms:listedTerms,total};
-  };
-  const {terms:listedTerms,total}=req.query.includeCounts==="false"&&FragranceTerm.find===defaultTermFind
-    ?await catalogSnapshot(`owner-terms-nocount:${kind}:${req.query.q||""}:${req.query.status||""}:${page}:${pageSize}`,300000,loadTermsPayload)
-    :await loadTermsPayload();
+  const termQuery=FragranceTerm.find(filter);
+  if(req.query.includeCounts==="false")termQuery.select("kind name image contentStatus sourceUrl updatedAt");else if(kind==="brand")termQuery.select("kind name image updatedAt");else termQuery.select("kind name image contentStatus updatedAt");
+  const [terms,total]=await Promise.all([
+    termQuery.sort({name:1,_id:1}).skip((page-1)*pageSize).limit(pageSize).lean(),
+    FragranceTerm.countDocuments(filter),
+  ]);
+  let listedTerms=req.query.includeCounts==="false"?terms.map(term=>({...term,productCount:null})):await catalogSnapshot(`library-counts:${terms.map(term=>term._id).join(":")}`,300000,()=>liveLibraryCounts(terms));
+  if(req.query.includeCounts==="false"&&pageSize>=500){
+    listedTerms=listedTerms.toSorted((a,b)=>termCollator.compare(a.name||"",b.name||""));
+  }
   res.set("Cache-Control","private, no-store");
   res.json({success:true,terms:listedTerms,total,page,pageSize,totalPages:Math.max(1,Math.ceil(total/pageSize))});
 });

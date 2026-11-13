@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useId, useState } from "react";
+import { lazy, Suspense, useId, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Save } from "lucide-react";
 import toast from "react-hot-toast";
@@ -25,7 +25,7 @@ export default function PerfumeEditor() {
 }
 
 function PerfumeForm({ product, reload }) {
-  const { axios, getToken, fetchProducts, storeResources } = useAppContext();
+  const { axios, getToken, fetchProducts } = useAppContext();
   const [params] = useSearchParams();
   const formId = useId();
   const [draft, setDraft] = useState(() => ({ ...structuredClone(product), fragrance: editableFragrance(structuredClone(product.fragrance || {})) }));
@@ -38,16 +38,6 @@ function PerfumeForm({ product, reload }) {
   const groupLibrary = useCatalog(tab === "fragrance" ? GROUP_OPTIONS_PATH : null);
   const noteLibrary = useCatalog(tab === "fragrance" ? NOTE_OPTIONS_PATH : null);
   const accordLibrary = useCatalog(tab === "fragrance" ? ACCORD_OPTIONS_PATH : null);
-  useEffect(() => {
-    const idle = window.requestIdleCallback || (callback => window.setTimeout(callback, 180));
-    const cancel = window.cancelIdleCallback || window.clearTimeout;
-    const handle = idle(() => {
-      for (const path of [GROUP_OPTIONS_PATH, NOTE_OPTIONS_PATH, ACCORD_OPTIONS_PATH]) {
-        void storeResources.loadCatalog(path).catch(() => {});
-      }
-    });
-    return () => cancel(handle);
-  }, [storeResources]);
   const update = (field, value) => setDraft(current => ({ ...current, [field]: value }));
   const fragranceField = (field, value) => setDraft(current => ({ ...current, fragrance: { ...current.fragrance, [field]: value } }));
   const variantField = (field, size, value) => setDraft(current => ({ ...current, [field]: { ...current[field], [size]: value } }));

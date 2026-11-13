@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {useSearchParams} from "react-router-dom";
 import {ArrowUpRight,Download,Search,Plus,Package,X} from "lucide-react";
 import {CatalogPage,CatalogState,Pager,RefreshButton,Badge,issueLabels,useCatalog,OwnerLink} from "../../components/owner/CatalogUI";
@@ -6,40 +6,18 @@ import ProductImage from "../../components/ProductImage";
 import {formatVnd} from "../../utils/money";
 import usePaginationScroll from "../../hooks/usePaginationScroll";
 import VariantStockSummary from "../../components/owner/VariantStockSummary";
-import {useAppContext} from "../../context/AppContext";
 export default function PerfumeProducts(){
-  const {storeResources}=useAppContext();
   const [initial]=useSearchParams();
-  const [searchInput,setSearchInput]=useState(initial.get("q")||"");
-  const isComposingRef=useRef(false);
   const [filters,setFilters]=useState({q:initial.get("q")||"",brand:"",concentration:"",category:"",stock:initial.get("stock")||"",quality:initial.get("quality")==="issues"?"issues":""});
   const [page,setPage]=useState(1),[pageSize,setPageSize]=useState(25);
   const urlQ = initial.get("q") || "";
   useEffect(() => {
     if (urlQ) {
-      setSearchInput(urlQ);
       setFilters(current => current.q === urlQ ? current : ({ ...current, q: urlQ }));
     }
   }, [urlQ]);
-  useEffect(() => {
-    if (isComposingRef.current) return;
-    const timer = window.setTimeout(() => {
-      setFilters(current => current.q === searchInput ? current : ({ ...current, q: searchInput }));
-      setPage(1);
-    }, 250);
-    return () => window.clearTimeout(timer);
-  }, [searchInput]);
   const params=new URLSearchParams({page:String(page),pageSize:String(pageSize),...Object.fromEntries(Object.entries(filters).filter(([,value])=>value!==""))});
   const query=useCatalog(`/products?${params}`);const rows=query.data?.products||[];const lists=query.data?.filters||{};
-  useEffect(() => {
-    const totalPages = Number(query.data?.totalPages || 1);
-    if (query.loading || page >= totalPages) return;
-    const nextParams = new URLSearchParams({page:String(page+1),pageSize:String(pageSize),...Object.fromEntries(Object.entries(filters).filter(([,value])=>value!==""))});
-    const idle = window.requestIdleCallback || (callback => window.setTimeout(callback, 150));
-    const cancel = window.cancelIdleCallback || window.clearTimeout;
-    const handle = idle(() => { void storeResources.loadCatalog(`/products?${nextParams}`).catch(() => {}); });
-    return () => cancel(handle);
-  }, [filters, page, pageSize, query.loading, query.data?.totalPages, storeResources]);
   const {listRef,changePage}=usePaginationScroll({page,ready:!query.loading&&query.data?.page===page,onPageChange:setPage});
   const change=(key,value)=>{setFilters(current=>({...current,[key]:value}));setPage(1);};
   const exportPage=()=>{
@@ -48,7 +26,7 @@ export default function PerfumeProducts(){
     const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));const link=document.createElement("a");link.href=url;link.download=`velours-catalog-trang-${page}.csv`;link.click();URL.revokeObjectURL(url);
   };
   return <CatalogPage title="Sản phẩm" actions={<><RefreshButton onClick={query.reload} disabled={query.loading}/><OwnerLink className="perfume-button primary" to="/owner/add-product"><Plus size={16}/>Thêm sản phẩm</OwnerLink></>}>
-    <div className="perfume-filter-bar"><label className="perfume-search"><Search size={17} aria-hidden="true" /><input type="text" autoComplete="off" autoCorrect="off" spellCheck="false" aria-label="Tìm sản phẩm hoặc thương hiệu" placeholder="Tên nước hoa, thương hiệu…" value={searchInput} onCompositionStart={()=>{isComposingRef.current=true;}} onCompositionEnd={event=>{isComposingRef.current=false;setSearchInput(event.currentTarget.value);}} onChange={event=>setSearchInput(event.target.value)}/>{searchInput&&<button type="button" onClick={()=>{setSearchInput("");change("q","");}} aria-label="Xóa từ khóa"><X size={15}/></button>}</label><select aria-label="Thương hiệu" value={filters.brand} onChange={event=>change("brand",event.target.value)}><option value="">Tất cả thương hiệu</option>{lists.brands?.map(value=><option key={value}>{value}</option>)}</select><select aria-label="Nồng độ" value={filters.concentration} onChange={event=>change("concentration",event.target.value)}><option value="">Tất cả nồng độ</option>{lists.concentrations?.map(value=><option key={value}>{value}</option>)}</select><select aria-label="Trạng thái hàng" value={filters.stock} onChange={event=>change("stock",event.target.value)}><option value="">Còn / hết hàng</option><option value="true">Còn hàng</option><option value="false">Hết hàng</option></select><select aria-label="Chất lượng" value={filters.quality} onChange={event=>change("quality",event.target.value)}><option value="">Mọi hồ sơ</option><option value="issues">Cần kiểm tra</option></select></div>
+    <div className="perfume-filter-bar"><label className="perfume-search"><Search size={17} aria-hidden="true" /><input type="text" autoComplete="off" autoCorrect="off" spellCheck="false" aria-label="Tìm sản phẩm hoặc thương hiệu" placeholder="Tên nước hoa, thương hiệu…" value={filters.q} onChange={event=>change("q",event.target.value)}/>{filters.q&&<button type="button" onClick={()=>change("q","")} aria-label="Xóa từ khóa"><X size={15}/></button>}</label><select aria-label="Thương hiệu" value={filters.brand} onChange={event=>change("brand",event.target.value)}><option value="">Tất cả thương hiệu</option>{lists.brands?.map(value=><option key={value}>{value}</option>)}</select><select aria-label="Nồng độ" value={filters.concentration} onChange={event=>change("concentration",event.target.value)}><option value="">Tất cả nồng độ</option>{lists.concentrations?.map(value=><option key={value}>{value}</option>)}</select><select aria-label="Trạng thái hàng" value={filters.stock} onChange={event=>change("stock",event.target.value)}><option value="">Còn / hết hàng</option><option value="true">Còn hàng</option><option value="false">Hết hàng</option></select><select aria-label="Chất lượng" value={filters.quality} onChange={event=>change("quality",event.target.value)}><option value="">Mọi hồ sơ</option><option value="issues">Cần kiểm tra</option></select></div>
     <CatalogState {...query}/>
     <section className="perfume-table-panel"><div className="perfume-table-toolbar"><span><strong>{query.data?.total?.toLocaleString("vi-VN")??"—"}</strong> sản phẩm</span><div className="perfume-toolbar-buttons"><button type="button" className="perfume-button" onClick={exportPage} disabled={!rows.length}><Download size={15}/>Xuất trang</button><select aria-label="Số dòng mỗi trang" value={pageSize} onChange={event=>{setPageSize(Number(event.target.value));setPage(1);}}>{[25,50,100].map(size=><option key={size} value={size}>{size} dòng</option>)}</select></div></div>
     <div className="perfume-table-scroll"><table ref={listRef} tabIndex={-1} className="perfume-table pagination-list-start"><thead><tr><th>Sản phẩm</th><th>Hãng / Nồng độ</th><th>Giá / Dung tích</th><th>Trạng thái</th><th>Hồ sơ</th><th><span className="sr-only">Thao tác</span></th></tr></thead><tbody>{rows.map(product=>{

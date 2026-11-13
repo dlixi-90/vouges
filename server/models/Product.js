@@ -39,8 +39,6 @@ productSchema.index({ createdAt: -1, _id: -1 });
 // Owner catalog pages sort alphabetically and stop after one page; this avoids
 // sorting every product before returning the first 25-100 rows.
 productSchema.index({ title: 1, _id: 1 });
-productSchema.index({ isDeleted: 1, title: 1, _id: 1 });
-productSchema.index({ isDeleted: 1, createdAt: -1, _id: -1 });
 
 const Product = mongoose.model("Product", productSchema);
 

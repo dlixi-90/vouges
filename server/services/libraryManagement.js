@@ -1,9 +1,6 @@
 import Product from '../models/Product.js';
 import {sanitizeArticle,articleToPlainText,isArticleUrl,LIBRARY_ARTICLE_LIMITS} from '../../client/src/utils/productArticle.js';
 import {normalizeLibraryName,libraryNameKey,libraryNamePattern,activeLibraryProducts,libraryProductRelation,renamedLibraryFields} from './libraryRelations.js';
-import {catalogSnapshot} from './storefrontCatalog.js';
-
-const defaultAggregate=Product.aggregate;
 export const rejectLibrary=(message,statusCode=400)=>{throw Object.assign(new Error(message),{statusCode});};
 export const validLibraryKind=kind=>['brand','group','accord','note'].includes(kind);
 export function readLibraryInput(body,kind,current){
@@ -37,13 +34,10 @@ export async function liveLibraryCounts(terms){
  if(!terms.length)return [];
  const brandsOnly=terms.every(term=>term.kind==='brand');
  if(brandsOnly){
-  const loadBrandCounts=()=>Product.aggregate([
+  const brandCounts=await Product.aggregate([
    {$match:{isDeleted:{$ne:true},brand:{$type:'string'}}},
    {$group:{_id:'$brand',count:{$sum:1}}},
   ]);
-  const brandCounts=Product.aggregate===defaultAggregate
-   ?await catalogSnapshot('owner-brand-counts',300000,loadBrandCounts)
-   :await loadBrandCounts();
   return terms.map(term=>{
    const pattern=libraryNamePattern(term.name);
    const productCount=brandCounts.reduce((total,row)=>total+(pattern.test(row._id)?row.count:0),0);
