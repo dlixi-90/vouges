@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, Minus, Plus, ShieldCheck, Star, Truck } from "lucide-react";
-import { useLocation, useParams } from "react-router-dom";
+import { Check, ChevronDown, Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck } from "lucide-react";
+import { Link, useLocation, useParams } from "react-router-dom";
 import ProductDetailTabs from "../components/ProductDetailTabs";
 import ProductFeatures from "../components/ProductFeatures";
 import RelatedProducts from "../components/RelatedProducts";
@@ -56,6 +56,7 @@ const ProductDetail = () => {
     publicCatalog,
     registerProducts,
     setSearchQuery,
+    getCartCount,
   } = useAppContext();
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -231,6 +232,11 @@ const ProductDetail = () => {
   if (!product)
     return loadError ? <div className="max-padd-container py-32" role="alert">{loadError} <button type="button" onClick={reloadDetail} className="underline">Thử lại</button></div> : <ProductDetailSkeleton />;
 
+  const purchaseDisabled = previewOnly || !selectedSizeAvailable || safeQuantity < 1 || addStatus === "adding";
+  const purchaseLabel = previewOnly ? "Đang cập nhật…" : addStatus === "adding" ? "Đang thêm…"
+    : addStatus === "added" ? "Đã thêm!" : !selectedSizeAvailable ? "Hết hàng"
+    : maxQuantity === 0 ? "Đã đủ số lượng trong giỏ" : "Thêm vào giỏ hàng";
+
   return (
     <div className="net-product-detail max-padd-container pb-14 pt-4 sm:pt-6">
       {loadError && <p role="alert">{loadError} <button type="button" onClick={reloadDetail} className="underline">Thử lại</button></p>}
@@ -284,7 +290,7 @@ const ProductDetail = () => {
                     ref={productImageRef}
                     src={image}
                     imageWidth={960}
-                    sizes="(max-width: 767px) 220px, (max-width: 1199px) 70vw, 600px"
+                    sizes="(max-width: 767px) 76vw, (max-width: 1199px) 70vw, 600px"
                     loading="eager"
                     fetchPriority="high"
                     alt={`${product.title}${sizeImage && image === sizeImage ? ` - ${size}` : ""}`}
@@ -439,12 +445,7 @@ const ProductDetail = () => {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                disabled={
-                  previewOnly ||
-                  !selectedSizeAvailable ||
-                  safeQuantity < 1 ||
-                  addStatus === "adding"
-                }
+                disabled={purchaseDisabled}
                 className={`h-12 flex-1 rounded-lg px-5 text-xs font-medium uppercase tracking-[0.12em] text-white transition disabled:cursor-not-allowed disabled:opacity-45 ${
                   addStatus === "added"
                     ? "bg-emerald-600"
@@ -453,17 +454,7 @@ const ProductDetail = () => {
               >
                 <span className="flex items-center justify-center gap-2">
                   {addStatus === "added" && <Check size={16} />}
-                  {previewOnly
-                    ? "Đang cập nhật…"
-                    : addStatus === "adding"
-                    ? "Đang thêm…"
-                    : addStatus === "added"
-                      ? "Đã thêm!"
-                      : !selectedSizeAvailable
-                        ? "Hết hàng"
-                        : maxQuantity === 0
-                          ? "Đã đủ số lượng trong giỏ"
-                          : "Thêm vào giỏ hàng"}
+                  {purchaseLabel}
                 </span>
               </button>
             </div>
@@ -510,6 +501,15 @@ const ProductDetail = () => {
       />
       <RelatedProducts product={product} productId={productId} />
       <ProductFeatures />
+      <div className="mobile-product-dock" role="region" aria-label="Mua sản phẩm">
+        <button type="button" className="mobile-product-dock-price" aria-label="Xem và chọn dung tích" onClick={() => {
+          document.querySelector(".product-detail-size-options")?.scrollIntoView({ block: "center", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+        }}><span>{size || "Chọn dung tích"}<ChevronDown size={13} aria-hidden="true" /></span><strong>{formatVnd(size ? product.price?.[size] : 0, currency)}</strong></button>
+        <button type="button" className="mobile-product-dock-add" disabled={purchaseDisabled} onClick={handleAddToCart}>
+          {addStatus === "added" && <Check size={16} aria-hidden="true" />}{purchaseLabel}
+        </button>
+        <Link to="/cart" className="mobile-product-dock-cart" data-cart-target aria-label={`Giỏ hàng, ${getCartCount()} sản phẩm`}><ShoppingBag size={22} aria-hidden="true" />{getCartCount() > 0 && <span>{getCartCount() > 99 ? "99+" : getCartCount()}</span>}</Link>
+      </div>
     </div>
   );
 };

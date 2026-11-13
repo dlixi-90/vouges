@@ -12,6 +12,7 @@ function MobileSheet({ id, title, onClose, children }) {
     const dialog = ref.current;
     const media = window.matchMedia("(max-width: 767px)");
     const overflow = document.body.style.overflow;
+    const previousFocus = document.activeElement;
     const resize = () => {
       if (media.matches) {
         if (!dialog.open) dialog.showModal();
@@ -28,6 +29,7 @@ function MobileSheet({ id, title, onClose, children }) {
       dialog.close();
       document.body.style.overflow = overflow;
       media.removeEventListener("change", resize);
+      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus({ preventScroll: true });
     };
   }, [onClose]);
 
@@ -83,14 +85,17 @@ export default function MobileNavigation({ brandDirectory, menuOpened, setMenuOp
         <div><strong>{user?.fullName || user?.firstName || "Chào mừng bạn đến với Velours!"}</strong><p>{user ? "Hương thơm riêng, đặc quyền riêng." : "Đăng nhập/ Đăng ký để mua hàng và nhận ưu đãi."}</p></div>
       </div>
       {!user && <button type="button" className="mobile-account-signin" onClick={() => { closeAccount(); openSignIn(); }}>Đăng nhập / Đăng ký</button>}
-      {user && <div className="mobile-account-links">
+      <div className="mobile-account-links">
+        {user && <>
         <Link to="/my-orders" onClick={closeAccount} {...warm("/my-orders")}><Package size={20} />Đơn hàng của tôi<ArrowUpRight size={16} /></Link>
         <Link to="/membership" onClick={closeAccount} {...warm("/membership")}><Ticket size={20} />Thành viên & mã giảm giá<ArrowUpRight size={16} /></Link>
         <button type="button" onClick={() => { closeAccount(); openUserProfile(); }}><Settings size={20} />Cài đặt tài khoản<ArrowUpRight size={16} /></button>
         {isOwner && <Link to="/owner" onClick={closeAccount}><LayoutDashboard size={20} />Quản lý cửa hàng<ArrowUpRight size={16} /></Link>}
-        <Link to="/contact" onClick={closeAccount}><UserRound size={20} />Liên hệ hỗ trợ<ArrowUpRight size={16} /></Link>
         <button type="button" onClick={() => { closeAccount(); void signOut({ redirectUrl: "/" }); }}><LogOut size={20} />Đăng xuất</button>
-      </div>}
+        </>}
+        <Link to="/contact" onClick={closeAccount}><UserRound size={20} />Liên hệ hỗ trợ<ArrowUpRight size={16} /></Link>
+        <Link to="/policies" onClick={closeAccount}><Package size={20} />Giao hàng & chính sách<ArrowUpRight size={16} /></Link>
+      </div>
     </MobileSheet>}
   </>;
 }

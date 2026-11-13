@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import "./fonts.css";
 import "./index.css";
 import "./mobile-storefront.css";
+import "./mobile-layout.css";
 import App from "./App.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AppContextProvider } from "./context/AppContext.jsx";

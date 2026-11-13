@@ -140,6 +140,16 @@ const Collection = () => {
       </section>
       <StorePageHeading title="Bộ sưu tập" className="inessa-collection-heading" breadcrumbs={collectionBreadcrumbs({ category: searchParams.get("category"), brand: routeBrand })} onBreadcrumbNavigate={() => setSearchQuery("")} />
 
+      <div className="mobile-catalog-categories" role="group" aria-label="Lọc nhanh theo giới tính">
+        {["Tất cả", "Nam", "Nữ", "Unisex"].map(gender => {
+          const active = gender === "Tất cả" ? filters.gender.length === 0 : filters.gender.includes(gender);
+          return <button key={gender} type="button" aria-pressed={active} onClick={() => {
+            setFilters(current => ({ ...current, gender: gender === "Tất cả" ? [] : [gender] }));
+            setCurrentPage(1);
+          }}>{gender === "Tất cả" ? gender : `Nước hoa ${gender.toLocaleLowerCase("vi-VN")}`}</button>;
+        })}
+      </div>
+
       <div className="collection-catalog-layout">
         <Suspense fallback={<div className="collection-filter-placeholder" aria-hidden="true" />}><CollectionFilterDrawer
           open={isFilterOpen} onClose={() => setIsFilterOpen(false)}
@@ -182,6 +192,12 @@ const Collection = () => {
               <Pagination arrowsOnly className="inessa-collection-page-arrows" label="Chuyển trang sản phẩm" page={activePage} totalPages={totalPages} onPageChange={changePage} disabled={productsLoading} />
             </div>
           </div>
+
+          {filterCount > 0 && <div className="mobile-active-filters" aria-label="Bộ lọc đang áp dụng">
+            {Object.entries(filters).flatMap(([field, values]) => values.map(value => <button type="button" key={`${field}-${value}`} onClick={() => toggleFilter(field, value)} aria-label={`Bỏ bộ lọc ${value}`}>{value}<span aria-hidden="true">×</span></button>))}
+            {isPriceFiltered && <button type="button" onClick={() => { setMinPrice(0); setMaxPrice(null); setCurrentPage(1); }} aria-label="Bỏ bộ lọc giá">{formatPrice(priceFloor)} – {formatPrice(priceLimit)}<span aria-hidden="true">×</span></button>}
+            {searchQuery && <button type="button" onClick={() => { setSearchQuery(""); setCurrentPage(1); }} aria-label="Bỏ từ khóa tìm kiếm">“{searchQuery}”<span aria-hidden="true">×</span></button>}
+          </div>}
 
           <div className="collection-loading-area">
           <LoadingStatus active={productsLoading && Boolean(collection)} label="Đang cập nhật sản phẩm…" />

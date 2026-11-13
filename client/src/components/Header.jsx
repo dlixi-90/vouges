@@ -6,7 +6,6 @@ import Navbar from "./Navbar";
 import MobileNavigation from "./MobileNavigation";
 import QuickProductSearch from "./QuickProductSearch";
 import useBrandDirectory from "../hooks/useBrandDirectory";
-import usePurchaseChatAvoidance from "../hooks/usePurchaseChatAvoidance";
 import { prefetchRoute } from "../utils/prefetchRoute";
 import { prefetchOwnerRoute } from "../utils/ownerPrefetch";
 import { emptyPerfumeFilters } from "../data/perfumeFilters";
@@ -45,7 +44,6 @@ const Header = () => {
   const chatLauncherRef = useRef(null);
   const { openSignIn } = useClerk();
   const { pathname } = useLocation();
-  const chatCoveredByPurchaseControls = usePurchaseChatAvoidance(pathname);
 
   const context = useAppContext();
   const { navigate, setSearchQuery, openCart, isCartOpen, isCartPage, user, getCartCount, isOwner, storeResources, publicCatalog } =
@@ -124,8 +122,22 @@ const Header = () => {
               </span>
             </Link>
           </div>
+          <button
+            ref={chatLauncherRef}
+            type="button"
+            hidden={isAIChatOpen}
+            onClick={toggleAIChat}
+            aria-label="Hỏi trợ lý AI"
+            aria-haspopup="dialog"
+            aria-expanded={isAIChatOpen}
+            aria-controls="vouges-ai-chat-panel"
+            className="inessa-chat-launcher"
+          >
+            <Headset size={22} strokeWidth={1.7} aria-hidden="true" />
+            <span className="inessa-chat-launcher-label" aria-hidden="true">Hỏi trợ lý AI</span>
+          </button>
           <div className="inessa-header-right">
-            <QuickProductSearch className="store-header-search" onSearch={query => {
+            <QuickProductSearch className="store-header-search" placeholder="Tìm nước hoa, thương hiệu…" onSearch={query => {
               prefetchRoute("/collection");
               void publicCatalog.browse({
                 page: 1, limit: COLLECTION_PAGE_SIZE, q: query,
@@ -226,21 +238,6 @@ const Header = () => {
       </header>
 
       <MobileNavigation brandDirectory={brandDirectory} menuOpened={menuOpened} setMenuOpened={setMenuOpened} closeMenu={closeMenu} />
-
-      <button
-        ref={chatLauncherRef}
-        type="button"
-        hidden={isAIChatOpen || chatCoveredByPurchaseControls}
-        onClick={toggleAIChat}
-        aria-label="Hỏi trợ lý AI"
-        aria-haspopup="dialog"
-        aria-expanded={isAIChatOpen}
-        aria-controls="vouges-ai-chat-panel"
-        className="inessa-chat-launcher"
-      >
-        <Headset size={22} strokeWidth={1.7} aria-hidden="true" />
-        <span className="inessa-chat-launcher-label" aria-hidden="true">Hỏi trợ lý AI</span>
-      </button>
 
       {hasOpenedAIChat && (
         <Suspense
