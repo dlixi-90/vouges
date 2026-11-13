@@ -291,7 +291,7 @@ const ProductDetail = () => {
                     ref={productImageRef}
                     src={image}
                     imageWidth={960}
-                    sizes="(max-width: 767px) 76vw, (max-width: 1199px) 70vw, 600px"
+                    sizes="(max-width: 767px) 64vw, (max-width: 1199px) 70vw, 600px"
                     loading="eager"
                     fetchPriority="high"
                     alt={`${product.title}${sizeImage && image === sizeImage ? ` - ${size}` : ""}`}
