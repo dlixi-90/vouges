@@ -80,7 +80,7 @@ export default function MobileNavigation({ brandDirectory, menuOpened, setMenuOp
     {accountOpen && <MobileSheet id="mobile-account" title="Tài khoản của bạn" onClose={closeAccount}>
       <div className={`mobile-account-identity${user ? "" : " mobile-account-identity--guest"}`}>
         <span className="mobile-account-avatar">{user?.imageUrl ? <img src={user.imageUrl} alt="" /> : <UserRound size={25} />}</span>
-        <div><strong>{user?.fullName || user?.firstName || "Chào bạn, khách của Velours"}</strong><p>{user ? "Hương thơm riêng, đặc quyền riêng." : "Đăng nhập để theo dõi đơn và nhận ưu đãi."}</p></div>
+        <div><strong>{user?.fullName || user?.firstName || "Chào mừng bạn đến với Velours!"}</strong><p>{user ? "Hương thơm riêng, đặc quyền riêng." : "Đăng nhập/ Đăng ký để mua hàng và nhận ưu đãi."}</p></div>
       </div>
       {!user && <button type="button" className="mobile-account-signin" onClick={() => { closeAccount(); openSignIn(); }}>Đăng nhập / Đăng ký</button>}
       {user && <div className="mobile-account-links">
